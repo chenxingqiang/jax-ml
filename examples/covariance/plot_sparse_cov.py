@@ -57,10 +57,12 @@ iteratively refined in the neighborhood of the maximum.
 # %%
 # Generate the data
 # -----------------
-import numpy as np
+import matplotlib.pyplot as plt
+from xlearn.covariance import GraphicalLassoCV, ledoit_wolf
+import jax.numpy as jnp
 from scipy import linalg
 
-from sklearn.datasets import make_sparse_spd_matrix
+from xlearn.datasets import make_sparse_spd_matrix
 
 n_samples = 60
 n_features = 20
@@ -70,21 +72,20 @@ prec = make_sparse_spd_matrix(
     n_features, alpha=0.98, smallest_coef=0.4, largest_coef=0.7, random_state=prng
 )
 cov = linalg.inv(prec)
-d = np.sqrt(np.diag(cov))
+d = jnp.sqrt(jnp.diag(cov))
 cov /= d
-cov /= d[:, np.newaxis]
+cov /= d[:, jnp.newaxis]
 prec *= d
-prec *= d[:, np.newaxis]
-X = prng.multivariate_normal(np.zeros(n_features), cov, size=n_samples)
+prec *= d[:, jnp.newaxis]
+X = prng.multivariate_normal(jnp.zeros(n_features), cov, size=n_samples)
 X -= X.mean(axis=0)
 X /= X.std(axis=0)
 
 # %%
 # Estimate the covariance
 # -----------------------
-from sklearn.covariance import GraphicalLassoCV, ledoit_wolf
 
-emp_cov = np.dot(X.T, X) / n_samples
+emp_cov = jnp.dot(X.T, X) / n_samples
 
 model = GraphicalLassoCV()
 model.fit(X)
@@ -97,7 +98,6 @@ lw_prec_ = linalg.inv(lw_cov_)
 # %%
 # Plot the results
 # ----------------
-import matplotlib.pyplot as plt
 
 plt.figure(figsize=(10, 6))
 plt.subplots_adjust(left=0.02, right=0.98)
@@ -131,7 +131,7 @@ vmax = 0.9 * prec_.max()
 for i, (name, this_prec) in enumerate(precs):
     ax = plt.subplot(2, 4, i + 5)
     plt.imshow(
-        np.ma.masked_equal(this_prec, 0),
+        jnp.ma.masked_equal(this_prec, 0),
         interpolation="nearest",
         vmin=-vmax,
         vmax=vmax,
@@ -150,7 +150,8 @@ for i, (name, this_prec) in enumerate(precs):
 # plot the model selection metric
 plt.figure(figsize=(4, 3))
 plt.axes([0.2, 0.15, 0.75, 0.7])
-plt.plot(model.cv_results_["alphas"], model.cv_results_["mean_test_score"], "o-")
+plt.plot(model.cv_results_["alphas"],
+         model.cv_results_["mean_test_score"], "o-")
 plt.axvline(model.alpha_, color=".5")
 plt.title("Model selection")
 plt.ylabel("Cross-validation score")

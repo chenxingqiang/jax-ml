@@ -13,12 +13,12 @@ space. Please refer to the :ref:`User Guide <nca>` for more information.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from matplotlib import cm
 from scipy.special import logsumexp
 
-from sklearn.datasets import make_classification
-from sklearn.neighbors import NeighborhoodComponentsAnalysis
+from xlearn.datasets import make_classification
+from xlearn.neighbors import NeighborhoodComponentsAnalysis
 
 # %%
 # Original points
@@ -53,12 +53,12 @@ ax.axis("equal")  # so that boundaries are displayed correctly as circles
 
 def link_thickness_i(X, i):
     diff_embedded = X[i] - X
-    dist_embedded = np.einsum("ij,ij->i", diff_embedded, diff_embedded)
-    dist_embedded[i] = np.inf
+    dist_embedded = jnp.einsum("ij,ij->i", diff_embedded, diff_embedded)
+    dist_embedded[i] = jnp.inf
 
     # compute exponentiated distances (use the log-sum-exp trick to
     # avoid numerical instabilities
-    exp_dist_embedded = np.exp(-dist_embedded - logsumexp(-dist_embedded))
+    exp_dist_embedded = jnp.exp(-dist_embedded - logsumexp(-dist_embedded))
     return exp_dist_embedded
 
 
@@ -78,7 +78,7 @@ plt.show()
 # %%
 # Learning an embedding
 # ---------------------
-# We use :class:`~sklearn.neighbors.NeighborhoodComponentsAnalysis` to learn an
+# We use :class:`~xlearn.neighbors.NeighborhoodComponentsAnalysis` to learn an
 # embedding and plot the points after the transformation. We then take the
 # embedding and find the nearest neighbors.
 
@@ -91,8 +91,10 @@ X_embedded = nca.transform(X)
 relate_point(X_embedded, i, ax2)
 
 for i in range(len(X)):
-    ax2.text(X_embedded[i, 0], X_embedded[i, 1], str(i), va="center", ha="center")
-    ax2.scatter(X_embedded[i, 0], X_embedded[i, 1], s=300, c=cm.Set1(y[[i]]), alpha=0.4)
+    ax2.text(X_embedded[i, 0], X_embedded[i, 1],
+             str(i), va="center", ha="center")
+    ax2.scatter(X_embedded[i, 0], X_embedded[i, 1],
+                s=300, c=cm.Set1(y[[i]]), alpha=0.4)
 
 ax2.set_title("NCA embedding")
 ax2.axes.get_xaxis().set_visible(False)

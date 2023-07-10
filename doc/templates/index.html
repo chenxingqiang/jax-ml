@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
-{% set title = 'scikit-learn: machine learning in Python' %}
+{% set title = 'jax-learn: machine learning in Python' %}
 
 {% if theme_link_to_live_contributing_page|tobool %}
-  {%- set contributing_link = "https://scikit-learn.org/dev/developers/contributing.html" %}
+  {%- set contributing_link = "https://jax-learn.cc/dev/developers/contributing.html" %}
   {%- set contributing_attrs = 'target="_blank" rel="noopener noreferrer"' %}
 {%- else %}
   {%- set contributing_link = pathto('developers/contributing') %}
@@ -15,11 +15,11 @@
   <div class="container sk-landing-container">
     <div class="row">
       <div class="col-md-6 mb-3 mb-md-0">
-        <h1 class="sk-landing-header text-white text-monospace">scikit-learn</h1>
+        <h1 class="sk-landing-header text-white text-monospace">jax-learn</h1>
         <h4 class="sk-landing-subheader text-white font-italic mb-3">Machine Learning in Python</h4>
         <a class="btn sk-landing-btn mb-1" href="{{ pathto('getting_started') }}" role="button">Getting Started</a>
         <a class="btn sk-landing-btn mb-1" href="{{ pathto(release_highlights) }}" role="button">Release Highlights for {{ release_highlights_version }}</a>
-        <a class="btn sk-landing-btn mb-1" href="https://github.com/scikit-learn/scikit-learn" role="button">GitHub</a>
+        <a class="btn sk-landing-btn mb-1" href="https://github.com/jax-learn/jax-learn" role="button">GitHub</a>
       </div>
       <div class="col-md-6 d-flex">
         <ul class="sk-landing-header-body">
@@ -167,15 +167,15 @@
         <h4 class="sk-landing-call-header">News</h4>
         <ul class="sk-landing-call-list list-unstyled">
         <li><strong>On-going development:</strong>
-        <a href="https://scikit-learn.org/dev/whats_new.html"><strong>What's new</strong> (Changelog)</a>
+        <a href="https://jax-learn.cc/dev/whats_new.html"><strong>What's new</strong> (Changelog)</a>
         </li>
-        <li><strong>June 2023.</strong> scikit-learn 1.3.0 is available for download (<a href="whats_new/v1.3.html#version-1-3-0">Changelog</a>).
+        <li><strong>June 2023.</strong> jax-learn 1.3.0 is available for download (<a href="whats_new/v1.3.html#version-1-3-0">Changelog</a>).
         </li>
-        <li><strong>March 2023.</strong> scikit-learn 1.2.2 is available for download (<a href="whats_new/v1.2.html#version-1-2-2">Changelog</a>).
+        <li><strong>March 2023.</strong> jax-learn 1.2.2 is available for download (<a href="whats_new/v1.2.html#version-1-2-2">Changelog</a>).
         </li>
-        <li><strong>January 2023.</strong> scikit-learn 1.2.1 is available for download (<a href="whats_new/v1.2.html#version-1-2-1">Changelog</a>).
+        <li><strong>January 2023.</strong> jax-learn 1.2.1 is available for download (<a href="whats_new/v1.2.html#version-1-2-1">Changelog</a>).
         </li>
-        <li><strong>December 2022.</strong> scikit-learn 1.2.0 is available for download (<a href="whats_new/v1.2.html#version-1-2-0">Changelog</a>).
+        <li><strong>December 2022.</strong> jax-learn 1.2.0 is available for download (<a href="whats_new/v1.2.html#version-1-2-0">Changelog</a>).
 	</li>
         </ul>
       </div>
@@ -184,31 +184,31 @@
         <ul class="sk-landing-call-list list-unstyled">
         <li><strong>About us:</strong> See <a href="about.html#people">authors</a> and <a href="{{ contributing_link }}" {{ contributing_attrs }}>contributing</a></li>
         <li><strong>More Machine Learning:</strong> Find <a href="related_projects.html">related projects</a></li>
-        <li><strong>Questions?</strong> See <a href="faq.html">FAQ</a> and <a href="https://stackoverflow.com/questions/tagged/scikit-learn">stackoverflow</a></li>
-        <li><strong>Subscribe to the</strong> <a href="https://mail.python.org/mailman/listinfo/scikit-learn">mailing list</a></li>
-        <li><strong>Gitter:</strong> <a href="https://gitter.im/scikit-learn/scikit-learn">gitter.im/scikit-learn</a></li>
-        <li><strong>Blog:</strong> <a href="https://blog.scikit-learn.org">blog.scikit-learn.org</a></li>
-        <li><strong>Logos & Branding:</strong> <a href="https://github.com/scikit-learn/scikit-learn/tree/main/doc/logos">logos and branding</a></li>
-        <li><strong>Calendar:</strong> <a href="https://blog.scikit-learn.org/calendar/">calendar</a></li>
-        <li><strong>Twitter:</strong> <a href="https://twitter.com/scikit_learn">@scikit_learn</a></li>
-        <li><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/company/scikit-learn">linkedin/scikit-learn</a></li>
-        <li><strong>YouTube:</strong> <a href="https://www.youtube.com/channel/UCJosFjYm0ZYVUARxuOZqnnw/playlists">youtube.com/scikit-learn</a></li>
-        <li><strong>Facebook:</strong> <a href="https://www.facebook.com/scikitlearnofficial/">@scikitlearnofficial</a></li>
-        <li><strong>Instagram:</strong> <a href="https://www.instagram.com/scikitlearnofficial/">@scikitlearnofficial</a></li>
-        <li><strong>TikTok:</strong> <a href="https://www.tiktok.com/@scikit.learn">@scikit.learn</a></li>
+        <li><strong>Questions?</strong> See <a href="faq.html">FAQ</a> and <a href="https://stackoverflow.com/questions/tagged/jax-learn">stackoverflow</a></li>
+        <li><strong>Subscribe to the</strong> <a href="https://mail.python.org/mailman/listinfo/jax-learn">mailing list</a></li>
+        <li><strong>Gitter:</strong> <a href="https://gitter.im/jax-learn/jax-learn">gitter.im/jax-learn</a></li>
+        <li><strong>Blog:</strong> <a href="https://blog.jax-learn.cc">blog.jax-learn.cc</a></li>
+        <li><strong>Logos & Branding:</strong> <a href="https://github.com/jax-learn/jax-learn/tree/main/doc/logos">logos and branding</a></li>
+        <li><strong>Calendar:</strong> <a href="https://blog.jax-learn.cc/calendar/">calendar</a></li>
+        <li><strong>Twitter:</strong> <a href="https://twitter.com/jax_learn">@jax_learn</a></li>
+        <li><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/company/jax-learn">linkedin/jax-learn</a></li>
+        <li><strong>YouTube:</strong> <a href="https://www.youtube.com/channel/UCJosFjYm0ZYVUARxuOZqnnw/playlists">youtube.com/jax-learn</a></li>
+        <li><strong>Facebook:</strong> <a href="https://www.facebook.com/jaxlearnofficial/">@jaxlearnofficial</a></li>
+        <li><strong>Instagram:</strong> <a href="https://www.instagram.com/jaxlearnofficial/">@jaxlearnofficial</a></li>
+        <li><strong>TikTok:</strong> <a href="https://www.tiktok.com/@jax.learn">@jax.learn</a></li>
         <li>Communication on all channels should respect <a href="https://www.python.org/psf/conduct/">PSF's code of conduct.</a></li>
         </ul>
 
-        <a class="btn btn-warning btn-big sk-donate-btn mb-1" href="https://numfocus.org/donate-to-scikit-learn">Help us, <strong>donate!</strong></a>
-        <a class="btn btn-warning btn-big mb-1" href="about.html#citing-scikit-learn"><strong>Cite us!</strong></a>
+        <a class="btn btn-warning btn-big sk-donate-btn mb-1" href="https://numfocus.org/donate-to-jax-learn">Help us, <strong>donate!</strong></a>
+        <a class="btn btn-warning btn-big mb-1" href="about.html#citing-jax-learn"><strong>Cite us!</strong></a>
       </div>
       <div class="col-md-4">
-        <h4 class="sk-landing-call-header">Who uses scikit-learn?</h4>
+        <h4 class="sk-landing-call-header">Who uses jax-learn?</h4>
         <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
             <img class="d-block mx-auto sk-who-uses-carousel-img img-thumbnail" src="_images/inria.png" alt="inria">
-            <em>"We use scikit-learn to support leading-edge basic research [...]"</em>
+            <em>"We use jax-learn to support leading-edge basic research [...]"</em>
             </div>
             <div class="carousel-item">
             <img class="d-block mx-auto sk-who-uses-carousel-img img-thumbnail" src="_images/spotify.png" alt="spotify">
@@ -216,11 +216,11 @@
             </div>
             <div class="carousel-item">
             <img class="d-block mx-auto sk-who-uses-carousel-img img-thumbnail" src="_images/change-logo.png" alt="change-logo">
-            <em>"scikit-learn's ease-of-use, performance and overall variety of algorithms implemented has proved invaluable [...]."</em>
+            <em>"jax-learn's ease-of-use, performance and overall variety of algorithms implemented has proved invaluable [...]."</em>
             </div>
             <div class="carousel-item">
             <img class="d-block mx-auto sk-who-uses-carousel-img img-thumbnail" src="_images/telecomparistech.jpg" alt="telecomparistech">
-            <em>"The great benefit of scikit-learn is its fast learning curve [...]"</em>
+            <em>"The great benefit of jax-learn is its fast learning curve [...]"</em>
             </div>
             <div class="carousel-item">
             <img class="d-block mx-auto sk-who-uses-carousel-img img-thumbnail" src="_images/aweber.png" alt="aweber">
@@ -228,7 +228,7 @@
             </div>
             <div class="carousel-item">
             <img class="d-block mx-auto sk-who-uses-carousel-img img-thumbnail" src="_images/yhat.png" alt="yhat">
-            <em>"scikit-learn makes doing advanced analysis in Python accessible to anyone."</em>
+            <em>"jax-learn makes doing advanced analysis in Python accessible to anyone."</em>
             </div>
           </div>
         </div>
@@ -244,7 +244,7 @@
         <a class="sk-footer-funding-link" href="about.html#funding">
         <div class="text-center">
                 <p class="mt-2">
-                  scikit-learn development and maintenance are financially supported by
+                  jax-learn development and maintenance are financially supported by
                 </p>
                 <img class="sk-footer-funding-logo" src="_static/inria-small.png" title="INRIA">
                 <img class="sk-footer-funding-logo" src="_static/bcg-small.png" title="Boston Consulting Group" >

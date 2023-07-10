@@ -5,7 +5,7 @@ Shrinkage covariance estimation: LedoitWolf vs OAS and max-likelihood
 
 When working with covariance estimation, the usual approach is to use
 a maximum likelihood estimator, such as the
-:class:`~sklearn.covariance.EmpiricalCovariance`. It is unbiased, i.e. it
+:class:`~xlearn.covariance.EmpiricalCovariance`. It is unbiased, i.e. it
 converges to the true (population) covariance when given many
 observations. However, it can also be beneficial to regularize it, in
 order to reduce its variance; this, in turn, introduces some bias. This
@@ -20,7 +20,12 @@ trade-off.
 # Generate sample data
 # --------------------
 
-import numpy as np
+import matplotlib.pyplot as plt
+from xlearn.model_selection import GridSearchCV
+from xlearn.covariance import OAS, LedoitWolf
+from xlearn.covariance import ShrunkCovariance, empirical_covariance, log_likelihood
+from scipy import linalg
+import jax.numpy as jnp
 
 n_features, n_samples = 40, 20
 np.random.seed(42)
@@ -29,27 +34,24 @@ base_X_test = np.random.normal(size=(n_samples, n_features))
 
 # Color samples
 coloring_matrix = np.random.normal(size=(n_features, n_features))
-X_train = np.dot(base_X_train, coloring_matrix)
-X_test = np.dot(base_X_test, coloring_matrix)
+X_train = jnp.dot(base_X_train, coloring_matrix)
+X_test = jnp.dot(base_X_test, coloring_matrix)
 
 
 # %%
 # Compute the likelihood on test data
 # -----------------------------------
 
-from scipy import linalg
-
-from sklearn.covariance import ShrunkCovariance, empirical_covariance, log_likelihood
 
 # spanning a range of possible shrinkage coefficient values
-shrinkages = np.logspace(-2, 0, 30)
+shrinkages = jnp.logspace(-2, 0, 30)
 negative_logliks = [
     -ShrunkCovariance(shrinkage=s).fit(X_train).score(X_test) for s in shrinkages
 ]
 
 # under the ground-truth model, which we would not have access to in real
 # settings
-real_cov = np.dot(coloring_matrix.T, coloring_matrix)
+real_cov = jnp.dot(coloring_matrix.T, coloring_matrix)
 emp_cov = empirical_covariance(X_train)
 loglik_real = -log_likelihood(emp_cov, linalg.inv(real_cov))
 
@@ -65,17 +67,14 @@ loglik_real = -log_likelihood(emp_cov, linalg.inv(real_cov))
 #
 # * A close formula proposed by Ledoit and Wolf to compute
 #   the asymptotically optimal regularization parameter (minimizing a MSE
-#   criterion), yielding the :class:`~sklearn.covariance.LedoitWolf`
+#   criterion), yielding the :class:`~xlearn.covariance.LedoitWolf`
 #   covariance estimate.
 #
 # * An improvement of the Ledoit-Wolf shrinkage, the
-#   :class:`~sklearn.covariance.OAS`, proposed by Chen et al. Its
+#   :class:`~xlearn.covariance.OAS`, proposed by Chen et al. Its
 #   convergence is significantly better under the assumption that the data
 #   are Gaussian, in particular for small samples.
 
-
-from sklearn.covariance import OAS, LedoitWolf
-from sklearn.model_selection import GridSearchCV
 
 # GridSearch for an optimal shrinkage coefficient
 tuned_parameters = [{"shrinkage": shrinkages}]
@@ -99,7 +98,6 @@ loglik_oa = oa.fit(X_train).score(X_test)
 # different values of the shrinkage parameter. We also show the choices by
 # cross-validation, or with the LedoitWolf and OAS estimates.
 
-import matplotlib.pyplot as plt
 
 fig = plt.figure()
 plt.title("Regularized covariance: likelihood and shrinkage coefficient")
@@ -108,13 +106,14 @@ plt.ylabel("Error: negative log-likelihood on test data")
 # range shrinkage curve
 plt.loglog(shrinkages, negative_logliks, label="Negative log-likelihood")
 
-plt.plot(plt.xlim(), 2 * [loglik_real], "--r", label="Real covariance likelihood")
+plt.plot(plt.xlim(), 2 * [loglik_real], "--r",
+         label="Real covariance likelihood")
 
 # adjust view
-lik_max = np.amax(negative_logliks)
-lik_min = np.amin(negative_logliks)
-ymin = lik_min - 6.0 * np.log((plt.ylim()[1] - plt.ylim()[0]))
-ymax = lik_max + 10.0 * np.log(lik_max - lik_min)
+lik_max = jnp.amax(negative_logliks)
+lik_min = jnp.amin(negative_logliks)
+ymin = lik_min - 6.0 * jnp.log((plt.ylim()[1] - plt.ylim()[0]))
+ymax = lik_max + 10.0 * jnp.log(lik_max - lik_min)
 xmin = shrinkages[0]
 xmax = shrinkages[-1]
 # LW likelihood

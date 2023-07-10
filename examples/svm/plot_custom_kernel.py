@@ -9,10 +9,10 @@ plot the decision surface and the support vectors.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets, svm
-from sklearn.inspection import DecisionBoundaryDisplay
+from xlearn import datasets, svm
+from xlearn.inspection import DecisionBoundaryDisplay
 
 # import some data to play with
 iris = datasets.load_iris()
@@ -29,8 +29,8 @@ def my_kernel(X, Y):
     k(X, Y) = X  (    ) Y.T
                  (0  1)
     """
-    M = np.array([[2, 0], [0, 1.0]])
-    return np.dot(np.dot(X, M), Y.T)
+    M = jnp.array([[2, 0], [0, 1.0]])
+    return jnp.dot(jnp.dot(X, M), Y.T)
 
 
 h = 0.02  # step size in the mesh

@@ -17,12 +17,12 @@ from time import time
 import matplotlib.pyplot as plt
 from scipy.stats import loguniform
 
-from sklearn.datasets import fetch_lfw_people
-from sklearn.decomposition import PCA
-from sklearn.metrics import ConfusionMatrixDisplay, classification_report
-from sklearn.model_selection import RandomizedSearchCV, train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
+from xlearn.datasets import fetch_lfw_people
+from xlearn.decomposition import PCA
+from xlearn.metrics import ConfusionMatrixDisplay, classification_report
+from xlearn.model_selection import RandomizedSearchCV, train_test_split
+from xlearn.preprocessing import StandardScaler
+from xlearn.svm import SVC
 
 # %%
 # Download the data, if not already on disk and load it as numpy arrays
@@ -66,10 +66,12 @@ X_test = scaler.transform(X_test)
 n_components = 150
 
 print(
-    "Extracting the top %d eigenfaces from %d faces" % (n_components, X_train.shape[0])
+    "Extracting the top %d eigenfaces from %d faces" % (
+        n_components, X_train.shape[0])
 )
 t0 = time()
-pca = PCA(n_components=n_components, svd_solver="randomized", whiten=True).fit(X_train)
+pca = PCA(n_components=n_components,
+          svd_solver="randomized", whiten=True).fit(X_train)
 print("done in %0.3fs" % (time() - t0))
 
 eigenfaces = pca.components_.reshape((n_components, h, w))
@@ -157,5 +159,5 @@ plt.show()
 # %%
 # Face recognition problem would be much more effectively solved by training
 # convolutional neural networks but this family of models is outside of the scope of
-# the scikit-learn library. Interested readers should instead try to use pytorch or
+# the jax-learn library. Interested readers should instead try to use pytorch or
 # tensorflow to implement such models.

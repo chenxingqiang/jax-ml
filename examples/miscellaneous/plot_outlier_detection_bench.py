@@ -11,7 +11,7 @@ is assessed in an outlier detection context:
 1. The algorithms are trained on the whole dataset which is assumed to
 contain outliers.
 
-2. The ROC curve from :class:`~sklearn.metrics.RocCurveDisplay` is computed
+2. The ROC curve from :class:`~xlearn.metrics.RocCurveDisplay` is computed
 on the same dataset using the knowledge of the labels.
 
 """
@@ -19,6 +19,15 @@ on the same dataset using the knowledge of the labels.
 # Author: Pharuj Rajborirug <pharuj.ra@kmitl.ac.th>
 # License: BSD 3 clause
 
+from xlearn.metrics import RocCurveDisplay
+import matplotlib.pyplot as plt
+import math
+from xlearn.neighbors import LocalOutlierFactor
+from xlearn.ensemble import IsolationForest
+from xlearn.preprocessing import LabelBinarizer
+from xlearn.datasets import fetch_covtype, fetch_kddcup99, fetch_openml
+import pandas as pd
+import jax.numpy as jnp
 print(__doc__)
 
 # %%
@@ -26,16 +35,11 @@ print(__doc__)
 # ------------------------------------
 #
 # The example uses real-world datasets available in
-# :class:`sklearn.datasets` and the sample size of some datasets is reduced
+# :class:`xlearn.datasets` and the sample size of some datasets is reduced
 # to speed up computation. After the data preprocessing, the datasets' targets
 # will have two classes, 0 representing inliers and 1 representing outliers.
 # The `preprocess_dataset` function returns data and target.
 
-import numpy as np
-import pandas as pd
-
-from sklearn.datasets import fetch_covtype, fetch_kddcup99, fetch_openml
-from sklearn.preprocessing import LabelBinarizer
 
 rng = np.random.RandomState(42)
 
@@ -44,7 +48,8 @@ def preprocess_dataset(dataset_name):
     # loading and vectorization
     print(f"Loading {dataset_name} data")
     if dataset_name in ["http", "smtp", "SA", "SF"]:
-        dataset = fetch_kddcup99(subset=dataset_name, percent10=True, random_state=rng)
+        dataset = fetch_kddcup99(
+            subset=dataset_name, percent10=True, random_state=rng)
         X = dataset.data
         y = dataset.target
         lb = LabelBinarizer()
@@ -54,7 +59,7 @@ def preprocess_dataset(dataset_name):
             X = X[idx]  # reduce the sample size
             y = y[idx]
             x1 = lb.fit_transform(X[:, 1].astype(str))
-            X = np.c_[X[:, :1], x1, X[:, 2:]]
+            X = jnp.c_[X[:, :1], x1, X[:, 2:]]
         elif dataset_name == "SA":
             idx = rng.choice(X.shape[0], int(X.shape[0] * 0.1), replace=False)
             X = X[idx]  # reduce the sample size
@@ -62,7 +67,7 @@ def preprocess_dataset(dataset_name):
             x1 = lb.fit_transform(X[:, 1].astype(str))
             x2 = lb.fit_transform(X[:, 2].astype(str))
             x3 = lb.fit_transform(X[:, 3].astype(str))
-            X = np.c_[X[:, :1], x1, x2, x3, X[:, 4:]]
+            X = jnp.c_[X[:, :1], x1, x2, x3, X[:, 4:]]
         y = (y != b"normal.").astype(int)
     if dataset_name == "forestcover":
         dataset = fetch_covtype()
@@ -98,8 +103,8 @@ def preprocess_dataset(dataset_name):
             idx = rng.choice(y_mal.shape[0], 39, replace=False)
             X_mal2 = X_mal[idx]
             y_mal2 = y_mal[idx]
-            X = np.concatenate((X_ben, X_mal2), axis=0)
-            y = np.concatenate((y_ben, y_mal2), axis=0)
+            X = jnp.concatenate((X_ben, X_mal2), axis=0)
+            y = jnp.concatenate((y_ben, y_mal2), axis=0)
         if dataset_name == "cardiotocography":
             s = y == "3"
             y = s.astype(int)
@@ -112,14 +117,10 @@ def preprocess_dataset(dataset_name):
 # Define an outlier prediction function
 # -------------------------------------
 # There is no particular reason to choose algorithms
-# :class:`~sklearn.neighbors.LocalOutlierFactor` and
-# :class:`~sklearn.ensemble.IsolationForest`. The goal is to show that
+# :class:`~xlearn.neighbors.LocalOutlierFactor` and
+# :class:`~xlearn.ensemble.IsolationForest`. The goal is to show that
 # different algorithm performs well on different datasets. The following
 # `compute_prediction` function returns average outlier score of X.
-
-
-from sklearn.ensemble import IsolationForest
-from sklearn.neighbors import LocalOutlierFactor
 
 
 def compute_prediction(X, model_name):
@@ -145,12 +146,6 @@ def compute_prediction(X, model_name):
 # of outliers and inliers.
 
 
-import math
-
-import matplotlib.pyplot as plt
-
-from sklearn.metrics import RocCurveDisplay
-
 datasets_name = [
     "http",
     "smtp",
@@ -173,7 +168,8 @@ linewidth = 1
 pos_label = 0  # mean 0 belongs to positive class
 rows = math.ceil(len(datasets_name) / cols)
 
-fig, axs = plt.subplots(rows, cols, figsize=(10, rows * 3), sharex=True, sharey=True)
+fig, axs = plt.subplots(rows, cols, figsize=(
+    10, rows * 3), sharex=True, sharey=True)
 
 for i, dataset_name in enumerate(datasets_name):
     (X, y) = preprocess_dataset(dataset_name=dataset_name)

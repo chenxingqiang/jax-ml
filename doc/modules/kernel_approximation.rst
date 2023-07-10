@@ -10,7 +10,7 @@ The following feature functions perform non-linear transformations of the
 input, which can serve as a basis for linear classification or other
 algorithms.
 
-.. currentmodule:: sklearn.linear_model
+.. currentmodule:: xlearn.linear_model
 
 The advantage of using approximate explicit feature maps compared to the
 `kernel trick <https://en.wikipedia.org/wiki/Kernel_trick>`_,
@@ -29,7 +29,7 @@ is advisable to compare results against exact kernel methods when possible.
 
    :ref:`polynomial_regression` for an exact polynomial transformation.
 
-.. currentmodule:: sklearn.kernel_approximation
+.. currentmodule:: xlearn.kernel_approximation
 
 .. _nystroem_kernel_approx:
 
@@ -53,8 +53,8 @@ function kernel, also known as *Random Kitchen Sinks* [RR2007]_. This
 transformation can be used to explicitly model a kernel map, prior to applying
 a linear algorithm, for example a linear SVM::
 
-    >>> from sklearn.kernel_approximation import RBFSampler
-    >>> from sklearn.linear_model import SGDClassifier
+    >>> from xlearn.kernel_approximation import RBFSampler
+    >>> from xlearn.linear_model import SGDClassifier
     >>> X = [[0, 0], [1, 1], [1, 0], [0, 1]]
     >>> y = [0, 0, 1, 1]
     >>> rbf_feature = RBFSampler(gamma=1, random_state=1)
@@ -108,7 +108,7 @@ The additive chi squared kernel as used here is given by
 
         k(x, y) = \sum_i \frac{2x_iy_i}{x_i+y_i}
 
-This is not exactly the same as :func:`sklearn.metrics.additive_chi2_kernel`.
+This is not exactly the same as :func:`xlearn.metrics.additive_chi2_kernel`.
 The authors of [VZ2010]_ prefer the version above as it is always positive
 definite.
 Since the kernel is additive, it is possible to treat all components

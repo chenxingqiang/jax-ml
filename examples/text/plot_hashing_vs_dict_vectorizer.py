@@ -7,15 +7,15 @@ In this example we illustrate text vectorization, which is the process of
 representing non-numerical input data (such as dictionaries or text documents)
 as vectors of real numbers.
 
-We first compare :func:`~sklearn.feature_extraction.FeatureHasher` and
-:func:`~sklearn.feature_extraction.DictVectorizer` by using both methods to
+We first compare :func:`~xlearn.feature_extraction.FeatureHasher` and
+:func:`~xlearn.feature_extraction.DictVectorizer` by using both methods to
 vectorize text documents that are preprocessed (tokenized) with the help of a
 custom Python function.
 
 Later we introduce and analyze the text-specific vectorizers
-:func:`~sklearn.feature_extraction.text.HashingVectorizer`,
-:func:`~sklearn.feature_extraction.text.CountVectorizer` and
-:func:`~sklearn.feature_extraction.text.TfidfVectorizer` that handle both the
+:func:`~xlearn.feature_extraction.text.HashingVectorizer`,
+:func:`~xlearn.feature_extraction.text.CountVectorizer` and
+:func:`~xlearn.feature_extraction.text.TfidfVectorizer` that handle both the
 tokenization and the assembling of the feature matrix within a single class.
 
 The objective of the example is to demonstrate the usage of text vectorization
@@ -40,7 +40,17 @@ learning on text documents.
 # one for testing. For the sake of simplicity and reducing the computational
 # cost, we select a subset of 7 topics and use the training set only.
 
-from sklearn.datasets import fetch_20newsgroups
+from xlearn.feature_extraction.text import TfidfVectorizer
+from xlearn.feature_extraction.text import HashingVectorizer
+from xlearn.feature_extraction.text import CountVectorizer
+import matplotlib.pyplot as plt
+from xlearn.feature_extraction import FeatureHasher
+import jax.numpy as jnp
+from xlearn.feature_extraction import DictVectorizer
+from time import time
+from collections import defaultdict
+import re
+from xlearn.datasets import fetch_20newsgroups
 
 categories = [
     "alt.atheism",
@@ -53,7 +63,8 @@ categories = [
 ]
 
 print("Loading 20 newsgroups training data")
-raw_data, _ = fetch_20newsgroups(subset="train", categories=categories, return_X_y=True)
+raw_data, _ = fetch_20newsgroups(
+    subset="train", categories=categories, return_X_y=True)
 data_size_mb = sum(len(s.encode("utf-8")) for s in raw_data) / 1e6
 print(f"{len(raw_data)} documents - {data_size_mb:.3f}MB")
 
@@ -66,8 +77,6 @@ print(f"{len(raw_data)} documents - {data_size_mb:.3f}MB")
 # a simple regular expression (regex) that matches Unicode word characters. This
 # includes most characters that can be part of a word in any language, as well
 # as numbers and the underscore:
-
-import re
 
 
 def tokenize(doc):
@@ -86,8 +95,6 @@ list(tokenize("This is a simple example, isn't it?"))
 # We define an additional function that counts the (frequency of) occurrence of
 # each token in a given document. It returns a frequency dictionary to be used
 # by the vectorizers.
-
-from collections import defaultdict
 
 
 def token_freqs(doc):
@@ -113,13 +120,10 @@ token_freqs("That is one example, but this is another one")
 # DictVectorizer
 # --------------
 #
-# First we benchmark the :func:`~sklearn.feature_extraction.DictVectorizer`,
-# then we compare it to :func:`~sklearn.feature_extraction.FeatureHasher` as
+# First we benchmark the :func:`~xlearn.feature_extraction.DictVectorizer`,
+# then we compare it to :func:`~xlearn.feature_extraction.FeatureHasher` as
 # both of them receive dictionaries as input.
 
-from time import time
-
-from sklearn.feature_extraction import DictVectorizer
 
 dict_count_vectorizers = defaultdict(list)
 
@@ -164,8 +168,6 @@ vectorizer.vocabulary_["example"]
 # the original dictionary is to count the number of active columns in the
 # encoded feature matrix. For such a purpose we define the following function:
 
-import numpy as np
-
 
 def n_nonzero_columns(X):
     """Number of columns with at least one non-zero value in a CSR matrix.
@@ -173,17 +175,16 @@ def n_nonzero_columns(X):
     This is useful to count the number of features columns that are effectively
     active when using the FeatureHasher.
     """
-    return len(np.unique(X.nonzero()[1]))
+    return len(jnp.unique(X.nonzero()[1]))
 
 
 # %%
 # The default number of features for the
-# :func:`~sklearn.feature_extraction.FeatureHasher` is 2**20. Here we set
+# :func:`~xlearn.feature_extraction.FeatureHasher` is 2**20. Here we set
 # `n_features = 2**18` to illustrate hash collisions.
 #
 # **FeatureHasher on frequency dictionaries**
 
-from sklearn.feature_extraction import FeatureHasher
 
 t0 = time()
 hasher = FeatureHasher(n_features=2**18)
@@ -198,8 +199,8 @@ print(f"Found {n_nonzero_columns(X)} unique tokens")
 
 # %%
 # The number of unique tokens when using the
-# :func:`~sklearn.feature_extraction.FeatureHasher` is lower than those obtained
-# using the :func:`~sklearn.feature_extraction.DictVectorizer`. This is due to
+# :func:`~xlearn.feature_extraction.FeatureHasher` is lower than those obtained
+# using the :func:`~xlearn.feature_extraction.DictVectorizer`. This is due to
 # hash collisions.
 #
 # The number of collisions can be reduced by increasing the feature space.
@@ -218,12 +219,12 @@ print(f"Found {n_nonzero_columns(X)} unique tokens")
 
 # %%
 # We confirm that the number of unique tokens gets closer to the number of
-# unique terms found by the :func:`~sklearn.feature_extraction.DictVectorizer`.
+# unique terms found by the :func:`~xlearn.feature_extraction.DictVectorizer`.
 #
 # **FeatureHasher on raw tokens**
 #
 # Alternatively, one can set `input_type="string"` in the
-# :func:`~sklearn.feature_extraction.FeatureHasher` to vectorize the strings
+# :func:`~xlearn.feature_extraction.FeatureHasher` to vectorize the strings
 # output directly from the customized `tokenize` function. This is equivalent to
 # passing a dictionary with an implied frequency of 1 for each feature name.
 
@@ -241,11 +242,10 @@ print(f"Found {n_nonzero_columns(X)} unique tokens")
 # %%
 # We now plot the speed of the above methods for vectorizing.
 
-import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots(figsize=(12, 6))
 
-y_pos = np.arange(len(dict_count_vectorizers["vectorizer"]))
+y_pos = jnp.arange(len(dict_count_vectorizers["vectorizer"]))
 ax.barh(y_pos, dict_count_vectorizers["speed"], align="center")
 ax.set_yticks(y_pos)
 ax.set_yticklabels(dict_count_vectorizers["vectorizer"])
@@ -253,9 +253,9 @@ ax.invert_yaxis()
 _ = ax.set_xlabel("speed (MB/s)")
 
 # %%
-# In both cases :func:`~sklearn.feature_extraction.FeatureHasher` is
+# In both cases :func:`~xlearn.feature_extraction.FeatureHasher` is
 # approximately twice as fast as
-# :func:`~sklearn.feature_extraction.DictVectorizer`. This is handy when dealing
+# :func:`~xlearn.feature_extraction.DictVectorizer`. This is handy when dealing
 # with large amounts of data, with the downside of losing the invertibility of
 # the transformation, which in turn makes the interpretation of a model a more
 # complex task.
@@ -269,15 +269,14 @@ _ = ax.set_xlabel("speed (MB/s)")
 # Comparison with special purpose text vectorizers
 # ------------------------------------------------
 #
-# :func:`~sklearn.feature_extraction.text.CountVectorizer` accepts raw data as
+# :func:`~xlearn.feature_extraction.text.CountVectorizer` accepts raw data as
 # it internally implements tokenization and occurrence counting. It is similar
-# to the :func:`~sklearn.feature_extraction.DictVectorizer` when used along with
+# to the :func:`~xlearn.feature_extraction.DictVectorizer` when used along with
 # the customized function `token_freqs` as done in the previous section. The
-# difference being that :func:`~sklearn.feature_extraction.text.CountVectorizer`
+# difference being that :func:`~xlearn.feature_extraction.text.CountVectorizer`
 # is more flexible. In particular it accepts various regex patterns through the
 # `token_pattern` parameter.
 
-from sklearn.feature_extraction.text import CountVectorizer
 
 t0 = time()
 vectorizer = CountVectorizer()
@@ -289,22 +288,21 @@ print(f"done in {duration:.3f} s at {data_size_mb / duration:.1f} MB/s")
 print(f"Found {len(vectorizer.get_feature_names_out())} unique terms")
 
 # %%
-# We see that using the :func:`~sklearn.feature_extraction.text.CountVectorizer`
+# We see that using the :func:`~xlearn.feature_extraction.text.CountVectorizer`
 # implementation is approximately twice as fast as using the
-# :func:`~sklearn.feature_extraction.DictVectorizer` along with the simple
+# :func:`~xlearn.feature_extraction.DictVectorizer` along with the simple
 # function we defined for mapping the tokens. The reason is that
-# :func:`~sklearn.feature_extraction.text.CountVectorizer` is optimized by
+# :func:`~xlearn.feature_extraction.text.CountVectorizer` is optimized by
 # reusing a compiled regular expression for the full training set instead of
 # creating one per document as done in our naive tokenize function.
 #
 # Now we make a similar experiment with the
-# :func:`~sklearn.feature_extraction.text.HashingVectorizer`, which is
+# :func:`~xlearn.feature_extraction.text.HashingVectorizer`, which is
 # equivalent to combining the “hashing trick” implemented by the
-# :func:`~sklearn.feature_extraction.FeatureHasher` class and the text
+# :func:`~xlearn.feature_extraction.FeatureHasher` class and the text
 # preprocessing and tokenization of the
-# :func:`~sklearn.feature_extraction.text.CountVectorizer`.
+# :func:`~xlearn.feature_extraction.text.CountVectorizer`.
 
-from sklearn.feature_extraction.text import HashingVectorizer
 
 t0 = time()
 vectorizer = HashingVectorizer(n_features=2**18)
@@ -329,17 +327,16 @@ print(f"done in {duration:.3f} s at {data_size_mb / duration:.1f} MB/s")
 # more informative terms. In order to re-weight the count features into floating
 # point values suitable for usage by a classifier it is very common to use the
 # tf–idf transform as implemented by the
-# :func:`~sklearn.feature_extraction.text.TfidfTransformer`. TF stands for
+# :func:`~xlearn.feature_extraction.text.TfidfTransformer`. TF stands for
 # "term-frequency" while "tf–idf" means term-frequency times inverse
 # document-frequency.
 #
-# We now benchmark the :func:`~sklearn.feature_extraction.text.TfidfVectorizer`,
+# We now benchmark the :func:`~xlearn.feature_extraction.text.TfidfVectorizer`,
 # which is equivalent to combining the tokenization and occurrence counting of
-# the :func:`~sklearn.feature_extraction.text.CountVectorizer` along with the
+# the :func:`~xlearn.feature_extraction.text.CountVectorizer` along with the
 # normalizing and weighting from a
-# :func:`~sklearn.feature_extraction.text.TfidfTransformer`.
+# :func:`~xlearn.feature_extraction.text.TfidfTransformer`.
 
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 t0 = time()
 vectorizer = TfidfVectorizer()
@@ -358,7 +355,7 @@ print(f"Found {len(vectorizer.get_feature_names_out())} unique terms")
 
 fig, ax = plt.subplots(figsize=(12, 6))
 
-y_pos = np.arange(len(dict_count_vectorizers["vectorizer"]))
+y_pos = jnp.arange(len(dict_count_vectorizers["vectorizer"]))
 ax.barh(y_pos, dict_count_vectorizers["speed"], align="center")
 ax.set_yticks(y_pos)
 ax.set_yticklabels(dict_count_vectorizers["vectorizer"])
@@ -367,19 +364,19 @@ _ = ax.set_xlabel("speed (MB/s)")
 
 # %%
 # Notice from the plot that
-# :func:`~sklearn.feature_extraction.text.TfidfVectorizer` is slightly slower
-# than :func:`~sklearn.feature_extraction.text.CountVectorizer` because of the
+# :func:`~xlearn.feature_extraction.text.TfidfVectorizer` is slightly slower
+# than :func:`~xlearn.feature_extraction.text.CountVectorizer` because of the
 # extra operation induced by the
-# :func:`~sklearn.feature_extraction.text.TfidfTransformer`.
+# :func:`~xlearn.feature_extraction.text.TfidfTransformer`.
 #
 # Also notice that, by setting the number of features `n_features = 2**18`, the
-# :func:`~sklearn.feature_extraction.text.HashingVectorizer` performs better
-# than the :func:`~sklearn.feature_extraction.text.CountVectorizer` at the
+# :func:`~xlearn.feature_extraction.text.HashingVectorizer` performs better
+# than the :func:`~xlearn.feature_extraction.text.CountVectorizer` at the
 # expense of inversibility of the transformation due to hash collisions.
 #
-# We highlight that :func:`~sklearn.feature_extraction.text.CountVectorizer` and
-# :func:`~sklearn.feature_extraction.text.HashingVectorizer` perform better than
-# their equivalent :func:`~sklearn.feature_extraction.DictVectorizer` and
-# :func:`~sklearn.feature_extraction.FeatureHasher` on manually tokenized
+# We highlight that :func:`~xlearn.feature_extraction.text.CountVectorizer` and
+# :func:`~xlearn.feature_extraction.text.HashingVectorizer` perform better than
+# their equivalent :func:`~xlearn.feature_extraction.DictVectorizer` and
+# :func:`~xlearn.feature_extraction.FeatureHasher` on manually tokenized
 # documents since the internal tokenization step of the former vectorizers
 # compiles a regular expression once and then reuses it for all the documents.

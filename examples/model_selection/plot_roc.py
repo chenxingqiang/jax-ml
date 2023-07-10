@@ -43,10 +43,18 @@ curves.
 #
 # Here we binarize the output and add noisy features to make the problem harder.
 
-import numpy as np
+from itertools import combinations
+from itertools import cycle
+from xlearn.metrics import auc, roc_curve
+from xlearn.metrics import roc_auc_score
+from xlearn.metrics import RocCurveDisplay
+import matplotlib.pyplot as plt
+from xlearn.preprocessing import LabelBinarizer
+from xlearn.linear_model import LogisticRegression
+import jax.numpy as jnp
 
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
+from xlearn.datasets import load_iris
+from xlearn.model_selection import train_test_split
 
 iris = load_iris()
 target_names = iris.target_names
@@ -55,8 +63,9 @@ y = iris.target_names[y]
 
 random_state = np.random.RandomState(0)
 n_samples, n_features = X.shape
-n_classes = len(np.unique(y))
-X = np.concatenate([X, random_state.randn(n_samples, 200 * n_features)], axis=1)
+n_classes = len(jnp.unique(y))
+X = jnp.concatenate([X, random_state.randn(
+    n_samples, 200 * n_features)], axis=1)
 (
     X_train,
     X_test,
@@ -65,11 +74,10 @@ X = np.concatenate([X, random_state.randn(n_samples, 200 * n_features)], axis=1)
 ) = train_test_split(X, y, test_size=0.5, stratify=y, random_state=0)
 
 # %%
-# We train a :class:`~sklearn.linear_model.LogisticRegression` model which can
+# We train a :class:`~xlearn.linear_model.LogisticRegression` model which can
 # naturally handle multiclass problems, thanks to the use of the multinomial
 # formulation.
 
-from sklearn.linear_model import LogisticRegression
 
 classifier = LogisticRegression()
 y_score = classifier.fit(X_train, y_train).predict_proba(X_test)
@@ -86,16 +94,15 @@ y_score = classifier.fit(X_train, y_train).predict_proba(X_test)
 # .. note:: One should not confuse the OvR strategy used for the **evaluation**
 #     of multiclass classifiers with the OvR strategy used to **train** a
 #     multiclass classifier by fitting a set of binary classifiers (for instance
-#     via the :class:`~sklearn.multiclass.OneVsRestClassifier` meta-estimator).
+#     via the :class:`~xlearn.multiclass.OneVsRestClassifier` meta-estimator).
 #     The OvR ROC evaluation can be used to scrutinize any kind of classification
 #     models irrespectively of how they were trained (see :ref:`multiclass`).
 #
-# In this section we use a :class:`~sklearn.preprocessing.LabelBinarizer` to
+# In this section we use a :class:`~xlearn.preprocessing.LabelBinarizer` to
 # binarize the target by one-hot-encoding in a OvR fashion. This means that the
 # target of shape (`n_samples`,) is mapped to a target of shape (`n_samples`,
 # `n_classes`).
 
-from sklearn.preprocessing import LabelBinarizer
 
 label_binarizer = LabelBinarizer().fit(y_train)
 y_onehot_test = label_binarizer.transform(y_test)
@@ -114,13 +121,11 @@ label_binarizer.transform(["virginica"])
 # flowers as either "virginica" (`class_id=2`) or "non-virginica" (the rest).
 
 class_of_interest = "virginica"
-class_id = np.flatnonzero(label_binarizer.classes_ == class_of_interest)[0]
+class_id = jnp.flatnonzero(label_binarizer.classes_ == class_of_interest)[0]
 class_id
 
 # %%
-import matplotlib.pyplot as plt
 
-from sklearn.metrics import RocCurveDisplay
 
 RocCurveDisplay.from_predictions(
     y_onehot_test[:, class_id],
@@ -141,13 +146,13 @@ plt.show()
 # ----------------------------------
 #
 # Micro-averaging aggregates the contributions from all the classes (using
-# :func:`np.ravel`) to compute the average metrics as follows:
+# :func:`jnp.ravel`) to compute the average metrics as follows:
 #
 # :math:`TPR=\frac{\sum_{c}TP_c}{\sum_{c}(TP_c + FN_c)}` ;
 #
 # :math:`FPR=\frac{\sum_{c}FP_c}{\sum_{c}(FP_c + TN_c)}` .
 #
-# We can briefly demo the effect of :func:`np.ravel`:
+# We can briefly demo the effect of :func:`jnp.ravel`:
 
 print(f"y_score:\n{y_score[0:2,:]}")
 print()
@@ -175,9 +180,8 @@ plt.show()
 # %%
 # In the case where the main interest is not the plot but the ROC-AUC score
 # itself, we can reproduce the value shown in the plot using
-# :class:`~sklearn.metrics.roc_auc_score`.
+# :class:`~xlearn.metrics.roc_auc_score`.
 
-from sklearn.metrics import roc_auc_score
 
 micro_roc_auc_ovr = roc_auc_score(
     y_test,
@@ -190,15 +194,15 @@ print(f"Micro-averaged One-vs-Rest ROC AUC score:\n{micro_roc_auc_ovr:.2f}")
 
 # %%
 # This is equivalent to computing the ROC curve with
-# :class:`~sklearn.metrics.roc_curve` and then the area under the curve with
-# :class:`~sklearn.metrics.auc` for the raveled true and predicted classes.
+# :class:`~xlearn.metrics.roc_curve` and then the area under the curve with
+# :class:`~xlearn.metrics.auc` for the raveled true and predicted classes.
 
-from sklearn.metrics import auc, roc_curve
 
 # store the fpr, tpr, and roc_auc for all averaging strategies
 fpr, tpr, roc_auc = dict(), dict(), dict()
 # Compute micro-average ROC curve and ROC area
-fpr["micro"], tpr["micro"], _ = roc_curve(y_onehot_test.ravel(), y_score.ravel())
+fpr["micro"], tpr["micro"], _ = roc_curve(
+    y_onehot_test.ravel(), y_score.ravel())
 roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
 
 print(f"Micro-averaged One-vs-Rest ROC AUC score:\n{roc_auc['micro']:.2f}")
@@ -220,13 +224,13 @@ for i in range(n_classes):
     fpr[i], tpr[i], _ = roc_curve(y_onehot_test[:, i], y_score[:, i])
     roc_auc[i] = auc(fpr[i], tpr[i])
 
-fpr_grid = np.linspace(0.0, 1.0, 1000)
+fpr_grid = jnp.linspace(0.0, 1.0, 1000)
 
 # Interpolate all ROC curves at these points
-mean_tpr = np.zeros_like(fpr_grid)
+mean_tpr = jnp.zeros_like(fpr_grid)
 
 for i in range(n_classes):
-    mean_tpr += np.interp(fpr_grid, fpr[i], tpr[i])  # linear interpolation
+    mean_tpr += jnp.interp(fpr_grid, fpr[i], tpr[i])  # linear interpolation
 
 # Average it and compute AUC
 mean_tpr /= n_classes
@@ -253,7 +257,6 @@ print(f"Macro-averaged One-vs-Rest ROC AUC score:\n{macro_roc_auc_ovr:.2f}")
 # Plot all OvR ROC curves together
 # --------------------------------
 
-from itertools import cycle
 
 fig, ax = plt.subplots(figsize=(6, 6))
 
@@ -316,9 +319,8 @@ plt.show()
 # the negative class, then re-computing the score by inversing the roles and
 # taking the mean of both scores.
 
-from itertools import combinations
 
-pair_list = list(combinations(np.unique(y), 2))
+pair_list = list(combinations(jnp.unique(y), 2))
 print(pair_list)
 
 # %%
@@ -328,20 +330,20 @@ mean_tpr = dict()
 for ix, (label_a, label_b) in enumerate(pair_list):
     a_mask = y_test == label_a
     b_mask = y_test == label_b
-    ab_mask = np.logical_or(a_mask, b_mask)
+    ab_mask = jnp.logical_or(a_mask, b_mask)
 
     a_true = a_mask[ab_mask]
     b_true = b_mask[ab_mask]
 
-    idx_a = np.flatnonzero(label_binarizer.classes_ == label_a)[0]
-    idx_b = np.flatnonzero(label_binarizer.classes_ == label_b)[0]
+    idx_a = jnp.flatnonzero(label_binarizer.classes_ == label_a)[0]
+    idx_b = jnp.flatnonzero(label_binarizer.classes_ == label_b)[0]
 
     fpr_a, tpr_a, _ = roc_curve(a_true, y_score[ab_mask, idx_a])
     fpr_b, tpr_b, _ = roc_curve(b_true, y_score[ab_mask, idx_b])
 
-    mean_tpr[ix] = np.zeros_like(fpr_grid)
-    mean_tpr[ix] += np.interp(fpr_grid, fpr_a, tpr_a)
-    mean_tpr[ix] += np.interp(fpr_grid, fpr_b, tpr_b)
+    mean_tpr[ix] = jnp.zeros_like(fpr_grid)
+    mean_tpr[ix] += jnp.interp(fpr_grid, fpr_a, tpr_a)
+    mean_tpr[ix] += jnp.interp(fpr_grid, fpr_b, tpr_b)
     mean_tpr[ix] /= 2
     mean_score = auc(fpr_grid, mean_tpr[ix])
     pair_scores.append(mean_score)
@@ -374,12 +376,13 @@ for ix, (label_a, label_b) in enumerate(pair_list):
     plt.legend()
     plt.show()
 
-print(f"Macro-averaged One-vs-One ROC AUC score:\n{np.average(pair_scores):.2f}")
+print(
+    f"Macro-averaged One-vs-One ROC AUC score:\n{jnp.average(pair_scores):.2f}")
 
 # %%
 # One can also assert that the macro-average we computed "by hand" is equivalent
 # to the implemented `average="macro"` option of the
-# :class:`~sklearn.metrics.roc_auc_score` function.
+# :class:`~xlearn.metrics.roc_auc_score` function.
 
 macro_roc_auc_ovo = roc_auc_score(
     y_test,
@@ -394,7 +397,7 @@ print(f"Macro-averaged One-vs-One ROC AUC score:\n{macro_roc_auc_ovo:.2f}")
 # Plot all OvO ROC curves together
 # --------------------------------
 
-ovo_tpr = np.zeros_like(fpr_grid)
+ovo_tpr = jnp.zeros_like(fpr_grid)
 
 fig, ax = plt.subplots(figsize=(6, 6))
 for ix, (label_a, label_b) in enumerate(pair_list):

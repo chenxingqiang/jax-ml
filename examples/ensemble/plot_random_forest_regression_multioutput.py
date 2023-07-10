@@ -26,16 +26,16 @@ x and y coordinate as output.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.multioutput import MultiOutputRegressor
+from xlearn.ensemble import RandomForestRegressor
+from xlearn.model_selection import train_test_split
+from xlearn.multioutput import MultiOutputRegressor
 
 # Create a random dataset
 rng = np.random.RandomState(1)
-X = np.sort(200 * rng.rand(600, 1) - 100, axis=0)
-y = np.array([np.pi * np.sin(X).ravel(), np.pi * np.cos(X).ravel()]).T
+X = jnp.sort(200 * rng.rand(600, 1) - 100, axis=0)
+y = jnp.array([jnp.pi * jnp.sin(X).ravel(), jnp.pi * jnp.cos(X).ravel()]).T
 y += 0.5 - rng.rand(*y.shape)
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -44,11 +44,13 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 max_depth = 30
 regr_multirf = MultiOutputRegressor(
-    RandomForestRegressor(n_estimators=100, max_depth=max_depth, random_state=0)
+    RandomForestRegressor(
+        n_estimators=100, max_depth=max_depth, random_state=0)
 )
 regr_multirf.fit(X_train, y_train)
 
-regr_rf = RandomForestRegressor(n_estimators=100, max_depth=max_depth, random_state=2)
+regr_rf = RandomForestRegressor(
+    n_estimators=100, max_depth=max_depth, random_state=2)
 regr_rf.fit(X_train, y_train)
 
 # Predict on new data

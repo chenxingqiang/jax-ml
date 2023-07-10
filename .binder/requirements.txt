@@ -1,4 +1,4 @@
---find-links https://pypi.anaconda.org/scientific-python-nightly-wheels/simple/scikit-learn
+--find-links https://pypi.anaconda.org/scientific-python-nightly-wheels/simple/jax-learn
 --pre
 matplotlib
 scikit-image
@@ -6,4 +6,6 @@ pandas
 seaborn
 Pillow
 sphinx-gallery
-scikit-learn
+jax-learn
+jax
+jaxlib

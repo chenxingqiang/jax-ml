@@ -44,14 +44,28 @@ helper functions for loading the data and visualizing results.
 
 # %%
 
+from xlearn.metrics import auc
+from xlearn.linear_model import TweedieRegressor
+from xlearn.dummy import DummyRegressor
+from xlearn.linear_model import GammaRegressor
+from xlearn.model_selection import train_test_split
+from xlearn.linear_model import PoissonRegressor
+from xlearn.preprocessing import (
+    FunctionTransformer,
+    KBinsDiscretizer,
+    OneHotEncoder,
+    StandardScaler,
+)
+from xlearn.pipeline import make_pipeline
+from xlearn.compose import ColumnTransformer
 from functools import partial
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 import pandas as pd
 
-from sklearn.datasets import fetch_openml
-from sklearn.metrics import (
+from xlearn.datasets import fetch_openml
+from xlearn.metrics import (
     mean_absolute_error,
     mean_squared_error,
     mean_tweedie_deviance,
@@ -191,7 +205,8 @@ def score_estimator(
             else:
                 score = metric(y, y_pred, sample_weight=_weights)
 
-            res.append({"subset": subset_label, "metric": score_label, "score": score})
+            res.append({"subset": subset_label,
+                       "metric": score_label, "score": score})
 
     res = (
         pd.DataFrame(res)
@@ -211,14 +226,6 @@ def score_estimator(
 # containing the number of claims (``ClaimNb``), with the freMTPL2sev table,
 # containing the claim amount (``ClaimAmount``) for the same policy ids
 # (``IDpol``).
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import (
-    FunctionTransformer,
-    KBinsDiscretizer,
-    OneHotEncoder,
-    StandardScaler,
-)
 
 df = load_mtpl2()
 
@@ -233,7 +240,7 @@ df["Exposure"] = df["Exposure"].clip(upper=1)
 df["ClaimAmount"] = df["ClaimAmount"].clip(upper=200000)
 
 log_scale_transformer = make_pipeline(
-    FunctionTransformer(func=np.log), StandardScaler()
+    FunctionTransformer(func=jnp.log), StandardScaler()
 )
 
 column_trans = ColumnTransformer(
@@ -263,7 +270,7 @@ df["PurePremium"] = df["ClaimAmount"] / df["Exposure"]
 # This can be indirectly approximated by a 2-step modeling: the product of the
 # Frequency times the average claim amount per claim:
 df["Frequency"] = df["ClaimNb"] / df["Exposure"]
-df["AvgClaimAmount"] = df["ClaimAmount"] / np.fmax(df["ClaimNb"], 1)
+df["AvgClaimAmount"] = df["ClaimAmount"] / jnp.fmax(df["ClaimNb"], 1)
 
 with pd.option_context("display.max_columns", 15):
     print(df[df.ClaimAmount > 0].head())
@@ -279,8 +286,6 @@ with pd.option_context("display.max_columns", 15):
 # constant rate in a given time interval (``Exposure``, in units of years).
 # Here we model the frequency ``y = ClaimNb / Exposure``, which is still a
 # (scaled) Poisson distribution, and use ``Exposure`` as `sample_weight`.
-from sklearn.linear_model import PoissonRegressor
-from sklearn.model_selection import train_test_split
 
 df_train, df_test, X_train, X_test = train_test_split(df, X, random_state=0)
 
@@ -304,7 +309,8 @@ len(df_test[df_test["ClaimAmount"] > 0])
 # (e.g. because we did not drop any categorical level in the `OneHotEncoder`),
 # we use a weak L2 penalization to avoid numerical issues.
 glm_freq = PoissonRegressor(alpha=1e-4, solver="newton-cholesky")
-glm_freq.fit(X_train, df_train["Frequency"], sample_weight=df_train["Exposure"])
+glm_freq.fit(X_train, df_train["Frequency"],
+             sample_weight=df_train["Exposure"])
 
 scores = score_estimator(
     glm_freq,
@@ -398,7 +404,6 @@ plot_obs_pred(
 #   on :math:`(0, \infty)`, not :math:`[0, \infty)`.
 # - We use ``ClaimNb`` as `sample_weight` to account for policies that contain
 #   more than one claim.
-from sklearn.linear_model import GammaRegressor
 
 mask_train = df_train["ClaimAmount"] > 0
 mask_test = df_test["ClaimAmount"] > 0
@@ -430,7 +435,6 @@ print(scores)
 # features and always predicts a constant value, i.e. the average claim
 # amount, in the same setting:
 
-from sklearn.dummy import DummyRegressor
 
 dummy_sev = DummyRegressor(strategy="mean")
 dummy_sev.fit(
@@ -454,7 +458,7 @@ print(scores)
 # %%
 #
 # We conclude that the claim amount is very challenging to predict. Still, the
-# :class:`~sklearn.linear.GammaRegressor` is able to leverage some information
+# :class:`~xlearn.linear.GammaRegressor` is able to leverage some information
 # from the input features to slightly improve upon the mean baseline in terms
 # of D².
 #
@@ -535,15 +539,15 @@ plt.tight_layout()
 # Poisson-Gamma distribution of the total claim amount. This is equivalent to
 # a Tweedie distribution with a `power` parameter between 1 and 2.
 #
-# The :func:`sklearn.metrics.mean_tweedie_deviance` depends on a `power`
+# The :func:`xlearn.metrics.mean_tweedie_deviance` depends on a `power`
 # parameter. As we do not know the true value of the `power` parameter, we here
 # compute the mean deviances for a grid of possible values, and compare the
 # models side by side, i.e. we compare them at identical values of `power`.
 # Ideally, we hope that one model will be consistently better than the other,
 # regardless of `power`.
-from sklearn.linear_model import TweedieRegressor
 
-glm_pure_premium = TweedieRegressor(power=1.9, alpha=0.1, solver="newton-cholesky")
+glm_pure_premium = TweedieRegressor(
+    power=1.9, alpha=0.1, solver="newton-cholesky")
 glm_pure_premium.fit(
     X_train, df_train["PurePremium"], sample_weight=df_train["Exposure"]
 )
@@ -602,11 +606,11 @@ for subset_label, X, df in [
         {
             "subset": subset_label,
             "observed": df["ClaimAmount"].values.sum(),
-            "predicted, frequency*severity model": np.sum(
+            "predicted, frequency*severity model": jnp.sum(
                 exposure * glm_freq.predict(X) * glm_sev.predict(X)
             ),
             "predicted, tweedie, power=%.2f"
-            % glm_pure_premium.power: np.sum(exposure * glm_pure_premium.predict(X)),
+            % glm_pure_premium.power: jnp.sum(exposure * glm_pure_premium.predict(X)),
         }
     )
 
@@ -641,22 +645,21 @@ print(pd.DataFrame(res).set_index("subset").T)
 #
 # Finally one should highlight that the Compound Poisson Gamma model that is
 # directly fit on the pure premium is operationally simpler to develop and
-# maintain as it consists of a single scikit-learn estimator instead of a pair
+# maintain as it consists of a single jax-learn estimator instead of a pair
 # of models, each with its own set of hyperparameters.
-from sklearn.metrics import auc
 
 
 def lorenz_curve(y_true, y_pred, exposure):
-    y_true, y_pred = np.asarray(y_true), np.asarray(y_pred)
-    exposure = np.asarray(exposure)
+    y_true, y_pred = jnp.asarray(y_true), jnp.asarray(y_pred)
+    exposure = jnp.asarray(exposure)
 
     # order samples by increasing predicted risk:
-    ranking = np.argsort(y_pred)
+    ranking = jnp.argsort(y_pred)
     ranked_exposure = exposure[ranking]
     ranked_pure_premium = y_true[ranking]
-    cumulated_claim_amount = np.cumsum(ranked_pure_premium * ranked_exposure)
+    cumulated_claim_amount = jnp.cumsum(ranked_pure_premium * ranked_exposure)
     cumulated_claim_amount /= cumulated_claim_amount[-1]
-    cumulated_samples = np.linspace(0, 1, len(cumulated_claim_amount))
+    cumulated_samples = jnp.linspace(0, 1, len(cumulated_claim_amount))
     return cumulated_samples, cumulated_claim_amount
 
 

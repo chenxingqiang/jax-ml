@@ -41,8 +41,30 @@ policyholders.
 #          Olivier Grisel <olivier.grisel@ensta.org>
 # License: BSD 3 clause
 
+from xlearn.metrics import auc
+from xlearn.utils import gen_even_slices
+from xlearn.preprocessing import OrdinalEncoder
+from xlearn.ensemble import HistGradientBoostingRegressor
+from xlearn.linear_model import PoissonRegressor
+from xlearn.linear_model import Ridge
+from xlearn.metrics import (
+    mean_absolute_error,
+    mean_poisson_deviance,
+    mean_squared_error,
+)
+from xlearn.pipeline import Pipeline
+from xlearn.model_selection import train_test_split
+from xlearn.dummy import DummyRegressor
+from xlearn.preprocessing import (
+    FunctionTransformer,
+    KBinsDiscretizer,
+    OneHotEncoder,
+    StandardScaler,
+)
+from xlearn.pipeline import make_pipeline
+from xlearn.compose import ColumnTransformer
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 import pandas as pd
 
 ##############################################################################
@@ -51,7 +73,7 @@ import pandas as pd
 #
 # Let's load the motor claim dataset from OpenML:
 # https://www.openml.org/d/41214
-from sklearn.datasets import fetch_openml
+from xlearn.datasets import fetch_openml
 
 df = fetch_openml(data_id=41214, as_frame=True, parser="pandas").frame
 df
@@ -69,7 +91,8 @@ df
 df["Frequency"] = df["ClaimNb"] / df["Exposure"]
 
 print(
-    "Average Frequency = {}".format(np.average(df["Frequency"], weights=df["Exposure"]))
+    "Average Frequency = {}".format(jnp.average(
+        df["Frequency"], weights=df["Exposure"]))
 )
 
 print(
@@ -94,17 +117,9 @@ _ = df["Frequency"].hist(bins=30, log=True, ax=ax2)
 # In order to fit linear models with those predictors it is therefore
 # necessary to perform standard feature transformations as follows:
 
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import (
-    FunctionTransformer,
-    KBinsDiscretizer,
-    OneHotEncoder,
-    StandardScaler,
-)
 
 log_scale_transformer = make_pipeline(
-    FunctionTransformer(np.log, validate=False), StandardScaler()
+    FunctionTransformer(jnp.log, validate=False), StandardScaler()
 )
 
 linear_model_preprocessor = ColumnTransformer(
@@ -138,9 +153,6 @@ linear_model_preprocessor = ColumnTransformer(
 # baseline a "dummy" estimator that constantly predicts the mean frequency of
 # the training sample.
 
-from sklearn.dummy import DummyRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
 
 df_train, df_test = train_test_split(df, test_size=0.33, random_state=0)
 
@@ -155,12 +167,6 @@ dummy = Pipeline(
 ##############################################################################
 # Let's compute the performance of this constant prediction baseline with 3
 # different regression metrics:
-
-from sklearn.metrics import (
-    mean_absolute_error,
-    mean_poisson_deviance,
-    mean_squared_error,
-)
 
 
 def score_estimator(estimator, df_test):
@@ -213,7 +219,6 @@ score_estimator(dummy, df_test)
 # use a low penalization `alpha`, as we expect such a linear model to under-fit
 # on such a large dataset.
 
-from sklearn.linear_model import Ridge
 
 ridge_glm = Pipeline(
     [
@@ -225,9 +230,9 @@ ridge_glm = Pipeline(
 # %%
 # The Poisson deviance cannot be computed on non-positive values predicted by
 # the model. For models that do return a few non-positive predictions (e.g.
-# :class:`~sklearn.linear_model.Ridge`) we ignore the corresponding samples,
+# :class:`~xlearn.linear_model.Ridge`) we ignore the corresponding samples,
 # meaning that the obtained Poisson deviance is approximate. An alternative
-# approach could be to use :class:`~sklearn.compose.TransformedTargetRegressor`
+# approach could be to use :class:`~xlearn.compose.TransformedTargetRegressor`
 # meta-estimator to map ``y_pred`` to a strictly positive domain.
 
 print("Ridge evaluation:")
@@ -245,7 +250,6 @@ score_estimator(ridge_glm, df_test)
 # Poisson regressor is called a Generalized Linear Model (GLM) rather than a
 # vanilla linear model as is the case for Ridge regression.
 
-from sklearn.linear_model import PoissonRegressor
 
 n_samples = df_train.shape[0]
 
@@ -269,13 +273,13 @@ score_estimator(poisson_glm, df_test)
 # Finally, we will consider a non-linear model, namely Gradient Boosting
 # Regression Trees. Tree-based models do not require the categorical data to be
 # one-hot encoded: instead, we can encode each category label with an arbitrary
-# integer using :class:`~sklearn.preprocessing.OrdinalEncoder`. With this
+# integer using :class:`~xlearn.preprocessing.OrdinalEncoder`. With this
 # encoding, the trees will treat the categorical features as ordered features,
 # which might not be always a desired behavior. However this effect is limited
 # for deep enough trees which are able to recover the categorical nature of the
 # features. The main advantage of the
-# :class:`~sklearn.preprocessing.OrdinalEncoder` over the
-# :class:`~sklearn.preprocessing.OneHotEncoder` is that it will make training
+# :class:`~xlearn.preprocessing.OrdinalEncoder` over the
+# :class:`~xlearn.preprocessing.OneHotEncoder` is that it will make training
 # faster.
 #
 # Gradient Boosting also gives the possibility to fit the trees with a Poisson
@@ -283,8 +287,6 @@ score_estimator(poisson_glm, df_test)
 # least-squares loss. Here we only fit trees with the Poisson loss to keep this
 # example concise.
 
-from sklearn.ensemble import HistGradientBoostingRegressor
-from sklearn.preprocessing import OrdinalEncoder
 
 tree_preprocessor = ColumnTransformer(
     [
@@ -293,7 +295,8 @@ tree_preprocessor = ColumnTransformer(
             OrdinalEncoder(),
             ["VehBrand", "VehPower", "VehGas", "Region", "Area"],
         ),
-        ("numeric", "passthrough", ["VehAge", "DrivAge", "BonusMalus", "Density"]),
+        ("numeric", "passthrough", [
+         "VehAge", "DrivAge", "BonusMalus", "Density"]),
     ],
     remainder="drop",
 )
@@ -330,7 +333,7 @@ fig, axes = plt.subplots(nrows=2, ncols=4, figsize=(16, 6), sharey=True)
 fig.subplots_adjust(bottom=0.2)
 n_bins = 20
 for row_idx, label, df in zip(range(2), ["train", "test"], [df_train, df_test]):
-    df["Frequency"].hist(bins=np.linspace(-1, 30, n_bins), ax=axes[row_idx, 0])
+    df["Frequency"].hist(bins=jnp.linspace(-1, 30, n_bins), ax=axes[row_idx, 0])
 
     axes[row_idx, 0].set_title("Data")
     axes[row_idx, 0].set_yscale("log")
@@ -342,7 +345,7 @@ for row_idx, label, df in zip(range(2), ["train", "test"], [df_train, df_test]):
         y_pred = model.predict(df)
 
         pd.Series(y_pred).hist(
-            bins=np.linspace(-1, 4, n_bins), ax=axes[row_idx, idx + 1]
+            bins=jnp.linspace(-1, 4, n_bins), ax=axes[row_idx, idx + 1]
         )
         axes[row_idx, idx + 1].set(
             title=model[-1].__class__.__name__,
@@ -387,8 +390,6 @@ plt.tight_layout()
 # by each model. Then for each bin, we compare the mean predicted ``y_pred``,
 # with the mean observed target:
 
-from sklearn.utils import gen_even_slices
-
 
 def _mean_frequency_by_risk_group(y_true, y_pred, sample_weight=None, n_bins=100):
     """Compare predictions and observations for bins ordered by y_pred.
@@ -416,15 +417,15 @@ def _mean_frequency_by_risk_group(y_true, y_pred, sample_weight=None, n_bins=100
     y_pred_bin: ndarray of shape (n_bins,)
         average y_pred for each bin
     """
-    idx_sort = np.argsort(y_pred)
-    bin_centers = np.arange(0, 1, 1 / n_bins) + 0.5 / n_bins
-    y_pred_bin = np.zeros(n_bins)
-    y_true_bin = np.zeros(n_bins)
+    idx_sort = jnp.argsort(y_pred)
+    bin_centers = jnp.arange(0, 1, 1 / n_bins) + 0.5 / n_bins
+    y_pred_bin = jnp.zeros(n_bins)
+    y_true_bin = jnp.zeros(n_bins)
 
     for n, sl in enumerate(gen_even_slices(len(y_true), n_bins)):
         weights = sample_weight[idx_sort][sl]
-        y_pred_bin[n] = np.average(y_pred[idx_sort][sl], weights=weights)
-        y_true_bin[n] = np.average(y_true[idx_sort][sl], weights=weights)
+        y_pred_bin[n] = jnp.average(y_pred[idx_sort][sl], weights=weights)
+        y_true_bin[n] = jnp.average(y_true[idx_sort][sl], weights=weights)
     return bin_centers, y_true_bin, y_pred_bin
 
 
@@ -442,7 +443,8 @@ for axi, model in zip(ax.ravel(), [ridge_glm, poisson_glm, poisson_gbrt, dummy])
 
     # Name of the model after the estimator used in the last step of the
     # pipeline.
-    print(f"Predicted number of claims by {model[-1]}: {np.sum(y_pred * exposure):.1f}")
+    print(
+        f"Predicted number of claims by {model[-1]}: {jnp.sum(y_pred * exposure):.1f}")
 
     axi.plot(q, y_pred_seg, marker="x", linestyle="--", label="predictions")
     axi.plot(q, y_true_seg, marker="o", linestyle="--", label="observations")
@@ -489,20 +491,18 @@ plt.tight_layout()
 #
 # This plot is called a Lorenz curve and can be summarized by the Gini index:
 
-from sklearn.metrics import auc
-
 
 def lorenz_curve(y_true, y_pred, exposure):
-    y_true, y_pred = np.asarray(y_true), np.asarray(y_pred)
-    exposure = np.asarray(exposure)
+    y_true, y_pred = jnp.asarray(y_true), jnp.asarray(y_pred)
+    exposure = jnp.asarray(exposure)
 
     # order samples by increasing predicted risk:
-    ranking = np.argsort(y_pred)
+    ranking = jnp.argsort(y_pred)
     ranked_frequencies = y_true[ranking]
     ranked_exposure = exposure[ranking]
-    cumulated_claims = np.cumsum(ranked_frequencies * ranked_exposure)
+    cumulated_claims = jnp.cumsum(ranked_frequencies * ranked_exposure)
     cumulated_claims /= cumulated_claims[-1]
-    cumulated_exposure = np.cumsum(ranked_exposure)
+    cumulated_exposure = jnp.cumsum(ranked_exposure)
     cumulated_exposure /= cumulated_exposure[-1]
     return cumulated_exposure, cumulated_claims
 
@@ -552,7 +552,7 @@ ax.legend(loc="upper left")
 #
 # The linear models assume no interactions between the input variables which
 # likely causes under-fitting. Inserting a polynomial feature extractor
-# (:func:`~sklearn.preprocessing.PolynomialFeatures`) indeed increases their
+# (:func:`~xlearn.preprocessing.PolynomialFeatures`) indeed increases their
 # discrimative power by 2 points of Gini index. In particular it improves the
 # ability of the models to identify the top 5% riskiest profiles.
 #

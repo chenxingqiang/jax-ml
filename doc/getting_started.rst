@@ -2,12 +2,12 @@ Getting Started
 ===============
 
 The purpose of this guide is to illustrate some of the main features that
-``scikit-learn`` provides. It assumes a very basic working knowledge of
+``jax-learn`` provides. It assumes a very basic working knowledge of
 machine learning practices (model fitting, predicting, cross-validation,
 etc.). Please refer to our :ref:`installation instructions
-<installation-instructions>` for installing ``scikit-learn``.
+<installation-instructions>` for installing ``jax-learn``.
 
-``Scikit-learn`` is an open source machine learning library that supports
+``Jax-learn`` is an open source machine learning library that supports
 supervised and unsupervised learning. It also provides various tools for
 model fitting, data preprocessing, model selection, model evaluation,
 and many other utilities.
@@ -15,14 +15,14 @@ and many other utilities.
 Fitting and predicting: estimator basics
 ----------------------------------------
 
-``Scikit-learn`` provides dozens of built-in machine learning algorithms and
+``Jax-learn`` provides dozens of built-in machine learning algorithms and
 models, called :term:`estimators`. Each estimator can be fitted to some data
 using its :term:`fit` method.
 
 Here is a simple example where we fit a
-:class:`~sklearn.ensemble.RandomForestClassifier` to some very basic data::
+:class:`~xlearn.ensemble.RandomForestClassifier` to some very basic data::
 
-  >>> from sklearn.ensemble import RandomForestClassifier
+  >>> from xlearn.ensemble import RandomForestClassifier
   >>> clf = RandomForestClassifier(random_state=0)
   >>> X = [[ 1,  2,  3],  # 2 samples, 3 features
   ...      [11, 12, 13]]
@@ -60,13 +60,13 @@ Machine learning workflows are often composed of different parts. A typical
 pipeline consists of a pre-processing step that transforms or imputes the
 data, and a final predictor that predicts target values.
 
-In ``scikit-learn``, pre-processors and transformers follow the same API as
+In ``jax-learn``, pre-processors and transformers follow the same API as
 the estimator objects (they actually all inherit from the same
 ``BaseEstimator`` class). The transformer objects don't have a
 :term:`predict` method but rather a :term:`transform` method that outputs a
 newly transformed sample matrix ``X``::
 
-  >>> from sklearn.preprocessing import StandardScaler
+  >>> from xlearn.preprocessing import StandardScaler
   >>> X = [[0, 15],
   ...      [1, -10]]
   >>> # scale data according to computed scaling values
@@ -82,7 +82,7 @@ Pipelines: chaining pre-processors and estimators
 --------------------------------------------------
 
 Transformers and estimators (predictors) can be combined together into a
-single unifying object: a :class:`~sklearn.pipeline.Pipeline`. The pipeline
+single unifying object: a :class:`~xlearn.pipeline.Pipeline`. The pipeline
 offers the same API as a regular estimator: it can be fitted and used for
 prediction with ``fit`` and ``predict``. As we will see later, using a
 pipeline will also prevent you from data leakage, i.e. disclosing some
@@ -92,12 +92,12 @@ In the following example, we :ref:`load the Iris dataset <datasets>`, split it
 into train and test sets, and compute the accuracy score of a pipeline on
 the test data::
 
-  >>> from sklearn.preprocessing import StandardScaler
-  >>> from sklearn.linear_model import LogisticRegression
-  >>> from sklearn.pipeline import make_pipeline
-  >>> from sklearn.datasets import load_iris
-  >>> from sklearn.model_selection import train_test_split
-  >>> from sklearn.metrics import accuracy_score
+  >>> from xlearn.preprocessing import StandardScaler
+  >>> from xlearn.linear_model import LogisticRegression
+  >>> from xlearn.pipeline import make_pipeline
+  >>> from xlearn.datasets import load_iris
+  >>> from xlearn.model_selection import train_test_split
+  >>> from xlearn.metrics import accuracy_score
   ...
   >>> # create a pipeline object
   >>> pipe = make_pipeline(
@@ -122,20 +122,20 @@ Model evaluation
 
 Fitting a model to some data does not entail that it will predict well on
 unseen data. This needs to be directly evaluated. We have just seen the
-:func:`~sklearn.model_selection.train_test_split` helper that splits a
-dataset into train and test sets, but ``scikit-learn`` provides many other
+:func:`~xlearn.model_selection.train_test_split` helper that splits a
+dataset into train and test sets, but ``jax-learn`` provides many other
 tools for model evaluation, in particular for :ref:`cross-validation
 <cross_validation>`.
 
 We here briefly show how to perform a 5-fold cross-validation procedure,
-using the :func:`~sklearn.model_selection.cross_validate` helper. Note that
+using the :func:`~xlearn.model_selection.cross_validate` helper. Note that
 it is also possible to manually iterate over the folds, use different
 data splitting strategies, and use custom scoring functions. Please refer to
 our :ref:`User Guide <cross_validation>` for more details::
 
-  >>> from sklearn.datasets import make_regression
-  >>> from sklearn.linear_model import LinearRegression
-  >>> from sklearn.model_selection import cross_validate
+  >>> from xlearn.datasets import make_regression
+  >>> from xlearn.linear_model import LinearRegression
+  >>> from xlearn.model_selection import cross_validate
   ...
   >>> X, y = make_regression(n_samples=1000, random_state=0)
   >>> lr = LinearRegression()
@@ -150,25 +150,25 @@ Automatic parameter searches
 All estimators have parameters (often called hyper-parameters in the
 literature) that can be tuned. The generalization power of an estimator
 often critically depends on a few parameters. For example a
-:class:`~sklearn.ensemble.RandomForestRegressor` has a ``n_estimators``
+:class:`~xlearn.ensemble.RandomForestRegressor` has a ``n_estimators``
 parameter that determines the number of trees in the forest, and a
 ``max_depth`` parameter that determines the maximum depth of each tree.
 Quite often, it is not clear what the exact values of these parameters
 should be since they depend on the data at hand.
 
-``Scikit-learn`` provides tools to automatically find the best parameter
+``Jax-learn`` provides tools to automatically find the best parameter
 combinations (via cross-validation). In the following example, we randomly
 search over the parameter space of a random forest with a
-:class:`~sklearn.model_selection.RandomizedSearchCV` object. When the search
-is over, the :class:`~sklearn.model_selection.RandomizedSearchCV` behaves as
-a :class:`~sklearn.ensemble.RandomForestRegressor` that has been fitted with
+:class:`~xlearn.model_selection.RandomizedSearchCV` object. When the search
+is over, the :class:`~xlearn.model_selection.RandomizedSearchCV` behaves as
+a :class:`~xlearn.ensemble.RandomForestRegressor` that has been fitted with
 the best set of parameters. Read more in the :ref:`User Guide
 <grid_search>`::
 
-  >>> from sklearn.datasets import fetch_california_housing
-  >>> from sklearn.ensemble import RandomForestRegressor
-  >>> from sklearn.model_selection import RandomizedSearchCV
-  >>> from sklearn.model_selection import train_test_split
+  >>> from xlearn.datasets import fetch_california_housing
+  >>> from xlearn.ensemble import RandomForestRegressor
+  >>> from xlearn.model_selection import RandomizedSearchCV
+  >>> from xlearn.model_selection import train_test_split
   >>> from scipy.stats import randint
   ...
   >>> X, y = fetch_california_housing(return_X_y=True)
@@ -219,14 +219,14 @@ Next steps
 We have briefly covered estimator fitting and predicting, pre-processing
 steps, pipelines, cross-validation tools and automatic hyper-parameter
 searches. This guide should give you an overview of some of the main
-features of the library, but there is much more to ``scikit-learn``!
+features of the library, but there is much more to ``jax-learn``!
 
 Please refer to our :ref:`user_guide` for details on all the tools that we
 provide. You can also find an exhaustive list of the public API in the
 :ref:`api_ref`.
 
 You can also look at our numerous :ref:`examples <general_examples>` that
-illustrate the use of ``scikit-learn`` in many different contexts.
+illustrate the use of ``jax-learn`` in many different contexts.
 
 The :ref:`tutorials <tutorial_menu>` also contain additional learning
 resources.

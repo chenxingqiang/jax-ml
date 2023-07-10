@@ -1,4 +1,4 @@
-from sklearn.cluster import KMeans, MiniBatchKMeans
+from xlearn.cluster import KMeans, MiniBatchKMeans
 
 from .common import Benchmark, Estimator, Predictor, Transformer
 from .datasets import _20newsgroups_highdim_dataset, _blobs_dataset
@@ -45,7 +45,8 @@ class KMeansBenchmark(Predictor, Transformer, Estimator, Benchmark):
 
     def make_scorers(self):
         self.train_scorer = lambda _, __: neg_mean_inertia(
-            self.X, self.estimator.predict(self.X), self.estimator.cluster_centers_
+            self.X, self.estimator.predict(
+                self.X), self.estimator.cluster_centers_
         )
         self.test_scorer = lambda _, __: neg_mean_inertia(
             self.X_val,
@@ -95,7 +96,8 @@ class MiniBatchKMeansBenchmark(Predictor, Transformer, Estimator, Benchmark):
 
     def make_scorers(self):
         self.train_scorer = lambda _, __: neg_mean_inertia(
-            self.X, self.estimator.predict(self.X), self.estimator.cluster_centers_
+            self.X, self.estimator.predict(
+                self.X), self.estimator.cluster_centers_
         )
         self.test_scorer = lambda _, __: neg_mean_inertia(
             self.X_val,

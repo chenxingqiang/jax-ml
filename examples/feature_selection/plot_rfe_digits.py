@@ -14,9 +14,9 @@ a digit classification task.
 
 import matplotlib.pyplot as plt
 
-from sklearn.datasets import load_digits
-from sklearn.feature_selection import RFE
-from sklearn.svm import SVC
+from xlearn.datasets import load_digits
+from xlearn.feature_selection import RFE
+from xlearn.svm import SVC
 
 # Load the digits dataset
 digits = load_digits()

@@ -31,13 +31,15 @@ regularization on the assumed training points' covariance matrix.
 #
 # We will start by generating a synthetic dataset. The true generative process
 # is defined as :math:`f(x) = x \sin(x)`.
-import numpy as np
+from xlearn.gaussian_process.kernels import RBF
+from xlearn.gaussian_process import GaussianProcessRegressor
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 
-X = np.linspace(start=0, stop=10, num=1_000).reshape(-1, 1)
-y = np.squeeze(X * np.sin(X))
+X = jnp.linspace(start=0, stop=10, num=1_000).reshape(-1, 1)
+y = jnp.squeeze(X * jnp.sin(X))
 
 # %%
-import matplotlib.pyplot as plt
 
 plt.plot(X, y, label=r"$f(x) = x \sin(x)$", linestyle="dotted")
 plt.legend()
@@ -56,18 +58,17 @@ _ = plt.title("True generative process")
 # adding any noise. For training the Gaussian Process regression, we will only
 # select few samples.
 rng = np.random.RandomState(1)
-training_indices = rng.choice(np.arange(y.size), size=6, replace=False)
+training_indices = rng.choice(jnp.arange(y.size), size=6, replace=False)
 X_train, y_train = X[training_indices], y[training_indices]
 
 # %%
 # Now, we fit a Gaussian process on these few training data samples. We will
 # use a radial basis function (RBF) kernel and a constant parameter to fit the
 # amplitude.
-from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF
 
 kernel = 1 * RBF(length_scale=1.0, length_scale_bounds=(1e-2, 1e2))
-gaussian_process = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=9)
+gaussian_process = GaussianProcessRegressor(
+    kernel=kernel, n_restarts_optimizer=9)
 gaussian_process.fit(X_train, y_train)
 gaussian_process.kernel_
 
@@ -107,7 +108,8 @@ _ = plt.title("Gaussian process regression on noise-free dataset")
 # We add some random Gaussian noise to the target with an arbitrary
 # standard deviation.
 noise_std = 0.75
-y_train_noisy = y_train + rng.normal(loc=0.0, scale=noise_std, size=y_train.shape)
+y_train_noisy = y_train + \
+    rng.normal(loc=0.0, scale=noise_std, size=y_train.shape)
 
 # %%
 # We create a similar Gaussian process model. In addition to the kernel, this

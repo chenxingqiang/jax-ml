@@ -27,19 +27,19 @@ n_neighbors=20 appears to work well in general.
 
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.neighbors import LocalOutlierFactor
+from xlearn.neighbors import LocalOutlierFactor
 
 np.random.seed(42)
 
-xx, yy = np.meshgrid(np.linspace(-5, 5, 500), np.linspace(-5, 5, 500))
+xx, yy = jnp.meshgrid(jnp.linspace(-5, 5, 500), jnp.linspace(-5, 5, 500))
 # Generate normal (not abnormal) training observations
 X = 0.3 * np.random.randn(100, 2)
-X_train = np.r_[X + 2, X - 2]
+X_train = jnp.r_[X + 2, X - 2]
 # Generate new normal (not abnormal) observations
 X = 0.3 * np.random.randn(20, 2)
-X_test = np.r_[X + 2, X - 2]
+X_test = jnp.r_[X + 2, X - 2]
 # Generate some abnormal novel observations
 X_outliers = np.random.uniform(low=-4, high=4, size=(20, 2))
 
@@ -55,18 +55,20 @@ n_error_test = y_pred_test[y_pred_test == -1].size
 n_error_outliers = y_pred_outliers[y_pred_outliers == 1].size
 
 # plot the learned frontier, the points, and the nearest vectors to the plane
-Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+Z = clf.decision_function(jnp.c_[xx.ravel(), yy.ravel()])
 Z = Z.reshape(xx.shape)
 
 plt.title("Novelty Detection with LOF")
-plt.contourf(xx, yy, Z, levels=np.linspace(Z.min(), 0, 7), cmap=plt.cm.PuBu)
+plt.contourf(xx, yy, Z, levels=jnp.linspace(Z.min(), 0, 7), cmap=plt.cm.PuBu)
 a = plt.contour(xx, yy, Z, levels=[0], linewidths=2, colors="darkred")
 plt.contourf(xx, yy, Z, levels=[0, Z.max()], colors="palevioletred")
 
 s = 40
 b1 = plt.scatter(X_train[:, 0], X_train[:, 1], c="white", s=s, edgecolors="k")
-b2 = plt.scatter(X_test[:, 0], X_test[:, 1], c="blueviolet", s=s, edgecolors="k")
-c = plt.scatter(X_outliers[:, 0], X_outliers[:, 1], c="gold", s=s, edgecolors="k")
+b2 = plt.scatter(X_test[:, 0], X_test[:, 1],
+                 c="blueviolet", s=s, edgecolors="k")
+c = plt.scatter(X_outliers[:, 0], X_outliers[:, 1],
+                c="gold", s=s, edgecolors="k")
 plt.axis("tight")
 plt.xlim((-5, 5))
 plt.ylim((-5, 5))

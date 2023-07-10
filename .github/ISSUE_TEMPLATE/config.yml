@@ -1,17 +1,17 @@
 blank_issues_enabled: true
 contact_links:
   - name: Discussions
-    url: https://github.com/scikit-learn/scikit-learn/discussions/new
-    about: Ask questions and discuss with other scikit-learn community members
+    url: https://github.com/jax-learn/jax-learn/discussions/new
+    about: Ask questions and discuss with other jax-learn community members
   - name: Stack Overflow
-    url: https://stackoverflow.com/questions/tagged/scikit-learn
+    url: https://stackoverflow.com/questions/tagged/jax-learn
     about: Please ask and answer usage questions on Stack Overflow
   - name: Mailing list
-    url: https://mail.python.org/mailman/listinfo/scikit-learn
+    url: https://mail.python.org/mailman/listinfo/jax-learn
     about: General discussions and announcements on the mailing list
   - name: Gitter
-    url: https://gitter.im/scikit-learn/scikit-learn
+    url: https://gitter.im/jax-learn/jax-learn
     about: Users and developers can sometimes be found on the gitter channel
   - name: Blank issue
-    url: https://github.com/scikit-learn/scikit-learn/issues/new
+    url: https://github.com/jax-learn/jax-learn/issues/new
     about: Please note that Github Discussions should be used in most cases instead

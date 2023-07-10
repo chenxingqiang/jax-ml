@@ -22,16 +22,16 @@ import shutil
 import tempfile
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from joblib import Memory
 from scipy import linalg, ndimage
 
-from sklearn import feature_selection
-from sklearn.cluster import FeatureAgglomeration
-from sklearn.feature_extraction.image import grid_to_graph
-from sklearn.linear_model import BayesianRidge
-from sklearn.model_selection import GridSearchCV, KFold
-from sklearn.pipeline import Pipeline
+from xlearn import feature_selection
+from xlearn.cluster import FeatureAgglomeration
+from xlearn.feature_extraction.image import grid_to_graph
+from xlearn.linear_model import BayesianRidge
+from xlearn.model_selection import GridSearchCV, KFold
+from xlearn.pipeline import Pipeline
 
 # %%
 # Set parameters
@@ -43,7 +43,7 @@ np.random.seed(0)
 
 # %%
 # Generate data
-coef = np.zeros((size, size))
+coef = jnp.zeros((size, size))
 coef[0:roi_size, 0:roi_size] = -1.0
 coef[-roi_size:, -roi_size:] = 1.0
 
@@ -53,12 +53,12 @@ for x in X:  # smooth data
 X -= X.mean(axis=0)
 X /= X.std(axis=0)
 
-y = np.dot(X, coef.ravel())
+y = jnp.dot(X, coef.ravel())
 
 # %%
 # add noise
 noise = np.random.randn(y.shape[0])
-noise_coef = (linalg.norm(y, 2) / np.exp(snr / 20.0)) / linalg.norm(noise, 2)
+noise_coef = (linalg.norm(y, 2) / jnp.exp(snr / 20.0)) / linalg.norm(noise, 2)
 y += noise_coef * noise
 
 # %%
@@ -71,7 +71,8 @@ mem = Memory(location=cachedir, verbose=1)
 # %%
 # Ward agglomeration followed by BayesianRidge
 connectivity = grid_to_graph(n_x=size, n_y=size)
-ward = FeatureAgglomeration(n_clusters=10, connectivity=connectivity, memory=mem)
+ward = FeatureAgglomeration(
+    n_clusters=10, connectivity=connectivity, memory=mem)
 clf = Pipeline([("ward", ward), ("ridge", ridge)])
 # Select the optimal number of parcels with grid search
 clf = GridSearchCV(clf, {"ward__n_clusters": [10, 20, 30]}, n_jobs=1, cv=cv)

@@ -11,18 +11,26 @@ intervals.
 # %%
 # Generate some data for a synthetic regression problem by applying the
 # function f to uniformly sampled random inputs.
-import numpy as np
+from xlearn.base import clone
+from pprint import pprint
+from xlearn.metrics import make_scorer
+from xlearn.model_selection import HalvingRandomSearchCV
+import pandas as pd
+import matplotlib.pyplot as plt
+from xlearn.metrics import mean_pinball_loss, mean_squared_error
+from xlearn.ensemble import GradientBoostingRegressor
+import jax.numpy as jnp
 
-from sklearn.model_selection import train_test_split
+from xlearn.model_selection import train_test_split
 
 
 def f(x):
     """The function to predict."""
-    return x * np.sin(x)
+    return x * jnp.sin(x)
 
 
 rng = np.random.RandomState(42)
-X = np.atleast_2d(rng.uniform(0, 10.0, size=1000)).T
+X = jnp.atleast_2d(rng.uniform(0, 10.0, size=1000)).T
 expected_y = f(X).ravel()
 
 # %%
@@ -36,7 +44,7 @@ expected_y = f(X).ravel()
 # The lognormal distribution is non-symmetric and long tailed: observing large
 # outliers is likely but it is impossible to observe small outliers.
 sigma = 0.5 + X.ravel() / 10
-noise = rng.lognormal(sigma=sigma) - np.exp(sigma**2 / 2)
+noise = rng.lognormal(sigma=sigma) - jnp.exp(sigma**2 / 2)
 y = expected_y + noise
 
 # %%
@@ -56,8 +64,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 # The model trained with alpha=0.5 produces a regression of the median: on
 # average, there should be the same number of target observations above and
 # below the predicted values.
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.metrics import mean_pinball_loss, mean_squared_error
 
 all_models = {}
 common_params = dict(
@@ -68,12 +74,13 @@ common_params = dict(
     min_samples_split=9,
 )
 for alpha in [0.05, 0.5, 0.95]:
-    gbr = GradientBoostingRegressor(loss="quantile", alpha=alpha, **common_params)
+    gbr = GradientBoostingRegressor(
+        loss="quantile", alpha=alpha, **common_params)
     all_models["q %1.2f" % alpha] = gbr.fit(X_train, y_train)
 
 # %%
-# Notice that :class:`~sklearn.ensemble.HistGradientBoostingRegressor` is much
-# faster than :class:`~sklearn.ensemble.GradientBoostingRegressor` starting with
+# Notice that :class:`~xlearn.ensemble.HistGradientBoostingRegressor` is much
+# faster than :class:`~xlearn.ensemble.GradientBoostingRegressor` starting with
 # intermediate datasets (`n_samples >= 10_000`), which is not the case of the
 # present example.
 #
@@ -85,13 +92,12 @@ all_models["mse"] = gbr_ls.fit(X_train, y_train)
 # %%
 # Create an evenly spaced evaluation set of input values spanning the [0, 10]
 # range.
-xx = np.atleast_2d(np.linspace(0, 10, 1000)).T
+xx = jnp.atleast_2d(jnp.linspace(0, 10, 1000)).T
 
 # %%
 # Plot the true conditional mean function f, the predictions of the conditional
 # mean (loss equals squared error), the conditional median and the conditional
 # 90% interval (from 5th to 95th conditional percentiles).
-import matplotlib.pyplot as plt
 
 y_pred = all_models["mse"].predict(xx)
 y_lower = all_models["q 0.05"].predict(xx)
@@ -130,7 +136,6 @@ plt.show()
 #
 # Measure the models with :func:`mean_squared_error` and
 # :func:`mean_pinball_loss` metrics on the training dataset.
-import pandas as pd
 
 
 def highlight_min(x):
@@ -143,7 +148,8 @@ for name, gbr in sorted(all_models.items()):
     metrics = {"model": name}
     y_pred = gbr.predict(X_train)
     for alpha in [0.05, 0.5, 0.95]:
-        metrics["pbl=%1.2f" % alpha] = mean_pinball_loss(y_train, y_pred, alpha=alpha)
+        metrics["pbl=%1.2f" % alpha] = mean_pinball_loss(
+            y_train, y_pred, alpha=alpha)
     metrics["MSE"] = mean_squared_error(y_train, y_pred)
     results.append(metrics)
 
@@ -170,7 +176,8 @@ for name, gbr in sorted(all_models.items()):
     metrics = {"model": name}
     y_pred = gbr.predict(X_test)
     for alpha in [0.05, 0.5, 0.95]:
-        metrics["pbl=%1.2f" % alpha] = mean_pinball_loss(y_test, y_pred, alpha=alpha)
+        metrics["pbl=%1.2f" % alpha] = mean_pinball_loss(
+            y_test, y_pred, alpha=alpha)
     metrics["MSE"] = mean_squared_error(y_test, y_pred)
     results.append(metrics)
 
@@ -199,7 +206,7 @@ pd.DataFrame(results).set_index("model").style.apply(highlight_min)
 # To do this we can compute the fraction of observations that fall between the
 # predictions:
 def coverage_fraction(y, y_low, y_high):
-    return np.mean(np.logical_and(y >= y_low, y <= y_high))
+    return jnp.mean(jnp.logical_and(y >= y_low, y <= y_high))
 
 
 coverage_fraction(
@@ -212,7 +219,8 @@ coverage_fraction(
 # On the training set the calibration is very close to the expected coverage
 # value for a 90% confidence interval.
 coverage_fraction(
-    y_test, all_models["q 0.05"].predict(X_test), all_models["q 0.95"].predict(X_test)
+    y_test, all_models["q 0.05"].predict(
+        X_test), all_models["q 0.95"].predict(X_test)
 )
 
 
@@ -236,10 +244,7 @@ coverage_fraction(
 # cross-validation on the pinball loss with alpha=0.05:
 
 # %%
-from sklearn.experimental import enable_halving_search_cv  # noqa
-from sklearn.model_selection import HalvingRandomSearchCV
-from sklearn.metrics import make_scorer
-from pprint import pprint
+from xlearn.experimental import enable_halving_search_cv  # noqa
 
 param_grid = dict(
     learning_rate=[0.05, 0.1, 0.2],
@@ -275,7 +280,6 @@ pprint(search_05p.best_params_)
 # need to redefine the `scoring` metric used to select the best model, along
 # with adjusting the alpha parameter of the inner gradient boosting estimator
 # itself:
-from sklearn.base import clone
 
 alpha = 0.95
 neg_mean_pinball_loss_95p_scorer = make_scorer(
@@ -323,9 +327,11 @@ plt.show()
 #
 # We now quantitatively evaluate the joint-calibration of the pair of
 # estimators:
-coverage_fraction(y_train, search_05p.predict(X_train), search_95p.predict(X_train))
+coverage_fraction(y_train, search_05p.predict(
+    X_train), search_95p.predict(X_train))
 # %%
-coverage_fraction(y_test, search_05p.predict(X_test), search_95p.predict(X_test))
+coverage_fraction(y_test, search_05p.predict(
+    X_test), search_95p.predict(X_test))
 # %%
 # The calibration of the tuned pair is sadly not better on the test set: the
 # width of the estimated confidence interval is still too narrow.

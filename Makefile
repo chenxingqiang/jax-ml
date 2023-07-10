@@ -19,12 +19,8 @@ clean: clean-ctags
 	$(PYTHON) setup.py clean
 	rm -rf dist
 
-in: inplace # just a shortcut
-inplace:
-	$(PYTHON) setup.py build_ext -i
-
 test-code: in
-	$(PYTEST) --showlocals -v sklearn --durations=20
+	$(PYTEST) --showlocals -v xlearn --durations=20
 test-sphinxext:
 	$(PYTEST) --showlocals -v doc/sphinxext/
 test-doc:
@@ -32,27 +28,24 @@ ifeq ($(BITS),64)
 	$(PYTEST) $(shell find doc -name '*.rst' | sort)
 endif
 test-code-parallel: in
-	$(PYTEST) -n auto --showlocals -v sklearn --durations=20
+	$(PYTEST) -n auto --showlocals -v xlearn --durations=20
 
 test-coverage:
 	rm -rf coverage .coverage
-	$(PYTEST) sklearn --showlocals -v --cov=sklearn --cov-report=html:coverage
+	$(PYTEST) xlearn --showlocals -v --cov=xlearn --cov-report=html:coverage
 test-coverage-parallel:
 	rm -rf coverage .coverage .coverage.*
-	$(PYTEST) sklearn -n auto --showlocals -v --cov=sklearn --cov-report=html:coverage
+	$(PYTEST) xlearn -n auto --showlocals -v --cov=xlearn --cov-report=html:coverage
 
 test: test-code test-sphinxext test-doc
 
 trailing-spaces:
-	find sklearn -name "*.py" -exec perl -pi -e 's/[ \t]*$$//' {} \;
-
-cython:
-	python setup.py build_src
+	find xlearn -name "*.py" -exec perl -pi -e 's/[ \t]*$$//' {} \;
 
 ctags:
 	# make tags for symbol based navigation in emacs and vim
 	# Install with: sudo apt-get install exuberant-ctags
-	$(CTAGS) --python-kinds=-i -R sklearn
+	$(CTAGS) --python-kinds=-i -R xlearn
 
 doc: inplace
 	$(MAKE) -C doc html

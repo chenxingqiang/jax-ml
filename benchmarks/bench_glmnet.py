@@ -2,7 +2,7 @@
 To run this, you'll need to have installed.
 
   * glmnet-python
-  * scikit-learn (of course)
+  * jax-learn (of course)
 
 Does two benchmarks
 
@@ -19,16 +19,16 @@ In both cases, only 10% of the features are informative.
 import gc
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import make_regression
+from xlearn.datasets import make_regression
 
 alpha = 0.1
 # alpha = 0.01
 
 
 def rmse(a, b):
-    return np.sqrt(np.mean((a - b) ** 2))
+    return jnp.sqrt(jnp.mean((a - b) ** 2))
 
 
 def bench(factory, X, Y, X_test, Y_test, ref_coef):
@@ -51,9 +51,9 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     from glmnet.elastic_net import Lasso as GlmnetLasso
 
-    from sklearn.linear_model import Lasso as ScikitLasso
+    from xlearn.linear_model import Lasso as JaxLasso
 
-    scikit_results = []
+    jax_results = []
     glmnet_results = []
     n = 20
     step = 500
@@ -78,15 +78,15 @@ if __name__ == "__main__":
         X = X[: (i * step)]
         Y = Y[: (i * step)]
 
-        print("benchmarking scikit-learn: ")
-        scikit_results.append(bench(ScikitLasso, X, Y, X_test, Y_test, coef_))
+        print("benchmarking jax-learn: ")
+        jax_results.append(bench(JaxLasso, X, Y, X_test, Y_test, coef_))
         print("benchmarking glmnet: ")
         glmnet_results.append(bench(GlmnetLasso, X, Y, X_test, Y_test, coef_))
 
     plt.clf()
     xx = range(0, n * step, step)
     plt.title("Lasso regression on sample dataset (%d features)" % n_features)
-    plt.plot(xx, scikit_results, "b-", label="scikit-learn")
+    plt.plot(xx, jax_results, "b-", label="jax-learn")
     plt.plot(xx, glmnet_results, "r-", label="glmnet")
     plt.legend()
     plt.xlabel("number of samples to classify")
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     # now do a benchmark where the number of points is fixed
     # and the variable is the number of features
 
-    scikit_results = []
+    jax_results = []
     glmnet_results = []
     n = 20
     step = 100
@@ -122,15 +122,15 @@ if __name__ == "__main__":
         X = X[:n_samples]
         Y = Y[:n_samples]
 
-        print("benchmarking scikit-learn: ")
-        scikit_results.append(bench(ScikitLasso, X, Y, X_test, Y_test, coef_))
+        print("benchmarking jax-learn: ")
+        jax_results.append(bench(JaxLasso, X, Y, X_test, Y_test, coef_))
         print("benchmarking glmnet: ")
         glmnet_results.append(bench(GlmnetLasso, X, Y, X_test, Y_test, coef_))
 
-    xx = np.arange(100, 100 + n * step, step)
-    plt.figure("scikit-learn vs. glmnet benchmark results")
+    xx = jnp.arange(100, 100 + n * step, step)
+    plt.figure("jax-learn vs. glmnet benchmark results")
     plt.title("Regression in high dimensional spaces (%d samples)" % n_samples)
-    plt.plot(xx, scikit_results, "b-", label="scikit-learn")
+    plt.plot(xx, jax_results, "b-", label="jax-learn")
     plt.plot(xx, glmnet_results, "r-", label="glmnet")
     plt.legend()
     plt.xlabel("number of features")

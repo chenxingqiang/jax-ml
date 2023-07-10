@@ -21,7 +21,10 @@ of the predictions can be parallelized within multiple jobs.
 # method is that it cannot be evaluated on a separate test set. For this
 # example, we are interested in representing the information learned from
 # the full dataset. Also, we'll set the number of cores to use for the tasks.
-from sklearn.datasets import fetch_olivetti_faces
+import matplotlib.pyplot as plt
+import time
+from xlearn.ensemble import RandomForestClassifier
+from xlearn.datasets import fetch_olivetti_faces
 
 # %%
 # We select the number of cores to use to perform parallel fitting of
@@ -41,9 +44,9 @@ y = y[mask]
 
 # %%
 # A random forest classifier will be fitted to compute the feature importances.
-from sklearn.ensemble import RandomForestClassifier
 
-forest = RandomForestClassifier(n_estimators=750, n_jobs=n_jobs, random_state=42)
+forest = RandomForestClassifier(
+    n_estimators=750, n_jobs=n_jobs, random_state=42)
 
 forest.fit(X, y)
 
@@ -58,9 +61,7 @@ forest.fit(X, y)
 #     Impurity-based feature importances can be misleading for **high
 #     cardinality** features (many unique values). See
 #     :ref:`permutation_importance` as an alternative.
-import time
 
-import matplotlib.pyplot as plt
 
 start_time = time.time()
 img_shape = data.images[0].shape
@@ -86,4 +87,4 @@ plt.show()
 #     on the training set.
 #
 # If these two conditions are not met, it is recommended to instead use
-# the :func:`~sklearn.inspection.permutation_importance`.
+# the :func:`~xlearn.inspection.permutation_importance`.

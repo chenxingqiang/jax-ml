@@ -79,7 +79,12 @@ map.
 # Utility class to move the midpoint of a colormap to be around
 # the values of interest.
 
-import numpy as np
+import matplotlib.pyplot as plt
+from xlearn.svm import SVC
+from xlearn.model_selection import GridSearchCV, StratifiedShuffleSplit
+from xlearn.preprocessing import StandardScaler
+from xlearn.datasets import load_iris
+import jax.numpy as jnp
 from matplotlib.colors import Normalize
 
 
@@ -90,7 +95,7 @@ class MidpointNormalize(Normalize):
 
     def __call__(self, value, clip=None):
         x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
-        return np.ma.masked_array(np.interp(value, x, y))
+        return jnp.ma.masked_array(jnp.interp(value, x, y))
 
 
 # %%
@@ -99,7 +104,6 @@ class MidpointNormalize(Normalize):
 #
 # dataset for grid search
 
-from sklearn.datasets import load_iris
 
 iris = load_iris()
 X = iris.data
@@ -121,7 +125,6 @@ y_2d -= 1
 # instead of fitting the transformation on the training set and
 # just applying it on the test set.
 
-from sklearn.preprocessing import StandardScaler
 
 scaler = StandardScaler()
 X = scaler.fit_transform(X)
@@ -135,11 +138,9 @@ X_2d = scaler.fit_transform(X_2d)
 # 10 is often helpful. Using a basis of 2, a finer
 # tuning can be achieved but at a much higher cost.
 
-from sklearn.model_selection import GridSearchCV, StratifiedShuffleSplit
-from sklearn.svm import SVC
 
-C_range = np.logspace(-2, 10, 13)
-gamma_range = np.logspace(-9, 3, 13)
+C_range = jnp.logspace(-2, 10, 13)
+gamma_range = jnp.logspace(-9, 3, 13)
 param_grid = dict(gamma=gamma_range, C=C_range)
 cv = StratifiedShuffleSplit(n_splits=5, test_size=0.2, random_state=42)
 grid = GridSearchCV(SVC(), param_grid=param_grid, cv=cv)
@@ -169,27 +170,29 @@ for C in C_2d_range:
 #
 # draw visualization of parameter effects
 
-import matplotlib.pyplot as plt
 
 plt.figure(figsize=(8, 6))
-xx, yy = np.meshgrid(np.linspace(-3, 3, 200), np.linspace(-3, 3, 200))
+xx, yy = jnp.meshgrid(jnp.linspace(-3, 3, 200), jnp.linspace(-3, 3, 200))
 for k, (C, gamma, clf) in enumerate(classifiers):
     # evaluate decision function in a grid
-    Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+    Z = clf.decision_function(jnp.c_[xx.ravel(), yy.ravel()])
     Z = Z.reshape(xx.shape)
 
     # visualize decision function for these parameters
     plt.subplot(len(C_2d_range), len(gamma_2d_range), k + 1)
-    plt.title("gamma=10^%d, C=10^%d" % (np.log10(gamma), np.log10(C)), size="medium")
+    plt.title("gamma=10^%d, C=10^%d" %
+              (jnp.log10(gamma), jnp.log10(C)), size="medium")
 
     # visualize parameter's effect on decision function
     plt.pcolormesh(xx, yy, -Z, cmap=plt.cm.RdBu)
-    plt.scatter(X_2d[:, 0], X_2d[:, 1], c=y_2d, cmap=plt.cm.RdBu_r, edgecolors="k")
+    plt.scatter(X_2d[:, 0], X_2d[:, 1], c=y_2d,
+                cmap=plt.cm.RdBu_r, edgecolors="k")
     plt.xticks(())
     plt.yticks(())
     plt.axis("tight")
 
-scores = grid.cv_results_["mean_test_score"].reshape(len(C_range), len(gamma_range))
+scores = grid.cv_results_["mean_test_score"].reshape(
+    len(C_range), len(gamma_range))
 
 # %%
 # Draw heatmap of the validation accuracy as a function of gamma and C
@@ -212,7 +215,7 @@ plt.imshow(
 plt.xlabel("gamma")
 plt.ylabel("C")
 plt.colorbar()
-plt.xticks(np.arange(len(gamma_range)), gamma_range, rotation=45)
-plt.yticks(np.arange(len(C_range)), C_range)
+plt.xticks(jnp.arange(len(gamma_range)), gamma_range, rotation=45)
+plt.yticks(jnp.arange(len(C_range)), C_range)
 plt.title("Validation accuracy")
 plt.show()

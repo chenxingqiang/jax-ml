@@ -35,20 +35,20 @@ tends to divide natural clusters into unnecessary sub-components.
 import matplotlib as mpl
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.mixture import BayesianGaussianMixture
+from xlearn.mixture import BayesianGaussianMixture
 
 
 def plot_ellipses(ax, weights, means, covars):
     for n in range(means.shape[0]):
-        eig_vals, eig_vecs = np.linalg.eigh(covars[n])
-        unit_eig_vec = eig_vecs[0] / np.linalg.norm(eig_vecs[0])
-        angle = np.arctan2(unit_eig_vec[1], unit_eig_vec[0])
+        eig_vals, eig_vecs = jnp.linalg.eigh(covars[n])
+        unit_eig_vec = eig_vecs[0] / jnp.linalg.norm(eig_vecs[0])
+        angle = jnp.arctan2(unit_eig_vec[1], unit_eig_vec[0])
         # Ellipse needs degrees
-        angle = 180 * angle / np.pi
+        angle = 180 * angle / jnp.pi
         # eigenvector normalization
-        eig_vals = 2 * np.sqrt(2) * np.sqrt(eig_vals)
+        eig_vals = 2 * jnp.sqrt(2) * jnp.sqrt(eig_vals)
         ell = mpl.patches.Ellipse(
             means[n], eig_vals[0], eig_vals[1], angle=180 + angle, edgecolor="black"
         )
@@ -65,7 +65,8 @@ def plot_results(ax1, ax2, estimator, X, y, title, plot_title=False):
     ax1.set_ylim(-3.0, 3.0)
     ax1.set_xticks(())
     ax1.set_yticks(())
-    plot_ellipses(ax1, estimator.weights_, estimator.means_, estimator.covariances_)
+    plot_ellipses(ax1, estimator.weights_,
+                  estimator.means_, estimator.covariances_)
 
     ax2.get_xaxis().set_tick_params(direction="out")
     ax2.yaxis.grid(True, alpha=0.7)
@@ -79,10 +80,12 @@ def plot_results(ax1, ax2, estimator, X, y, title, plot_title=False):
             align="center",
             edgecolor="black",
         )
-        ax2.text(k, w + 0.007, "%.1f%%" % (w * 100.0), horizontalalignment="center")
+        ax2.text(k, w + 0.007, "%.1f%%" %
+                 (w * 100.0), horizontalalignment="center")
     ax2.set_xlim(-0.6, 2 * n_components - 0.4)
     ax2.set_ylim(0.0, 1.1)
-    ax2.tick_params(axis="y", which="both", left=False, right=False, labelleft=False)
+    ax2.tick_params(axis="y", which="both", left=False,
+                    right=False, labelleft=False)
     ax2.tick_params(axis="x", which="both", top=False)
 
     if plot_title:
@@ -92,13 +95,13 @@ def plot_results(ax1, ax2, estimator, X, y, title, plot_title=False):
 
 # Parameters of the dataset
 random_state, n_components, n_features = 2, 3, 2
-colors = np.array(["#0072B2", "#F0E442", "#D55E00"])
+colors = jnp.array(["#0072B2", "#F0E442", "#D55E00"])
 
-covars = np.array(
+covars = jnp.array(
     [[[0.7, 0.0], [0.0, 0.1]], [[0.5, 0.0], [0.0, 0.1]], [[0.5, 0.0], [0.0, 0.1]]]
 )
-samples = np.array([200, 500, 200])
-means = np.array([[0.0, -0.70], [0.0, 0.0], [0.0, 0.70]])
+samples = jnp.array([200, 500, 200])
+means = jnp.array([[0.0, -0.70], [0.0, 0.0], [0.0, 0.70]])
 
 # mean_precision_prior= 0.8 to minimize the influence of the prior
 estimators = [
@@ -132,13 +135,14 @@ estimators = [
 
 # Generate data
 rng = np.random.RandomState(random_state)
-X = np.vstack(
+X = jnp.vstack(
     [
         rng.multivariate_normal(means[j], covars[j], samples[j])
         for j in range(n_components)
     ]
 )
-y = np.concatenate([np.full(samples[j], j, dtype=int) for j in range(n_components)])
+y = jnp.concatenate([jnp.full(samples[j], j, dtype=int)
+                   for j in range(n_components)])
 
 # Plot results in two different figures
 for title, estimator, concentrations_prior in estimators:

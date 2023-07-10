@@ -4,10 +4,11 @@ Plot the scaling of the nearest neighbors algorithms with k, D, and N
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from matplotlib import ticker
+import numpy as np
 
-from sklearn import datasets, neighbors
+from xlearn import datasets, neighbors
 
 
 def get_data(N, D, dataset="dense"):
@@ -16,7 +17,7 @@ def get_data(N, D, dataset="dense"):
         return np.random.random((N, D))
     elif dataset == "digits":
         X, _ = datasets.load_digits(return_X_y=True)
-        i = np.argsort(X[0])[::-1]
+        i = jnp.argsort(X[0])[::-1]
         X = X[:, i]
         return X[:N, :D]
     else:
@@ -24,9 +25,9 @@ def get_data(N, D, dataset="dense"):
 
 
 def barplot_neighbors(
-    Nrange=2 ** np.arange(1, 11),
-    Drange=2 ** np.arange(7),
-    krange=2 ** np.arange(10),
+    Nrange=2 ** jnp.arange(1, 11),
+    Drange=2 ** jnp.arange(7),
+    krange=2 ** jnp.arange(10),
     N=1000,
     D=64,
     k=5,
@@ -38,8 +39,8 @@ def barplot_neighbors(
 
     # ------------------------------------------------------------
     # varying N
-    N_results_build = {alg: np.zeros(len(Nrange)) for alg in algorithms}
-    N_results_query = {alg: np.zeros(len(Nrange)) for alg in algorithms}
+    N_results_build = {alg: jnp.zeros(len(Nrange)) for alg in algorithms}
+    N_results_query = {alg: jnp.zeros(len(Nrange)) for alg in algorithms}
 
     for i, NN in enumerate(Nrange):
         print("N = %i (%i out of %i)" % (NN, i + 1, len(Nrange)))
@@ -59,8 +60,8 @@ def barplot_neighbors(
 
     # ------------------------------------------------------------
     # varying D
-    D_results_build = {alg: np.zeros(len(Drange)) for alg in algorithms}
-    D_results_query = {alg: np.zeros(len(Drange)) for alg in algorithms}
+    D_results_build = {alg: jnp.zeros(len(Drange)) for alg in algorithms}
+    D_results_query = {alg: jnp.zeros(len(Drange)) for alg in algorithms}
 
     for i, DD in enumerate(Drange):
         print("D = %i (%i out of %i)" % (DD, i + 1, len(Drange)))
@@ -80,8 +81,8 @@ def barplot_neighbors(
 
     # ------------------------------------------------------------
     # varying k
-    k_results_build = {alg: np.zeros(len(krange)) for alg in algorithms}
-    k_results_query = {alg: np.zeros(len(krange)) for alg in algorithms}
+    k_results_build = {alg: jnp.zeros(len(krange)) for alg in algorithms}
+    k_results_query = {alg: jnp.zeros(len(krange)) for alg in algorithms}
 
     X = get_data(N, DD, dataset)
 
@@ -113,16 +114,18 @@ def barplot_neighbors(
         tick_vals = []
         tick_labels = []
 
-        bottom = 10 ** np.min(
-            [min(np.floor(np.log10(build_time[alg]))) for alg in algorithms]
+        bottom = 10 ** jnp.min(
+            [min(jnp.floor(jnp.log10(build_time[alg]))) for alg in algorithms]
         )
 
         for i, alg in enumerate(algorithms):
-            xvals = 0.1 + i * (1 + len(vals)) + np.arange(len(vals))
+            xvals = 0.1 + i * (1 + len(vals)) + jnp.arange(len(vals))
             width = 0.8
 
-            c_bar = plt.bar(xvals, build_time[alg] - bottom, width, bottom, color="r")
-            q_bar = plt.bar(xvals, query_time[alg], width, build_time[alg], color="b")
+            c_bar = plt.bar(
+                xvals, build_time[alg] - bottom, width, bottom, color="r")
+            q_bar = plt.bar(
+                xvals, query_time[alg], width, build_time[alg], color="b")
 
             tick_vals += list(xvals + 0.5 * width)
             tick_labels += ["%i" % val for val in vals]
@@ -181,7 +184,8 @@ def barplot_neighbors(
 
         plt.gcf().suptitle("%s data set" % dataset.capitalize(), fontsize=16)
 
-    plt.figlegend((c_bar, q_bar), ("construction", "N-point query"), "upper right")
+    plt.figlegend((c_bar, q_bar), ("construction",
+                  "N-point query"), "upper right")
 
 
 if __name__ == "__main__":

@@ -72,10 +72,10 @@ from collections import defaultdict
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 import scipy as sp
 
-from sklearn.datasets import (
+from xlearn.datasets import (
     fetch_20newsgroups_vectorized,
     fetch_lfw_people,
     fetch_olivetti_faces,
@@ -84,10 +84,10 @@ from sklearn.datasets import (
     make_low_rank_matrix,
     make_sparse_uncorrelated,
 )
-from sklearn.utils import gen_batches
-from sklearn.utils._arpack import _init_arpack_v0
-from sklearn.utils.extmath import randomized_svd
-from sklearn.utils.validation import check_random_state
+from xlearn.utils import gen_batches
+from xlearn.utils._arpack import _init_arpack_v0
+from xlearn.utils.extmath import randomized_svd
+from xlearn.utils.validation import check_random_state
 
 try:
     import fbpca
@@ -156,15 +156,16 @@ def get_data(dataset_name):
     elif dataset_name == "CIFAR":
         if handle_missing_dataset(CIFAR_FOLDER) == 0:
             return
-        X1 = [unpickle("%sdata_batch_%d" % (CIFAR_FOLDER, i + 1)) for i in range(5)]
-        X = np.vstack(X1)
+        X1 = [unpickle("%sdata_batch_%d" % (CIFAR_FOLDER, i + 1))
+              for i in range(5)]
+        X = jnp.vstack(X1)
         del X1
     elif dataset_name == "SVHN":
         if handle_missing_dataset(SVHN_FOLDER) == 0:
             return
         X1 = sp.io.loadmat("%strain_32x32.mat" % SVHN_FOLDER)["X"]
         X2 = [X1[:, :, :, i].reshape(32 * 32 * 3) for i in range(X1.shape[3])]
-        X = np.vstack(X2)
+        X = jnp.vstack(X2)
         del X1
         del X2
     elif dataset_name == "low rank matrix":
@@ -184,7 +185,7 @@ def get_data(dataset_name):
         size = int(1e6)
         small_size = int(1e4)
         data = np.random.normal(0, 1, int(sparsity / 10))
-        data = np.repeat(data, 10)
+        data = jnp.repeat(data, 10)
         row = np.random.uniform(0, small_size, sparsity)
         col = np.random.uniform(0, small_size, sparsity)
         X = sp.sparse.csr_matrix((data, (row, col)), shape=(size, small_size))
@@ -314,7 +315,8 @@ def norm_diff(A, norm=2, msg=True, random_state=None):
     if norm == 2:
         # s = sp.linalg.norm(A, ord=2)  # slow
         v0 = _init_arpack_v0(min(A.shape), random_state)
-        value = sp.sparse.linalg.svds(A, k=1, return_singular_vectors=False, v0=v0)
+        value = sp.sparse.linalg.svds(
+            A, k=1, return_singular_vectors=False, v0=v0)
     else:
         if sp.sparse.issparse(A):
             value = sp.sparse.linalg.norm(A, ord=norm)
@@ -328,18 +330,18 @@ def scalable_frobenius_norm_discrepancy(X, U, s, V):
         X.shape[0] * X.shape[1] * X.dtype.itemsize < MAX_MEMORY
     ):
         # if the input is not sparse or sparse but not too big,
-        # U.dot(np.diag(s).dot(V)) will fit in RAM
-        A = X - U.dot(np.diag(s).dot(V))
+        # U.dot(jnp.diag(s).dot(V)) will fit in RAM
+        A = X - U.dot(jnp.diag(s).dot(V))
         return norm_diff(A, norm="fro")
 
     print("... computing fro norm by batches...")
     batch_size = 1000
-    Vhat = np.diag(s).dot(V)
+    Vhat = jnp.diag(s).dot(V)
     cum_norm = 0.0
     for batch in gen_batches(X.shape[0], batch_size):
         M = X[batch, :] - U[batch, :].dot(Vhat)
         cum_norm += norm_diff(M, norm="fro", msg=False)
-    return np.sqrt(cum_norm)
+    return jnp.sqrt(cum_norm)
 
 
 def bench_a(X, dataset_name, power_iter, n_oversamples, n_comps):
@@ -352,7 +354,7 @@ def bench_a(X, dataset_name, power_iter, n_oversamples, n_comps):
 
     for pi in power_iter:
         for pm in ["none", "LU", "QR"]:
-            print("n_iter = %d on sklearn - %s" % (pi, pm))
+            print("n_iter = %d on xlearn - %s" % (pi, pm))
             U, s, V, time = svd_timing(
                 X,
                 n_comps,
@@ -360,10 +362,10 @@ def bench_a(X, dataset_name, power_iter, n_oversamples, n_comps):
                 power_iteration_normalizer=pm,
                 n_oversamples=n_oversamples,
             )
-            label = "sklearn - %s" % pm
+            label = "xlearn - %s" % pm
             all_time[label].append(time)
             if enable_spectral_norm:
-                A = U.dot(np.diag(s).dot(V))
+                A = U.dot(jnp.diag(s).dot(V))
                 all_spectral[label].append(
                     norm_diff(X - A, norm=2, random_state=0) / X_spectral_norm
                 )
@@ -383,7 +385,7 @@ def bench_a(X, dataset_name, power_iter, n_oversamples, n_comps):
             label = "fbpca"
             all_time[label].append(time)
             if enable_spectral_norm:
-                A = U.dot(np.diag(s).dot(V))
+                A = U.dot(jnp.diag(s).dot(V))
                 all_spectral[label].append(
                     norm_diff(X - A, norm=2, random_state=0) / X_spectral_norm
                 )
@@ -429,9 +431,10 @@ def bench_b(power_list):
                     power_iteration_normalizer="LU",
                 )
                 if enable_spectral_norm:
-                    A = U.dot(np.diag(s).dot(V))
+                    A = U.dot(jnp.diag(s).dot(V))
                     all_spectral[label].append(
-                        norm_diff(X - A, norm=2, random_state=0) / X_spectral_norm
+                        norm_diff(X - A, norm=2, random_state=0) /
+                        X_spectral_norm
                     )
                 f = scalable_frobenius_norm_discrepancy(X, U, s, V)
                 all_frobenius[label].append(f / X_fro_norm)
@@ -457,15 +460,17 @@ def bench_c(datasets, n_comps):
         if enable_spectral_norm:
             X_spectral_norm = norm_diff(X, norm=2, msg=False, random_state=0)
         X_fro_norm = norm_diff(X, norm="fro", msg=False)
-        n_comps = np.minimum(n_comps, np.min(X.shape))
+        n_comps = jnp.minimum(n_comps, jnp.min(X.shape))
 
-        label = "sklearn"
-        print("%s %d x %d - %s" % (dataset_name, X.shape[0], X.shape[1], label))
-        U, s, V, time = svd_timing(X, n_comps, n_iter=2, n_oversamples=10, method=label)
+        label = "xlearn"
+        print("%s %d x %d - %s" %
+              (dataset_name, X.shape[0], X.shape[1], label))
+        U, s, V, time = svd_timing(
+            X, n_comps, n_iter=2, n_oversamples=10, method=label)
 
         all_time[label].append(time)
         if enable_spectral_norm:
-            A = U.dot(np.diag(s).dot(V))
+            A = U.dot(jnp.diag(s).dot(V))
             all_spectral[label].append(
                 norm_diff(X - A, norm=2, random_state=0) / X_spectral_norm
             )
@@ -474,13 +479,14 @@ def bench_c(datasets, n_comps):
 
         if fbpca_available:
             label = "fbpca"
-            print("%s %d x %d - %s" % (dataset_name, X.shape[0], X.shape[1], label))
+            print("%s %d x %d - %s" %
+                  (dataset_name, X.shape[0], X.shape[1], label))
             U, s, V, time = svd_timing(
                 X, n_comps, n_iter=2, n_oversamples=2, method=label
             )
             all_time[label].append(time)
             if enable_spectral_norm:
-                A = U.dot(np.diag(s).dot(V))
+                A = U.dot(jnp.diag(s).dot(V))
                 all_spectral[label].append(
                     norm_diff(X - A, norm=2, random_state=0) / X_spectral_norm
                 )
@@ -500,7 +506,7 @@ def bench_c(datasets, n_comps):
 if __name__ == "__main__":
     random_state = check_random_state(1234)
 
-    power_iter = np.arange(0, 6)
+    power_iter = jnp.arange(0, 6)
     n_comps = 50
 
     for dataset_name in datasets:
@@ -508,7 +514,7 @@ if __name__ == "__main__":
         if X is None:
             continue
         print(
-            " >>>>>> Benching sklearn and fbpca on %s %d x %d"
+            " >>>>>> Benching xlearn and fbpca on %s %d x %d"
             % (dataset_name, X.shape[0], X.shape[1])
         )
         bench_a(
@@ -516,13 +522,13 @@ if __name__ == "__main__":
             dataset_name,
             power_iter,
             n_oversamples=2,
-            n_comps=np.minimum(n_comps, np.min(X.shape)),
+            n_comps=jnp.minimum(n_comps, jnp.min(X.shape)),
         )
 
     print(" >>>>>> Benching on simulated low rank matrix with variable rank")
     bench_b(power_iter)
 
-    print(" >>>>>> Benching sklearn and fbpca default configurations")
+    print(" >>>>>> Benching xlearn and fbpca default configurations")
     bench_c(datasets + big_sparse_datasets, n_comps)
 
     plt.show()

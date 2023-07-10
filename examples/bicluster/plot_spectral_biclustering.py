@@ -4,7 +4,7 @@ A demo of the Spectral Biclustering algorithm
 =============================================
 
 This example demonstrates how to generate a checkerboard dataset and bicluster
-it using the :class:`~sklearn.cluster.SpectralBiclustering` algorithm. The
+it using the :class:`~xlearn.cluster.SpectralBiclustering` algorithm. The
 spectral biclustering algorithm is specifically designed to cluster data by
 simultaneously considering both the rows (samples) and columns (features) of a
 matrix. It aims to identify patterns not only between samples but also within
@@ -25,16 +25,19 @@ plot the biclusters found.
 # Generate sample data
 # --------------------
 # We generate the sample data using the
-# :func:`~sklearn.datasets.make_checkerboard` function. Each pixel within
+# :func:`~xlearn.datasets.make_checkerboard` function. Each pixel within
 # `shape=(300, 300)` represents with it's color a value from a uniform
 # distribution. The noise is added from a normal distribution, where the value
 # chosen for `noise` is the standard deviation.
 #
 # As you can see, the data is distributed over 12 cluster cells and is
 # relatively well distinguishable.
+from xlearn.metrics import consensus_score
+from xlearn.cluster import SpectralBiclustering
+import jax.numpy as jnp
 from matplotlib import pyplot as plt
 
-from sklearn.datasets import make_checkerboard
+from xlearn.datasets import make_checkerboard
 
 n_clusters = (4, 3)
 data, rows, columns = make_checkerboard(
@@ -47,8 +50,7 @@ _ = plt.show()
 
 # %%
 # We shuffle the data and the goal is to reconstruct it afterwards using
-# :class:`~sklearn.bicluster.SpectralBiclustering`.
-import numpy as np
+# :class:`~xlearn.bicluster.SpectralBiclustering`.
 
 # Creating lists of shuffled row and column indices
 rng = np.random.RandomState(0)
@@ -71,15 +73,15 @@ _ = plt.show()
 # that when creating the model we specify the same number of clusters that we
 # used to create the dataset (`n_clusters = (4, 3)`), which will contribute to
 # obtain a good result.
-from sklearn.cluster import SpectralBiclustering
-from sklearn.metrics import consensus_score
 
-model = SpectralBiclustering(n_clusters=n_clusters, method="log", random_state=0)
+model = SpectralBiclustering(
+    n_clusters=n_clusters, method="log", random_state=0)
 model.fit(data)
 
 # Compute the similarity of two sets of biclusters
 score = consensus_score(
-    model.biclusters_, (rows[:, row_idx_shuffled], columns[:, col_idx_shuffled])
+    model.biclusters_, (rows[:, row_idx_shuffled],
+                        columns[:, col_idx_shuffled])
 )
 print(f"consensus score: {score:.1f}")
 
@@ -91,7 +93,7 @@ print(f"consensus score: {score:.1f}")
 # Plotting results
 # ----------------
 # Now, we rearrange the data based on the row and column labels assigned by the
-# :class:`~sklearn.cluster.SpectralBiclustering` model in ascending order and
+# :class:`~xlearn.cluster.SpectralBiclustering` model in ascending order and
 # plot again. The `row_labels_` range from 0 to 3, while the `column_labels_`
 # range from 0 to 2, representing a total of 4 clusters per row and 3 clusters
 # per column.
@@ -111,7 +113,8 @@ _ = plt.show()
 # and adds 1 to each to ensure that the labels start from 1 instead of 0 for
 # better visualization.
 plt.matshow(
-    np.outer(np.sort(model.row_labels_) + 1, np.sort(model.column_labels_) + 1),
+    np.outer(np.sort(model.row_labels_) + 1,
+             np.sort(model.column_labels_) + 1),
     cmap=plt.cm.Blues,
 )
 plt.title("Checkerboard structure of rearranged data")

@@ -11,10 +11,11 @@ Machine Intelligence. 2002. pp. 603-619.
 
 """
 
-import numpy as np
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 
-from sklearn.cluster import MeanShift, estimate_bandwidth
-from sklearn.datasets import make_blobs
+from xlearn.cluster import MeanShift, estimate_bandwidth
+from xlearn.datasets import make_blobs
 
 # %%
 # Generate sample data
@@ -34,7 +35,7 @@ ms.fit(X)
 labels = ms.labels_
 cluster_centers = ms.cluster_centers_
 
-labels_unique = np.unique(labels)
+labels_unique = jnp.unique(labels)
 n_clusters_ = len(labels_unique)
 
 print("number of estimated clusters : %d" % n_clusters_)
@@ -42,7 +43,6 @@ print("number of estimated clusters : %d" % n_clusters_)
 # %%
 # Plot result
 # -----------
-import matplotlib.pyplot as plt
 
 plt.figure(1)
 plt.clf()

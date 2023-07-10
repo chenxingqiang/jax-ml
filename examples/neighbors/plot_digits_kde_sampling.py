@@ -12,12 +12,12 @@ of the data.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import load_digits
-from sklearn.decomposition import PCA
-from sklearn.model_selection import GridSearchCV
-from sklearn.neighbors import KernelDensity
+from xlearn.datasets import load_digits
+from xlearn.decomposition import PCA
+from xlearn.model_selection import GridSearchCV
+from xlearn.neighbors import KernelDensity
 
 # load the data
 digits = load_digits()
@@ -27,7 +27,7 @@ pca = PCA(n_components=15, whiten=False)
 data = pca.fit_transform(digits.data)
 
 # use grid search cross-validation to optimize the bandwidth
-params = {"bandwidth": np.logspace(-1, 1, 20)}
+params = {"bandwidth": jnp.logspace(-1, 1, 20)}
 grid = GridSearchCV(KernelDensity(), params)
 grid.fit(data)
 

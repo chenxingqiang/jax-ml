@@ -18,11 +18,12 @@ measured using the explained variance a.k.a. R^2.
 # %%
 # Generate sample data
 # --------------------
-import numpy as np
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 
-from sklearn import linear_model
-from sklearn.datasets import make_regression
-from sklearn.model_selection import train_test_split
+from xlearn import linear_model
+from xlearn.datasets import make_regression
+from xlearn.model_selection import train_test_split
 
 n_samples_train, n_samples_test, n_features = 75, 150, 500
 X, y, coef = make_regression(
@@ -39,7 +40,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 # %%
 # Compute train and test errors
 # -----------------------------
-alphas = np.logspace(-5, 1, 60)
+alphas = jnp.logspace(-5, 1, 60)
 enet = linear_model.ElasticNet(l1_ratio=0.7, max_iter=10000)
 train_errors = list()
 test_errors = list()
@@ -49,7 +50,7 @@ for alpha in alphas:
     train_errors.append(enet.score(X_train, y_train))
     test_errors.append(enet.score(X_test, y_test))
 
-i_alpha_optim = np.argmax(test_errors)
+i_alpha_optim = jnp.argmax(test_errors)
 alpha_optim = alphas[i_alpha_optim]
 print("Optimal regularization parameter : %s" % alpha_optim)
 
@@ -61,7 +62,6 @@ coef_ = enet.fit(X, y).coef_
 # Plot results functions
 # ----------------------
 
-import matplotlib.pyplot as plt
 
 plt.subplot(2, 1, 1)
 plt.semilogx(alphas, train_errors, label="Train")
@@ -69,7 +69,7 @@ plt.semilogx(alphas, test_errors, label="Test")
 plt.vlines(
     alpha_optim,
     plt.ylim()[0],
-    np.max(test_errors),
+    jnp.max(test_errors),
     color="k",
     linewidth=3,
     label="Optimum on test",

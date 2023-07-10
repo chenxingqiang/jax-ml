@@ -4,7 +4,7 @@ Test with permutations the significance of a classification score
 =================================================================
 
 This example demonstrates the use of
-:func:`~sklearn.model_selection.permutation_test_score` to evaluate the
+:func:`~xlearn.model_selection.permutation_test_score` to evaluate the
 significance of a cross-validated score using permutations.
 
 """
@@ -20,7 +20,11 @@ significance of a cross-validated score using permutations.
 # We will use the :ref:`iris_dataset`, which consists of measurements taken
 # from 3 types of irises.
 
-from sklearn.datasets import load_iris
+import matplotlib.pyplot as plt
+from xlearn.svm import SVC
+from xlearn.model_selection import StratifiedKFold, permutation_test_score
+import jax.numpy as jnp
+from xlearn.datasets import load_iris
 
 iris = load_iris()
 X = iris.data
@@ -30,7 +34,6 @@ y = iris.target
 # We will also generate some random feature data (i.e., 20 features),
 # uncorrelated with the class labels in the iris dataset.
 
-import numpy as np
 
 n_uncorrelated_features = 20
 rng = np.random.RandomState(seed=0)
@@ -42,14 +45,14 @@ X_rand = rng.normal(size=(X.shape[0], n_uncorrelated_features))
 # ----------------------
 #
 # Next, we calculate the
-# :func:`~sklearn.model_selection.permutation_test_score` using the original
+# :func:`~xlearn.model_selection.permutation_test_score` using the original
 # iris dataset, which strongly predict the labels and
 # the randomly generated features and iris labels, which should have
 # no dependency between features and labels. We use the
-# :class:`~sklearn.svm.SVC` classifier and :ref:`accuracy_score` to evaluate
+# :class:`~xlearn.svm.SVC` classifier and :ref:`accuracy_score` to evaluate
 # the model at each round.
 #
-# :func:`~sklearn.model_selection.permutation_test_score` generates a null
+# :func:`~xlearn.model_selection.permutation_test_score` generates a null
 # distribution by calculating the accuracy of the classifier
 # on 1000 different permutations of the dataset, where features
 # remain the same but labels undergo different permutations. This is the
@@ -58,8 +61,6 @@ X_rand = rng.normal(size=(X.shape[0], n_uncorrelated_features))
 # the percentage of permutations for which the score obtained is greater
 # that the score obtained using the original data.
 
-from sklearn.model_selection import StratifiedKFold, permutation_test_score
-from sklearn.svm import SVC
 
 clf = SVC(kernel="linear", random_state=7)
 cv = StratifiedKFold(2, shuffle=True, random_state=0)
@@ -85,7 +86,6 @@ score_rand, perm_scores_rand, pvalue_rand = permutation_test_score(
 # between features and labels and the classifier was able to utilize this
 # to obtain good results.
 
-import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
 

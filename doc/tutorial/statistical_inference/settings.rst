@@ -1,22 +1,22 @@
 
 ==========================================================================
-Statistical learning: the setting and the estimator object in scikit-learn
+Statistical learning: the setting and the estimator object in jax-learn
 ==========================================================================
 
 Datasets
 =========
 
-Scikit-learn deals with learning information from one or more
+Jax-learn deals with learning information from one or more
 datasets that are represented as 2D arrays. They can be understood as a
 list of multi-dimensional observations. We say that the first axis of
 these arrays is the **samples** axis, while the second is the
 **features** axis.
 
-.. topic:: A simple example shipped with scikit-learn: iris dataset
+.. topic:: A simple example shipped with jax-learn: iris dataset
 
     ::
 
-        >>> from sklearn import datasets
+        >>> from xlearn import datasets
         >>> iris = datasets.load_iris()
         >>> data = iris.data
         >>> data.shape
@@ -27,7 +27,7 @@ these arrays is the **samples** axis, while the second is the
     ``iris.DESCR``.
 
 When the data is not initially in the ``(n_samples, n_features)`` shape, it
-needs to be preprocessed in order to be used by scikit-learn.
+needs to be preprocessed in order to be used by jax-learn.
 
 .. topic:: An example of reshaping data would be the digits dataset
 
@@ -46,7 +46,7 @@ needs to be preprocessed in order to be used by scikit-learn.
         :target: ../../auto_examples/datasets/plot_digits_last_image.html
         :align: center
 
-    To use this dataset with scikit-learn, we transform each 8x8 image into a
+    To use this dataset with jax-learn, we transform each 8x8 image into a
     feature vector of length 64 ::
 
         >>> data = digits.images.reshape(
@@ -58,7 +58,7 @@ Estimators objects
 
 .. Some code to make the doctests run
 
-   >>> from sklearn.base import BaseEstimator
+   >>> from xlearn.base import BaseEstimator
    >>> class Estimator(BaseEstimator):
    ...      def __init__(self, param1=0, param2=0):
    ...          self.param1 = param1
@@ -67,7 +67,7 @@ Estimators objects
    ...          pass
    >>> estimator = Estimator()
 
-**Fitting data**: the main API implemented by scikit-learn is that of the
+**Fitting data**: the main API implemented by jax-learn is that of the
 `estimator`. An estimator is any object that learns from data;
 it may be a classification, regression or clustering algorithm or
 a *transformer* that extracts/filters useful features from raw data.

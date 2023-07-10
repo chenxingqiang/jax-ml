@@ -33,11 +33,11 @@ verified from the labelled scatter plot on the right.
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.cluster import KMeans
-from sklearn.datasets import make_blobs
-from sklearn.metrics import silhouette_samples, silhouette_score
+from xlearn.cluster import KMeans
+from xlearn.datasets import make_blobs
+from xlearn.metrics import silhouette_samples, silhouette_score
 
 # Generating the sample data from make_blobs
 # This particular setting has one distinct cluster and 3 clusters placed close
@@ -99,7 +99,7 @@ for n_clusters in range_n_clusters:
 
         color = cm.nipy_spectral(float(i) / n_clusters)
         ax1.fill_betweenx(
-            np.arange(y_lower, y_upper),
+            jnp.arange(y_lower, y_upper),
             0,
             ith_cluster_silhouette_values,
             facecolor=color,
@@ -143,7 +143,8 @@ for n_clusters in range_n_clusters:
     )
 
     for i, c in enumerate(centers):
-        ax2.scatter(c[0], c[1], marker="$%d$" % i, alpha=1, s=50, edgecolor="k")
+        ax2.scatter(c[0], c[1], marker="$%d$" %
+                    i, alpha=1, s=50, edgecolor="k")
 
     ax2.set_title("The visualization of the clustered data.")
     ax2.set_xlabel("Feature space for the 1st feature")

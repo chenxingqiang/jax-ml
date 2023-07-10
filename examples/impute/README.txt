@@ -3,4 +3,4 @@
 Missing Value Imputation
 ------------------------
 
-Examples concerning the :mod:`sklearn.impute` module.
+Examples concerning the :mod:`xlearn.impute` module.

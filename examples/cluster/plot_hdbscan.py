@@ -3,7 +3,7 @@
 ====================================
 Demo of HDBSCAN clustering algorithm
 ====================================
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 In this demo we will take a look at :class:`cluster.HDBSCAN` from the
 perspective of generalizing the :class:`cluster.DBSCAN` algorithm.
@@ -14,20 +14,22 @@ We first define a couple utility functions for convenience.
 """
 # %%
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.cluster import DBSCAN, HDBSCAN
-from sklearn.datasets import make_blobs
+from xlearn.cluster import DBSCAN, HDBSCAN
+from xlearn.datasets import make_blobs
 
 
 def plot(X, labels, probabilities=None, parameters=None, ground_truth=False, ax=None):
     if ax is None:
         _, ax = plt.subplots(figsize=(10, 4))
-    labels = labels if labels is not None else np.ones(X.shape[0])
-    probabilities = probabilities if probabilities is not None else np.ones(X.shape[0])
+    labels = labels if labels is not None else jnp.ones(X.shape[0])
+    probabilities = probabilities if probabilities is not None else jnp.ones(
+        X.shape[0])
     # Black removed and is used for noise instead.
     unique_labels = set(labels)
-    colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, len(unique_labels))]
+    colors = [plt.cm.Spectral(each)
+              for each in jnp.linspace(0, 1, len(unique_labels))]
     # The probability of a point belonging to its labeled cluster determines
     # the size of its marker
     proba_map = {idx: probabilities[idx] for idx in range(len(labels))}
@@ -36,7 +38,7 @@ def plot(X, labels, probabilities=None, parameters=None, ground_truth=False, ax=
             # Black used for noise.
             col = [0, 0, 0, 1]
 
-        class_index = np.where(labels == k)[0]
+        class_index = jnp.where(labels == k)[0]
         for ci in class_index:
             ax.plot(
                 X[ci, 0],
@@ -86,7 +88,8 @@ fig, axes = plt.subplots(3, 1, figsize=(10, 12))
 dbs = DBSCAN(eps=0.3)
 for idx, scale in enumerate((1, 0.5, 3)):
     dbs.fit(X * scale)
-    plot(X * scale, dbs.labels_, parameters={"scale": scale, "eps": 0.3}, ax=axes[idx])
+    plot(X * scale, dbs.labels_,
+         parameters={"scale": scale, "eps": 0.3}, ax=axes[idx])
 
 # %%
 # Indeed, in order to maintain the same results we would have to scale `eps` by
@@ -96,7 +99,7 @@ dbs = DBSCAN(eps=0.9).fit(3 * X)
 plot(3 * X, dbs.labels_, parameters={"scale": 3, "eps": 0.9}, ax=axis)
 # %%
 # While standardizing data (e.g. using
-# :class:`sklearn.preprocessing.StandardScaler`) helps mitigate this problem,
+# :class:`xlearn.preprocessing.StandardScaler`) helps mitigate this problem,
 # great care must be taken to select the appropriate value for `eps`.
 #
 # HDBSCAN is much more robust in this sense: HDBSCAN can be seen as
@@ -107,7 +110,8 @@ fig, axes = plt.subplots(3, 1, figsize=(10, 12))
 hdb = HDBSCAN()
 for idx, scale in enumerate((1, 0.5, 3)):
     hdb.fit(X)
-    plot(X, hdb.labels_, hdb.probabilities_, ax=axes[idx], parameters={"scale": scale})
+    plot(X, hdb.labels_, hdb.probabilities_,
+         ax=axes[idx], parameters={"scale": scale})
 # %%
 # Multi-Scale Clustering
 # ----------------------
@@ -183,7 +187,8 @@ plot(X, hdb.labels_, hdb.probabilities_)
 # more robust with respect to noisy datasets, e.g. high-variance clusters with
 # significant overlap.
 
-PARAM = ({"min_cluster_size": 5}, {"min_cluster_size": 3}, {"min_cluster_size": 25})
+PARAM = ({"min_cluster_size": 5}, {
+         "min_cluster_size": 3}, {"min_cluster_size": 25})
 fig, axes = plt.subplots(3, 1, figsize=(10, 12))
 for i, param in enumerate(PARAM):
     hdb = HDBSCAN(**param).fit(X)

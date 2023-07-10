@@ -1,6 +1,6 @@
 .. include:: _contributors.rst
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 .. _changes_0_12.1:
 
@@ -129,8 +129,8 @@ Changelog
 API changes summary
 -------------------
 
-- The old ``scikits.learn`` package has disappeared; all code should import
-  from ``sklearn`` instead, which was introduced in 0.9.
+- The old ``jaxs.learn`` package has disappeared; all code should import
+  from ``xlearn`` instead, which was introduced in 0.9.
 
 - In :func:`metrics.roc_curve`, the ``thresholds`` array is now returned
   with it's order reversed, in order to keep it consistent with the order
@@ -280,13 +280,13 @@ Highlights
   and may change.
 
 - Added BIC/AIC model selection to classical :ref:`gmm` and unified
-  the API with the remainder of scikit-learn, by `Bertrand Thirion`_
+  the API with the remainder of jax-learn, by `Bertrand Thirion`_
 
-- Added :class:`~sklearn.cross_validation.StratifiedShuffleSplit`, which is
-  a :class:`~sklearn.cross_validation.ShuffleSplit` with balanced splits,
+- Added :class:`~xlearn.cross_validation.StratifiedShuffleSplit`, which is
+  a :class:`~xlearn.cross_validation.ShuffleSplit` with balanced splits,
   by Yannick Schwartz.
 
-- :class:`~sklearn.neighbors.NearestCentroid` classifier added, along with a
+- :class:`~xlearn.neighbors.NearestCentroid` classifier added, along with a
   ``shrink_threshold`` parameter, which implements **shrunken centroid
   classification**, by `Robert Layton`_.
 
@@ -492,7 +492,7 @@ Changelog
 ---------
 
 - Python 2.5 compatibility was dropped; the minimum Python version needed
-  to use scikit-learn is now 2.6.
+  to use jax-learn is now 2.6.
 
 - :ref:`sparse_inverse_covariance` estimation using the graph Lasso, with
   associated cross-validated estimator, by `Gael Varoquaux`_
@@ -508,7 +508,7 @@ Changelog
 - Faster tests by `Fabian Pedregosa`_ and others.
 
 - Silhouette Coefficient cluster analysis evaluation metric added as
-  :func:`~sklearn.metrics.silhouette_score` by Robert Layton.
+  :func:`~xlearn.metrics.silhouette_score` by Robert Layton.
 
 - Fixed a bug in :ref:`k_means` in the handling of the ``n_init`` parameter:
   the clustering algorithm used to be run ``n_init`` times but the last
@@ -519,7 +519,7 @@ Changelog
   parameters to fortran-style arrays after fitting (only multi-class).
 
 - Adjusted Mutual Information metric added as
-  :func:`~sklearn.metrics.adjusted_mutual_info_score` by Robert Layton.
+  :func:`~xlearn.metrics.adjusted_mutual_info_score` by Robert Layton.
 
 - Models like SVC/SVR/LinearSVC/LogisticRegression from libsvm/liblinear
   now support scaling of C regularization parameter by the number of
@@ -544,11 +544,11 @@ Changelog
 
 - :ref:`k_means` support for sparse matrices by `Mathieu Blondel`_.
 
-- Improved documentation for developers and for the :mod:`sklearn.utils`
+- Improved documentation for developers and for the :mod:`xlearn.utils`
   module, by `Jake Vanderplas`_.
 
 - Vectorized 20newsgroups dataset loader
-  (:func:`~sklearn.datasets.fetch_20newsgroups_vectorized`) by
+  (:func:`~xlearn.datasets.fetch_20newsgroups_vectorized`) by
   `Mathieu Blondel`_.
 
 - :ref:`multiclass` by `Lars Buitinck`_.
@@ -556,8 +556,8 @@ Changelog
 - Utilities for fast computation of mean and variance for sparse matrices
   by `Mathieu Blondel`_.
 
-- Make :func:`~sklearn.preprocessing.scale` and
-  :class:`~sklearn.preprocessing.Scaler` work on sparse matrices by
+- Make :func:`~xlearn.preprocessing.scale` and
+  :class:`~xlearn.preprocessing.Scaler` work on sparse matrices by
   `Olivier Grisel`_
 
 - Feature importances using decision trees and/or forest of trees,
@@ -566,7 +566,7 @@ Changelog
 - Parallel implementation of forests of randomized trees by
   `Gilles Louppe`_.
 
-- :class:`~sklearn.cross_validation.ShuffleSplit` can subsample the train
+- :class:`~xlearn.cross_validation.ShuffleSplit` can subsample the train
   sets as well as the test sets by `Olivier Grisel`_.
 
 - Errors in the build of the documentation fixed by `Andreas Müller`_.
@@ -575,7 +575,7 @@ Changelog
 API changes summary
 -------------------
 
-Here are the code migration instructions when upgrading from scikit-learn
+Here are the code migration instructions when upgrading from jax-learn
 version 0.9:
 
 - Some estimators that may overwrite their inputs to save memory previously
@@ -585,7 +585,7 @@ version 0.9:
   This particularly affects some of the estimators in :mod:`linear_model`.
   The default behavior is still to copy everything passed in.
 
-- The SVMlight dataset loader :func:`~sklearn.datasets.load_svmlight_file` no
+- The SVMlight dataset loader :func:`~xlearn.datasets.load_svmlight_file` no
   longer supports loading two files at once; use ``load_svmlight_files``
   instead. Also, the (unused) ``buffer_mb`` parameter is gone.
 
@@ -611,19 +611,19 @@ version 0.9:
 
 - The functions used for sparse coding, ``sparse_encode`` and
   ``sparse_encode_parallel`` have been combined into
-  :func:`~sklearn.decomposition.sparse_encode`, and the shapes of the arrays
+  :func:`~xlearn.decomposition.sparse_encode`, and the shapes of the arrays
   have been transposed for consistency with the matrix factorization setting,
   as opposed to the regression setting.
 
 - Fixed an off-by-one error in the SVMlight/LibSVM file format handling;
-  files generated using :func:`~sklearn.datasets.dump_svmlight_file` should be
+  files generated using :func:`~xlearn.datasets.dump_svmlight_file` should be
   re-generated. (They should continue to work, but accidentally had one
   extra column of zeros prepended.)
 
 - ``BaseDictionaryLearning`` class replaced by ``SparseCodingMixin``.
 
-- :func:`~sklearn.utils.extmath.fast_svd` has been renamed
-  :func:`~sklearn.utils.extmath.randomized_svd` and the default
+- :func:`~xlearn.utils.extmath.fast_svd` has been renamed
+  :func:`~xlearn.utils.extmath.randomized_svd` and the default
   oversampling is now fixed to 10 additional random vectors instead
   of doubling the number of components to extract. The new behavior
   follows the reference paper.
@@ -632,7 +632,7 @@ version 0.9:
 People
 ------
 
-The following people contributed to scikit-learn since last release:
+The following people contributed to jax-learn since last release:
 
    * 246  `Andreas Müller`_
    * 242  `Olivier Grisel`_
@@ -675,7 +675,7 @@ Version 0.9
 
 **September 21, 2011**
 
-scikit-learn 0.9 was released on September 2011, three months after the 0.8
+jax-learn 0.9 was released on September 2011, three months after the 0.8
 release and includes the new modules :ref:`manifold`, :ref:`dirichlet_process`
 as well as several new algorithms and documentation improvements.
 
@@ -791,17 +791,17 @@ Changelog
 API changes summary
 -------------------
 
-Here are the code migration instructions when upgrading from scikit-learn
+Here are the code migration instructions when upgrading from jax-learn
 version 0.8:
 
-- The ``scikits.learn`` package was renamed ``sklearn``. There is
-  still a ``scikits.learn`` package alias for backward compatibility.
+- The ``jaxs.learn`` package was renamed ``xlearn``. There is
+  still a ``jaxs.learn`` package alias for backward compatibility.
 
-  Third-party projects with a dependency on scikit-learn 0.9+ should
+  Third-party projects with a dependency on jax-learn 0.9+ should
   upgrade their codebase. For instance, under Linux / MacOSX just run
   (make a backup first!)::
 
-      find -name "*.py" | xargs sed -i 's/\bscikits.learn\b/sklearn/g'
+      find -name "*.py" | xargs sed -i 's/\bjaxs.learn\b/xlearn/g'
 
 - Estimators no longer accept model parameters as ``fit`` arguments:
   instead all parameters must be only be passed as constructor
@@ -816,14 +816,14 @@ version 0.8:
   although there is also a ``cross_val`` package alias in place for
   backward compatibility.
 
-  Third-party projects with a dependency on scikit-learn 0.9+ should
+  Third-party projects with a dependency on jax-learn 0.9+ should
   upgrade their codebase. For instance, under Linux / MacOSX just run
   (make a backup first!)::
 
       find -name "*.py" | xargs sed -i 's/\bcross_val\b/cross_validation/g'
 
 - The ``score_func`` argument of the
-  ``sklearn.cross_validation.cross_val_score`` function is now expected
+  ``xlearn.cross_validation.cross_val_score`` function is now expected
   to accept ``y_test`` and ``y_predicted`` as only arguments for
   classification and regression tasks or ``X_test`` for unsupervised
   estimators.
@@ -831,12 +831,12 @@ version 0.8:
 - ``gamma`` parameter for support vector machine algorithms is set
   to ``1 / n_features`` by default, instead of ``1 / n_samples``.
 
-- The ``sklearn.hmm`` has been marked as orphaned: it will be removed
-  from scikit-learn in version 0.11 unless someone steps up to
+- The ``xlearn.hmm`` has been marked as orphaned: it will be removed
+  from jax-learn in version 0.11 unless someone steps up to
   contribute documentation, examples and fix lurking numerical
   stability issues.
 
-- ``sklearn.neighbors`` has been made into a submodule.  The two previously
+- ``xlearn.neighbors`` has been made into a submodule.  The two previously
   available estimators, ``NeighborsClassifier`` and ``NeighborsRegressor``
   have been marked as deprecated.  Their functionality has been divided
   among five new classes: ``NearestNeighbors`` for unsupervised neighbors
@@ -844,19 +844,19 @@ version 0.8:
   for supervised classification problems, and ``KNeighborsRegressor``
   & ``RadiusNeighborsRegressor`` for supervised regression problems.
 
-- ``sklearn.ball_tree.BallTree`` has been moved to
-  ``sklearn.neighbors.BallTree``.  Using the former will generate a warning.
+- ``xlearn.ball_tree.BallTree`` has been moved to
+  ``xlearn.neighbors.BallTree``.  Using the former will generate a warning.
 
-- ``sklearn.linear_model.LARS()`` and related classes (LassoLARS,
+- ``xlearn.linear_model.LARS()`` and related classes (LassoLARS,
   LassoLARSCV, etc.) have been renamed to
-  ``sklearn.linear_model.Lars()``.
+  ``xlearn.linear_model.Lars()``.
 
-- All distance metrics and kernels in ``sklearn.metrics.pairwise`` now have a Y
+- All distance metrics and kernels in ``xlearn.metrics.pairwise`` now have a Y
   parameter, which by default is None. If not given, the result is the distance
   (or kernel similarity) between each sample in Y. If given, the result is the
   pairwise distance (or kernel similarity) between samples in X to Y.
 
-- ``sklearn.metrics.pairwise.l1_distance`` is now called ``manhattan_distance``,
+- ``xlearn.metrics.pairwise.l1_distance`` is now called ``manhattan_distance``,
   and by default returns the pairwise distance. For the component wise distance,
   set the parameter ``sum_over_features`` to ``False``.
 
@@ -914,9 +914,9 @@ Version 0.8
 
 **May 11, 2011**
 
-scikit-learn 0.8 was released on May 2011, one month after the first
-"international" `scikit-learn coding sprint
-<https://github.com/scikit-learn/scikit-learn/wiki/Upcoming-events>`_ and is
+jax-learn 0.8 was released on May 2011, one month after the first
+"international" `jax-learn coding sprint
+<https://github.com/jax-learn/jax-learn/wiki/Upcoming-events>`_ and is
 marked by the inclusion of important modules: :ref:`hierarchical_clustering`,
 :ref:`cross_decomposition`, :ref:`NMF`, initial support for Python 3 and by important
 enhancements and bug fixes.
@@ -1016,7 +1016,7 @@ Version 0.7
 
 **March 2, 2011**
 
-scikit-learn 0.7 was released in March 2011, roughly three months
+jax-learn 0.7 was released in March 2011, roughly three months
 after the 0.6 release. This release is marked by the speed
 improvements in existing algorithms like k-Nearest Neighbors and
 K-Means algorithm and by the inclusion of an efficient algorithm for
@@ -1053,7 +1053,7 @@ Changelog
   algorithm for finding barycenter weights. Also added some
   developer documentation for this module, see
   `notes_neighbors
-  <https://github.com/scikit-learn/scikit-learn/wiki/Neighbors-working-notes>`_ for more information [`Fabian Pedregosa`_].
+  <https://github.com/jax-learn/jax-learn/wiki/Neighbors-working-notes>`_ for more information [`Fabian Pedregosa`_].
 
 - Documentation improvements: Added :class:`~pca.RandomizedPCA` and
   :class:`~linear_model.LogisticRegression` to the class
@@ -1109,7 +1109,7 @@ Version 0.6
 
 **December 21, 2010**
 
-scikit-learn 0.6 was released on December 2010. It is marked by the
+jax-learn 0.6 was released on December 2010. It is marked by the
 inclusion of several new modules and a general renaming of old
 ones. It is also marked by the inclusion of new example, including
 applications to real-world datasets.
@@ -1119,7 +1119,7 @@ Changelog
 ---------
 
 - New `stochastic gradient
-  <http://scikit-learn.org/stable/modules/sgd.html>`_ descent
+  <http://jax-learn.cc/stable/modules/sgd.html>`_ descent
   module by Peter Prettenhofer. The module comes with complete
   documentation and examples.
 
@@ -1142,7 +1142,7 @@ Changelog
 
 - Improved sparse matrix support, both in main classes
   (:class:`~grid_search.GridSearchCV`) as in modules
-  sklearn.svm.sparse and sklearn.linear_model.sparse.
+  xlearn.svm.sparse and xlearn.linear_model.sparse.
 
 - Lots of cool new examples and a new section that uses real-world
   datasets was created. These include:
@@ -1243,7 +1243,7 @@ New classes
 - New module feature_extraction (see :ref:`class reference
   <feature_extraction_ref>`)
 
-- New FastICA algorithm in module sklearn.fastica
+- New FastICA algorithm in module xlearn.fastica
 
 
 Documentation
@@ -1252,9 +1252,9 @@ Documentation
 - Improved documentation for many modules, now separating
   narrative documentation from the class reference. As an example,
   see `documentation for the SVM module
-  <http://scikit-learn.org/stable/modules/svm.html>`_ and the
+  <http://jax-learn.cc/stable/modules/svm.html>`_ and the
   complete `class reference
-  <http://scikit-learn.org/stable/modules/classes.html>`_.
+  <http://jax-learn.cc/stable/modules/classes.html>`_.
 
 Fixes
 -----
@@ -1276,7 +1276,7 @@ Examples
   :ref:`sphx_glr_auto_examples_text_plot_document_classification_20newsgroups.py`
 
 - Many more examples. `See here
-  <http://scikit-learn.org/stable/auto_examples/index.html>`_
+  <http://jax-learn.cc/stable/auto_examples/index.html>`_
   the full list of examples.
 
 
@@ -1284,7 +1284,7 @@ External dependencies
 ---------------------
 
 - Joblib is now a dependency of this package, although it is
-  shipped with (sklearn.externals.joblib).
+  shipped with (xlearn.externals.joblib).
 
 Removed modules
 ---------------

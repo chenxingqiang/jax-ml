@@ -34,18 +34,18 @@ set.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from matplotlib.colors import ListedColormap
 
-from sklearn.datasets import make_circles, make_classification, make_moons
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.exceptions import ConvergenceWarning
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import GridSearchCV, train_test_split
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import KBinsDiscretizer, StandardScaler
-from sklearn.svm import SVC, LinearSVC
-from sklearn.utils._testing import ignore_warnings
+from xlearn.datasets import make_circles, make_classification, make_moons
+from xlearn.ensemble import GradientBoostingClassifier
+from xlearn.exceptions import ConvergenceWarning
+from xlearn.linear_model import LogisticRegression
+from xlearn.model_selection import GridSearchCV, train_test_split
+from xlearn.pipeline import make_pipeline
+from xlearn.preprocessing import KBinsDiscretizer, StandardScaler
+from xlearn.svm import SVC, LinearSVC
+from xlearn.utils._testing import ignore_warnings
 
 h = 0.02  # step size in the mesh
 
@@ -65,11 +65,12 @@ def get_name(estimator):
 classifiers = [
     (
         make_pipeline(StandardScaler(), LogisticRegression(random_state=0)),
-        {"logisticregression__C": np.logspace(-1, 1, 3)},
+        {"logisticregression__C": jnp.logspace(-1, 1, 3)},
     ),
     (
-        make_pipeline(StandardScaler(), LinearSVC(random_state=0, dual="auto")),
-        {"linearsvc__C": np.logspace(-1, 1, 3)},
+        make_pipeline(StandardScaler(), LinearSVC(
+            random_state=0, dual="auto")),
+        {"linearsvc__C": jnp.logspace(-1, 1, 3)},
     ),
     (
         make_pipeline(
@@ -78,8 +79,8 @@ classifiers = [
             LogisticRegression(random_state=0),
         ),
         {
-            "kbinsdiscretizer__n_bins": np.arange(5, 8),
-            "logisticregression__C": np.logspace(-1, 1, 3),
+            "kbinsdiscretizer__n_bins": jnp.arange(5, 8),
+            "logisticregression__C": jnp.logspace(-1, 1, 3),
         },
     ),
     (
@@ -89,19 +90,19 @@ classifiers = [
             LinearSVC(random_state=0, dual="auto"),
         ),
         {
-            "kbinsdiscretizer__n_bins": np.arange(5, 8),
-            "linearsvc__C": np.logspace(-1, 1, 3),
+            "kbinsdiscretizer__n_bins": jnp.arange(5, 8),
+            "linearsvc__C": jnp.logspace(-1, 1, 3),
         },
     ),
     (
         make_pipeline(
             StandardScaler(), GradientBoostingClassifier(n_estimators=5, random_state=0)
         ),
-        {"gradientboostingclassifier__learning_rate": np.logspace(-2, 0, 5)},
+        {"gradientboostingclassifier__learning_rate": jnp.logspace(-2, 0, 5)},
     ),
     (
         make_pipeline(StandardScaler(), SVC(random_state=0)),
-        {"svc__C": np.logspace(-1, 1, 3)},
+        {"svc__C": jnp.logspace(-1, 1, 3)},
     ),
 ]
 
@@ -140,14 +141,16 @@ for ds_cnt, (X, y) in enumerate(datasets):
     # create the grid for background colors
     x_min, x_max = X[:, 0].min() - 0.5, X[:, 0].max() + 0.5
     y_min, y_max = X[:, 1].min() - 0.5, X[:, 1].max() + 0.5
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    xx, yy = jnp.meshgrid(jnp.arange(x_min, x_max, h),
+                         jnp.arange(y_min, y_max, h))
 
     # plot the dataset first
     ax = axes[ds_cnt, 0]
     if ds_cnt == 0:
         ax.set_title("Input data")
     # plot the training points
-    ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright, edgecolors="k")
+    ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train,
+               cmap=cm_bright, edgecolors="k")
     # and testing points
     ax.scatter(
         X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright, alpha=0.6, edgecolors="k"
@@ -170,9 +173,11 @@ for ds_cnt, (X, y) in enumerate(datasets):
         # plot the decision boundary. For that, we will assign a color to each
         # point in the mesh [x_min, x_max]*[y_min, y_max].
         if hasattr(clf, "decision_function"):
-            Z = clf.decision_function(np.column_stack([xx.ravel(), yy.ravel()]))
+            Z = clf.decision_function(
+                jnp.column_stack([xx.ravel(), yy.ravel()]))
         else:
-            Z = clf.predict_proba(np.column_stack([xx.ravel(), yy.ravel()]))[:, 1]
+            Z = clf.predict_proba(jnp.column_stack(
+                [xx.ravel(), yy.ravel()]))[:, 1]
 
         # put the result into a color plot
         Z = Z.reshape(xx.shape)
@@ -180,7 +185,8 @@ for ds_cnt, (X, y) in enumerate(datasets):
 
         # plot the training points
         ax.scatter(
-            X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright, edgecolors="k"
+            X_train[:, 0], X_train[:,
+                                   1], c=y_train, cmap=cm_bright, edgecolors="k"
         )
         # and testing points
         ax.scatter(

@@ -6,20 +6,21 @@ Data comes from a random square matrix.
 """
 from datetime import datetime
 
+import jax.numpy as jnp
 import numpy as np
 
-from sklearn import linear_model
+from xlearn import linear_model
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
     n_iter = 40
 
-    time_ridge = np.empty(n_iter)
-    time_ols = np.empty(n_iter)
-    time_lasso = np.empty(n_iter)
+    time_ridge = jnp.empty(n_iter)
+    time_ols = jnp.empty(n_iter)
+    time_lasso = jnp.empty(n_iter)
 
-    dimensions = 500 * np.arange(1, n_iter + 1)
+    dimensions = 500 * jnp.arange(1, n_iter + 1)
 
     for i in range(n_iter):
         print("Iteration %s of %s" % (i, n_iter))
@@ -44,7 +45,7 @@ if __name__ == "__main__":
         lasso.fit(X, Y)
         time_lasso[i] = (datetime.now() - start).total_seconds()
 
-    plt.figure("scikit-learn GLM benchmark results")
+    plt.figure("jax-learn GLM benchmark results")
     plt.xlabel("Dimensions")
     plt.ylabel("Time (s)")
     plt.plot(dimensions, time_ridge, color="r")

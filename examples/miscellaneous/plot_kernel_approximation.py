@@ -6,7 +6,7 @@ Explicit feature map approximation for RBF kernels
 An example illustrating the approximation of the feature map
 of an RBF kernel.
 
-.. currentmodule:: sklearn.kernel_approximation
+.. currentmodule:: xlearn.kernel_approximation
 
 It shows how to use :class:`RBFSampler` and :class:`Nystroem` to
 approximate the feature map of an RBF kernel for classification with an SVM on
@@ -24,7 +24,7 @@ Sampling more dimensions clearly leads to better classification results, but
 comes at a greater cost. This means there is a tradeoff between runtime and
 accuracy, given by the parameter n_components. Note that solving the Linear
 SVM and also the approximate kernel SVM could be greatly accelerated by using
-stochastic gradient descent via :class:`~sklearn.linear_model.SGDClassifier`.
+stochastic gradient descent via :class:`~xlearn.linear_model.SGDClassifier`.
 This is not easily possible for the case of the kernelized SVM.
 
 """
@@ -42,12 +42,12 @@ This is not easily possible for the case of the kernelized SVM.
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
 # Import datasets, classifiers and performance metrics
-from sklearn import datasets, pipeline, svm
-from sklearn.decomposition import PCA
-from sklearn.kernel_approximation import Nystroem, RBFSampler
+from xlearn import datasets, pipeline, svm
+from xlearn.decomposition import PCA
+from xlearn.kernel_approximation import Nystroem, RBFSampler
 
 # The digits dataset
 digits = datasets.load_digits(n_class=9)
@@ -63,11 +63,13 @@ data = digits.data / 16.0
 data -= data.mean(axis=0)
 
 # We learn the digits on the first half of the digits
-data_train, targets_train = (data[: n_samples // 2], digits.target[: n_samples // 2])
+data_train, targets_train = (
+    data[: n_samples // 2], digits.target[: n_samples // 2])
 
 
 # Now predict the value of the digit on the second half:
-data_test, targets_test = (data[n_samples // 2 :], digits.target[n_samples // 2 :])
+data_test, targets_test = (
+    data[n_samples // 2:], digits.target[n_samples // 2:])
 # data_test = scaler.transform(data_test)
 
 # Create a classifier: a support vector classifier
@@ -98,7 +100,7 @@ linear_svm.fit(data_train, targets_train)
 linear_svm_score = linear_svm.score(data_test, targets_test)
 linear_svm_time = time() - linear_svm_time
 
-sample_sizes = 30 * np.arange(1, 10)
+sample_sizes = 30 * jnp.arange(1, 10)
 fourier_scores = []
 nystroem_scores = []
 fourier_times = []
@@ -127,10 +129,12 @@ accuracy = plt.subplot(121)
 timescale = plt.subplot(122)
 
 accuracy.plot(sample_sizes, nystroem_scores, label="Nystroem approx. kernel")
-timescale.plot(sample_sizes, nystroem_times, "--", label="Nystroem approx. kernel")
+timescale.plot(sample_sizes, nystroem_times, "--",
+               label="Nystroem approx. kernel")
 
 accuracy.plot(sample_sizes, fourier_scores, label="Fourier approx. kernel")
-timescale.plot(sample_sizes, fourier_times, "--", label="Fourier approx. kernel")
+timescale.plot(sample_sizes, fourier_times, "--",
+               label="Fourier approx. kernel")
 
 # horizontal lines for exact rbf and linear kernels:
 accuracy.plot(
@@ -165,7 +169,7 @@ accuracy.set_title("Classification accuracy")
 timescale.set_title("Training times")
 accuracy.set_xlim(sample_sizes[0], sample_sizes[-1])
 accuracy.set_xticks(())
-accuracy.set_ylim(np.min(fourier_scores), 1)
+accuracy.set_ylim(jnp.min(fourier_scores), 1)
 timescale.set_xlabel("Sampling steps = transformed feature dimension")
 accuracy.set_ylabel("Classification accuracy")
 timescale.set_ylabel("Training time in seconds")
@@ -197,13 +201,13 @@ pca = PCA(n_components=8).fit(data_train)
 X = pca.transform(data_train)
 
 # Generate grid along first two principal components
-multiples = np.arange(-2, 2, 0.1)
+multiples = jnp.arange(-2, 2, 0.1)
 # steps along first component
-first = multiples[:, np.newaxis] * pca.components_[0, :]
+first = multiples[:, jnp.newaxis] * pca.components_[0, :]
 # steps along second component
-second = multiples[:, np.newaxis] * pca.components_[1, :]
+second = multiples[:, jnp.newaxis] * pca.components_[1, :]
 # combine
-grid = first[np.newaxis, :, :] + second[:, np.newaxis, :]
+grid = first[jnp.newaxis, :, :] + second[:, jnp.newaxis, :]
 flat_grid = grid.reshape(-1, data.shape[1])
 
 # title for the plots
@@ -224,7 +228,7 @@ for i, clf in enumerate((kernel_svm, nystroem_approx_svm, fourier_approx_svm)):
 
     # Put the result into a color plot
     Z = Z.reshape(grid.shape[:-1])
-    levels = np.arange(10)
+    levels = jnp.arange(10)
     lv_eps = 0.01  # Adjust a mapping from calculated contour levels to color.
     plt.contourf(
         multiples,

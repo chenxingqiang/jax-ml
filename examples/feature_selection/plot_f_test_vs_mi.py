@@ -24,19 +24,19 @@ perception for this example. Both methods correctly mark x_3 as irrelevant.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.feature_selection import f_regression, mutual_info_regression
+from xlearn.feature_selection import f_regression, mutual_info_regression
 
 np.random.seed(0)
 X = np.random.rand(1000, 3)
-y = X[:, 0] + np.sin(6 * np.pi * X[:, 1]) + 0.1 * np.random.randn(1000)
+y = X[:, 0] + jnp.sin(6 * jnp.pi * X[:, 1]) + 0.1 * np.random.randn(1000)
 
 f_test, _ = f_regression(X, y)
-f_test /= np.max(f_test)
+f_test /= jnp.max(f_test)
 
 mi = mutual_info_regression(X, y)
-mi /= np.max(mi)
+mi /= jnp.max(mi)
 
 plt.figure(figsize=(15, 5))
 for i in range(3):

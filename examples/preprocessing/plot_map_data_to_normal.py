@@ -3,7 +3,7 @@
 Map data to a normal distribution
 =================================
 
-.. currentmodule:: sklearn.preprocessing
+.. currentmodule:: xlearn.preprocessing
 
 This example demonstrates the use of the Box-Cox and Yeo-Johnson transforms
 through :class:`~PowerTransformer` to map data from various
@@ -39,10 +39,10 @@ is prone to overfitting. The use of the power transform is then recommended.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import PowerTransformer, QuantileTransformer
+from xlearn.model_selection import train_test_split
+from xlearn.preprocessing import PowerTransformer, QuantileTransformer
 
 N_SAMPLES = 1000
 FONT_SIZE = 6
@@ -81,7 +81,7 @@ X_uniform = rng.uniform(low=0, high=1, size=size)
 # bimodal distribution
 loc_a, loc_b = 100, 105
 X_a, X_b = rng.normal(loc=loc_a, size=size), rng.normal(loc=loc_b, size=size)
-X_bimodal = np.concatenate([X_a, X_b], axis=0)
+X_bimodal = jnp.concatenate([X_a, X_b], axis=0)
 
 
 # create plots
@@ -106,7 +106,8 @@ axes_idxs = [
     (13, 16, 19, 22),
     (14, 17, 20, 23),
 ]
-axes_list = [(axes[i], axes[j], axes[k], axes[l]) for (i, j, k, l) in axes_idxs]
+axes_list = [(axes[i], axes[j], axes[k], axes[l])
+             for (i, j, k, l) in axes_idxs]
 
 
 for distribution, color, axes in zip(distributions, colors, axes_list):

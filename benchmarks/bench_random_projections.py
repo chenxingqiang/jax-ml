@@ -12,11 +12,11 @@ import optparse
 import sys
 from datetime import datetime
 
-import numpy as np
+import jax.numpy as jnp
 import scipy.sparse as sp
 
-from sklearn import clone
-from sklearn.random_projection import (
+from xlearn import clone
+from xlearn.random_projection import (
     GaussianRandomProjection,
     SparseRandomProjection,
     johnson_lindenstrauss_min_dim,
@@ -43,7 +43,7 @@ def compute_time(t_start, delta):
     return delta.seconds + delta.microseconds / mu_second
 
 
-def bench_scikit_transformer(X, transformer):
+def bench_jax_transformer(X, transformer):
     gc.collect()
 
     clf = clone(transformer)
@@ -259,7 +259,7 @@ if __name__ == "__main__":
 
         for iteration in range(opts.n_times):
             print("\titer %s..." % iteration, end="")
-            time_to_fit, time_to_transform = bench_scikit_transformer(
+            time_to_fit, time_to_transform = bench_jax_transformer(
                 X_dense, transformers[name]
             )
             time_fit[name].append(time_to_fit)
@@ -297,7 +297,7 @@ if __name__ == "__main__":
     print(31 * "-" + ("|" + "-" * 14) * 2)
 
     for name in sorted(selected_transformers):
-        print_row(name, np.mean(time_fit[name]), np.mean(time_transform[name]))
+        print_row(name, jnp.mean(time_fit[name]), jnp.mean(time_transform[name]))
 
     print("")
     print("")

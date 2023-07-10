@@ -34,7 +34,7 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d  # noqa: F401
 from matplotlib import ticker
 
-from sklearn import datasets, manifold
+from xlearn import datasets, manifold
 
 n_samples = 1500
 S_points, S_color = datasets.make_s_curve(n_samples, random_state=0)
@@ -60,12 +60,14 @@ def plot_3d(points, points_color, title):
     ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
     ax.zaxis.set_major_locator(ticker.MultipleLocator(1))
 
-    fig.colorbar(col, ax=ax, orientation="horizontal", shrink=0.6, aspect=60, pad=0.01)
+    fig.colorbar(col, ax=ax, orientation="horizontal",
+                 shrink=0.6, aspect=60, pad=0.01)
     plt.show()
 
 
 def plot_2d(points, points_color, title):
-    fig, ax = plt.subplots(figsize=(3, 3), facecolor="white", constrained_layout=True)
+    fig, ax = plt.subplots(
+        figsize=(3, 3), facecolor="white", constrained_layout=True)
     fig.suptitle(title, size=16)
     add_2d_scatter(ax, points, points_color)
     plt.show()
@@ -148,7 +150,8 @@ plt.show()
 # Isomap seeks a lower-dimensional embedding which maintains geodesic
 # distances between all points. Read more in the :ref:`User Guide <isomap>`.
 
-isomap = manifold.Isomap(n_neighbors=n_neighbors, n_components=n_components, p=1)
+isomap = manifold.Isomap(n_neighbors=n_neighbors,
+                         n_components=n_components, p=1)
 S_isomap = isomap.fit_transform(S_points)
 
 plot_2d(S_isomap, S_color, "Isomap Embedding")

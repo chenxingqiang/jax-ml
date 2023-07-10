@@ -1,10 +1,10 @@
 from collections import defaultdict
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 from numpy import random as nr
 
-from sklearn.cluster import KMeans, MiniBatchKMeans
+from xlearn.cluster import KMeans, MiniBatchKMeans
 
 
 def compute_bench(samples_range, features_range):
@@ -56,7 +56,7 @@ def compute_bench(samples_range, features_range):
 def compute_bench_2(chunks):
     results = defaultdict(lambda: [])
     n_features = 50000
-    means = np.array(
+    means = jnp.array(
         [
             [1, 1],
             [-1, -1],
@@ -68,9 +68,9 @@ def compute_bench_2(chunks):
             [1, 0],
         ]
     )
-    X = np.empty((0, 2))
+    X = jnp.empty((0, 2))
     for i in range(8):
-        X = np.r_[X, means[i] + 0.8 * np.random.randn(n_features, 2)]
+        X = jnp.r_[X, means[i] + 0.8 * np.random.randn(n_features, 2)]
     max_it = len(chunks)
     it = 0
     for chunk in chunks:
@@ -82,7 +82,8 @@ def compute_bench_2(chunks):
 
         print("Fast K-Means")
         tstart = time()
-        mbkmeans = MiniBatchKMeans(init="k-means++", n_clusters=8, batch_size=chunk)
+        mbkmeans = MiniBatchKMeans(
+            init="k-means++", n_clusters=8, batch_size=chunk)
 
         mbkmeans.fit(X)
         delta = time() - tstart
@@ -100,9 +101,9 @@ if __name__ == "__main__":
     from mpl_toolkits.mplot3d import axes3d  # noqa register the 3d projection
     import matplotlib.pyplot as plt
 
-    samples_range = np.linspace(50, 150, 5).astype(int)
-    features_range = np.linspace(150, 50000, 5).astype(int)
-    chunks = np.linspace(500, 10000, 15).astype(int)
+    samples_range = jnp.linspace(50, 150, 5).astype(int)
+    features_range = jnp.linspace(150, 50000, 5).astype(int)
+    chunks = jnp.linspace(500, 10000, 15).astype(int)
 
     results = compute_bench(samples_range, features_range)
     results_2 = compute_bench_2(chunks)
@@ -114,7 +115,7 @@ if __name__ == "__main__":
         [max(i) for i in [t for (label, t) in results.items() if "speed" not in label]]
     )
 
-    fig = plt.figure("scikit-learn K-Means benchmark results")
+    fig = plt.figure("jax-learn K-Means benchmark results")
     for c, (label, timings) in zip("brcy", sorted(results.items())):
         if "speed" in label:
             ax = fig.add_subplot(2, 2, 1, projection="3d")
@@ -123,8 +124,9 @@ if __name__ == "__main__":
             ax = fig.add_subplot(2, 2, 2, projection="3d")
             ax.set_zlim3d(0.0, max_inertia * 1.1)
 
-        X, Y = np.meshgrid(samples_range, features_range)
-        Z = np.asarray(timings).reshape(samples_range.shape[0], features_range.shape[0])
+        X, Y = jnp.meshgrid(samples_range, features_range)
+        Z = jnp.asarray(timings).reshape(
+            samples_range.shape[0], features_range.shape[0])
         ax.plot_surface(X, Y, Z.T, cstride=1, rstride=1, color=c, alpha=0.5)
         ax.set_xlabel("n_samples")
         ax.set_ylabel("n_features")
@@ -133,7 +135,7 @@ if __name__ == "__main__":
     for c, (label, timings) in zip("br", sorted(results_2.items())):
         i += 1
         ax = fig.add_subplot(2, 2, i + 2)
-        y = np.asarray(timings)
+        y = jnp.asarray(timings)
         ax.plot(chunks, y, color=c, alpha=0.8)
         ax.set_xlabel("Chunks")
         ax.set_ylabel(label)

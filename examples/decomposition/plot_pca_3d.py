@@ -18,10 +18,12 @@ comes in to choose a direction that is not flat.
 # Create the data
 # ---------------
 
-import numpy as np
+from xlearn.decomposition import PCA
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 from scipy import stats
 
-e = np.exp(1)
+e = jnp.exp(1)
 np.random.seed(4)
 
 
@@ -42,7 +44,7 @@ a = x + y
 b = 2 * y
 c = a - b + z
 
-norm = np.sqrt(a.var() + b.var())
+norm = jnp.sqrt(a.var() + b.var())
 a /= norm
 b /= norm
 
@@ -51,12 +53,9 @@ b /= norm
 # Plot the figures
 # ----------------
 
-import matplotlib.pyplot as plt
 
 # unused but required import for doing 3d projections with matplotlib < 3.2
 import mpl_toolkits.mplot3d  # noqa: F401
-
-from sklearn.decomposition import PCA
 
 
 def plot_figs(fig_num, elev, azim):
@@ -65,8 +64,9 @@ def plot_figs(fig_num, elev, azim):
     ax = fig.add_subplot(111, projection="3d", elev=elev, azim=azim)
     ax.set_position([0, 0, 0.95, 1])
 
-    ax.scatter(a[::10], b[::10], c[::10], c=density[::10], marker="+", alpha=0.4)
-    Y = np.c_[a, b, c]
+    ax.scatter(a[::10], b[::10], c[::10],
+               c=density[::10], marker="+", alpha=0.4)
+    Y = jnp.c_[a, b, c]
 
     # Using SciPy's SVD, this would be:
     # _, pca_score, Vt = scipy.linalg.svd(Y, full_matrices=False)
@@ -76,9 +76,9 @@ def plot_figs(fig_num, elev, azim):
     V = pca.components_.T
 
     x_pca_axis, y_pca_axis, z_pca_axis = 3 * V
-    x_pca_plane = np.r_[x_pca_axis[:2], -x_pca_axis[1::-1]]
-    y_pca_plane = np.r_[y_pca_axis[:2], -y_pca_axis[1::-1]]
-    z_pca_plane = np.r_[z_pca_axis[:2], -z_pca_axis[1::-1]]
+    x_pca_plane = jnp.r_[x_pca_axis[:2], -x_pca_axis[1::-1]]
+    y_pca_plane = jnp.r_[y_pca_axis[:2], -y_pca_axis[1::-1]]
+    z_pca_plane = jnp.r_[z_pca_axis[:2], -z_pca_axis[1::-1]]
     x_pca_plane.shape = (2, 2)
     y_pca_plane.shape = (2, 2)
     z_pca_plane.shape = (2, 2)

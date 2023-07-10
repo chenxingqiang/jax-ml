@@ -4,10 +4,10 @@
 Related Projects
 =====================================
 
-Projects implementing the scikit-learn estimator API are encouraged to use
-the `scikit-learn-contrib template <https://github.com/scikit-learn-contrib/project-template>`_
+Projects implementing the jax-learn estimator API are encouraged to use
+the `jax-learn-contrib template <https://github.com/jax-learn-contrib/project-template>`_
 which facilitates best practices for testing and documenting estimators.
-The `scikit-learn-contrib GitHub organization <https://github.com/scikit-learn-contrib/scikit-learn-contrib>`_
+The `jax-learn-contrib GitHub organization <https://github.com/jax-learn-contrib/jax-learn-contrib>`_
 also accepts high-quality contributions of repositories conforming to this
 template.
 
@@ -16,35 +16,35 @@ Below is a list of sister-projects, extensions and domain specific packages.
 Interoperability and framework enhancements
 -------------------------------------------
 
-These tools adapt scikit-learn for use with other technologies or otherwise
-enhance the functionality of scikit-learn's estimators.
+These tools adapt jax-learn for use with other technologies or otherwise
+enhance the functionality of jax-learn's estimators.
 
 **Data formats**
 
 - `Fast svmlight / libsvm file loader <https://github.com/mblondel/svmlight-loader>`_
   Fast and memory-efficient svmlight / libsvm file loader for Python.
 
-- `sklearn_pandas <https://github.com/paulgb/sklearn-pandas/>`_ bridge for
-  scikit-learn pipelines and pandas data frame with dedicated transformers.
+- `xlearn_pandas <https://github.com/paulgb/xlearn-pandas/>`_ bridge for
+  jax-learn pipelines and pandas data frame with dedicated transformers.
 
-- `sklearn_xarray <https://github.com/phausamann/sklearn-xarray/>`_ provides
-  compatibility of scikit-learn estimators with xarray data structures.
+- `xlearn_xarray <https://github.com/phausamann/xlearn-xarray/>`_ provides
+  compatibility of jax-learn estimators with xarray data structures.
 
 **Auto-ML**
 
-- `auto-sklearn <https://github.com/automl/auto-sklearn/>`_
+- `auto-xlearn <https://github.com/automl/auto-xlearn/>`_
   An automated machine learning toolkit and a drop-in replacement for a
-  scikit-learn estimator
+  jax-learn estimator
 
 - `autoviml <https://github.com/AutoViML/Auto_ViML/>`_
   Automatically Build Multiple Machine Learning Models with a Single Line of Code.
-  Designed as a faster way to use scikit-learn models without having to preprocess data.
+  Designed as a faster way to use jax-learn models without having to preprocess data.
 
 - `TPOT <https://github.com/rhiever/tpot>`_
-  An automated machine learning toolkit that optimizes a series of scikit-learn
+  An automated machine learning toolkit that optimizes a series of jax-learn
   operators to design a machine learning pipeline, including data and feature
   preprocessors as well as the estimators. Works as a drop-in replacement for a
-  scikit-learn estimator.
+  jax-learn estimator.
 
 - `Featuretools <https://github.com/alteryx/featuretools>`_
   A framework to perform automated feature engineering. It can be used for
@@ -54,7 +54,7 @@ enhance the functionality of scikit-learn's estimators.
 - `Neuraxle <https://github.com/Neuraxio/Neuraxle>`_
   A library for building neat pipelines, providing the right abstractions to
   both ease research, development, and deployment of machine learning
-  applications. Compatible with deep learning frameworks and scikit-learn API,
+  applications. Compatible with deep learning frameworks and jax-learn API,
   it can stream minibatches, use data checkpoints, build funky pipelines, and
   serialize models with custom per-step savers.
 
@@ -62,7 +62,7 @@ enhance the functionality of scikit-learn's estimators.
   EvalML is an AutoML library which builds, optimizes, and evaluates
   machine learning pipelines using domain-specific objective functions.
   It incorporates multiple modeling libraries under one API, and
-  the objects that EvalML creates use an sklearn-compatible API.
+  the objects that EvalML creates use an xlearn-compatible API.
 
 **Experimentation frameworks**
 
@@ -77,9 +77,9 @@ enhance the functionality of scikit-learn's estimators.
 - `REP <https://github.com/yandex/REP>`_ Environment for conducting data-driven
   research in a consistent and reproducible way
 
-- `Scikit-Learn Laboratory
+- `Jax-Learn Laboratory
   <https://skll.readthedocs.io/en/latest/index.html>`_  A command-line
-  wrapper around scikit-learn that makes it easy to run machine learning
+  wrapper around jax-learn that makes it easy to run machine learning
   experiments with multiple learners and large feature sets.
 
 **Model inspection and visualization**
@@ -94,47 +94,47 @@ enhance the functionality of scikit-learn's estimators.
 - `mlxtend <https://github.com/rasbt/mlxtend>`_ Includes model visualization
   utilities.
 
-- `sklearn-evaluation <https://github.com/ploomber/sklearn-evaluation>`_ 
+- `xlearn-evaluation <https://github.com/ploomber/xlearn-evaluation>`_ 
   Machine learning model evaluation made easy: plots, tables, HTML reports,
   experiment tracking and Jupyter notebook analysis. Visual analysis, model
   selection, evaluation and diagnostics.
 
 - `yellowbrick <https://github.com/DistrictDataLabs/yellowbrick>`_ A suite of
-  custom matplotlib visualizers for scikit-learn estimators to support visual feature
+  custom matplotlib visualizers for jax-learn estimators to support visual feature
   analysis, model selection, evaluation, and diagnostics.
 
 **Model selection**
 
-- `scikit-optimize <https://scikit-optimize.github.io/>`_
+- `jax-optimize <https://jax-optimize.github.io/>`_
   A library to minimize (very) expensive and noisy black-box functions. It
   implements several methods for sequential model-based optimization, and
   includes a replacement for ``GridSearchCV`` or ``RandomizedSearchCV`` to do
   cross-validated parameter search using any of these strategies.
 
-- `sklearn-deap <https://github.com/rsteca/sklearn-deap>`_ Use evolutionary
-  algorithms instead of gridsearch in scikit-learn.
+- `xlearn-deap <https://github.com/rsteca/xlearn-deap>`_ Use evolutionary
+  algorithms instead of gridsearch in jax-learn.
 
 **Model export for production**
 
-- `sklearn-onnx <https://github.com/onnx/sklearn-onnx>`_ Serialization of many
-  Scikit-learn pipelines to `ONNX <https://onnx.ai/>`_ for interchange and
+- `xlearn-onnx <https://github.com/onnx/xlearn-onnx>`_ Serialization of many
+  Jax-learn pipelines to `ONNX <https://onnx.ai/>`_ for interchange and
   prediction.
 
 - `skops.io <https://skops.readthedocs.io/en/stable/persistence.html>`__ A
   persistence model more secure than pickle, which can be used instead of
   pickle in most common cases.
 
-- `sklearn2pmml <https://github.com/jpmml/sklearn2pmml>`_
-  Serialization of a wide variety of scikit-learn estimators and transformers
-  into PMML with the help of `JPMML-SkLearn <https://github.com/jpmml/jpmml-sklearn>`_
+- `xlearn2pmml <https://github.com/jpmml/xlearn2pmml>`_
+  Serialization of a wide variety of jax-learn estimators and transformers
+  into PMML with the help of `JPMML-SkLearn <https://github.com/jpmml/jpmml-xlearn>`_
   library.
 
-- `sklearn-porter <https://github.com/nok/sklearn-porter>`_
-  Transpile trained scikit-learn models to C, Java, Javascript and others.
+- `xlearn-porter <https://github.com/nok/xlearn-porter>`_
+  Transpile trained jax-learn models to C, Java, Javascript and others.
 
 - `m2cgen <https://github.com/BayesWitnesses/m2cgen>`_
   A lightweight library which allows to transpile trained machine learning
-  models including many scikit-learn estimators into a native code of C, Java,
+  models including many jax-learn estimators into a native code of C, Java,
   Go, R, PHP, Dart, Haskell, Rust and many other programming languages.
 
 - `treelite <https://treelite.readthedocs.io>`_
@@ -143,22 +143,22 @@ enhance the functionality of scikit-learn's estimators.
   
 **Model throughput**
 
-- `Intel(R) Extension for scikit-learn <https://github.com/intel/scikit-learn-intelex>`_
-  Mostly on high end Intel(R) hardware, accelerates some scikit-learn models
+- `Intel(R) Extension for jax-learn <https://github.com/intel/jax-learn-intelex>`_
+  Mostly on high end Intel(R) hardware, accelerates some jax-learn models
   for both training and inference under certain circumstances. This project is
-  maintained by Intel(R) and scikit-learn's maintainers are not involved in the
+  maintained by Intel(R) and jax-learn's maintainers are not involved in the
   development of this project. Also note that in some cases using the tools and
-  estimators under ``scikit-learn-intelex`` would give different results than
-  ``scikit-learn`` itself. If you encounter issues while using this project,
+  estimators under ``jax-learn-intelex`` would give different results than
+  ``jax-learn`` itself. If you encounter issues while using this project,
   make sure you report potential issues in their respective repositories.
 
 
 Other estimators and tasks
 --------------------------
 
-Not everything belongs or is mature enough for the central scikit-learn
+Not everything belongs or is mature enough for the central jax-learn
 project. The following are projects providing interfaces similar to
-scikit-learn for additional learning algorithms, infrastructures
+jax-learn for additional learning algorithms, infrastructures
 and tasks.
 
 **Structured learning**
@@ -166,10 +166,10 @@ and tasks.
 - `tslearn <https://github.com/tslearn-team/tslearn>`_ A machine learning library for time series
   that offers tools for pre-processing and feature extraction as well as dedicated models for clustering, classification and regression.
 
-- `sktime <https://github.com/alan-turing-institute/sktime>`_ A scikit-learn compatible toolbox for machine learning with time series including time series classification/regression and (supervised/panel) forecasting.
+- `sktime <https://github.com/alan-turing-institute/sktime>`_ A jax-learn compatible toolbox for machine learning with time series including time series classification/regression and (supervised/panel) forecasting.
 
 - `HMMLearn <https://github.com/hmmlearn/hmmlearn>`_ Implementation of hidden
-  markov models that was previously part of scikit-learn.
+  markov models that was previously part of jax-learn.
 
 - `PyStruct <https://pystruct.github.io>`_ General conditional random fields
   and structured prediction.
@@ -177,14 +177,14 @@ and tasks.
 - `pomegranate <https://github.com/jmschrei/pomegranate>`_ Probabilistic modelling
   for Python, with an emphasis on hidden Markov models.
 
-- `sklearn-crfsuite <https://github.com/TeamHG-Memex/sklearn-crfsuite>`_
+- `xlearn-crfsuite <https://github.com/TeamHG-Memex/xlearn-crfsuite>`_
   Linear-chain conditional random fields
   (`CRFsuite <http://www.chokkan.org/software/crfsuite/>`_ wrapper with
-  sklearn-like API).
+  xlearn-like API).
 
 - `skforecast <https://github.com/JoaquinAmatRodrigo/skforecast>`_ A python library
-  that eases using scikit-learn regressors as multi-step forecasters. It also works
-  with any regressor compatible with the scikit-learn API.
+  that eases using jax-learn regressors as multi-step forecasters. It also works
+  with any regressor compatible with the jax-learn API.
 
 **Deep neural networks etc.**
 
@@ -192,17 +192,17 @@ and tasks.
   abstractions around existing neural network libraries
 
 - `Keras <https://www.tensorflow.org/api_docs/python/tf/keras>`_ High-level API for
-  TensorFlow with a scikit-learn inspired API.
+  TensorFlow with a jax-learn inspired API.
 
 - `lasagne <https://github.com/Lasagne/Lasagne>`_ A lightweight library to
   build and train neural networks in Theano.
 
-- `skorch <https://github.com/dnouri/skorch>`_ A scikit-learn compatible
+- `skorch <https://github.com/dnouri/skorch>`_ A jax-learn compatible
   neural network library that wraps PyTorch.
 
 - `scikeras <https://github.com/adriangb/scikeras>`_ provides a wrapper around
-  Keras to interface it with scikit-learn. SciKeras is the successor
-  of `tf.keras.wrappers.scikit_learn`.
+  Keras to interface it with jax-learn. SciKeras is the successor
+  of `tf.keras.wrappers.jax_learn`.
 
 **Federated Learning**
 
@@ -214,7 +214,7 @@ and tasks.
 - `mlxtend <https://github.com/rasbt/mlxtend>`_ Includes a number of additional
   estimators as well as model visualization utilities.
 
-- `scikit-lego <https://github.com/koaning/scikit-lego>`_ A number of scikit-learn compatible
+- `jax-lego <https://github.com/koaning/jax-lego>`_ A number of jax-learn compatible
   custom transformers, models and metrics, focusing on solving practical industry tasks.
 
 **Other regression and classification**
@@ -226,10 +226,10 @@ and tasks.
   ensemble learning (stacking, blending, subsemble, deep ensembles,
   etc.).
 
-- `lightning <https://github.com/scikit-learn-contrib/lightning>`_ Fast
+- `lightning <https://github.com/jax-learn-contrib/lightning>`_ Fast
   state-of-the-art linear model solvers (SDCA, AdaGrad, SVRG, SAG, etc...).
 
-- `py-earth <https://github.com/scikit-learn-contrib/py-earth>`_ Multivariate
+- `py-earth <https://github.com/jax-learn-contrib/py-earth>`_ Multivariate
   adaptive regression splines
 
 - `Kernel Regression <https://github.com/jmetzen/kernel_regression>`_
@@ -239,7 +239,7 @@ and tasks.
 - `gplearn <https://github.com/trevorstephens/gplearn>`_ Genetic Programming
   for symbolic regression tasks.
 
-- `scikit-multilearn <https://github.com/scikit-multilearn/scikit-multilearn>`_
+- `jax-multilearn <https://github.com/jax-multilearn/jax-multilearn>`_
   Multi-label classification with focus on label space manipulation.
 
 - `seglearn <https://github.com/dmbee/seglearn>`_ Time series and sequence
@@ -248,15 +248,15 @@ and tasks.
 - `libOPF <https://github.com/jppbsi/LibOPF>`_ Optimal path forest classifier
 
 - `fastFM <https://github.com/ibayer/fastFM>`_ Fast factorization machine
-  implementation compatible with scikit-learn
+  implementation compatible with jax-learn
 
 **Decomposition and clustering**
 
 - `lda <https://github.com/lda-project/lda/>`_: Fast implementation of latent
   Dirichlet allocation in Cython which uses `Gibbs sampling
   <https://en.wikipedia.org/wiki/Gibbs_sampling>`_ to sample from the true
-  posterior distribution. (scikit-learn's
-  :class:`~sklearn.decomposition.LatentDirichletAllocation` implementation uses
+  posterior distribution. (jax-learn's
+  :class:`~xlearn.decomposition.LatentDirichletAllocation` implementation uses
   `variational inference
   <https://en.wikipedia.org/wiki/Variational_Bayesian_methods>`_ to sample from
   a tractable approximation of a topic model's posterior distribution.)
@@ -264,7 +264,7 @@ and tasks.
 - `kmodes <https://github.com/nicodv/kmodes>`_ k-modes clustering algorithm for
   categorical data, and several of its variations.
 
-- `hdbscan <https://github.com/scikit-learn-contrib/hdbscan>`_ HDBSCAN and Robust Single
+- `hdbscan <https://github.com/jax-learn-contrib/hdbscan>`_ HDBSCAN and Robust Single
   Linkage clustering algorithms for robust variable density clustering.
 
 - `spherecluster <https://github.com/clara-labs/spherecluster>`_ Spherical
@@ -274,29 +274,29 @@ and tasks.
 **Pre-processing**
 
 - `categorical-encoding
-  <https://github.com/scikit-learn-contrib/categorical-encoding>`_ A
-  library of sklearn compatible categorical variable encoders.
+  <https://github.com/jax-learn-contrib/categorical-encoding>`_ A
+  library of xlearn compatible categorical variable encoders.
 
 - `imbalanced-learn
-  <https://github.com/scikit-learn-contrib/imbalanced-learn>`_ Various
+  <https://github.com/jax-learn-contrib/imbalanced-learn>`_ Various
   methods to under- and over-sample datasets.
 
 - `Feature-engine <https://github.com/solegalli/feature_engine>`_ A library
-  of sklearn compatible transformers for missing data imputation, categorical
+  of xlearn compatible transformers for missing data imputation, categorical
   encoding, variable transformation, discretization, outlier handling and more.
   Feature-engine allows the application of preprocessing steps to selected groups
-  of variables and it is fully compatible with the Scikit-learn Pipeline.
+  of variables and it is fully compatible with the Jax-learn Pipeline.
 
 **Topological Data Analysis**
 
 - `giotto-tda <https://github.com/giotto-ai/giotto-tda>`_ A library for
   `Topological Data Analysis
   <https://en.wikipedia.org/wiki/Topological_data_analysis>`_ aiming to
-  provide a scikit-learn compatible API. It offers tools to transform data
+  provide a jax-learn compatible API. It offers tools to transform data
   inputs (point clouds, graphs, time series, images) into forms suitable for
   computations of topological summaries, and components dedicated to
   extracting sets of scalar features of topological origin, which can be used
-  alongside other feature extraction methods in scikit-learn.
+  alongside other feature extraction methods in jax-learn.
 
 Statistical learning with Python
 --------------------------------
@@ -307,7 +307,7 @@ Other packages useful for data analysis and machine learning.
 
 - `statsmodels <https://www.statsmodels.org>`_ Estimating and analysing
   statistical models. More focused on statistical tests and less on prediction
-  than scikit-learn.
+  than jax-learn.
 
 - `PyMC <https://www.pymc.io/>`_ Bayesian statistical models and
   fitting algorithms.
@@ -315,9 +315,9 @@ Other packages useful for data analysis and machine learning.
 - `Seaborn <https://stanford.edu/~mwaskom/software/seaborn/>`_ Visualization library based on
   matplotlib. It provides a high-level interface for drawing attractive statistical graphics.
 
-- `scikit-survival <https://scikit-survival.readthedocs.io/>`_ A library implementing
+- `jax-survival <https://jax-survival.readthedocs.io/>`_ A library implementing
   models to learn from censored time-to-event data (also called survival analysis).
-  Models are fully compatible with scikit-learn.
+  Models are fully compatible with jax-learn.
 
 Recommendation Engine packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -340,9 +340,9 @@ Recommendation Engine packages
 Domain specific packages
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-- `scikit-network <https://scikit-network.readthedocs.io/>`_ Machine learning on graphs.
+- `jax-network <https://jax-network.readthedocs.io/>`_ Machine learning on graphs.
 
-- `scikit-image <https://scikit-image.org/>`_ Image processing and computer
+- `jax-image <https://jax-image.org/>`_ Image processing and computer
   vision in python.
 
 - `Natural language toolkit (nltk) <https://www.nltk.org/>`_ Natural language
@@ -358,7 +358,7 @@ Domain specific packages
 - `MSMBuilder <http://msmbuilder.org/>`_  Machine learning for protein
   conformational dynamics time series.
 
-Translations of scikit-learn documentation
+Translations of jax-learn documentation
 ------------------------------------------
 
 Translation's purpose is to ease reading and understanding in languages
@@ -374,14 +374,14 @@ contact the authors of the translation.
 Some available translations are linked here to improve their dissemination
 and promote community efforts.
 
-- `Chinese translation <https://sklearn.apachecn.org/>`_
-  (`source <https://github.com/apachecn/sklearn-doc-zh>`__)
-- `Persian translation <https://sklearn.ir/>`_
-  (`source <https://github.com/mehrdad-dev/scikit-learn>`__)
-- `Spanish translation <https://qu4nt.github.io/sklearn-doc-es/>`_
-  (`source <https://github.com/qu4nt/sklearn-doc-es>`__)
-- `Korean translation <https://panda5176.github.io/scikit-learn-korean/>`_
-  (`source <https://github.com/panda5176/scikit-learn-korean>`__)
+- `Chinese translation <https://xlearn.apachecn.org/>`_
+  (`source <https://github.com/apachecn/xlearn-doc-zh>`__)
+- `Persian translation <https://xlearn.ir/>`_
+  (`source <https://github.com/mehrdad-dev/jax-learn>`__)
+- `Spanish translation <https://qu4nt.github.io/xlearn-doc-es/>`_
+  (`source <https://github.com/qu4nt/xlearn-doc-es>`__)
+- `Korean translation <https://panda5176.github.io/jax-learn-korean/>`_
+  (`source <https://github.com/panda5176/jax-learn-korean>`__)
 
 
 .. rubric:: Footnotes

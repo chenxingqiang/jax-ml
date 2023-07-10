@@ -10,11 +10,11 @@ There are several ways to get in touch with the developers.
 Mailing List
 ============
 
-- The main mailing list is `scikit-learn
-  <https://mail.python.org/mailman/listinfo/scikit-learn>`_.
+- The main mailing list is `jax-learn
+  <https://mail.python.org/mailman/listinfo/jax-learn>`_.
 
-- There is also a commit list `scikit-learn-commits
-  <https://lists.sourceforge.net/lists/listinfo/scikit-learn-commits>`_,
+- There is also a commit list `jax-learn-commits
+  <https://lists.sourceforge.net/lists/listinfo/jax-learn-commits>`_,
   where updates to the main repository and test failures get notified.
 
 
@@ -23,8 +23,8 @@ Mailing List
 User questions
 ==============
 
-- Some scikit-learn developers support users on StackOverflow using
-  the `[scikit-learn] <https://stackoverflow.com/questions/tagged/scikit-learn>`_
+- Some jax-learn developers support users on StackOverflow using
+  the `[jax-learn] <https://stackoverflow.com/questions/tagged/jax-learn>`_
   tag.
 
 - For general theoretical or methodological Machine Learning questions
@@ -32,7 +32,7 @@ User questions
   suitable venue.
 
 In both cases please use a descriptive question in the title field (e.g.
-no "Please help with scikit-learn!" as this is not a question) and put
+no "Please help with jax-learn!" as this is not a question) and put
 details on what you tried to achieve, what were the expected results and
 what you observed instead in the details field.
 
@@ -56,7 +56,7 @@ Bug tracker
 
 If you think you've encountered a bug, please report it to the issue tracker:
 
-https://github.com/scikit-learn/scikit-learn/issues
+https://github.com/jax-learn/jax-learn/issues
 
 Don't forget to include:
 
@@ -80,8 +80,8 @@ push datafiles to them.
 Gitter
 ======
 
-Some developers like to hang out on scikit-learn Gitter room:
-https://gitter.im/scikit-learn/scikit-learn.
+Some developers like to hang out on jax-learn Gitter room:
+https://gitter.im/jax-learn/jax-learn.
 
 
 .. _documentation_resources:
@@ -91,7 +91,7 @@ Documentation resources
 
 This documentation is relative to |release|. Documentation for
 other versions can be found `here
-<https://scikit-learn.org/dev/versions.html>`__.
+<https://jax-learn.cc/dev/versions.html>`__.
 
 Printable pdf documentation for old versions can be found `here
-<https://sourceforge.net/projects/scikit-learn/files/documentation/>`_.
+<https://sourceforge.net/projects/jax-learn/files/documentation/>`_.

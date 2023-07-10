@@ -3,7 +3,7 @@
 Plot class probabilities calculated by the VotingClassifier
 ===========================================================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 Plot the class probabilities of the first sample in a toy dataset predicted by
 three different classifiers and averaged by the
@@ -24,17 +24,17 @@ example dataset.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import GaussianNB
+from xlearn.ensemble import RandomForestClassifier, VotingClassifier
+from xlearn.linear_model import LogisticRegression
+from xlearn.naive_bayes import GaussianNB
 
 clf1 = LogisticRegression(max_iter=1000, random_state=123)
 clf2 = RandomForestClassifier(n_estimators=100, random_state=123)
 clf3 = GaussianNB()
-X = np.array([[-1.0, -1.0], [-1.2, -1.4], [-3.4, -2.2], [1.1, 1.2]])
-y = np.array([1, 1, 2, 2])
+X = jnp.array([[-1.0, -1.0], [-1.2, -1.4], [-3.4, -2.2], [1.1, 1.2]])
+y = jnp.array([1, 1, 2, 2])
 
 eclf = VotingClassifier(
     estimators=[("lr", clf1), ("rf", clf2), ("gnb", clf3)],
@@ -53,16 +53,17 @@ class2_1 = [pr[0, 1] for pr in probas]
 # plotting
 
 N = 4  # number of groups
-ind = np.arange(N)  # group positions
+ind = jnp.arange(N)  # group positions
 width = 0.35  # bar width
 
 fig, ax = plt.subplots()
 
 # bars for classifier 1-3
-p1 = ax.bar(ind, np.hstack(([class1_1[:-1], [0]])), width, color="green", edgecolor="k")
+p1 = ax.bar(ind, jnp.hstack(([class1_1[:-1], [0]])),
+            width, color="green", edgecolor="k")
 p2 = ax.bar(
     ind + width,
-    np.hstack(([class2_1[:-1], [0]])),
+    jnp.hstack(([class2_1[:-1], [0]])),
     width,
     color="lightgreen",
     edgecolor="k",

@@ -17,8 +17,8 @@ feature for each :term:`sample` separately, with one line per sample.
 Only one feature of interest is supported for ICE plots.
 
 This example shows how to obtain partial dependence and ICE plots from a
-:class:`~sklearn.neural_network.MLPRegressor` and a
-:class:`~sklearn.ensemble.HistGradientBoostingRegressor` trained on the
+:class:`~xlearn.neural_network.MLPRegressor` and a
+:class:`~xlearn.ensemble.HistGradientBoostingRegressor` trained on the
 bike sharing dataset. The example is inspired by [1]_.
 
 .. [1] `Molnar, Christoph. "Interpretable machine learning.
@@ -40,9 +40,23 @@ bike sharing dataset. The example is inspired by [1]_.
 #
 # We will use the bike sharing dataset. The goal is to predict the number of bike
 # rentals using weather and season data as well as the datetime information.
-from sklearn.datasets import fetch_openml
+from xlearn.inspection import partial_dependence
+from xlearn.base import clone
+from xlearn.ensemble import HistGradientBoostingRegressor
+from xlearn.inspection import PartialDependenceDisplay
+from xlearn.pipeline import make_pipeline
+from xlearn.neural_network import MLPRegressor
+from time import time
+from xlearn.preprocessing import OrdinalEncoder
+from xlearn.preprocessing import OneHotEncoder, QuantileTransformer
+from xlearn.compose import ColumnTransformer
+import jax.numpy as jnp
+import matplotlib.pyplot as plt
+from itertools import product
+from xlearn.datasets import fetch_openml
 
-bikes = fetch_openml("Bike_Sharing_Demand", version=2, as_frame=True, parser="pandas")
+bikes = fetch_openml("Bike_Sharing_Demand", version=2,
+                     as_frame=True, parser="pandas")
 # Make an explicit copy to avoid "SettingWithCopyWarning" from pandas
 X, y = bikes.data.copy(), bikes.target
 
@@ -99,10 +113,7 @@ categorical_features = X_train.columns.drop(numerical_features)
 #
 # We plot the average number of bike rentals by grouping the data by season and
 # by year.
-from itertools import product
 
-import matplotlib.pyplot as plt
-import numpy as np
 
 days = ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 hours = tuple(range(24))
@@ -118,7 +129,7 @@ for ax, (idx, df) in zip(axs, average_bike_rentals.groupby("year")):
 
     # decorate the plot
     ax.set_xticks(
-        np.linspace(
+        jnp.linspace(
             start=xtick_start,
             stop=len(xticklabels),
             num=len(xticklabels) // xtick_period,
@@ -147,18 +158,16 @@ for ax, (idx, df) in zip(axs, average_bike_rentals.groupby("year")):
 # ----------------------------------------
 #
 # Since we later use two different models, a
-# :class:`~sklearn.neural_network.MLPRegressor` and a
-# :class:`~sklearn.ensemble.HistGradientBoostingRegressor`, we create two different
+# :class:`~xlearn.neural_network.MLPRegressor` and a
+# :class:`~xlearn.ensemble.HistGradientBoostingRegressor`, we create two different
 # preprocessors, specific for each model.
 #
 # Preprocessor for the neural network model
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# We will use a :class:`~sklearn.preprocessing.QuantileTransformer` to scale the
+# We will use a :class:`~xlearn.preprocessing.QuantileTransformer` to scale the
 # numerical features and encode the categorical features with a
-# :class:`~sklearn.preprocessing.OneHotEncoder`.
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, QuantileTransformer
+# :class:`~xlearn.preprocessing.OneHotEncoder`.
 
 mlp_preprocessor = ColumnTransformer(
     transformers=[
@@ -174,8 +183,7 @@ mlp_preprocessor
 #
 # For the gradient boosting model, we leave the numerical features as-is and only
 # encode the categorical features using a
-# :class:`~sklearn.preprocessing.OrdinalEncoder`.
-from sklearn.preprocessing import OrdinalEncoder
+# :class:`~xlearn.preprocessing.OrdinalEncoder`.
 
 hgbdt_preprocessor = ColumnTransformer(
     transformers=[
@@ -200,12 +208,9 @@ hgbdt_preprocessor
 # Multi-layer perceptron
 # ~~~~~~~~~~~~~~~~~~~~~~
 #
-# Let's fit a :class:`~sklearn.neural_network.MLPRegressor` and compute
+# Let's fit a :class:`~xlearn.neural_network.MLPRegressor` and compute
 # single-variable partial dependence plots.
-from time import time
 
-from sklearn.neural_network import MLPRegressor
-from sklearn.pipeline import make_pipeline
 
 print("Training MLPRegressor...")
 tic = time()
@@ -242,9 +247,7 @@ print(f"Test R2 score: {mlp_model.score(X_test, y_test):.2f}")
 # reasonably well.
 #
 # We will plot the averaged partial dependence.
-import matplotlib.pyplot as plt
 
-from sklearn.inspection import PartialDependenceDisplay
 
 common_params = {
     "subsample": 50,
@@ -284,10 +287,9 @@ _ = display.figure_.suptitle(
 # Gradient boosting
 # ~~~~~~~~~~~~~~~~~
 #
-# Let's now fit a :class:`~sklearn.ensemble.HistGradientBoostingRegressor` and
+# Let's now fit a :class:`~xlearn.ensemble.HistGradientBoostingRegressor` and
 # compute the partial dependence on the same features. We also use the
 # specific preprocessor we created for this model.
-from sklearn.ensemble import HistGradientBoostingRegressor
 
 print("Training HistGradientBoostingRegressor...")
 tic = time()
@@ -344,8 +346,8 @@ _ = display.figure_.suptitle(
 # trend for the humidity features. The number of bike rentals is decreasing when the
 # humidity increases. Finally, we see the same trend for the wind speed feature. The
 # number of bike rentals is decreasing when the wind speed is increasing for both
-# models. We also observe that :class:`~sklearn.neural_network.MLPRegressor` has much
-# smoother predictions than :class:`~sklearn.ensemble.HistGradientBoostingRegressor`.
+# models. We also observe that :class:`~xlearn.neural_network.MLPRegressor` has much
+# smoother predictions than :class:`~xlearn.ensemble.HistGradientBoostingRegressor`.
 #
 # Now, we will look at the partial dependence plots for the categorical features.
 #
@@ -366,7 +368,8 @@ _ = display.figure_.suptitle(
 # selected ICEs for the temperature and humidity features.
 print("Computing partial dependence plots and individual conditional expectation...")
 tic = time()
-_, ax = plt.subplots(ncols=2, figsize=(6, 4), sharey=True, constrained_layout=True)
+_, ax = plt.subplots(ncols=2, figsize=(
+    6, 4), sharey=True, constrained_layout=True)
 
 features_info = {
     "features": ["temp", "humidity"],
@@ -395,7 +398,6 @@ _ = display.figure_.suptitle("ICE and PDP representations", fontsize=16)
 # interactions between features. We can repeat the experiment by constraining the
 # gradient boosting model to not use any interactions between features using the
 # parameter `interaction_cst`:
-from sklearn.base import clone
 
 interaction_cst = [[i] for i in range(X_train.shape[1])]
 hgbdt_model_without_interactions = (
@@ -403,10 +405,12 @@ hgbdt_model_without_interactions = (
     .set_params(histgradientboostingregressor__interaction_cst=interaction_cst)
     .fit(X_train, y_train)
 )
-print(f"Test R2 score: {hgbdt_model_without_interactions.score(X_test, y_test):.2f}")
+print(
+    f"Test R2 score: {hgbdt_model_without_interactions.score(X_test, y_test):.2f}")
 
 # %%
-_, ax = plt.subplots(ncols=2, figsize=(6, 4), sharey=True, constrained_layout=True)
+_, ax = plt.subplots(ncols=2, figsize=(
+    6, 4), sharey=True, constrained_layout=True)
 
 features_info["centered"] = False
 display = PartialDependenceDisplay.from_estimator(
@@ -425,7 +429,7 @@ _ = display.figure_.suptitle("ICE and PDP representations", fontsize=16)
 # PDPs with two features of interest enable us to visualize interactions among them.
 # However, ICEs cannot be plotted in an easy manner and thus interpreted. We will show
 # the representation of available in
-# :meth:`~sklearn.inspection.PartialDependenceDisplay.from_estimator` that is a 2D
+# :meth:`~xlearn.inspection.PartialDependenceDisplay.from_estimator` that is a 2D
 # heatmap.
 print("Computing partial dependence plots...")
 features_info = {
@@ -533,9 +537,7 @@ _ = display.figure_.suptitle(
 # this time in 3 dimensions.
 # unused but required import for doing 3d projections with matplotlib < 3.2
 import mpl_toolkits.mplot3d  # noqa: F401
-import numpy as np
 
-from sklearn.inspection import partial_dependence
 
 fig = plt.figure(figsize=(5.5, 5))
 
@@ -543,12 +545,13 @@ features = ("temp", "humidity")
 pdp = partial_dependence(
     hgbdt_model, X_train, features=features, kind="average", grid_resolution=10
 )
-XX, YY = np.meshgrid(pdp["grid_values"][0], pdp["grid_values"][1])
+XX, YY = jnp.meshgrid(pdp["grid_values"][0], pdp["grid_values"][1])
 Z = pdp.average[0].T
 ax = fig.add_subplot(projection="3d")
 fig.add_axes(ax)
 
-surf = ax.plot_surface(XX, YY, Z, rstride=1, cstride=1, cmap=plt.cm.BuPu, edgecolor="k")
+surf = ax.plot_surface(XX, YY, Z, rstride=1, cstride=1,
+                       cmap=plt.cm.BuPu, edgecolor="k")
 ax.set_xlabel(features[0])
 ax.set_ylabel(features[1])
 fig.suptitle(

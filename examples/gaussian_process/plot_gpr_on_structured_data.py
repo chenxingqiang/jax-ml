@@ -39,11 +39,12 @@ four correct classifications and fails on one.
 """
 
 # %%
-import numpy as np
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 
-from sklearn.base import clone
-from sklearn.gaussian_process import GaussianProcessClassifier, GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import GenericKernelMixin, Hyperparameter, Kernel
+from xlearn.base import clone
+from xlearn.gaussian_process import GaussianProcessClassifier, GaussianProcessRegressor
+from xlearn.gaussian_process.kernels import GenericKernelMixin, Hyperparameter, Kernel
 
 
 class SequenceKernel(GenericKernelMixin, Kernel):
@@ -81,14 +82,14 @@ class SequenceKernel(GenericKernelMixin, Kernel):
 
         if eval_gradient:
             return (
-                np.array([[self._f(x, y) for y in Y] for x in X]),
-                np.array([[[self._g(x, y)] for y in Y] for x in X]),
+                jnp.array([[self._f(x, y) for y in Y] for x in X]),
+                jnp.array([[[self._g(x, y)] for y in Y] for x in X]),
             )
         else:
-            return np.array([[self._f(x, y) for y in Y] for x in X])
+            return jnp.array([[self._f(x, y) for y in Y] for x in X])
 
     def diag(self, X):
-        return np.array([self._f(x, x) for x in X])
+        return jnp.array([self._f(x, x) for x in X])
 
     def is_stationary(self):
         return False
@@ -105,17 +106,16 @@ kernel = SequenceKernel()
 # Sequence similarity matrix under the kernel
 # ===========================================
 
-import matplotlib.pyplot as plt
 
-X = np.array(["AGCT", "AGC", "AACT", "TAA", "AAA", "GAACA"])
+X = jnp.array(["AGCT", "AGC", "AACT", "TAA", "AAA", "GAACA"])
 
 K = kernel(X)
 D = kernel.diag(X)
 
 plt.figure(figsize=(8, 5))
-plt.imshow(np.diag(D**-0.5).dot(K).dot(np.diag(D**-0.5)))
-plt.xticks(np.arange(len(X)), X)
-plt.yticks(np.arange(len(X)), X)
+plt.imshow(jnp.diag(D**-0.5).dot(K).dot(jnp.diag(D**-0.5)))
+plt.xticks(jnp.arange(len(X)), X)
+plt.yticks(jnp.arange(len(X)), X)
 plt.title("Sequence similarity under the kernel")
 plt.show()
 
@@ -123,17 +123,18 @@ plt.show()
 # Regression
 # ==========
 
-X = np.array(["AGCT", "AGC", "AACT", "TAA", "AAA", "GAACA"])
-Y = np.array([1.0, 1.0, 2.0, 2.0, 3.0, 3.0])
+X = jnp.array(["AGCT", "AGC", "AACT", "TAA", "AAA", "GAACA"])
+Y = jnp.array([1.0, 1.0, 2.0, 2.0, 3.0, 3.0])
 
 training_idx = [0, 1, 3, 4]
 gp = GaussianProcessRegressor(kernel=kernel)
 gp.fit(X[training_idx], Y[training_idx])
 
 plt.figure(figsize=(8, 5))
-plt.bar(np.arange(len(X)), gp.predict(X), color="b", label="prediction")
-plt.bar(training_idx, Y[training_idx], width=0.2, color="r", alpha=1, label="training")
-plt.xticks(np.arange(len(X)), X)
+plt.bar(jnp.arange(len(X)), gp.predict(X), color="b", label="prediction")
+plt.bar(training_idx, Y[training_idx], width=0.2,
+        color="r", alpha=1, label="training")
+plt.xticks(jnp.arange(len(X)), X)
 plt.title("Regression on sequences")
 plt.legend()
 plt.show()
@@ -142,9 +143,9 @@ plt.show()
 # Classification
 # ==============
 
-X_train = np.array(["AGCT", "CGA", "TAAC", "TCG", "CTTT", "TGCT"])
+X_train = jnp.array(["AGCT", "CGA", "TAAC", "TCG", "CTTT", "TGCT"])
 # whether there are 'A's in the sequence
-Y_train = np.array([True, True, True, False, False, False])
+Y_train = jnp.array([True, True, True, False, False, False])
 
 gp = GaussianProcessClassifier(kernel)
 gp.fit(X_train, Y_train)
@@ -154,7 +155,7 @@ Y_test = [True, True, False, False, False]
 
 plt.figure(figsize=(8, 5))
 plt.scatter(
-    np.arange(len(X_train)),
+    jnp.arange(len(X_train)),
     [1.0 if c else -1.0 for c in Y_train],
     s=100,
     marker="o",
@@ -163,7 +164,7 @@ plt.scatter(
     label="training",
 )
 plt.scatter(
-    len(X_train) + np.arange(len(X_test)),
+    len(X_train) + jnp.arange(len(X_test)),
     [1.0 if c else -1.0 for c in Y_test],
     s=100,
     marker="o",
@@ -172,7 +173,7 @@ plt.scatter(
     label="truth",
 )
 plt.scatter(
-    len(X_train) + np.arange(len(X_test)),
+    len(X_train) + jnp.arange(len(X_test)),
     [1.0 if c else -1.0 for c in gp.predict(X_test)],
     s=100,
     marker="x",
@@ -180,7 +181,8 @@ plt.scatter(
     linewidth=2,
     label="prediction",
 )
-plt.xticks(np.arange(len(X_train) + len(X_test)), np.concatenate((X_train, X_test)))
+plt.xticks(jnp.arange(len(X_train) + len(X_test)),
+           jnp.concatenate((X_train, X_test)))
 plt.yticks([-1, 1], [False, True])
 plt.title("Classification on sequences")
 plt.legend()

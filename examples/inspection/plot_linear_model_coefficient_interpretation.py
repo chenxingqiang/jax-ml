@@ -5,7 +5,7 @@ Common pitfalls in the interpretation of coefficients of linear models
 
 In linear models, the target value is modeled as a linear combination of the
 features (see the :ref:`linear_model` User Guide section for a description of a
-set of linear models available in scikit-learn). Coefficients in multiple linear
+set of linear models available in jax-learn). Coefficients in multiple linear
 models represent the relationship between the given feature, :math:`X_i` and the
 target, :math:`y`, assuming that all the other features remain constant
 (`conditional dependence
@@ -40,8 +40,19 @@ various features such as experience, age, or education.
 """
 
 # %%
+from xlearn.linear_model import LassoCV
+from xlearn.linear_model import RidgeCV
+from xlearn.preprocessing import StandardScaler
+from xlearn.model_selection import RepeatedKFold, cross_validate
+from xlearn.metrics import PredictionErrorDisplay, median_absolute_error
+from xlearn.pipeline import make_pipeline
+from xlearn.linear_model import Ridge
+from xlearn.compose import TransformedTargetRegressor
+from xlearn.preprocessing import OneHotEncoder
+from xlearn.compose import make_column_transformer
+from xlearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 import pandas as pd
 import scipy as sp
 import seaborn as sns
@@ -53,7 +64,7 @@ import seaborn as sns
 # We fetch the data from `OpenML <http://openml.org/>`_.
 # Note that setting the parameter `as_frame` to True will retrieve the data
 # as a pandas dataframe.
-from sklearn.datasets import fetch_openml
+from xlearn.datasets import fetch_openml
 
 survey = fetch_openml(data_id=534, as_frame=True, parser="pandas")
 
@@ -86,7 +97,6 @@ survey.target.head()
 # an unknown target, and we don't want our analysis and decisions to be biased
 # by our knowledge of the test data.
 
-from sklearn.model_selection import train_test_split
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
@@ -137,10 +147,9 @@ survey.data.info()
 # - as a first approach (we will see after how the normalisation of numerical
 #   values will affect our discussion), keep numerical values as they are.
 
-from sklearn.compose import make_column_transformer
-from sklearn.preprocessing import OneHotEncoder
 
-categorical_columns = ["RACE", "OCCUPATION", "SECTOR", "MARR", "UNION", "SEX", "SOUTH"]
+categorical_columns = ["RACE", "OCCUPATION",
+                       "SECTOR", "MARR", "UNION", "SEX", "SOUTH"]
 numerical_columns = ["EDUCATION", "EXPERIENCE", "AGE"]
 
 preprocessor = make_column_transformer(
@@ -153,14 +162,11 @@ preprocessor = make_column_transformer(
 # To describe the dataset as a linear model we use a ridge regressor
 # with a very small regularization and to model the logarithm of the WAGE.
 
-from sklearn.compose import TransformedTargetRegressor
-from sklearn.linear_model import Ridge
-from sklearn.pipeline import make_pipeline
 
 model = make_pipeline(
     preprocessor,
     TransformedTargetRegressor(
-        regressor=Ridge(alpha=1e-10), func=np.log10, inverse_func=sp.special.exp10
+        regressor=Ridge(alpha=1e-10), func=jnp.log10, inverse_func=sp.special.exp10
     ),
 )
 
@@ -177,7 +183,6 @@ model.fit(X_train, y_train)
 # on the test set and computing,
 # for example, the median absolute error of the model.
 
-from sklearn.metrics import PredictionErrorDisplay, median_absolute_error
 
 mae_train = median_absolute_error(y_train, model.predict(X_train))
 y_pred = model.predict(X_test)
@@ -317,7 +322,6 @@ plt.subplots_adjust(left=0.3)
 # their robustness is not guaranteed, and they should probably be interpreted
 # with caution.
 
-from sklearn.model_selection import RepeatedKFold, cross_validate
 
 cv = RepeatedKFold(n_splits=5, n_repeats=5, random_state=0)
 cv_model = cross_validate(
@@ -331,7 +335,8 @@ cv_model = cross_validate(
 
 coefs = pd.DataFrame(
     [
-        est[-1].regressor_.coef_ * est[:-1].transform(X.iloc[train_idx]).std(axis=0)
+        est[-1].regressor_.coef_ *
+        est[:-1].transform(X.iloc[train_idx]).std(axis=0)
         for est, (train_idx, _) in zip(cv_model["estimator"], cv.split(X, y))
     ],
     columns=feature_names,
@@ -367,7 +372,8 @@ plt.grid(True)
 plt.xlim(-0.4, 0.5)
 plt.ylim(-0.4, 0.5)
 plt.scatter(coefs["AGE"], coefs["EXPERIENCE"])
-_ = plt.title("Co-variations of coefficients for AGE and EXPERIENCE across folds")
+_ = plt.title(
+    "Co-variations of coefficients for AGE and EXPERIENCE across folds")
 
 # %%
 # Two regions are populated: when the EXPERIENCE coefficient is
@@ -423,7 +429,6 @@ plt.subplots_adjust(left=0.3)
 # The preprocessor is redefined in order to subtract the mean and scale
 # variables to unit variance.
 
-from sklearn.preprocessing import StandardScaler
 
 preprocessor = make_column_transformer(
     (OneHotEncoder(drop="if_binary"), categorical_columns),
@@ -436,7 +441,7 @@ preprocessor = make_column_transformer(
 model = make_pipeline(
     preprocessor,
     TransformedTargetRegressor(
-        regressor=Ridge(alpha=1e-10), func=np.log10, inverse_func=sp.special.exp10
+        regressor=Ridge(alpha=1e-10), func=jnp.log10, inverse_func=sp.special.exp10
     ),
 )
 model.fit(X_train, y_train)
@@ -516,18 +521,18 @@ plt.subplots_adjust(left=0.3)
 #
 # Above, we limited this regularization to a very little amount. Regularization
 # improves the conditioning of the problem and reduces the variance of the
-# estimates. :class:`~sklearn.linear_model.RidgeCV` applies cross validation
+# estimates. :class:`~xlearn.linear_model.RidgeCV` applies cross validation
 # in order to determine which value of the regularization parameter (`alpha`)
 # is best suited for prediction.
 
-from sklearn.linear_model import RidgeCV
 
-alphas = np.logspace(-10, 10, 21)  # alpha values to be chosen from by cross-validation
+# alpha values to be chosen from by cross-validation
+alphas = jnp.logspace(-10, 10, 21)
 model = make_pipeline(
     preprocessor,
     TransformedTargetRegressor(
         regressor=RidgeCV(alphas=alphas),
-        func=np.log10,
+        func=jnp.log10,
         inverse_func=sp.special.exp10,
     ),
 )
@@ -607,7 +612,8 @@ plt.grid(True)
 plt.xlim(-0.4, 0.5)
 plt.ylim(-0.4, 0.5)
 plt.scatter(coefs["AGE"], coefs["EXPERIENCE"])
-_ = plt.title("Co-variations of coefficients for AGE and EXPERIENCE across folds")
+_ = plt.title(
+    "Co-variations of coefficients for AGE and EXPERIENCE across folds")
 
 # %%
 # Linear models with sparse coefficients
@@ -618,18 +624,18 @@ _ = plt.title("Co-variations of coefficients for AGE and EXPERIENCE across folds
 # when we dropped the AGE column in a previous ridge estimation.
 #
 # Lasso models (see the :ref:`lasso` User Guide section) estimates sparse
-# coefficients. :class:`~sklearn.linear_model.LassoCV` applies cross
+# coefficients. :class:`~xlearn.linear_model.LassoCV` applies cross
 # validation in order to determine which value of the regularization parameter
 # (`alpha`) is best suited for the model estimation.
 
-from sklearn.linear_model import LassoCV
 
-alphas = np.logspace(-10, 10, 21)  # alpha values to be chosen from by cross-validation
+# alpha values to be chosen from by cross-validation
+alphas = jnp.logspace(-10, 10, 21)
 model = make_pipeline(
     preprocessor,
     TransformedTargetRegressor(
         regressor=LassoCV(alphas=alphas, max_iter=100_000),
-        func=np.log10,
+        func=jnp.log10,
         inverse_func=sp.special.exp10,
     ),
 )

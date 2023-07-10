@@ -9,10 +9,10 @@ measurement encoded with a dictionary
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import make_sparse_coded_signal
-from sklearn.linear_model import OrthogonalMatchingPursuit, OrthogonalMatchingPursuitCV
+from xlearn.datasets import make_sparse_coded_signal
+from xlearn.linear_model import OrthogonalMatchingPursuit, OrthogonalMatchingPursuitCV
 
 n_components, n_features = 512, 100
 n_nonzero_coefs = 17
@@ -73,5 +73,6 @@ plt.title("Recovered signal from noisy measurements with CV")
 plt.stem(idx_r, coef[idx_r])
 
 plt.subplots_adjust(0.06, 0.04, 0.94, 0.90, 0.20, 0.38)
-plt.suptitle("Sparse signal recovery with Orthogonal Matching Pursuit", fontsize=16)
+plt.suptitle(
+    "Sparse signal recovery with Orthogonal Matching Pursuit", fontsize=16)
 plt.show()

@@ -29,8 +29,16 @@ models: :ref:`Logistic_regression`, :ref:`gaussian_naive_bayes`,
 # remaining 16 are uninformative (random numbers). Of the 100,000 samples,
 # 100 will be used for model fitting and the remaining for testing.
 
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
+from matplotlib.gridspec import GridSpec
+import matplotlib.pyplot as plt
+from xlearn.naive_bayes import GaussianNB
+from xlearn.linear_model import LogisticRegression
+from xlearn.ensemble import RandomForestClassifier
+from xlearn.calibration import CalibrationDisplay
+from xlearn.svm import LinearSVC
+import jax.numpy as jnp
+from xlearn.datasets import make_classification
+from xlearn.model_selection import train_test_split
 
 X, y = make_classification(
     n_samples=100_000, n_features=20, n_informative=2, n_redundant=2, random_state=42
@@ -57,10 +65,6 @@ X_train, X_test, y_train, y_test = train_test_split(
 # the distribution of the predicted probabilities or more specifically,
 # the number of samples in each predicted probability bin.
 
-import numpy as np
-
-from sklearn.svm import LinearSVC
-
 
 class NaivelyCalibratedLinearSVC(LinearSVC):
     """LinearSVC with `predict_proba` method that naively scales
@@ -76,18 +80,14 @@ class NaivelyCalibratedLinearSVC(LinearSVC):
         """Min-max scale output of `decision_function` to [0,1]."""
         df = self.decision_function(X)
         calibrated_df = (df - self.df_min_) / (self.df_max_ - self.df_min_)
-        proba_pos_class = np.clip(calibrated_df, 0, 1)
+        proba_pos_class = jnp.clip(calibrated_df, 0, 1)
         proba_neg_class = 1 - proba_pos_class
-        proba = np.c_[proba_neg_class, proba_pos_class]
+        proba = jnp.c_[proba_neg_class, proba_pos_class]
         return proba
 
 
 # %%
 
-from sklearn.calibration import CalibrationDisplay
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import GaussianNB
 
 # Create classifiers
 lr = LogisticRegression()
@@ -104,8 +104,6 @@ clf_list = [
 
 # %%
 
-import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
 
 fig = plt.figure(figsize=(10, 10))
 gs = GridSpec(4, 2)
@@ -150,11 +148,11 @@ plt.tight_layout()
 plt.show()
 
 # %%
-# :class:`~sklearn.linear_model.LogisticRegression` returns well calibrated
+# :class:`~xlearn.linear_model.LogisticRegression` returns well calibrated
 # predictions as it directly optimizes log-loss. In contrast, the other methods
 # return biased probabilities, with different biases for each method:
 #
-# * :class:`~sklearn.naive_bayes.GaussianNB` tends to push
+# * :class:`~xlearn.naive_bayes.GaussianNB` tends to push
 #   probabilities to 0 or 1 (see histogram). This is mainly
 #   because the naive Bayes equation only provides correct estimate of
 #   probabilities when the assumption that features are conditionally
@@ -164,7 +162,7 @@ plt.show()
 #   correlated features are effectively being 'counted twice', resulting in
 #   pushing the predicted probabilities towards 0 and 1 [3]_.
 #
-# * :class:`~sklearn.ensemble.RandomForestClassifier` shows the opposite
+# * :class:`~xlearn.ensemble.RandomForestClassifier` shows the opposite
 #   behavior: the histograms show peaks at approx. 0.2 and 0.9 probability,
 #   while probabilities close to 0 or 1 are very rare. An explanation for this
 #   is given by Niculescu-Mizil and Caruana [1]_: "Methods such as bagging and
@@ -184,12 +182,12 @@ plt.show()
 #   sigmoid shape, indicating that the classifier is under-confident
 #   and could return probabilities closer to 0 or 1.
 #
-# * To show the performance of :class:`~sklearn.svm.LinearSVC`, we naively
+# * To show the performance of :class:`~xlearn.svm.LinearSVC`, we naively
 #   scale the output of the :term:`decision_function` into [0, 1] by applying
 #   min-max scaling, since SVC does not output probabilities by default.
-#   :class:`~sklearn.svm.LinearSVC` shows an
+#   :class:`~xlearn.svm.LinearSVC` shows an
 #   even more sigmoid curve than the
-#   :class:`~sklearn.ensemble.RandomForestClassifier`, which is typical for
+#   :class:`~xlearn.ensemble.RandomForestClassifier`, which is typical for
 #   maximum-margin methods [1]_ as they focus on difficult to classify samples
 #   that are close to the decision boundary (the support vectors).
 #

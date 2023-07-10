@@ -1,80 +1,80 @@
 module:cluster:
-- sklearn/cluster/**/*
+- xlearn/cluster/**/*
 
 module:common:
-- sklearn/common/**/*
+- xlearn/common/**/*
 
 module:compose:
-- sklearn/compose/**/*
+- xlearn/compose/**/*
 
 module:covariance:
-- sklearn/covariance/**/*
+- xlearn/covariance/**/*
 
 module:cross_decomposition:
-- sklearn/cross_decomposition/**/*
+- xlearn/cross_decomposition/**/*
 
 module:datasets:
-- sklearn/datasets/**/*
+- xlearn/datasets/**/*
 
 module:decomposition:
-- sklearn/decomposition/**/*
+- xlearn/decomposition/**/*
 
 module:ensemble:
-- sklearn/ensemble/**/*
+- xlearn/ensemble/**/*
 
 module:feature_extraction:
-- sklearn/feature_extraction/**/*
+- xlearn/feature_extraction/**/*
 
 module:feature_selection:
-- sklearn/feature_selection/**/*
+- xlearn/feature_selection/**/*
 
 module:gaussian_process:
-- sklearn/gaussian_process/**/*
+- xlearn/gaussian_process/**/*
 
 module:impute:
-- sklearn/impute/**/*
+- xlearn/impute/**/*
 
 module:inspection:
-- sklearn/inspection/**/*
+- xlearn/inspection/**/*
 
 module:linear_model:
-- sklearn/linear_model/**/*
+- xlearn/linear_model/**/*
 
 module:manifold:
-- sklearn/manifold/**/*
+- xlearn/manifold/**/*
 
 module:metrics:
-- sklearn/metrics/**/*
+- xlearn/metrics/**/*
 
 module:mixture:
-- sklearn/mixture/**/*
+- xlearn/mixture/**/*
 
 module:model_selection:
-- sklearn/model_selection/**/*
+- xlearn/model_selection/**/*
 
 module:naive_bayes:
-- sklearn/naive_bayes.py
+- xlearn/naive_bayes.py
 
 module:neighbors:
-- sklearn/neighbors/**/*
+- xlearn/neighbors/**/*
 
 module:neural_network:
-- sklearn/neural_network/**/*
+- xlearn/neural_network/**/*
 
 module:pipeline:
-- sklearn/pipeline.py
+- xlearn/pipeline.py
 
 module:preprocessing:
-- sklearn/preprocessing/**/*
+- xlearn/preprocessing/**/*
 
 module:semi_supervised:
-- sklearn/semi_supervised/**/*
+- xlearn/semi_supervised/**/*
 
 module:svm:
-- sklearn/svm/**/*
+- xlearn/svm/**/*
 
 module:tree:
-- sklearn/tree/**/*
+- xlearn/tree/**/*
 
 module:utils:
-- sklearn/utils/**/*
+- xlearn/utils/**/*

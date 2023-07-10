@@ -21,11 +21,11 @@ The visualization shows coefficients of the models for varying C.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
+from xlearn import datasets
+from xlearn.linear_model import LogisticRegression
+from xlearn.preprocessing import StandardScaler
 
 X, y = datasets.load_digits(return_X_y=True)
 
@@ -57,17 +57,19 @@ for i, (C, axes_row) in enumerate(zip((1, 0.1, 0.01), axes)):
     # coef_l1_LR contains zeros due to the
     # L1 sparsity inducing norm
 
-    sparsity_l1_LR = np.mean(coef_l1_LR == 0) * 100
-    sparsity_l2_LR = np.mean(coef_l2_LR == 0) * 100
-    sparsity_en_LR = np.mean(coef_en_LR == 0) * 100
+    sparsity_l1_LR = jnp.mean(coef_l1_LR == 0) * 100
+    sparsity_l2_LR = jnp.mean(coef_l2_LR == 0) * 100
+    sparsity_en_LR = jnp.mean(coef_en_LR == 0) * 100
 
     print("C=%.2f" % C)
     print("{:<40} {:.2f}%".format("Sparsity with L1 penalty:", sparsity_l1_LR))
-    print("{:<40} {:.2f}%".format("Sparsity with Elastic-Net penalty:", sparsity_en_LR))
+    print("{:<40} {:.2f}%".format(
+        "Sparsity with Elastic-Net penalty:", sparsity_en_LR))
     print("{:<40} {:.2f}%".format("Sparsity with L2 penalty:", sparsity_l2_LR))
     print("{:<40} {:.2f}".format("Score with L1 penalty:", clf_l1_LR.score(X, y)))
     print(
-        "{:<40} {:.2f}".format("Score with Elastic-Net penalty:", clf_en_LR.score(X, y))
+        "{:<40} {:.2f}".format(
+            "Score with Elastic-Net penalty:", clf_en_LR.score(X, y))
     )
     print("{:<40} {:.2f}".format("Score with L2 penalty:", clf_l2_LR.score(X, y)))
 
@@ -78,7 +80,7 @@ for i, (C, axes_row) in enumerate(zip((1, 0.1, 0.01), axes)):
 
     for ax, coefs in zip(axes_row, [coef_l1_LR, coef_en_LR, coef_l2_LR]):
         ax.imshow(
-            np.abs(coefs.reshape(8, 8)),
+            jnp.abs(coefs.reshape(8, 8)),
             interpolation="nearest",
             cmap="binary",
             vmax=1,

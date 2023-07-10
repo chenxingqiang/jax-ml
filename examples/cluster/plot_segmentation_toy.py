@@ -33,10 +33,13 @@ separating the objects one from the other, and not from the background.
 # %%
 # Generate the data
 # -----------------
-import numpy as np
+from xlearn.cluster import spectral_clustering
+import matplotlib.pyplot as plt
+from xlearn.feature_extraction import image
+import jax.numpy as jnp
 
 l = 100
-x, y = np.indices((l, l))
+x, y = jnp.indices((l, l))
 
 center1 = (28, 24)
 center2 = (40, 50)
@@ -66,24 +69,21 @@ img += 1 + 0.2 * np.random.randn(*img.shape)
 # %%
 # Convert the image into a graph with the value of the gradient on the
 # edges.
-from sklearn.feature_extraction import image
 
 graph = image.img_to_graph(img, mask=mask)
 
 # %%
 # Take a decreasing function of the gradient resulting in a segmentation
 # that is close to a Voronoi partition
-graph.data = np.exp(-graph.data / graph.data.std())
+graph.data = jnp.exp(-graph.data / graph.data.std())
 
 # %%
 # Here we perform spectral clustering using the arpack solver since amg is
 # numerically unstable on this example. We then plot the results.
-import matplotlib.pyplot as plt
 
-from sklearn.cluster import spectral_clustering
 
 labels = spectral_clustering(graph, n_clusters=4, eigen_solver="arpack")
-label_im = np.full(mask.shape, -1.0)
+label_im = jnp.full(mask.shape, -1.0)
 label_im[mask] = labels
 
 fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(10, 5))
@@ -106,10 +106,10 @@ img = img.astype(float)
 img += 1 + 0.2 * np.random.randn(*img.shape)
 
 graph = image.img_to_graph(img, mask=mask)
-graph.data = np.exp(-graph.data / graph.data.std())
+graph.data = jnp.exp(-graph.data / graph.data.std())
 
 labels = spectral_clustering(graph, n_clusters=2, eigen_solver="arpack")
-label_im = np.full(mask.shape, -1.0)
+label_im = jnp.full(mask.shape, -1.0)
 label_im[mask] = labels
 
 fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(10, 5))

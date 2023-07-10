@@ -13,7 +13,7 @@ better**.
 
 ::
 
-    >>> from sklearn import datasets, svm
+    >>> from xlearn import datasets, svm
     >>> X_digits, y_digits = datasets.load_digits(return_X_y=True)
     >>> svc = svm.SVC(C=1, kernel='linear')
     >>> svc.fit(X_digits[:-100], y_digits[:-100]).score(X_digits[-100:], y_digits[-100:])
@@ -23,23 +23,23 @@ To get a better measure of prediction accuracy (which we can use as a
 proxy for goodness of fit of the model), we can successively split the
 data in *folds* that we use for training and testing::
 
-    >>> import numpy as np
-    >>> X_folds = np.array_split(X_digits, 3)
-    >>> y_folds = np.array_split(y_digits, 3)
+    >>> import jax.numpy as jnp
+    >>> X_folds = jnp.array_split(X_digits, 3)
+    >>> y_folds = jnp.array_split(y_digits, 3)
     >>> scores = list()
     >>> for k in range(3):
     ...     # We use 'list' to copy, in order to 'pop' later on
     ...     X_train = list(X_folds)
     ...     X_test = X_train.pop(k)
-    ...     X_train = np.concatenate(X_train)
+    ...     X_train = jnp.concatenate(X_train)
     ...     y_train = list(y_folds)
     ...     y_test = y_train.pop(k)
-    ...     y_train = np.concatenate(y_train)
+    ...     y_train = jnp.concatenate(y_train)
     ...     scores.append(svc.fit(X_train, y_train).score(X_test, y_test))
     >>> print(scores)
     [0.934..., 0.956..., 0.939...]
 
-.. currentmodule:: sklearn.model_selection
+.. currentmodule:: xlearn.model_selection
 
 This is called a :class:`KFold` cross-validation.
 
@@ -48,7 +48,7 @@ This is called a :class:`KFold` cross-validation.
 Cross-validation generators
 =============================
 
-Scikit-learn has a collection of classes which can be used to generate lists of
+Jax-learn has a collection of classes which can be used to generate lists of
 train/test indices for popular cross-validation strategies.
 
 They expose a ``split`` method which accepts the input
@@ -57,7 +57,7 @@ of the chosen cross-validation strategy.
 
 This example shows an example usage of the ``split`` method.
 
-    >>> from sklearn.model_selection import KFold, cross_val_score
+    >>> from xlearn.model_selection import KFold, cross_val_score
     >>> X = ["a", "a", "a", "b", "b", "c", "c", "c", "c", "c"]
     >>> k_fold = KFold(n_splits=5)
     >>> for train_indices, test_indices in k_fold.split(X):
@@ -177,7 +177,7 @@ scoring method.
     - Generates train/test indices based on predefined splits.
 
 
-.. currentmodule:: sklearn.svm
+.. currentmodule:: xlearn.svm
 
 .. topic:: **Exercise**
 
@@ -201,15 +201,15 @@ Grid-search and cross-validated estimators
 Grid-search
 -------------
 
-.. currentmodule:: sklearn.model_selection
+.. currentmodule:: xlearn.model_selection
 
-scikit-learn provides an object that, given data, computes the score
+jax-learn provides an object that, given data, computes the score
 during the fit of an estimator on a parameter grid and chooses the
 parameters to maximize the cross-validation score. This object takes an
 estimator during the construction and exposes an estimator API::
 
-    >>> from sklearn.model_selection import GridSearchCV, cross_val_score
-    >>> Cs = np.logspace(-6, -1, 10)
+    >>> from xlearn.model_selection import GridSearchCV, cross_val_score
+    >>> Cs = jnp.logspace(-6, -1, 10)
     >>> clf = GridSearchCV(estimator=svc, param_grid=dict(C=Cs),
     ...                    n_jobs=-1)
     >>> clf.fit(X_digits[:1000], y_digits[:1000])        # doctest: +SKIP
@@ -253,10 +253,10 @@ Cross-validated estimators
 
 Cross-validation to set a parameter can be done more efficiently on an
 algorithm-by-algorithm basis. This is why, for certain estimators,
-scikit-learn exposes :ref:`cross_validation` estimators that set their
+jax-learn exposes :ref:`cross_validation` estimators that set their
 parameter automatically by cross-validation::
 
-    >>> from sklearn import linear_model, datasets
+    >>> from xlearn import linear_model, datasets
     >>> lasso = linear_model.LassoCV()
     >>> X_diabetes, y_diabetes = datasets.load_diabetes(return_X_y=True)
     >>> lasso.fit(X_diabetes, y_diabetes)

@@ -48,14 +48,14 @@ Before a release
 
 **Permissions**
 
-The release manager must be a *maintainer* of the ``scikit-learn/scikit-learn``
+The release manager must be a *maintainer* of the ``jax-learn/jax-learn``
 repository to be able to publish on ``pypi.org`` and ``test.pypi.org``
 (via a manual trigger of a dedicated Github Actions workflow).
 
 The release manager does not need extra permissions on ``pypi.org`` to publish a
 release in particular.
 
-The release manager must be a *maintainer* of the ``conda-forge/scikit-learn-feedstock``
+The release manager must be a *maintainer* of the ``conda-forge/jax-learn-feedstock``
 repository. This can be changed by editing the ``recipe/meta.yaml`` file in the
 first release pull-request.
 
@@ -70,7 +70,7 @@ Major version release
 Prior to branching please do not forget to prepare a Release Highlights page as
 a runnable example and check that its HTML rendering looks correct. These
 release highlights should be linked from the ``doc/whats_new/v0.99.rst`` file
-for the new version of scikit-learn.
+for the new version of jax-learn.
 
 Releasing the first RC of e.g. version `0.99.0` involves creating the release
 branch `0.99.X` directly on the main repo, where `X` really is the letter X,
@@ -83,7 +83,7 @@ branch:
 
    .. prompt:: bash $
 
-     # Assuming upstream is an alias for the main scikit-learn repo:
+     # Assuming upstream is an alias for the main jax-learn repo:
      git fetch upstream main
      git checkout upstream/main
      git checkout -b 0.99.X
@@ -99,14 +99,14 @@ or feature should be excluded.
 
 Then you can prepare a local branch for the release itself, for instance:
 ``release-0.99.0rc1``, push it to your github fork and open a PR **to the**
-`scikit-learn/0.99.X` **branch**. Copy the :ref:`release_checklist` templates
+`jax-learn/0.99.X` **branch**. Copy the :ref:`release_checklist` templates
 in the description of the Pull Request to track progress.
 
 This PR will be used to push commits related to the release as explained in
 :ref:`making_a_release`.
 
 You can also create a second PR from main and targeting main to increment
-the ``__version__`` variable in `sklearn/__init__.py` to increment the dev
+the ``__version__`` variable in `xlearn/__init__.py` to increment the dev
 version. This means while we're in the release candidate period, the latest
 stable is two versions behind the main branch, instead of one. In this PR
 targeting main you should also include a new file for the matching version
@@ -213,7 +213,7 @@ Making a release
      enough)
 
 2. On the branch for releasing, update the version number in
-   ``sklearn/__init__.py``, the ``__version__``.
+   ``xlearn/__init__.py``, the ``__version__``.
 
    For major releases, please add a 0 at the end: `0.99.0` instead of `0.99`.
 
@@ -228,7 +228,7 @@ Making a release
     git commit --allow-empty -m "Trigger wheel builder workflow: [cd build]"
 
    The wheel building workflow is managed by GitHub Actions and the results be browsed at:
-   https://github.com/scikit-learn/scikit-learn/actions?query=workflow%3A%22Wheel+builder%22
+   https://github.com/jax-learn/jax-learn/actions?query=workflow%3A%22Wheel+builder%22
 
 .. note::
 
@@ -247,7 +247,7 @@ Making a release
   `Continuous Integration
   <https://en.wikipedia.org/wiki/Continuous_integration>`_. The CD workflow on
   GitHub Actions is also used to automatically create nightly builds and
-  publish packages for the development branch of scikit-learn. See
+  publish packages for the development branch of jax-learn. See
   :ref:`install_nightly_builds`.
 
 4. Once all the CD jobs have completed successfully in the PR, merge it,
@@ -258,7 +258,7 @@ Making a release
    files) to https://test.pypi.org using the "Run workflow" form for the
    following GitHub Actions workflow:
 
-   https://github.com/scikit-learn/scikit-learn/actions?query=workflow%3A%22Publish+to+Pypi%22
+   https://github.com/jax-learn/jax-learn/actions?query=workflow%3A%22Publish+to+Pypi%22
 
 5. If this went fine, you can proceed with tagging. Proceed with caution.
    Ideally, tags should be created when you're almost certain that the release
@@ -271,10 +271,10 @@ Making a release
    .. prompt:: bash $
 
      git tag -a 0.99.0  # in the 0.99.X branch
-     git push git@github.com:scikit-learn/scikit-learn.git 0.99.0
+     git push git@github.com:jax-learn/jax-learn.git 0.99.0
 
 6. Confirm that the bot has detected the tag on the conda-forge feedstock repo:
-   https://github.com/conda-forge/scikit-learn-feedstock. If not, submit a PR for the
+   https://github.com/conda-forge/jax-learn-feedstock. If not, submit a PR for the
    release. If you want to publish an RC release on conda-forge, the PR should target
    the `rc` branch as opposed to the `main` branch. The two branches need to be kept
    sync together otherwise.
@@ -285,7 +285,7 @@ Making a release
 
 8. **Alternative to step 7**: it's possible to collect locally the generated binary
    wheel packages and source tarball and upload them all to PyPI by running the
-   following commands in the scikit-learn source folder (checked out at the
+   following commands in the jax-learn source folder (checked out at the
    release tag):
 
    .. prompt:: bash $
@@ -295,19 +295,19 @@ Making a release
        python -m wheelhouse_uploader fetch \
          --version 0.99.0 \
          --local-folder dist \
-         scikit-learn \
-         https://pypi.anaconda.org/scikit-learn-wheels-staging/simple/scikit-learn/
+         jax-learn \
+         https://pypi.anaconda.org/jax-learn-wheels-staging/simple/jax-learn/
 
    This command will download all the binary packages accumulated in the
    `staging area on the anaconda.org hosting service
-   <https://anaconda.org/scikit-learn-wheels-staging/scikit-learn/files>`_ and
+   <https://anaconda.org/jax-learn-wheels-staging/jax-learn/files>`_ and
    put them in your local `./dist` folder.
 
    Check the content of the `./dist` folder: it should contain all the wheels
-   along with the source tarball ("scikit-learn-RRR.tar.gz").
+   along with the source tarball ("jax-learn-RRR.tar.gz").
 
    Make sure that you do not have developer versions or older versions of
-   the scikit-learn package in that folder.
+   the jax-learn package in that folder.
 
    Before uploading to pypi, you can test upload to test.pypi.org:
 
@@ -323,13 +323,13 @@ Making a release
 
 9. For major/minor (not bug-fix release or release candidates), update the symlink for
    ``stable`` and the ``latestStable`` variable in
-   https://github.com/scikit-learn/scikit-learn.github.io:
+   https://github.com/jax-learn/jax-learn.github.io:
 
    .. prompt:: bash $
 
        cd /tmp
-       git clone --depth 1 --no-checkout git@github.com:scikit-learn/scikit-learn.github.io.git
-       cd scikit-learn.github.io
+       git clone --depth 1 --no-checkout git@github.com:jax-learn/jax-learn.github.io.git
+       cd jax-learn.github.io
        echo stable > .git/info/sparse-checkout
        git checkout main
        rm stable
@@ -349,18 +349,18 @@ Release checklist
 The following GitHub checklist might be helpful in a release PR::
 
     * [ ] update news and what's new date in release branch
-    * [ ] update news and what's new date and sklearn dev0 version in main branch
+    * [ ] update news and what's new date and xlearn dev0 version in main branch
     * [ ] check that the wheels for the release can be built successfully
     * [ ] merge the PR with `[cd build]` commit message to upload wheels to the staging repo
     * [ ] upload the wheels and source tarball to https://test.pypi.org
     * [ ] create tag on the main github repo
     * [ ] confirm bot detected at
-      https://github.com/conda-forge/scikit-learn-feedstock and wait for merge
+      https://github.com/conda-forge/jax-learn-feedstock and wait for merge
     * [ ] upload the wheels and source tarball to PyPI
-    * [ ] https://github.com/scikit-learn/scikit-learn/releases publish (except for RC)
+    * [ ] https://github.com/jax-learn/jax-learn/releases publish (except for RC)
     * [ ] announce on mailing list and on Twitter, and LinkedIn
     * [ ] update symlink for stable in
-      https://github.com/scikit-learn/scikit-learn.github.io (only major/minor)
+      https://github.com/jax-learn/jax-learn.github.io (only major/minor)
     * [ ] update SECURITY.md in main branch (except for RC)
 
 Merging Pull Requests
@@ -381,12 +381,12 @@ Before merging,
   left to the maintainer's discretion, same as for the "what's new" entry.
 
 
-The scikit-learn.org web site
+The jax-learn.cc web site
 -----------------------------
 
-The scikit-learn web site (https://scikit-learn.org) is hosted at GitHub,
+The jax-learn web site (https://jax-learn.cc) is hosted at GitHub,
 but should rarely be updated manually by pushing to the
-https://github.com/scikit-learn/scikit-learn.github.io repository. Most
+https://github.com/jax-learn/jax-learn.github.io repository. Most
 updates can be made by pushing to master (for /dev) or a release branch
 like 0.99.X, from which Circle CI builds and uploads the documentation
 automatically.
@@ -394,16 +394,16 @@ automatically.
 Experimental features
 ---------------------
 
-The :mod:`sklearn.experimental` module was introduced in 0.21 and contains
+The :mod:`xlearn.experimental` module was introduced in 0.21 and contains
 experimental features / estimators that are subject to change without
 deprecation cycle.
 
 To create an experimental module, you can just copy and modify the content of
 `enable_halving_search_cv.py
-<https://github.com/scikit-learn/scikit-learn/blob/362cb92bb2f5b878229ea4f59519ad31c2fcee76/sklearn/experimental/enable_halving_search_cv.py>`__,
+<https://github.com/jax-learn/jax-learn/blob/362cb92bb2f5b878229ea4f59519ad31c2fcee76/xlearn/experimental/enable_halving_search_cv.py>`__,
 or
 `enable_iterative_imputer.py
-<https://github.com/scikit-learn/scikit-learn/blob/c9c89cfc85dd8dfefd7921c16c87327d03140a06/sklearn/experimental/enable_iterative_imputer.py>`_.
+<https://github.com/jax-learn/jax-learn/blob/c9c89cfc85dd8dfefd7921c16c87327d03140a06/xlearn/experimental/enable_iterative_imputer.py>`_.
 
 .. note::
 
@@ -413,48 +413,48 @@ or
   to stable.
 
 Note that the public import path must be to a public subpackage (like
-``sklearn/ensemble`` or ``sklearn/impute``), not just a ``.py`` module.
+``xlearn/ensemble`` or ``xlearn/impute``), not just a ``.py`` module.
 Also, the (private) experimental features that are imported must be in a
 submodule/subpackage of the public subpackage, e.g.
-``sklearn/ensemble/_hist_gradient_boosting/`` or
-``sklearn/impute/_iterative.py``. This is needed so that pickles still work
+``xlearn/ensemble/_hist_gradient_boosting/`` or
+``xlearn/impute/_iterative.py``. This is needed so that pickles still work
 in the future when the features aren't experimental anymore.
 
 To avoid type checker (e.g. mypy) errors a direct import of experimental
 estimators should be done in the parent module, protected by the
-``if typing.TYPE_CHECKING`` check. See `sklearn/ensemble/__init__.py
-<https://github.com/scikit-learn/scikit-learn/blob/c9c89cfc85dd8dfefd7921c16c87327d03140a06/sklearn/ensemble/__init__.py>`_,
-or `sklearn/impute/__init__.py
-<https://github.com/scikit-learn/scikit-learn/blob/c9c89cfc85dd8dfefd7921c16c87327d03140a06/sklearn/impute/__init__.py>`_
+``if typing.TYPE_CHECKING`` check. See `xlearn/ensemble/__init__.py
+<https://github.com/jax-learn/jax-learn/blob/c9c89cfc85dd8dfefd7921c16c87327d03140a06/xlearn/ensemble/__init__.py>`_,
+or `xlearn/impute/__init__.py
+<https://github.com/jax-learn/jax-learn/blob/c9c89cfc85dd8dfefd7921c16c87327d03140a06/xlearn/impute/__init__.py>`_
 for an example.
 
 Please also write basic tests following those in
 `test_enable_hist_gradient_boosting.py
-<https://github.com/scikit-learn/scikit-learn/blob/c9c89cfc85dd8dfefd7921c16c87327d03140a06/sklearn/experimental/tests/test_enable_hist_gradient_boosting.py>`__.
+<https://github.com/jax-learn/jax-learn/blob/c9c89cfc85dd8dfefd7921c16c87327d03140a06/xlearn/experimental/tests/test_enable_hist_gradient_boosting.py>`__.
 
 
 Make sure every user-facing code you write explicitly mentions that the feature
 is experimental, and add a ``# noqa`` comment to avoid pep8-related warnings::
 
     # To use this experimental feature, we need to explicitly ask for it:
-    from sklearn.experimental import enable_hist_gradient_boosting  # noqa
-    from sklearn.ensemble import HistGradientBoostingRegressor
+    from xlearn.experimental import enable_hist_gradient_boosting  # noqa
+    from xlearn.ensemble import HistGradientBoostingRegressor
 
 For the docs to render properly, please also import
 ``enable_my_experimental_feature`` in ``doc/conf.py``, else sphinx won't be
 able to import the corresponding modules. Note that using ``from
-sklearn.experimental import *`` **does not work**.
+xlearn.experimental import *`` **does not work**.
 
 Note that some experimental classes / functions are not included in the
-:mod:`sklearn.experimental` module: ``sklearn.datasets.fetch_openml``.
+:mod:`xlearn.experimental` module: ``xlearn.datasets.fetch_openml``.
 
 Once the feature become stable, remove all `enable_my_experimental_feature`
-in the scikit-learn code (even feature highlights etc.) and make the
+in the jax-learn code (even feature highlights etc.) and make the
 `enable_my_experimental_feature` a no-op that just raises a warning:
 `enable_hist_gradient_boosting.py
-<https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/experimental/enable_hist_gradient_boosting.py>`__.
+<https://github.com/jax-learn/jax-learn/blob/main/xlearn/experimental/enable_hist_gradient_boosting.py>`__.
 The file should stay there indefinitely as we don't want to break users code:
 we just incentivize them to remove that import with the warning.
 
 Also update the tests accordingly: `test_enable_hist_gradient_boosting.py
-<https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/experimental/tests/test_enable_hist_gradient_boosting.py>`__.
+<https://github.com/jax-learn/jax-learn/blob/main/xlearn/experimental/tests/test_enable_hist_gradient_boosting.py>`__.

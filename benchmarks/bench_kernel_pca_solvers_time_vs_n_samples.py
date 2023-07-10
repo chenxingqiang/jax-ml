@@ -42,11 +42,11 @@ of examples is fixed, and the desired number of components varies.
 import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from numpy.testing import assert_array_almost_equal
 
-from sklearn.datasets import make_circles
-from sklearn.decomposition import KernelPCA
+from xlearn.datasets import make_circles
+from xlearn.decomposition import KernelPCA
 
 print(__doc__)
 
@@ -58,7 +58,8 @@ n_samples_grid_size = 4  # nb of positions in the grid to try
 # generate the grid
 n_samples_range = [
     min_n_samples
-    + np.floor((x / (n_samples_grid_size - 1)) * (max_n_samples - min_n_samples))
+    + jnp.floor((x / (n_samples_grid_size - 1))
+               * (max_n_samples - min_n_samples))
     for x in range(0, n_samples_grid_size)
 ]
 
@@ -70,15 +71,16 @@ include_arpack = False  # set this to True to include arpack solver (slower)
 # 2- Generate random data
 # -----------------------
 n_features = 2
-X, y = make_circles(n_samples=max_n_samples, factor=0.3, noise=0.05, random_state=0)
+X, y = make_circles(n_samples=max_n_samples, factor=0.3,
+                    noise=0.05, random_state=0)
 
 
 # 3- Benchmark
 # ------------
 # init
-ref_time = np.empty((len(n_samples_range), n_iter)) * np.nan
-a_time = np.empty((len(n_samples_range), n_iter)) * np.nan
-r_time = np.empty((len(n_samples_range), n_iter)) * np.nan
+ref_time = jnp.empty((len(n_samples_range), n_iter)) * jnp.nan
+a_time = jnp.empty((len(n_samples_range), n_iter)) * jnp.nan
+r_time = jnp.empty((len(n_samples_range), n_iter)) * jnp.nan
 
 # loop
 for j, n_samples in enumerate(n_samples_range):
@@ -93,7 +95,8 @@ for j, n_samples in enumerate(n_samples_range):
     for i in range(n_iter):
         start_time = time.perf_counter()
         ref_pred = (
-            KernelPCA(n_components, eigen_solver="dense").fit(X_train).transform(X_test)
+            KernelPCA(n_components, eigen_solver="dense").fit(
+                X_train).transform(X_test)
         )
         ref_time[j, i] = time.perf_counter() - start_time
 
@@ -109,7 +112,7 @@ for j, n_samples in enumerate(n_samples_range):
             )
             a_time[j, i] = time.perf_counter() - start_time
             # check that the result is still correct despite the approx
-            assert_array_almost_equal(np.abs(a_pred), np.abs(ref_pred))
+            assert_array_almost_equal(jnp.abs(a_pred), jnp.abs(ref_pred))
 
     # C- randomized
     print("  - randomized")
@@ -122,7 +125,7 @@ for j, n_samples in enumerate(n_samples_range):
         )
         r_time[j, i] = time.perf_counter() - start_time
         # check that the result is still correct despite the approximation
-        assert_array_almost_equal(np.abs(r_pred), np.abs(ref_pred))
+        assert_array_almost_equal(jnp.abs(r_pred), jnp.abs(ref_pred))
 
 # Compute statistics for the 3 methods
 avg_ref_time = ref_time.mean(axis=1)

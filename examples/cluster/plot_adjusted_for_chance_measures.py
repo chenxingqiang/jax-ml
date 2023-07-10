@@ -55,7 +55,10 @@ experiments:
 #
 # For more information, see the :ref:`clustering_evaluation` module.
 
-from sklearn import metrics
+import seaborn as sns
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
+from xlearn import metrics
 
 score_funcs = [
     ("V-measure", metrics.v_measure_score),
@@ -72,7 +75,6 @@ score_funcs = [
 #
 # We first define a function that creates uniformly-distributed random labeling.
 
-import numpy as np
 
 rng = np.random.RandomState(0)
 
@@ -91,7 +93,7 @@ def random_labels(n_samples, n_classes):
 def fixed_classes_uniform_labelings_scores(
     score_func, n_samples, n_clusters_range, n_classes, n_runs=5
 ):
-    scores = np.zeros((len(n_clusters_range), n_runs))
+    scores = jnp.zeros((len(n_clusters_range), n_runs))
     labels_a = random_labels(n_samples=n_samples, n_classes=n_classes)
 
     for i, n_clusters in enumerate(n_clusters_range):
@@ -106,12 +108,10 @@ def fixed_classes_uniform_labelings_scores(
 # `n_classes=10`. The number of clusters varies over the values provided by
 # `n_clusters_range`.
 
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 n_samples = 1000
 n_classes = 10
-n_clusters_range = np.linspace(2, 100, 10).astype(int)
+n_clusters_range = jnp.linspace(2, 100, 10).astype(int)
 plots = []
 names = []
 
@@ -163,7 +163,7 @@ plt.show()
 
 
 def uniform_labelings_scores(score_func, n_samples, n_clusters_range, n_runs=5):
-    scores = np.zeros((len(n_clusters_range), n_runs))
+    scores = jnp.zeros((len(n_clusters_range), n_runs))
 
     for i, n_clusters in enumerate(n_clusters_range):
         for j in range(n_runs):
@@ -178,7 +178,7 @@ def uniform_labelings_scores(score_func, n_samples, n_clusters_range, n_runs=5):
 # clusters similar or equal to the number of samples.
 
 n_samples = 100
-n_clusters_range = np.linspace(2, n_samples, 10).astype(int)
+n_clusters_range = jnp.linspace(2, n_samples, 10).astype(int)
 
 plt.figure(2)
 
@@ -190,7 +190,7 @@ for marker, (score_name, score_func) in zip("d^vx.,", score_funcs):
     plots.append(
         plt.errorbar(
             n_clusters_range,
-            np.median(scores, axis=1),
+            jnp.median(scores, axis=1),
             scores.std(axis=1),
             alpha=0.8,
             linewidth=2,

@@ -3,4 +3,4 @@
 Ensemble methods
 ----------------
 
-Examples concerning the :mod:`sklearn.ensemble` module.
+Examples concerning the :mod:`xlearn.ensemble` module.

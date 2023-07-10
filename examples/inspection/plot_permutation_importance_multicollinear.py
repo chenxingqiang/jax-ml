@@ -4,8 +4,8 @@ Permutation Importance with Multicollinear or Correlated Features
 =================================================================
 
 In this example, we compute the permutation importance on the Wisconsin
-breast cancer dataset using :func:`~sklearn.inspection.permutation_importance`.
-The :class:`~sklearn.ensemble.RandomForestClassifier` can easily get about 97%
+breast cancer dataset using :func:`~xlearn.inspection.permutation_importance`.
+The :class:`~xlearn.ensemble.RandomForestClassifier` can easily get about 97%
 accuracy on a test dataset. Because this dataset contains multicollinear
 features, the permutation importance will show that none of the features are
 important. One approach to handling multicollinearity is by performing
@@ -21,15 +21,15 @@ picking a threshold, and keeping a single feature from each cluster.
 from collections import defaultdict
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from scipy.cluster import hierarchy
 from scipy.spatial.distance import squareform
 from scipy.stats import spearmanr
 
-from sklearn.datasets import load_breast_cancer
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.inspection import permutation_importance
-from sklearn.model_selection import train_test_split
+from xlearn.datasets import load_breast_cancer
+from xlearn.ensemble import RandomForestClassifier
+from xlearn.inspection import permutation_importance
+from xlearn.model_selection import train_test_split
 
 # %%
 # Random Forest Feature Importance on Breast Cancer Data
@@ -52,14 +52,16 @@ print("Accuracy on test data: {:.2f}".format(clf.score(X_test, y_test)))
 # computed above: some feature must be important. The permutation importance
 # is calculated on the training set to show how much the model relies on each
 # feature during training.
-result = permutation_importance(clf, X_train, y_train, n_repeats=10, random_state=42)
+result = permutation_importance(
+    clf, X_train, y_train, n_repeats=10, random_state=42)
 perm_sorted_idx = result.importances_mean.argsort()
 
-tree_importance_sorted_idx = np.argsort(clf.feature_importances_)
-tree_indices = np.arange(0, len(clf.feature_importances_)) + 0.5
+tree_importance_sorted_idx = jnp.argsort(clf.feature_importances_)
+tree_indices = jnp.arange(0, len(clf.feature_importances_)) + 0.5
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 8))
-ax1.barh(tree_indices, clf.feature_importances_[tree_importance_sorted_idx], height=0.7)
+ax1.barh(tree_indices, clf.feature_importances_[
+         tree_importance_sorted_idx], height=0.7)
 ax1.set_yticks(tree_indices)
 ax1.set_yticklabels(data.feature_names[tree_importance_sorted_idx])
 ax1.set_ylim((0, len(clf.feature_importances_)))
@@ -85,16 +87,16 @@ corr = spearmanr(X).correlation
 
 # Ensure the correlation matrix is symmetric
 corr = (corr + corr.T) / 2
-np.fill_diagonal(corr, 1)
+jnp.fill_diagonal(corr, 1)
 
 # We convert the correlation matrix to a distance matrix before performing
 # hierarchical clustering using Ward's linkage.
-distance_matrix = 1 - np.abs(corr)
+distance_matrix = 1 - jnp.abs(corr)
 dist_linkage = hierarchy.ward(squareform(distance_matrix))
 dendro = hierarchy.dendrogram(
     dist_linkage, labels=data.feature_names.tolist(), ax=ax1, leaf_rotation=90
 )
-dendro_idx = np.arange(0, len(dendro["ivl"]))
+dendro_idx = jnp.arange(0, len(dendro["ivl"]))
 
 ax2.imshow(corr[dendro["leaves"], :][:, dendro["leaves"]])
 ax2.set_xticks(dendro_idx)

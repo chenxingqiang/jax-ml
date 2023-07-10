@@ -7,7 +7,7 @@ from urllib.request import Request, build_opener
 
 import lxml.html
 from lxml.etree import ElementTree
-import numpy as np
+import jax.numpy as jnp
 
 import codecs
 
@@ -87,7 +87,7 @@ for lang, page in pages.items():
         n_groups = len(words) / n_words_per_short_text
         if n_groups < 1:
             continue
-        groups = np.array_split(words, n_groups)
+        groups = jnp.array_split(words, n_groups)
 
         for group in groups:
             small_content = " ".join(group)

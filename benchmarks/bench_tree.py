@@ -1,7 +1,7 @@
 """
 To run this, you'll need to have installed.
 
-  * scikit-learn
+  * jax-learn
 
 Does two benchmarks
 
@@ -17,19 +17,19 @@ import gc
 from datetime import datetime
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
 # to store the results
-scikit_classifier_results = []
-scikit_regressor_results = []
+jax_classifier_results = []
+jax_regressor_results = []
 
 mu_second = 0.0 + 10**6  # number of microseconds in a second
 
 
-def bench_scikit_tree_classifier(X, Y):
-    """Benchmark with scikit-learn decision tree classifier"""
+def bench_jax_tree_classifier(X, Y):
+    """Benchmark with jax-learn decision tree classifier"""
 
-    from sklearn.tree import DecisionTreeClassifier
+    from xlearn.tree import DecisionTreeClassifier
 
     gc.collect()
 
@@ -40,13 +40,14 @@ def bench_scikit_tree_classifier(X, Y):
     delta = datetime.now() - tstart
     # stop time
 
-    scikit_classifier_results.append(delta.seconds + delta.microseconds / mu_second)
+    jax_classifier_results.append(
+        delta.seconds + delta.microseconds / mu_second)
 
 
-def bench_scikit_tree_regressor(X, Y):
-    """Benchmark with scikit-learn decision tree regressor"""
+def bench_jax_tree_regressor(X, Y):
+    """Benchmark with jax-learn decision tree regressor"""
 
-    from sklearn.tree import DecisionTreeRegressor
+    from xlearn.tree import DecisionTreeRegressor
 
     gc.collect()
 
@@ -57,7 +58,8 @@ def bench_scikit_tree_regressor(X, Y):
     delta = datetime.now() - tstart
     # stop time
 
-    scikit_regressor_results.append(delta.seconds + delta.microseconds / mu_second)
+    jax_regressor_results.append(
+        delta.seconds + delta.microseconds / mu_second)
 
 
 if __name__ == "__main__":
@@ -77,22 +79,22 @@ if __name__ == "__main__":
         n_samples += step
         X = np.random.randn(n_samples, dim)
         Y = np.random.randint(0, n_classes, (n_samples,))
-        bench_scikit_tree_classifier(X, Y)
+        bench_jax_tree_classifier(X, Y)
         Y = np.random.randn(n_samples)
-        bench_scikit_tree_regressor(X, Y)
+        bench_jax_tree_regressor(X, Y)
 
     xx = range(0, n * step, step)
-    plt.figure("scikit-learn tree benchmark results")
+    plt.figure("jax-learn tree benchmark results")
     plt.subplot(211)
     plt.title("Learning with varying number of samples")
-    plt.plot(xx, scikit_classifier_results, "g-", label="classification")
-    plt.plot(xx, scikit_regressor_results, "r-", label="regression")
+    plt.plot(xx, jax_classifier_results, "g-", label="classification")
+    plt.plot(xx, jax_regressor_results, "r-", label="regression")
     plt.legend(loc="upper left")
     plt.xlabel("number of samples")
     plt.ylabel("Time (s)")
 
-    scikit_classifier_results = []
-    scikit_regressor_results = []
+    jax_classifier_results = []
+    jax_regressor_results = []
     n = 10
     step = 500
     start_dim = 500
@@ -106,15 +108,15 @@ if __name__ == "__main__":
         dim += step
         X = np.random.randn(100, dim)
         Y = np.random.randint(0, n_classes, (100,))
-        bench_scikit_tree_classifier(X, Y)
+        bench_jax_tree_classifier(X, Y)
         Y = np.random.randn(100)
-        bench_scikit_tree_regressor(X, Y)
+        bench_jax_tree_regressor(X, Y)
 
-    xx = np.arange(start_dim, start_dim + n * step, step)
+    xx = jnp.arange(start_dim, start_dim + n * step, step)
     plt.subplot(212)
     plt.title("Learning in high dimensional spaces")
-    plt.plot(xx, scikit_classifier_results, "g-", label="classification")
-    plt.plot(xx, scikit_regressor_results, "r-", label="regression")
+    plt.plot(xx, jax_classifier_results, "g-", label="classification")
+    plt.plot(xx, jax_regressor_results, "r-", label="regression")
     plt.legend(loc="upper left")
     plt.xlabel("number of dimensions")
     plt.ylabel("Time (s)")

@@ -3,7 +3,7 @@
 Comparing Target Encoder with Other Encoders
 ============================================
 
-.. currentmodule:: sklearn.preprocessing
+.. currentmodule:: xlearn.preprocessing
 
 The :class:`TargetEncoder` uses the value of the target to encode each
 categorical feature. In this example, we will compare three different approaches
@@ -21,7 +21,14 @@ for handling categorical features: :class:`TargetEncoder`,
 # ========================
 # First, we load the wine reviews dataset, where the target is the points given
 # be a reviewer:
-from sklearn.datasets import fetch_openml
+import pandas as pd
+import matplotlib.pyplot as plt
+from xlearn.pipeline import make_pipeline
+from xlearn.model_selection import cross_validate
+from xlearn.ensemble import HistGradientBoostingRegressor
+from xlearn.preprocessing import OneHotEncoder, OrdinalEncoder, TargetEncoder
+from xlearn.compose import ColumnTransformer
+from xlearn.datasets import fetch_openml
 
 wine_reviews = fetch_openml(data_id=42074, as_frame=True, parser="pandas")
 
@@ -51,27 +58,23 @@ _ = y.hist()
 # Training and Evaluating Pipelines with Different Encoders
 # =========================================================
 # In this section, we will evaluate pipelines with
-# :class:`~sklearn.ensemble.HistGradientBoostingRegressor` with different encoding
+# :class:`~xlearn.ensemble.HistGradientBoostingRegressor` with different encoding
 # strategies. First, we list out the encoders we will be using to preprocess
 # the categorical features:
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, TargetEncoder
 
 categorical_preprocessors = [
     ("drop", "drop"),
     ("ordinal", OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1)),
     (
         "one_hot",
-        OneHotEncoder(handle_unknown="ignore", max_categories=20, sparse_output=False),
+        OneHotEncoder(handle_unknown="ignore",
+                      max_categories=20, sparse_output=False),
     ),
     ("target", TargetEncoder(target_type="continuous")),
 ]
 
 # %%
 # Next, we evaluate the models using cross validation and record the results:
-from sklearn.ensemble import HistGradientBoostingRegressor
-from sklearn.model_selection import cross_validate
-from sklearn.pipeline import make_pipeline
 
 n_cv_folds = 3
 max_iter = 20
@@ -108,7 +111,8 @@ for name, categorical_preprocessor in categorical_preprocessors:
         ]
     )
     pipe = make_pipeline(
-        preprocessor, HistGradientBoostingRegressor(random_state=0, max_iter=max_iter)
+        preprocessor, HistGradientBoostingRegressor(
+            random_state=0, max_iter=max_iter)
     )
     evaluate_model_and_store(name, pipe)
 
@@ -117,10 +121,11 @@ for name, categorical_preprocessor in categorical_preprocessors:
 # Native Categorical Feature Support
 # ==================================
 # In this section, we build and evaluate a pipeline that uses native categorical
-# feature support in :class:`~sklearn.ensemble.HistGradientBoostingRegressor`,
+# feature support in :class:`~xlearn.ensemble.HistGradientBoostingRegressor`,
 # which only supports up to 255 unique categories. In our dataset, the most of
 # the categorical features have more than 255 unique categories:
-n_unique_categories = df[categorical_features].nunique().sort_values(ascending=False)
+n_unique_categories = df[categorical_features].nunique(
+).sort_values(ascending=False)
 n_unique_categories
 
 # %%
@@ -140,7 +145,8 @@ mixed_encoded_preprocessor = ColumnTransformer(
         ),
         (
             "low_cardinality",
-            OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1),
+            OrdinalEncoder(handle_unknown="use_encoded_value",
+                           unknown_value=-1),
             low_cardinality_features,
         ),
     ],
@@ -166,11 +172,10 @@ evaluate_model_and_store("mixed_target", mixed_pipe)
 # Plotting the Results
 # ====================
 # In this section, we display the results by plotting the test and train scores:
-import matplotlib.pyplot as plt
-import pandas as pd
 
 results_df = (
-    pd.DataFrame(results).set_index("preprocessor").sort_values("rmse_test_mean")
+    pd.DataFrame(results).set_index(
+        "preprocessor").sort_values("rmse_test_mean")
 )
 
 fig, (ax1, ax2) = plt.subplots(
@@ -214,12 +219,12 @@ for subset, ax in zip(["test", "train"], [ax1, ax2]):
 #   set only);
 # - The ordinal encoding imposes an arbitrary order to the features which are then
 #   treated as numerical values by the
-#   :class:`~sklearn.ensemble.HistGradientBoostingRegressor`. Since this
+#   :class:`~xlearn.ensemble.HistGradientBoostingRegressor`. Since this
 #   model groups numerical features in 256 bins per feature, many unrelated categories
 #   can be grouped together and as a result overall pipeline can underfit;
 # - When using the target encoder, the same binning happens, but since the encoded
 #   values are statistically ordered by marginal association with the target variable,
-#   the binning use by the :class:`~sklearn.ensemble.HistGradientBoostingRegressor`
+#   the binning use by the :class:`~xlearn.ensemble.HistGradientBoostingRegressor`
 #   makes sense and leads to good results: the combination of smoothed target
 #   encoding and binning works as a good regularizing strategy against
 #   overfitting while not limiting the expressiveness of the pipeline too much.

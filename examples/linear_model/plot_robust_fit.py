@@ -30,29 +30,29 @@ What we can see that:
 
 """
 
-import numpy as np
+import jax.numpy as jnp
 from matplotlib import pyplot as plt
 
-from sklearn.linear_model import (
+from xlearn.linear_model import (
     HuberRegressor,
     LinearRegression,
     RANSACRegressor,
     TheilSenRegressor,
 )
-from sklearn.metrics import mean_squared_error
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import PolynomialFeatures
+from xlearn.metrics import mean_squared_error
+from xlearn.pipeline import make_pipeline
+from xlearn.preprocessing import PolynomialFeatures
 
 np.random.seed(42)
 
 X = np.random.normal(size=400)
-y = np.sin(X)
+y = jnp.sin(X)
 # Make sure that it X is 2D
-X = X[:, np.newaxis]
+X = X[:, jnp.newaxis]
 
 X_test = np.random.normal(size=200)
-y_test = np.sin(X_test)
-X_test = X_test[:, np.newaxis]
+y_test = jnp.sin(X_test)
+X_test = X_test[:, jnp.newaxis]
 
 y_errors = y.copy()
 y_errors[::3] = 3
@@ -78,10 +78,11 @@ colors = {
     "RANSAC": "lightgreen",
     "HuberRegressor": "black",
 }
-linestyle = {"OLS": "-", "Theil-Sen": "-.", "RANSAC": "--", "HuberRegressor": "--"}
+linestyle = {"OLS": "-", "Theil-Sen": "-.",
+             "RANSAC": "--", "HuberRegressor": "--"}
 lw = 3
 
-x_plot = np.linspace(X.min(), X.max())
+x_plot = jnp.linspace(X.min(), X.max())
 for title, this_X, this_y in [
     ("Modeling Errors Only", X, y),
     ("Corrupt X, Small Deviants", X_errors, y),
@@ -96,7 +97,7 @@ for title, this_X, this_y in [
         model = make_pipeline(PolynomialFeatures(3), estimator)
         model.fit(this_X, this_y)
         mse = mean_squared_error(model.predict(X_test), y_test)
-        y_plot = model.predict(x_plot[:, np.newaxis])
+        y_plot = model.predict(x_plot[:, jnp.newaxis])
         plt.plot(
             x_plot,
             y_plot,

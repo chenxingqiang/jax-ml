@@ -1,11 +1,11 @@
-Machine Learning Cheat Sheet (for scikit-learn)
+Machine Learning Cheat Sheet (for jax-learn)
 ===============================================
 
 This document is intended to explain how to edit
 the machine learning cheat sheet, originally created
 by Andreas Mueller:
 
-(https://peekaboo-vision.blogspot.de/2013/01/machine-learning-cheat-sheet-for-scikit.html)
+(https://peekaboo-vision.blogspot.de/2013/01/machine-learning-cheat-sheet-for-jax.html)
 
 The image is made interactive using an imagemap, and uses the jQuery Map Highlight plugin module
 by David Lynch (https://davidlynch.org/projects/maphilight/docs/) to highlight

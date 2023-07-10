@@ -10,17 +10,17 @@ from functools import partial
 from timeit import timeit
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 import scipy.sparse as sp
 
-from sklearn.datasets import make_multilabel_classification
-from sklearn.metrics import (
+from xlearn.datasets import make_multilabel_classification
+from xlearn.metrics import (
     accuracy_score,
     f1_score,
     hamming_loss,
     jaccard_similarity_score,
 )
-from sklearn.utils._testing import ignore_warnings
+from xlearn.utils._testing import ignore_warnings
 
 METRICS = {
     "f1": partial(f1_score, average="micro"),
@@ -31,7 +31,7 @@ METRICS = {
 }
 
 FORMATS = {
-    "sequences": lambda y: [list(np.flatnonzero(s)) for s in y],
+    "sequences": lambda y: [list(jnp.flatnonzero(s)) for s in y],
     "dense": lambda y: y,
     "csr": sp.csr_matrix,
     "csc": sp.csc_matrix,
@@ -75,12 +75,12 @@ def benchmark(
     array of floats shaped like (metrics, formats, samples, classes, density)
         Time in seconds.
     """
-    metrics = np.atleast_1d(metrics)
-    samples = np.atleast_1d(samples)
-    classes = np.atleast_1d(classes)
-    density = np.atleast_1d(density)
-    formats = np.atleast_1d(formats)
-    out = np.zeros(
+    metrics = jnp.atleast_1d(metrics)
+    samples = jnp.atleast_1d(samples)
+    classes = jnp.atleast_1d(classes)
+    density = jnp.atleast_1d(density)
+    formats = jnp.atleast_1d(formats)
+    out = jnp.zeros(
         (len(metrics), len(formats), len(samples), len(classes), len(density)),
         dtype=float,
     )
@@ -130,7 +130,7 @@ def _plot(
     Plot the results by metric, format and some other variable given by
     x_label
     """
-    fig = plt.figure("scikit-learn multilabel metrics benchmarks")
+    fig = plt.figure("jax-learn multilabel metrics benchmarks")
     plt.title(title)
     ax = fig.add_subplot(111)
     for i, metric in enumerate(metrics):
@@ -167,7 +167,8 @@ if __name__ == "__main__":
     ap.add_argument(
         "--samples", type=int, default=1000, help="The number of samples to generate"
     )
-    ap.add_argument("--classes", type=int, default=10, help="The number of classes")
+    ap.add_argument("--classes", type=int, default=10,
+                    help="The number of classes")
     ap.add_argument(
         "--density",
         type=float,
@@ -196,9 +197,9 @@ if __name__ == "__main__":
             min_val = 2
         else:
             min_val = 0
-        steps = np.linspace(min_val, max_val, num=args.n_steps + 1)[1:]
+        steps = jnp.linspace(min_val, max_val, num=args.n_steps + 1)[1:]
         if args.plot in ("classes", "samples"):
-            steps = np.unique(np.round(steps).astype(int))
+            steps = jnp.unique(jnp.round(steps).astype(int))
         setattr(args, args.plot, steps)
 
     if args.metrics is None:

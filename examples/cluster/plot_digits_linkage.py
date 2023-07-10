@@ -30,12 +30,13 @@ random resampling of the dataset.
 # Authors: Gael Varoquaux
 # License: BSD 3 clause (C) INRIA 2014
 
+from xlearn.cluster import AgglomerativeClustering
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 from matplotlib import pyplot as plt
 
-from sklearn import datasets, manifold
+from xlearn import datasets, manifold
 
 digits = datasets.load_digits()
 X, y = digits.data, digits.target
@@ -47,7 +48,7 @@ np.random.seed(0)
 # ----------------------------------------------------------------------
 # Visualize the clustering
 def plot_clustering(X_red, labels, title=None):
-    x_min, x_max = np.min(X_red, axis=0), np.max(X_red, axis=0)
+    x_min, x_max = jnp.min(X_red, axis=0), jnp.max(X_red, axis=0)
     X_red = (X_red - x_min) / (x_max - x_min)
 
     plt.figure(figsize=(6, 4))
@@ -74,7 +75,6 @@ print("Computing embedding")
 X_red = manifold.SpectralEmbedding(n_components=2).fit_transform(X)
 print("Done.")
 
-from sklearn.cluster import AgglomerativeClustering
 
 for linkage in ("ward", "average", "complete", "single"):
     clustering = AgglomerativeClustering(linkage=linkage, n_clusters=10)

@@ -3,7 +3,7 @@
 Post pruning decision trees with cost complexity pruning
 ========================================================
 
-.. currentmodule:: sklearn.tree
+.. currentmodule:: xlearn.tree
 
 The :class:`DecisionTreeClassifier` provides parameters such as
 ``min_samples_leaf`` and ``max_depth`` to prevent a tree from overfiting. Cost
@@ -19,9 +19,9 @@ See also :ref:`minimal_cost_complexity_pruning` for details on pruning.
 
 import matplotlib.pyplot as plt
 
-from sklearn.datasets import load_breast_cancer
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+from xlearn.datasets import load_breast_cancer
+from xlearn.model_selection import train_test_split
+from xlearn.tree import DecisionTreeClassifier
 
 # %%
 # Total impurity of leaves vs effective alphas of pruned tree
@@ -29,7 +29,7 @@ from sklearn.tree import DecisionTreeClassifier
 # Minimal cost complexity pruning recursively finds the node with the "weakest
 # link". The weakest link is characterized by an effective alpha, where the
 # nodes with the smallest effective alpha are pruned first. To get an idea of
-# what values of ``ccp_alpha`` could be appropriate, scikit-learn provides
+# what values of ``ccp_alpha`` could be appropriate, jax-learn provides
 # :func:`DecisionTreeClassifier.cost_complexity_pruning_path` that returns the
 # effective alphas and the corresponding total leaf impurities at each step of
 # the pruning process. As alpha increases, more of the tree is pruned, which
@@ -101,7 +101,9 @@ fig, ax = plt.subplots()
 ax.set_xlabel("alpha")
 ax.set_ylabel("accuracy")
 ax.set_title("Accuracy vs alpha for training and testing sets")
-ax.plot(ccp_alphas, train_scores, marker="o", label="train", drawstyle="steps-post")
-ax.plot(ccp_alphas, test_scores, marker="o", label="test", drawstyle="steps-post")
+ax.plot(ccp_alphas, train_scores, marker="o",
+        label="train", drawstyle="steps-post")
+ax.plot(ccp_alphas, test_scores, marker="o",
+        label="test", drawstyle="steps-post")
 ax.legend()
 plt.show()

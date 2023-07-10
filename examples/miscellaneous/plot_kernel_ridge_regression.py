@@ -24,54 +24,59 @@ datapoint.
 # %%
 # Generate sample data
 # --------------------
-import numpy as np
+from xlearn.model_selection import LearningCurveDisplay
+import matplotlib.pyplot as plt
+import time
+from xlearn.svm import SVR
+from xlearn.model_selection import GridSearchCV
+from xlearn.kernel_ridge import KernelRidge
+import jax.numpy as jnp
 
 rng = np.random.RandomState(42)
 
 X = 5 * rng.rand(10000, 1)
-y = np.sin(X).ravel()
+y = jnp.sin(X).ravel()
 
 # Add noise to targets
 y[::5] += 3 * (0.5 - rng.rand(X.shape[0] // 5))
 
-X_plot = np.linspace(0, 5, 100000)[:, None]
+X_plot = jnp.linspace(0, 5, 100000)[:, None]
 
 # %%
 # Construct the kernel-based regression models
 # --------------------------------------------
 
-from sklearn.kernel_ridge import KernelRidge
-from sklearn.model_selection import GridSearchCV
-from sklearn.svm import SVR
 
 train_size = 100
 
 svr = GridSearchCV(
     SVR(kernel="rbf", gamma=0.1),
-    param_grid={"C": [1e0, 1e1, 1e2, 1e3], "gamma": np.logspace(-2, 2, 5)},
+    param_grid={"C": [1e0, 1e1, 1e2, 1e3], "gamma": jnp.logspace(-2, 2, 5)},
 )
 
 kr = GridSearchCV(
     KernelRidge(kernel="rbf", gamma=0.1),
-    param_grid={"alpha": [1e0, 0.1, 1e-2, 1e-3], "gamma": np.logspace(-2, 2, 5)},
+    param_grid={"alpha": [1e0, 0.1, 1e-2, 1e-3],
+                "gamma": jnp.logspace(-2, 2, 5)},
 )
 
 # %%
 # Compare times of SVR and Kernel Ridge Regression
 # ------------------------------------------------
 
-import time
 
 t0 = time.time()
 svr.fit(X[:train_size], y[:train_size])
 svr_fit = time.time() - t0
-print(f"Best SVR with params: {svr.best_params_} and R2 score: {svr.best_score_:.3f}")
+print(
+    f"Best SVR with params: {svr.best_params_} and R2 score: {svr.best_score_:.3f}")
 print("SVR complexity and bandwidth selected and model fitted in %.3f s" % svr_fit)
 
 t0 = time.time()
 kr.fit(X[:train_size], y[:train_size])
 kr_fit = time.time() - t0
-print(f"Best KRR with params: {kr.best_params_} and R2 score: {kr.best_score_:.3f}")
+print(
+    f"Best KRR with params: {kr.best_params_} and R2 score: {kr.best_score_:.3f}")
 print("KRR complexity and bandwidth selected and model fitted in %.3f s" % kr_fit)
 
 sv_ratio = svr.best_estimator_.support_.shape[0] / train_size
@@ -80,7 +85,8 @@ print("Support vector ratio: %.3f" % sv_ratio)
 t0 = time.time()
 y_svr = svr.predict(X_plot)
 svr_predict = time.time() - t0
-print("SVR prediction for %d inputs in %.3f s" % (X_plot.shape[0], svr_predict))
+print("SVR prediction for %d inputs in %.3f s" %
+      (X_plot.shape[0], svr_predict))
 
 t0 = time.time()
 y_kr = kr.predict(X_plot)
@@ -91,7 +97,6 @@ print("KRR prediction for %d inputs in %.3f s" % (X_plot.shape[0], kr_predict))
 # Look at the results
 # -------------------
 
-import matplotlib.pyplot as plt
 
 sv_ind = svr.best_estimator_.support_
 plt.scatter(
@@ -103,7 +108,8 @@ plt.scatter(
     zorder=2,
     edgecolors=(0, 0, 0),
 )
-plt.scatter(X[:100], y[:100], c="k", label="data", zorder=1, edgecolors=(0, 0, 0))
+plt.scatter(X[:100], y[:100], c="k", label="data",
+            zorder=1, edgecolors=(0, 0, 0))
 plt.plot(
     X_plot,
     y_svr,
@@ -138,7 +144,7 @@ _ = plt.legend()
 
 plt.figure()
 
-sizes = np.logspace(1, 3.8, 7).astype(int)
+sizes = jnp.logspace(1, 3.8, 7).astype(int)
 for name, estimator in {
     "KRR": KernelRidge(kernel="rbf", alpha=0.01, gamma=10),
     "SVR": SVR(kernel="rbf", C=1e2, gamma=10),
@@ -189,7 +195,6 @@ _ = plt.legend(loc="best")
 # %%
 # Visualize the learning curves
 # -----------------------------
-from sklearn.model_selection import LearningCurveDisplay
 
 _, ax = plt.subplots()
 
@@ -199,7 +204,7 @@ kr = KernelRidge(kernel="rbf", alpha=0.1, gamma=0.1)
 common_params = {
     "X": X[:100],
     "y": y[:100],
-    "train_sizes": np.linspace(0.1, 1, 10),
+    "train_sizes": jnp.linspace(0.1, 1, 10),
     "scoring": "neg_mean_squared_error",
     "negate_score": True,
     "score_name": "Mean Squared Error",

@@ -40,17 +40,18 @@ time to initialize and low number of GaussianMixture iterations to converge.
 from timeit import default_timer as timer
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets._samples_generator import make_blobs
-from sklearn.mixture import GaussianMixture
-from sklearn.utils.extmath import row_norms
+from xlearn.datasets._samples_generator import make_blobs
+from xlearn.mixture import GaussianMixture
+from xlearn.utils.extmath import row_norms
 
 print(__doc__)
 
 # Generate some data
 
-X, y_true = make_blobs(n_samples=4000, centers=4, cluster_std=0.60, random_state=0)
+X, y_true = make_blobs(n_samples=4000, centers=4,
+                       cluster_std=0.60, random_state=0)
 X = X[:, ::-1]
 
 n_samples = 4000

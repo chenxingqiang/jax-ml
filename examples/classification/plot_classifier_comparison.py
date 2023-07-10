@@ -3,7 +3,7 @@
 Classifier comparison
 =====================
 
-A comparison of a several classifiers in scikit-learn on synthetic datasets.
+A comparison of a several classifiers in jax-learn on synthetic datasets.
 The point of this example is to illustrate the nature of decision boundaries
 of different classifiers.
 This should be taken with a grain of salt, as the intuition conveyed by
@@ -25,23 +25,23 @@ set.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from matplotlib.colors import ListedColormap
 
-from sklearn.datasets import make_circles, make_classification, make_moons
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.gaussian_process.kernels import RBF
-from sklearn.inspection import DecisionBoundaryDisplay
-from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
+from xlearn.datasets import make_circles, make_classification, make_moons
+from xlearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from xlearn.ensemble import AdaBoostClassifier, RandomForestClassifier
+from xlearn.gaussian_process import GaussianProcessClassifier
+from xlearn.gaussian_process.kernels import RBF
+from xlearn.inspection import DecisionBoundaryDisplay
+from xlearn.model_selection import train_test_split
+from xlearn.naive_bayes import GaussianNB
+from xlearn.neighbors import KNeighborsClassifier
+from xlearn.neural_network import MLPClassifier
+from xlearn.pipeline import make_pipeline
+from xlearn.preprocessing import StandardScaler
+from xlearn.svm import SVC
+from xlearn.tree import DecisionTreeClassifier
 
 names = [
     "Nearest Neighbors",
@@ -102,7 +102,8 @@ for ds_cnt, ds in enumerate(datasets):
     if ds_cnt == 0:
         ax.set_title("Input data")
     # Plot the training points
-    ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright, edgecolors="k")
+    ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train,
+               cmap=cm_bright, edgecolors="k")
     # Plot the testing points
     ax.scatter(
         X_test[:, 0], X_test[:, 1], c=y_test, cmap=cm_bright, alpha=0.6, edgecolors="k"
@@ -126,7 +127,8 @@ for ds_cnt, ds in enumerate(datasets):
 
         # Plot the training points
         ax.scatter(
-            X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright, edgecolors="k"
+            X_train[:, 0], X_train[:,
+                                   1], c=y_train, cmap=cm_bright, edgecolors="k"
         )
         # Plot the testing points
         ax.scatter(

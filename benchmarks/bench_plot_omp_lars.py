@@ -7,17 +7,17 @@ import gc
 import sys
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import make_sparse_coded_signal
-from sklearn.linear_model import lars_path, lars_path_gram, orthogonal_mp
+from xlearn.datasets import make_sparse_coded_signal
+from xlearn.linear_model import lars_path, lars_path_gram, orthogonal_mp
 
 
 def compute_bench(samples_range, features_range):
     it = 0
 
     results = dict()
-    lars = np.empty((len(features_range), len(samples_range)))
+    lars = jnp.empty((len(features_range), len(samples_range)))
     lars_gram = lars.copy()
     omp = lars.copy()
     omp_gram = lars.copy()
@@ -49,15 +49,16 @@ def compute_bench(samples_range, features_range):
             print("n_samples: %d" % n_samples)
             print("n_features: %d" % n_features)
             y, X, _ = make_sparse_coded_signal(**dataset_kwargs)
-            X = np.asfortranarray(X.T)
+            X = jnp.asfortranarray(X.T)
 
             gc.collect()
             print("benchmarking lars_path (with Gram):", end="")
             sys.stdout.flush()
             tstart = time()
-            G = np.dot(X.T, X)  # precomputed Gram matrix
-            Xy = np.dot(X.T, y)
-            lars_path_gram(Xy=Xy, Gram=G, n_samples=y.size, max_iter=n_informative)
+            G = jnp.dot(X.T, X)  # precomputed Gram matrix
+            Xy = jnp.dot(X.T, y)
+            lars_path_gram(Xy=Xy, Gram=G, n_samples=y.size,
+                           max_iter=n_informative)
             delta = time() - tstart
             print("%0.3fs" % delta)
             lars_gram[i_f, i_s] = delta
@@ -84,7 +85,8 @@ def compute_bench(samples_range, features_range):
             print("benchmarking orthogonal_mp (without Gram):", end="")
             sys.stdout.flush()
             tstart = time()
-            orthogonal_mp(X, y, precompute=False, n_nonzero_coefs=n_informative)
+            orthogonal_mp(X, y, precompute=False,
+                          n_nonzero_coefs=n_informative)
             delta = time() - tstart
             print("%0.3fs" % delta)
             omp[i_f, i_s] = delta
@@ -95,14 +97,14 @@ def compute_bench(samples_range, features_range):
 
 
 if __name__ == "__main__":
-    samples_range = np.linspace(1000, 5000, 5).astype(int)
-    features_range = np.linspace(1000, 5000, 5).astype(int)
+    samples_range = jnp.linspace(1000, 5000, 5).astype(int)
+    features_range = jnp.linspace(1000, 5000, 5).astype(int)
     results = compute_bench(samples_range, features_range)
-    max_time = max(np.max(t) for t in results.values())
+    max_time = max(jnp.max(t) for t in results.values())
 
     import matplotlib.pyplot as plt
 
-    fig = plt.figure("scikit-learn OMP vs. LARS benchmark results")
+    fig = plt.figure("jax-learn OMP vs. LARS benchmark results")
     for i, (label, timings) in enumerate(sorted(results.items())):
         ax = fig.add_subplot(1, 2, i + 1)
         vmax = max(1 - timings.min(), -1 + timings.max())

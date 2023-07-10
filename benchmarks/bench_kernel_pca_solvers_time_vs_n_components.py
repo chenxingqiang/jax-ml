@@ -40,11 +40,11 @@ of components (this takes more time).
 import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from numpy.testing import assert_array_almost_equal
 
-from sklearn.datasets import make_circles
-from sklearn.decomposition import KernelPCA
+from xlearn.datasets import make_circles
+from xlearn.decomposition import KernelPCA
 
 print(__doc__)
 
@@ -56,7 +56,7 @@ max_n_compo = 1999  # max n_components to try
 n_compo_grid_size = 10  # nb of positions in the grid to try
 # generate the grid
 n_compo_range = [
-    np.round(np.exp((x / (n_compo_grid_size - 1)) * np.log(max_n_compo)))
+    jnp.round(jnp.exp((x / (n_compo_grid_size - 1)) * jnp.log(max_n_compo)))
     for x in range(0, n_compo_grid_size)
 ]
 
@@ -76,9 +76,9 @@ X_train, X_test = X[:n_train, :], X[n_train:, :]
 # 3- Benchmark
 # ------------
 # init
-ref_time = np.empty((len(n_compo_range), n_iter)) * np.nan
-a_time = np.empty((len(n_compo_range), n_iter)) * np.nan
-r_time = np.empty((len(n_compo_range), n_iter)) * np.nan
+ref_time = jnp.empty((len(n_compo_range), n_iter)) * jnp.nan
+a_time = jnp.empty((len(n_compo_range), n_iter)) * jnp.nan
+r_time = jnp.empty((len(n_compo_range), n_iter)) * jnp.nan
 # loop
 for j, n_components in enumerate(n_compo_range):
     n_components = int(n_components)
@@ -89,7 +89,8 @@ for j, n_components in enumerate(n_compo_range):
     for i in range(n_iter):
         start_time = time.perf_counter()
         ref_pred = (
-            KernelPCA(n_components, eigen_solver="dense").fit(X_train).transform(X_test)
+            KernelPCA(n_components, eigen_solver="dense").fit(
+                X_train).transform(X_test)
         )
         ref_time[j, i] = time.perf_counter() - start_time
 
@@ -105,7 +106,7 @@ for j, n_components in enumerate(n_compo_range):
             )
             a_time[j, i] = time.perf_counter() - start_time
             # check that the result is still correct despite the approx
-            assert_array_almost_equal(np.abs(a_pred), np.abs(ref_pred))
+            assert_array_almost_equal(jnp.abs(a_pred), jnp.abs(ref_pred))
 
     # C- randomized
     print("  - randomized solver")
@@ -118,7 +119,7 @@ for j, n_components in enumerate(n_compo_range):
         )
         r_time[j, i] = time.perf_counter() - start_time
         # check that the result is still correct despite the approximation
-        assert_array_almost_equal(np.abs(r_pred), np.abs(ref_pred))
+        assert_array_almost_equal(jnp.abs(r_pred), jnp.abs(ref_pred))
 
 # Compute statistics for the 3 methods
 avg_ref_time = ref_time.mean(axis=1)

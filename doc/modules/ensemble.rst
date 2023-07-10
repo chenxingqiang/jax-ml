@@ -4,7 +4,7 @@
 Ensembles: Gradient boosting, random forests, bagging, voting, stacking
 ===========================================================================
 
-.. currentmodule:: sklearn.ensemble
+.. currentmodule:: xlearn.ensemble
 
 **Ensemble methods** combine the predictions of several
 base estimators built with a given learning algorithm in order to improve
@@ -35,7 +35,7 @@ classification, in particular for tabular data.
 
 .. topic:: :class:`GradientBoostingClassifier` vs :class:`HistGradientBoostingClassifier`
 
-  Scikit-learn provides two implementations of gradient-boosted trees:
+  Jax-learn provides two implementations of gradient-boosted trees:
   :class:`HistGradientBoostingClassifier` vs
   :class:`GradientBoostingClassifier` for classification, and the
   corresponding classes for regression. The former can be **orders of
@@ -56,7 +56,7 @@ classification, in particular for tabular data.
 Histogram-Based Gradient Boosting
 ----------------------------------
 
-Scikit-learn 0.21 introduced two new implementations of
+Jax-learn 0.21 introduced two new implementations of
 gradient boosted trees, namely :class:`HistGradientBoostingClassifier`
 and :class:`HistGradientBoostingRegressor`, inspired by
 `LightGBM <https://github.com/Microsoft/LightGBM>`__ (See [LightGBM]_).
@@ -90,8 +90,8 @@ Most of the parameters are unchanged from
 One exception is the ``max_iter`` parameter that replaces ``n_estimators``, and
 controls the number of iterations of the boosting process::
 
-  >>> from sklearn.ensemble import HistGradientBoostingClassifier
-  >>> from sklearn.datasets import make_hastie_10_2
+  >>> from xlearn.ensemble import HistGradientBoostingClassifier
+  >>> from xlearn.datasets import make_hastie_10_2
 
   >>> X, y = make_hastie_10_2(random_state=0)
   >>> X_train, X_test = X[:2000], X[2000:]
@@ -141,10 +141,10 @@ with missing values should go to the left or right child, based on the
 potential gain. When predicting, samples with missing values are assigned to
 the left or right child consequently::
 
-  >>> from sklearn.ensemble import HistGradientBoostingClassifier
-  >>> import numpy as np
+  >>> from xlearn.ensemble import HistGradientBoostingClassifier
+  >>> import jax.numpy as jnp
 
-  >>> X = np.array([0, 1, 2, np.nan]).reshape(-1, 1)
+  >>> X = jnp.array([0, 1, 2, jnp.nan]).reshape(-1, 1)
   >>> y = [0, 0, 1, 1]
 
   >>> gbdt = HistGradientBoostingClassifier(min_samples_leaf=1).fit(X, y)
@@ -154,7 +154,7 @@ the left or right child consequently::
 When the missingness pattern is predictive, the splits can be performed on
 whether the feature value is missing or not::
 
-  >>> X = np.array([0, np.nan, 1, 2, np.nan]).reshape(-1, 1)
+  >>> X = jnp.array([0, jnp.nan, 1, 2, jnp.nan]).reshape(-1, 1)
   >>> y = [0, 1, 0, 0, 1]
   >>> gbdt = HistGradientBoostingClassifier(min_samples_leaf=1,
   ...                                       max_depth=2,
@@ -212,7 +212,7 @@ features: they can consider splits on non-ordered, categorical data.
 
 For datasets with categorical features, using the native categorical support
 is often better than relying on one-hot encoding
-(:class:`~sklearn.preprocessing.OneHotEncoder`), because one-hot encoding
+(:class:`~xlearn.preprocessing.OneHotEncoder`), because one-hot encoding
 requires more tree depth to achieve equivalent splits. It is also usually
 better to rely on the native categorical support rather than to treat
 categorical features as continuous (ordinal), which happens for ordinal-encoded
@@ -234,7 +234,7 @@ categorical features::
 The cardinality of each categorical feature must be less than the `max_bins`
 parameter, and each categorical feature is expected to be encoded in
 `[0, max_bins - 1]`. To that end, it might be useful to pre-process the data
-with an :class:`~sklearn.preprocessing.OrdinalEncoder` as done in
+with an :class:`~xlearn.preprocessing.OrdinalEncoder` as done in
 :ref:`sphx_glr_auto_examples_ensemble_plot_gradient_boosting_categorical.py`.
 
 If there are missing values during training, the missing values will be
@@ -290,7 +290,7 @@ You can specify a monotonic constraint on each feature using the
 constraint, while 1 and -1 indicate a monotonic increase and
 monotonic decrease constraint, respectively::
 
-  >>> from sklearn.ensemble import HistGradientBoostingRegressor
+  >>> from xlearn.ensemble import HistGradientBoostingRegressor
 
   ... # monotonic increase, monotonic decrease, and no constraint on the 3 features
   >>> gbdt = HistGradientBoostingRegressor(monotonic_cst=[1, -1, 0])
@@ -438,8 +438,8 @@ classification.
 The following example shows how to fit a gradient boosting classifier
 with 100 decision stumps as weak learners::
 
-    >>> from sklearn.datasets import make_hastie_10_2
-    >>> from sklearn.ensemble import GradientBoostingClassifier
+    >>> from xlearn.datasets import make_hastie_10_2
+    >>> from xlearn.ensemble import GradientBoostingClassifier
 
     >>> X, y = make_hastie_10_2(random_state=0)
     >>> X_train, X_test = X[:2000], X[2000:]
@@ -479,10 +479,10 @@ for regression which can be specified via the argument
 
 ::
 
-    >>> import numpy as np
-    >>> from sklearn.metrics import mean_squared_error
-    >>> from sklearn.datasets import make_friedman1
-    >>> from sklearn.ensemble import GradientBoostingRegressor
+    >>> import jax.numpy as jnp
+    >>> from xlearn.metrics import mean_squared_error
+    >>> from xlearn.datasets import make_friedman1
+    >>> from xlearn.ensemble import GradientBoostingRegressor
 
     >>> X, y = make_friedman1(n_samples=1200, random_state=0, noise=1.0)
     >>> X_train, X_test = X[:200], X[200:]
@@ -496,7 +496,7 @@ for regression which can be specified via the argument
 
 The figure below shows the results of applying :class:`GradientBoostingRegressor`
 with least squares loss and 500 base learners to the diabetes dataset
-(:func:`sklearn.datasets.load_diabetes`).
+(:func:`xlearn.datasets.load_diabetes`).
 The plot shows the train and test error at each iteration.
 The train error at each iteration is stored in the
 :attr:`~GradientBoostingRegressor.train_score_` attribute
@@ -813,8 +813,8 @@ ensembles by simply averaging the impurity-based feature importance of each tree
 The feature importance scores of a fit gradient boosting model can be
 accessed via the ``feature_importances_`` property::
 
-    >>> from sklearn.datasets import make_hastie_10_2
-    >>> from sklearn.ensemble import GradientBoostingClassifier
+    >>> from xlearn.datasets import make_hastie_10_2
+    >>> from xlearn.ensemble import GradientBoostingClassifier
 
     >>> X, y = make_hastie_10_2(random_state=0)
     >>> clf = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0,
@@ -823,7 +823,7 @@ accessed via the ``feature_importances_`` property::
     array([0.10..., 0.10..., 0.11..., ...
 
 Note that this computation of feature importance is based on entropy, and it
-is distinct from :func:`sklearn.inspection.permutation_importance` which is
+is distinct from :func:`xlearn.inspection.permutation_importance` which is
 based on permutation of the features.
 
 .. topic:: Examples:
@@ -848,7 +848,7 @@ based on permutation of the features.
 Random forests and other randomized tree ensembles
 ===================================================
 
-The :mod:`sklearn.ensemble` module includes two averaging algorithms based
+The :mod:`xlearn.ensemble` module includes two averaging algorithms based
 on randomized :ref:`decision trees <tree>`: the RandomForest algorithm
 and the Extra-Trees method. Both algorithms are perturb-and-combine
 techniques [B1998]_ specifically designed for trees. This means a diverse
@@ -861,7 +861,7 @@ arrays: a sparse or dense array X of shape ``(n_samples, n_features)``
 holding the training samples, and an array Y of shape ``(n_samples,)``
 holding the target values (class labels) for the training samples::
 
-    >>> from sklearn.ensemble import RandomForestClassifier
+    >>> from xlearn.ensemble import RandomForestClassifier
     >>> X = [[0, 0], [1, 1]]
     >>> Y = [0, 1]
     >>> clf = RandomForestClassifier(n_estimators=10)
@@ -893,7 +893,7 @@ variance by combining diverse trees, sometimes at the cost of a slight increase
 in bias. In practice the variance reduction is often significant hence yielding
 an overall better model.
 
-In contrast to the original publication [B2001]_, the scikit-learn
+In contrast to the original publication [B2001]_, the jax-learn
 implementation combines classifiers by averaging their probabilistic
 prediction, instead of letting each classifier vote for a single class.
 
@@ -916,7 +916,7 @@ A competitive alternative to random forests are
 -  Efficient binning: HGBT uses an efficient binning algorithm that can handle
    large datasets with a high number of features. The binning algorithm can
    pre-process the data to speed up the subsequent tree construction (see
-   :ref:`Why it's faster <Why_it's_faster>`). In contrast, the scikit-learn
+   :ref:`Why it's faster <Why_it's_faster>`). In contrast, the jax-learn
    implementation of random forests does not use binning and relies on exact
    splitting, which can be computationally expensive.
 
@@ -942,11 +942,11 @@ picked as the splitting rule. This usually allows to reduce the variance
 of the model a bit more, at the expense of a slightly greater increase
 in bias::
 
-    >>> from sklearn.model_selection import cross_val_score
-    >>> from sklearn.datasets import make_blobs
-    >>> from sklearn.ensemble import RandomForestClassifier
-    >>> from sklearn.ensemble import ExtraTreesClassifier
-    >>> from sklearn.tree import DecisionTreeClassifier
+    >>> from xlearn.model_selection import cross_val_score
+    >>> from xlearn.datasets import make_blobs
+    >>> from xlearn.ensemble import RandomForestClassifier
+    >>> from xlearn.ensemble import ExtraTreesClassifier
+    >>> from xlearn.tree import DecisionTreeClassifier
 
     >>> X, y = make_blobs(n_samples=10000, n_features=10, centers=100,
     ...     random_state=0)
@@ -1050,7 +1050,7 @@ respect to the predictability of the target variable. Features used at
 the top of the tree contribute to the final prediction decision of a
 larger fraction of the input samples. The **expected fraction of the
 samples** they contribute to can thus be used as an estimate of the
-**relative importance of the features**. In scikit-learn, the fraction of
+**relative importance of the features**. In jax-learn, the fraction of
 samples a feature contributes to is combined with the decrease in impurity
 from splitting them to create a normalized estimate of the predictive power
 of that feature.
@@ -1170,7 +1170,7 @@ way they draw random subsets of the training set:
   * Finally, when base estimators are built on subsets of both samples and
     features, then the method is known as Random Patches [LG2012]_.
 
-In scikit-learn, bagging methods are offered as a unified
+In jax-learn, bagging methods are offered as a unified
 :class:`BaggingClassifier` meta-estimator  (resp. :class:`BaggingRegressor`),
 taking as input a user-specified estimator along with parameters
 specifying the strategy to draw random subsets. In particular, ``max_samples``
@@ -1183,8 +1183,8 @@ snippet below illustrates how to instantiate a bagging ensemble of
 :class:`KNeighborsClassifier` estimators, each built on random subsets of
 50% of the samples and 50% of the features.
 
-    >>> from sklearn.ensemble import BaggingClassifier
-    >>> from sklearn.neighbors import KNeighborsClassifier
+    >>> from xlearn.ensemble import BaggingClassifier
+    >>> from xlearn.neighbors import KNeighborsClassifier
     >>> bagging = BaggingClassifier(KNeighborsClassifier(),
     ...                             max_samples=0.5, max_features=0.5)
 
@@ -1250,12 +1250,12 @@ Usage
 
 The following example shows how to fit the majority rule classifier::
 
-   >>> from sklearn import datasets
-   >>> from sklearn.model_selection import cross_val_score
-   >>> from sklearn.linear_model import LogisticRegression
-   >>> from sklearn.naive_bayes import GaussianNB
-   >>> from sklearn.ensemble import RandomForestClassifier
-   >>> from sklearn.ensemble import VotingClassifier
+   >>> from xlearn import datasets
+   >>> from xlearn.model_selection import cross_val_score
+   >>> from xlearn.linear_model import LogisticRegression
+   >>> from xlearn.naive_bayes import GaussianNB
+   >>> from xlearn.ensemble import RandomForestClassifier
+   >>> from xlearn.ensemble import VotingClassifier
 
    >>> iris = datasets.load_iris()
    >>> X, y = iris.data[:, 1:3], iris.target
@@ -1312,12 +1312,12 @@ The following example illustrates how the decision regions may change
 when a soft :class:`VotingClassifier` is used based on a linear Support
 Vector Machine, a Decision Tree, and a K-nearest neighbor classifier::
 
-   >>> from sklearn import datasets
-   >>> from sklearn.tree import DecisionTreeClassifier
-   >>> from sklearn.neighbors import KNeighborsClassifier
-   >>> from sklearn.svm import SVC
+   >>> from xlearn import datasets
+   >>> from xlearn.tree import DecisionTreeClassifier
+   >>> from xlearn.neighbors import KNeighborsClassifier
+   >>> from xlearn.svm import SVC
    >>> from itertools import product
-   >>> from sklearn.ensemble import VotingClassifier
+   >>> from xlearn.ensemble import VotingClassifier
 
    >>> # Loading some example data
    >>> iris = datasets.load_iris()
@@ -1345,10 +1345,10 @@ Using the `VotingClassifier` with `GridSearchCV`
 ------------------------------------------------
 
 The :class:`VotingClassifier` can also be used together with
-:class:`~sklearn.model_selection.GridSearchCV` in order to tune the
+:class:`~xlearn.model_selection.GridSearchCV` in order to tune the
 hyperparameters of the individual estimators::
 
-   >>> from sklearn.model_selection import GridSearchCV
+   >>> from xlearn.model_selection import GridSearchCV
    >>> clf1 = LogisticRegression(random_state=1)
    >>> clf2 = RandomForestClassifier(random_state=1)
    >>> clf3 = GaussianNB()
@@ -1366,7 +1366,7 @@ Usage
 -----
 
 In order to predict the class labels based on the predicted
-class-probabilities (scikit-learn estimators in the VotingClassifier
+class-probabilities (jax-learn estimators in the VotingClassifier
 must support ``predict_proba`` method)::
 
    >>> eclf = VotingClassifier(
@@ -1396,11 +1396,11 @@ Usage
 
 The following example shows how to fit the VotingRegressor::
 
-   >>> from sklearn.datasets import load_diabetes
-   >>> from sklearn.ensemble import GradientBoostingRegressor
-   >>> from sklearn.ensemble import RandomForestRegressor
-   >>> from sklearn.linear_model import LinearRegression
-   >>> from sklearn.ensemble import VotingRegressor
+   >>> from xlearn.datasets import load_diabetes
+   >>> from xlearn.ensemble import GradientBoostingRegressor
+   >>> from xlearn.ensemble import RandomForestRegressor
+   >>> from xlearn.linear_model import LinearRegression
+   >>> from xlearn.ensemble import VotingRegressor
 
    >>> # Loading some example data
    >>> X, y = load_diabetes(return_X_y=True)
@@ -1439,8 +1439,8 @@ The `estimators` parameter corresponds to the list of the estimators which
 are stacked together in parallel on the input data. It should be given as a
 list of names and estimators::
 
-  >>> from sklearn.linear_model import RidgeCV, LassoCV
-  >>> from sklearn.neighbors import KNeighborsRegressor
+  >>> from xlearn.linear_model import RidgeCV, LassoCV
+  >>> from xlearn.neighbors import KNeighborsRegressor
   >>> estimators = [('ridge', RidgeCV()),
   ...               ('lasso', LassoCV(random_state=42)),
   ...               ('knr', KNeighborsRegressor(n_neighbors=20,
@@ -1450,8 +1450,8 @@ The `final_estimator` will use the predictions of the `estimators` as input. It
 needs to be a classifier or a regressor when using :class:`StackingClassifier`
 or :class:`StackingRegressor`, respectively::
 
-  >>> from sklearn.ensemble import GradientBoostingRegressor
-  >>> from sklearn.ensemble import StackingRegressor
+  >>> from xlearn.ensemble import GradientBoostingRegressor
+  >>> from xlearn.ensemble import StackingRegressor
   >>> final_estimator = GradientBoostingRegressor(
   ...     n_estimators=25, subsample=0.5, min_samples_leaf=25, max_features=1,
   ...     random_state=42)
@@ -1462,9 +1462,9 @@ or :class:`StackingRegressor`, respectively::
 To train the `estimators` and `final_estimator`, the `fit` method needs
 to be called on the training data::
 
-  >>> from sklearn.datasets import load_diabetes
+  >>> from xlearn.datasets import load_diabetes
   >>> X, y = load_diabetes(return_X_y=True)
-  >>> from sklearn.model_selection import train_test_split
+  >>> from xlearn.model_selection import train_test_split
   >>> X_train, X_test, y_train, y_test = train_test_split(X, y,
   ...                                                     random_state=42)
   >>> reg.fit(X_train, y_train)
@@ -1473,7 +1473,7 @@ to be called on the training data::
 During training, the `estimators` are fitted on the whole training data
 `X_train`. They will be used when calling `predict` or `predict_proba`. To
 generalize and avoid over-fitting, the `final_estimator` is trained on
-out-samples using :func:`sklearn.model_selection.cross_val_predict` internally.
+out-samples using :func:`xlearn.model_selection.cross_val_predict` internally.
 
 For :class:`StackingClassifier`, note that the output of the ``estimators`` is
 controlled by the parameter `stack_method` and it is called by each estimator.
@@ -1487,7 +1487,7 @@ any other regressor or classifier, exposing a `predict`, `predict_proba`, and
 `decision_function` methods, e.g.::
 
    >>> y_pred = reg.predict(X_test)
-   >>> from sklearn.metrics import r2_score
+   >>> from xlearn.metrics import r2_score
    >>> print('R2 score: {:.2f}'.format(r2_score(y_test, y_pred)))
    R2 score: 0.53
 
@@ -1550,7 +1550,7 @@ computationally expensive.
 AdaBoost
 ========
 
-The module :mod:`sklearn.ensemble` includes the popular boosting algorithm
+The module :mod:`xlearn.ensemble` includes the popular boosting algorithm
 AdaBoost, introduced in 1995 by Freund and Schapire [FS1995]_.
 
 The core principle of AdaBoost is to fit a sequence of weak learners (i.e.,
@@ -1589,9 +1589,9 @@ Usage
 The following example shows how to fit an AdaBoost classifier with 100 weak
 learners::
 
-    >>> from sklearn.model_selection import cross_val_score
-    >>> from sklearn.datasets import load_iris
-    >>> from sklearn.ensemble import AdaBoostClassifier
+    >>> from xlearn.model_selection import cross_val_score
+    >>> from xlearn.datasets import load_iris
+    >>> from xlearn.ensemble import AdaBoostClassifier
 
     >>> X, y = load_iris(return_X_y=True)
     >>> clf = AdaBoostClassifier(n_estimators=100)

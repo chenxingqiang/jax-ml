@@ -9,8 +9,8 @@
 
 ## Reporting a Vulnerability
 
-Please report security vulnerabilities by email to `security@scikit-learn.org`.
-This email is an alias to a subset of the scikit-learn maintainers' team.
+Please report security vulnerabilities by email to `security@jax-learn.cc`.
+This email is an alias to a subset of the jax-learn maintainers' team.
 
 If the security vulnerability is accepted, a patch will be crafted privately
 in order to prepare a dedicated bugfix release as timely as possible (depending

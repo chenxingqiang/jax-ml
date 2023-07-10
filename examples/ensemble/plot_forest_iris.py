@@ -43,16 +43,16 @@ samples are built sequentially and so do not use multiple cores.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from matplotlib.colors import ListedColormap
 
-from sklearn.datasets import load_iris
-from sklearn.ensemble import (
+from xlearn.datasets import load_iris
+from xlearn.ensemble import (
     AdaBoostClassifier,
     ExtraTreesClassifier,
     RandomForestClassifier,
 )
-from sklearn.tree import DecisionTreeClassifier
+from xlearn.tree import DecisionTreeClassifier
 
 # Parameters
 n_classes = 3
@@ -71,7 +71,8 @@ models = [
     DecisionTreeClassifier(max_depth=None),
     RandomForestClassifier(n_estimators=n_estimators),
     ExtraTreesClassifier(n_estimators=n_estimators),
-    AdaBoostClassifier(DecisionTreeClassifier(max_depth=3), n_estimators=n_estimators),
+    AdaBoostClassifier(DecisionTreeClassifier(
+        max_depth=3), n_estimators=n_estimators),
 ]
 
 for pair in ([0, 1], [0, 2], [2, 3]):
@@ -81,7 +82,7 @@ for pair in ([0, 1], [0, 2], [2, 3]):
         y = iris.target
 
         # Shuffle
-        idx = np.arange(X.shape[0])
+        idx = jnp.arange(X.shape[0])
         np.random.seed(RANDOM_SEED)
         np.random.shuffle(idx)
         X = X[idx]
@@ -98,11 +99,13 @@ for pair in ([0, 1], [0, 2], [2, 3]):
         scores = model.score(X, y)
         # Create a title for each column and the console by using str() and
         # slicing away useless parts of the string
-        model_title = str(type(model)).split(".")[-1][:-2][: -len("Classifier")]
+        model_title = str(type(model)).split(
+            ".")[-1][:-2][: -len("Classifier")]
 
         model_details = model_title
         if hasattr(model, "estimators_"):
-            model_details += " with {} estimators".format(len(model.estimators_))
+            model_details += " with {} estimators".format(
+                len(model.estimators_))
         print(model_details + " with features", pair, "has a score of", scores)
 
         plt.subplot(3, 4, plot_idx)
@@ -114,14 +117,15 @@ for pair in ([0, 1], [0, 2], [2, 3]):
         # filled contour plot
         x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
         y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
-        xx, yy = np.meshgrid(
-            np.arange(x_min, x_max, plot_step), np.arange(y_min, y_max, plot_step)
+        xx, yy = jnp.meshgrid(
+            jnp.arange(x_min, x_max, plot_step), jnp.arange(
+                y_min, y_max, plot_step)
         )
 
         # Plot either a single DecisionTreeClassifier or alpha blend the
         # decision surfaces of the ensemble of classifiers
         if isinstance(model, DecisionTreeClassifier):
-            Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+            Z = model.predict(jnp.c_[xx.ravel(), yy.ravel()])
             Z = Z.reshape(xx.shape)
             cs = plt.contourf(xx, yy, Z, cmap=cmap)
         else:
@@ -131,7 +135,7 @@ for pair in ([0, 1], [0, 2], [2, 3]):
             # than its maximum if it achieves a good enough fit early on)
             estimator_alpha = 1.0 / len(model.estimators_)
             for tree in model.estimators_:
-                Z = tree.predict(np.c_[xx.ravel(), yy.ravel()])
+                Z = tree.predict(jnp.c_[xx.ravel(), yy.ravel()])
                 Z = Z.reshape(xx.shape)
                 cs = plt.contourf(xx, yy, Z, alpha=estimator_alpha, cmap=cmap)
 
@@ -139,12 +143,12 @@ for pair in ([0, 1], [0, 2], [2, 3]):
         # to show how these are different to what we see in the decision
         # surfaces. These points are regularly space and do not have a
         # black outline
-        xx_coarser, yy_coarser = np.meshgrid(
-            np.arange(x_min, x_max, plot_step_coarser),
-            np.arange(y_min, y_max, plot_step_coarser),
+        xx_coarser, yy_coarser = jnp.meshgrid(
+            jnp.arange(x_min, x_max, plot_step_coarser),
+            jnp.arange(y_min, y_max, plot_step_coarser),
         )
         Z_points_coarser = model.predict(
-            np.c_[xx_coarser.ravel(), yy_coarser.ravel()]
+            jnp.c_[xx_coarser.ravel(), yy_coarser.ravel()]
         ).reshape(xx_coarser.shape)
         cs_points = plt.scatter(
             xx_coarser,

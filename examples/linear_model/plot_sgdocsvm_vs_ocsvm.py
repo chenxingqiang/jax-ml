@@ -4,15 +4,15 @@ One-Class SVM versus One-Class SVM using Stochastic Gradient Descent
 ====================================================================
 
 This example shows how to approximate the solution of
-:class:`sklearn.svm.OneClassSVM` in the case of an RBF kernel with
-:class:`sklearn.linear_model.SGDOneClassSVM`, a Stochastic Gradient Descent
+:class:`xlearn.svm.OneClassSVM` in the case of an RBF kernel with
+:class:`xlearn.linear_model.SGDOneClassSVM`, a Stochastic Gradient Descent
 (SGD) version of the One-Class SVM. A kernel approximation is first used in
-order to apply :class:`sklearn.linear_model.SGDOneClassSVM` which implements a
+order to apply :class:`xlearn.linear_model.SGDOneClassSVM` which implements a
 linear One-Class SVM using SGD.
 
-Note that :class:`sklearn.linear_model.SGDOneClassSVM` scales linearly with
+Note that :class:`xlearn.linear_model.SGDOneClassSVM` scales linearly with
 the number of samples whereas the complexity of a kernelized
-:class:`sklearn.svm.OneClassSVM` is at best quadratic with respect to the
+:class:`xlearn.svm.OneClassSVM` is at best quadratic with respect to the
 number of samples. It is not the purpose of this example to illustrate the
 benefits of such an approximation in terms of computation time but rather to
 show that we obtain similar results on a toy dataset.
@@ -21,12 +21,12 @@ show that we obtain similar results on a toy dataset.
 
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.kernel_approximation import Nystroem
-from sklearn.linear_model import SGDOneClassSVM
-from sklearn.pipeline import make_pipeline
-from sklearn.svm import OneClassSVM
+from xlearn.kernel_approximation import Nystroem
+from xlearn.linear_model import SGDOneClassSVM
+from xlearn.pipeline import make_pipeline
+from xlearn.svm import OneClassSVM
 
 font = {"weight": "normal", "size": 15}
 
@@ -37,14 +37,14 @@ rng = np.random.RandomState(random_state)
 
 # Generate train data
 X = 0.3 * rng.randn(500, 2)
-X_train = np.r_[X + 2, X - 2]
+X_train = jnp.r_[X + 2, X - 2]
 # Generate some regular novel observations
 X = 0.3 * rng.randn(20, 2)
-X_test = np.r_[X + 2, X - 2]
+X_test = jnp.r_[X + 2, X - 2]
 # Generate some abnormal novel observations
 X_outliers = rng.uniform(low=-4, high=4, size=(20, 2))
 
-xx, yy = np.meshgrid(np.linspace(-4.5, 4.5, 50), np.linspace(-4.5, 4.5, 50))
+xx, yy = jnp.meshgrid(jnp.linspace(-4.5, 4.5, 50), jnp.linspace(-4.5, 4.5, 50))
 
 # OCSVM hyperparameters
 nu = 0.05
@@ -60,7 +60,7 @@ n_error_train = y_pred_train[y_pred_train == -1].size
 n_error_test = y_pred_test[y_pred_test == -1].size
 n_error_outliers = y_pred_outliers[y_pred_outliers == 1].size
 
-Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+Z = clf.decision_function(jnp.c_[xx.ravel(), yy.ravel()])
 Z = Z.reshape(xx.shape)
 
 
@@ -78,20 +78,22 @@ n_error_train_sgd = y_pred_train_sgd[y_pred_train_sgd == -1].size
 n_error_test_sgd = y_pred_test_sgd[y_pred_test_sgd == -1].size
 n_error_outliers_sgd = y_pred_outliers_sgd[y_pred_outliers_sgd == 1].size
 
-Z_sgd = pipe_sgd.decision_function(np.c_[xx.ravel(), yy.ravel()])
+Z_sgd = pipe_sgd.decision_function(jnp.c_[xx.ravel(), yy.ravel()])
 Z_sgd = Z_sgd.reshape(xx.shape)
 
 # plot the level sets of the decision function
 plt.figure(figsize=(9, 6))
 plt.title("One Class SVM")
-plt.contourf(xx, yy, Z, levels=np.linspace(Z.min(), 0, 7), cmap=plt.cm.PuBu)
+plt.contourf(xx, yy, Z, levels=jnp.linspace(Z.min(), 0, 7), cmap=plt.cm.PuBu)
 a = plt.contour(xx, yy, Z, levels=[0], linewidths=2, colors="darkred")
 plt.contourf(xx, yy, Z, levels=[0, Z.max()], colors="palevioletred")
 
 s = 20
 b1 = plt.scatter(X_train[:, 0], X_train[:, 1], c="white", s=s, edgecolors="k")
-b2 = plt.scatter(X_test[:, 0], X_test[:, 1], c="blueviolet", s=s, edgecolors="k")
-c = plt.scatter(X_outliers[:, 0], X_outliers[:, 1], c="gold", s=s, edgecolors="k")
+b2 = plt.scatter(X_test[:, 0], X_test[:, 1],
+                 c="blueviolet", s=s, edgecolors="k")
+c = plt.scatter(X_outliers[:, 0], X_outliers[:, 1],
+                c="gold", s=s, edgecolors="k")
 plt.axis("tight")
 plt.xlim((-4.5, 4.5))
 plt.ylim((-4.5, 4.5))
@@ -120,14 +122,17 @@ plt.show()
 
 plt.figure(figsize=(9, 6))
 plt.title("Online One-Class SVM")
-plt.contourf(xx, yy, Z_sgd, levels=np.linspace(Z_sgd.min(), 0, 7), cmap=plt.cm.PuBu)
+plt.contourf(xx, yy, Z_sgd, levels=jnp.linspace(
+    Z_sgd.min(), 0, 7), cmap=plt.cm.PuBu)
 a = plt.contour(xx, yy, Z_sgd, levels=[0], linewidths=2, colors="darkred")
 plt.contourf(xx, yy, Z_sgd, levels=[0, Z_sgd.max()], colors="palevioletred")
 
 s = 20
 b1 = plt.scatter(X_train[:, 0], X_train[:, 1], c="white", s=s, edgecolors="k")
-b2 = plt.scatter(X_test[:, 0], X_test[:, 1], c="blueviolet", s=s, edgecolors="k")
-c = plt.scatter(X_outliers[:, 0], X_outliers[:, 1], c="gold", s=s, edgecolors="k")
+b2 = plt.scatter(X_test[:, 0], X_test[:, 1],
+                 c="blueviolet", s=s, edgecolors="k")
+c = plt.scatter(X_outliers[:, 0], X_outliers[:, 1],
+                c="gold", s=s, edgecolors="k")
 plt.axis("tight")
 plt.xlim((-4.5, 4.5))
 plt.ylim((-4.5, 4.5))

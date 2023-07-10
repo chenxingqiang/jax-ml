@@ -28,16 +28,19 @@ fitting of a transformer is costly.
 # Illustration of ``Pipeline`` and ``GridSearchCV``
 ###############################################################################
 
+from joblib import Memory
+from shutil import rmtree
+import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import load_digits
-from sklearn.decomposition import NMF, PCA
-from sklearn.feature_selection import SelectKBest, mutual_info_classif
-from sklearn.model_selection import GridSearchCV
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.svm import LinearSVC
+from xlearn.datasets import load_digits
+from xlearn.decomposition import NMF, PCA
+from xlearn.feature_selection import SelectKBest, mutual_info_classif
+from xlearn.model_selection import GridSearchCV
+from xlearn.pipeline import Pipeline
+from xlearn.preprocessing import MinMaxScaler
+from xlearn.svm import LinearSVC
 
 X, y = load_digits(return_X_y=True)
 
@@ -70,9 +73,8 @@ grid = GridSearchCV(pipe, n_jobs=1, param_grid=param_grid)
 grid.fit(X, y)
 
 # %%
-import pandas as pd
 
-mean_scores = np.array(grid.cv_results_["mean_test_score"])
+mean_scores = jnp.array(grid.cv_results_["mean_test_score"])
 # scores are in the order of param_grid iteration, which is alphabetical
 mean_scores = mean_scores.reshape(len(C_OPTIONS), -1, len(N_FEATURES_OPTIONS))
 # select score for best C
@@ -104,9 +106,6 @@ plt.show()
 #     cache. Hence, use the ``memory`` constructor parameter when the fitting
 #     of a transformer is costly.
 
-from shutil import rmtree
-
-from joblib import Memory
 
 # Create a temporary folder to store the transformers of the pipeline
 location = "cachedir"

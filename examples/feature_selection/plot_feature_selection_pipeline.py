@@ -14,8 +14,12 @@ We also show that you can easily inspect part of the pipeline.
 # We will start by generating a binary classification dataset. Subsequently, we
 # will divide the dataset into two subsets.
 
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
+from xlearn.metrics import classification_report
+from xlearn.svm import LinearSVC
+from xlearn.pipeline import make_pipeline
+from xlearn.feature_selection import SelectKBest, f_classif
+from xlearn.datasets import make_classification
+from xlearn.model_selection import train_test_split
 
 X, y = make_classification(
     n_features=20,
@@ -30,7 +34,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 # %%
 # A common mistake done with feature selection is to search a subset of
 # discriminative features on the full dataset, instead of only using the
-# training set. The usage of scikit-learn :func:`~sklearn.pipeline.Pipeline`
+# training set. The usage of jax-learn :func:`~xlearn.pipeline.Pipeline`
 # prevents to make such mistake.
 #
 # Here, we will demonstrate how to build a pipeline where the first step will
@@ -41,9 +45,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 # will subsequently reduce the number of features, and pass this subset to the
 # classifier which will be trained.
 
-from sklearn.feature_selection import SelectKBest, f_classif
-from sklearn.pipeline import make_pipeline
-from sklearn.svm import LinearSVC
 
 anova_filter = SelectKBest(f_classif, k=3)
 clf = LinearSVC(dual="auto")
@@ -58,7 +59,6 @@ anova_svm.fit(X_train, y_train)
 #
 # Here, we show the final metrics via a classification report.
 
-from sklearn.metrics import classification_report
 
 y_pred = anova_svm.predict(X_test)
 print(classification_report(y_test, y_pred))

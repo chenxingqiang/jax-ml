@@ -15,8 +15,8 @@ functionality of the base estimator to support multi-learning problems, which
 is accomplished by transforming the multi-learning problem into a set of
 simpler problems, then fitting one estimator per problem.
 
-This section covers two modules: :mod:`sklearn.multiclass` and
-:mod:`sklearn.multioutput`. The chart below demonstrates the problem types
+This section covers two modules: :mod:`xlearn.multiclass` and
+:mod:`xlearn.multioutput`. The chart below demonstrates the problem types
 that each module is responsible for, and the corresponding meta-estimators
 that each module provides.
 
@@ -29,7 +29,7 @@ guide.
 
 +------------------------------+-----------------------+-------------------------+--------------------------------------------------+
 |                              | Number of targets     | Target cardinality      | Valid                                            |
-|                              |                       |                         | :func:`~sklearn.utils.multiclass.type_of_target` |
+|                              |                       |                         | :func:`~xlearn.utils.multiclass.type_of_target` |
 +==============================+=======================+=========================+==================================================+
 | Multiclass                   |  1                    | >2                      | 'multiclass'                                     |
 | classification               |                       |                         |                                                  |
@@ -44,12 +44,12 @@ guide.
 | regression                   |                       |                         |                                                  |
 +------------------------------+-----------------------+-------------------------+--------------------------------------------------+
 
-Below is a summary of scikit-learn estimators that have multi-learning support
+Below is a summary of jax-learn estimators that have multi-learning support
 built-in, grouped by strategy. You don't need the meta-estimators provided by
 this section if you're using one of these estimators. However, meta-estimators
 can provide additional strategies beyond what is built-in:
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 - **Inherently multiclass:**
 
@@ -121,8 +121,8 @@ Multiclass classification
 =========================
 
 .. warning::
-    All classifiers in scikit-learn do multiclass classification
-    out-of-the-box. You don't need to use the :mod:`sklearn.multiclass` module
+    All classifiers in jax-learn do multiclass classification
+    out-of-the-box. You don't need to use the :mod:`xlearn.multiclass` module
     unless you want to experiment with different multiclass strategies.
 
 **Multiclass classification** is a classification task with more than two
@@ -135,8 +135,8 @@ Multiclass classification makes the assumption that each sample is assigned
 to one and only one label - one sample cannot, for example, be both a pear
 and an apple.
 
-While all scikit-learn classifiers are capable of multiclass classification,
-the meta-estimators offered by :mod:`sklearn.multiclass`
+While all jax-learn classifiers are capable of multiclass classification,
+the meta-estimators offered by :mod:`xlearn.multiclass`
 permit changing the way they handle more than two classes
 because this may have an effect on classifier performance
 (either in terms of generalization error or required computational resources).
@@ -145,13 +145,13 @@ Target format
 -------------
 
 Valid :term:`multiclass` representations for
-:func:`~sklearn.utils.multiclass.type_of_target` (`y`) are:
+:func:`~xlearn.utils.multiclass.type_of_target` (`y`) are:
 
   - 1d or column vector containing more than two discrete values. An
     example of a vector ``y`` for 4 samples:
 
-      >>> import numpy as np
-      >>> y = np.array(['apple', 'pear', 'apple', 'orange'])
+      >>> import jax.numpy as jnp
+      >>> y = jnp.array(['apple', 'pear', 'apple', 'orange'])
       >>> print(y)
       ['apple' 'pear' 'apple' 'orange']
 
@@ -160,9 +160,9 @@ Valid :term:`multiclass` representations for
     example of both a dense and sparse :term:`binary` matrix ``y`` for 4
     samples, where the columns, in order, are apple, orange, and pear:
 
-      >>> import numpy as np
-      >>> from sklearn.preprocessing import LabelBinarizer
-      >>> y = np.array(['apple', 'pear', 'apple', 'orange'])
+      >>> import jax.numpy as jnp
+      >>> from xlearn.preprocessing import LabelBinarizer
+      >>> y = jnp.array(['apple', 'pear', 'apple', 'orange'])
       >>> y_dense = LabelBinarizer().fit_transform(y)
       >>> print(y_dense)
         [[1 0 0]
@@ -177,7 +177,7 @@ Valid :term:`multiclass` representations for
           (2, 0)	1
           (3, 1)	1
 
-For more information about :class:`~sklearn.preprocessing.LabelBinarizer`,
+For more information about :class:`~xlearn.preprocessing.LabelBinarizer`,
 refer to :ref:`preprocessing_targets`.
 
 .. _ovr_classification:
@@ -186,7 +186,7 @@ OneVsRestClassifier
 -------------------
 
 The **one-vs-rest** strategy, also known as **one-vs-all**, is implemented in
-:class:`~sklearn.multiclass.OneVsRestClassifier`.  The strategy consists in
+:class:`~xlearn.multiclass.OneVsRestClassifier`.  The strategy consists in
 fitting one classifier per class. For each classifier, the class is fitted
 against all the other classes. In addition to its computational efficiency
 (only `n_classes` classifiers are needed), one advantage of this approach is
@@ -197,9 +197,9 @@ default choice.
 
 Below is an example of multiclass learning using OvR::
 
-  >>> from sklearn import datasets
-  >>> from sklearn.multiclass import OneVsRestClassifier
-  >>> from sklearn.svm import LinearSVC
+  >>> from xlearn import datasets
+  >>> from xlearn.multiclass import OneVsRestClassifier
+  >>> from xlearn.svm import LinearSVC
   >>> X, y = datasets.load_iris(return_X_y=True)
   >>> OneVsRestClassifier(LinearSVC(dual="auto", random_state=0)).fit(X, y).predict(X)
   array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -211,7 +211,7 @@ Below is an example of multiclass learning using OvR::
          2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2])
 
 
-:class:`~sklearn.multiclass.OneVsRestClassifier` also supports multilabel
+:class:`~xlearn.multiclass.OneVsRestClassifier` also supports multilabel
 classification. To use this feature, feed the classifier an indicator matrix,
 in which cell [i, j] indicates the presence of label j in sample i.
 
@@ -231,7 +231,7 @@ in which cell [i, j] indicates the presence of label j in sample i.
 OneVsOneClassifier
 ------------------
 
-:class:`~sklearn.multiclass.OneVsOneClassifier` constructs one classifier per
+:class:`~xlearn.multiclass.OneVsOneClassifier` constructs one classifier per
 pair of classes. At prediction time, the class which received the most votes
 is selected. In the event of a tie (among two classes with an equal number of
 votes), it selects the class with the highest aggregate classification
@@ -249,9 +249,9 @@ of a monotonic transformation of the one-versus-one classification.
 
 Below is an example of multiclass learning using OvO::
 
-  >>> from sklearn import datasets
-  >>> from sklearn.multiclass import OneVsOneClassifier
-  >>> from sklearn.svm import LinearSVC
+  >>> from xlearn import datasets
+  >>> from xlearn.multiclass import OneVsOneClassifier
+  >>> from xlearn.svm import LinearSVC
   >>> X, y = datasets.load_iris(return_X_y=True)
   >>> OneVsOneClassifier(LinearSVC(dual="auto", random_state=0)).fit(X, y).predict(X)
   array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -289,7 +289,7 @@ At fitting time, one binary classifier per bit in the code book is fitted.
 At prediction time, the classifiers are used to project new points in the
 class space and the class closest to the points is chosen.
 
-In :class:`~sklearn.multiclass.OutputCodeClassifier`, the ``code_size``
+In :class:`~xlearn.multiclass.OutputCodeClassifier`, the ``code_size``
 attribute allows the user to control the number of classifiers which will be
 used. It is a percentage of the total number of classes.
 
@@ -307,9 +307,9 @@ effect to bagging.
 
 Below is an example of multiclass learning using Output-Codes::
 
-  >>> from sklearn import datasets
-  >>> from sklearn.multiclass import OutputCodeClassifier
-  >>> from sklearn.svm import LinearSVC
+  >>> from xlearn import datasets
+  >>> from xlearn.multiclass import OutputCodeClassifier
+  >>> from xlearn.svm import LinearSVC
   >>> X, y = datasets.load_iris(return_X_y=True)
   >>> clf = OutputCodeClassifier(LinearSVC(dual="auto", random_state=0),
   ...                            code_size=2, random_state=0)
@@ -351,7 +351,7 @@ sample that are not mutually exclusive. Formally, a binary output is assigned
 to each class, for every sample. Positive classes are indicated with 1 and
 negative classes with 0 or -1. It is thus comparable to running ``n_classes``
 binary classification tasks, for example with
-:class:`~sklearn.multioutput.MultiOutputClassifier`. This approach treats
+:class:`~xlearn.multioutput.MultiOutputClassifier`. This approach treats
 each label independently whereas multilabel classifiers *may* treat the
 multiple classes simultaneously, accounting for correlated behavior among
 them.
@@ -369,14 +369,14 @@ represents a class. The ``1``'s in each row denote the positive classes a
 sample has been labeled with. An example of a dense matrix ``y`` for 3
 samples:
 
-  >>> y = np.array([[1, 0, 0, 1], [0, 0, 1, 1], [0, 0, 0, 0]])
+  >>> y = jnp.array([[1, 0, 0, 1], [0, 0, 1, 1], [0, 0, 0, 0]])
   >>> print(y)
   [[1 0 0 1]
    [0 0 1 1]
    [0 0 0 0]]
 
 Dense binary matrices can also be created using
-:class:`~sklearn.preprocessing.MultiLabelBinarizer`. For more information,
+:class:`~xlearn.preprocessing.MultiLabelBinarizer`. For more information,
 refer to :ref:`preprocessing_targets`.
 
 An example of the same ``y`` in sparse matrix form:
@@ -394,7 +394,7 @@ MultiOutputClassifier
 ---------------------
 
 Multilabel classification support can be added to any classifier with
-:class:`~sklearn.multioutput.MultiOutputClassifier`. This strategy consists of
+:class:`~xlearn.multioutput.MultiOutputClassifier`. This strategy consists of
 fitting one classifier per target.  This allows multiple target variable
 classifications. The purpose of this class is to extend estimators
 to be able to estimate a series of target functions (f1,f2,f3...,fn)
@@ -402,7 +402,7 @@ that are trained on a single X predictor matrix to predict a series
 of responses (y1,y2,y3...,yn).
 
 You can find a usage example for
-:class:`~sklearn.multioutput.MultiOutputClassifier`
+:class:`~xlearn.multioutput.MultiOutputClassifier`
 as part of the section on :ref:`multiclass_multioutput_classification`
 since it is a generalization of multilabel classification to
 multiclass outputs instead of binary outputs.
@@ -412,7 +412,7 @@ multiclass outputs instead of binary outputs.
 ClassifierChain
 ---------------
 
-Classifier chains (see :class:`~sklearn.multioutput.ClassifierChain`) are a way
+Classifier chains (see :class:`~xlearn.multioutput.ClassifierChain`) are a way
 of combining a number of binary classifiers into a single multi-label model
 that is capable of exploiting correlations among targets.
 
@@ -468,17 +468,17 @@ see the relevant estimator documentation.
 
 Below is an example of multiclass-multioutput classification:
 
-    >>> from sklearn.datasets import make_classification
-    >>> from sklearn.multioutput import MultiOutputClassifier
-    >>> from sklearn.ensemble import RandomForestClassifier
-    >>> from sklearn.utils import shuffle
-    >>> import numpy as np
+    >>> from xlearn.datasets import make_classification
+    >>> from xlearn.multioutput import MultiOutputClassifier
+    >>> from xlearn.ensemble import RandomForestClassifier
+    >>> from xlearn.utils import shuffle
+    >>> import jax.numpy as jnp
     >>> X, y1 = make_classification(n_samples=10, n_features=100,
     ...                             n_informative=30, n_classes=3,
     ...                             random_state=1)
     >>> y2 = shuffle(y1, random_state=1)
     >>> y3 = shuffle(y1, random_state=2)
-    >>> Y = np.vstack((y1, y2, y3)).T
+    >>> Y = jnp.vstack((y1, y2, y3)).T
     >>> n_samples, n_features = X.shape # 10,100
     >>> n_outputs = Y.shape[1] # 3
     >>> n_classes = 3
@@ -497,7 +497,7 @@ Below is an example of multiclass-multioutput classification:
            [2, 0, 0]])
 
 .. warning::
-    At present, no metric in :mod:`sklearn.metrics`
+    At present, no metric in :mod:`xlearn.metrics`
     supports the multiclass-multioutput classification task.
 
 Target format
@@ -507,7 +507,7 @@ A valid representation of :term:`multioutput` `y` is a dense matrix of shape
 ``(n_samples, n_classes)`` of class labels. A column wise concatenation of 1d
 :term:`multiclass` variables. An example of ``y`` for 3 samples:
 
-  >>> y = np.array([['apple', 'green'], ['orange', 'orange'], ['pear', 'green']])
+  >>> y = jnp.array([['apple', 'green'], ['orange', 'orange'], ['pear', 'green']])
   >>> print(y)
   [['apple' 'green']
    ['orange' 'orange']
@@ -536,7 +536,7 @@ A valid representation of :term:`multioutput` `y` is a dense matrix of shape
 ``(n_samples, n_output)`` of floats. A column wise concatenation of
 :term:`continuous` variables. An example of ``y`` for 3 samples:
 
-  >>> y = np.array([[31.4, 94], [40.5, 109], [25.0, 30]])
+  >>> y = jnp.array([[31.4, 94], [40.5, 109], [25.0, 30]])
   >>> print(y)
   [[ 31.4  94. ]
    [ 40.5 109. ]
@@ -548,18 +548,18 @@ MultiOutputRegressor
 --------------------
 
 Multioutput regression support can be added to any regressor with
-:class:`~sklearn.multioutput.MultiOutputRegressor`.  This strategy consists of
+:class:`~xlearn.multioutput.MultiOutputRegressor`.  This strategy consists of
 fitting one regressor per target. Since each target is represented by exactly
 one regressor it is possible to gain knowledge about the target by
 inspecting its corresponding regressor. As
-:class:`~sklearn.multioutput.MultiOutputRegressor` fits one regressor per
+:class:`~xlearn.multioutput.MultiOutputRegressor` fits one regressor per
 target it can not take advantage of correlations between targets.
 
 Below is an example of multioutput regression:
 
-  >>> from sklearn.datasets import make_regression
-  >>> from sklearn.multioutput import MultiOutputRegressor
-  >>> from sklearn.ensemble import GradientBoostingRegressor
+  >>> from xlearn.datasets import make_regression
+  >>> from xlearn.multioutput import MultiOutputRegressor
+  >>> from xlearn.ensemble import GradientBoostingRegressor
   >>> X, y = make_regression(n_samples=10, n_targets=3, random_state=1)
   >>> MultiOutputRegressor(GradientBoostingRegressor(random_state=0)).fit(X, y).predict(X)
   array([[-154.75474165, -147.03498585,  -50.03812219],
@@ -578,7 +578,7 @@ Below is an example of multioutput regression:
 RegressorChain
 --------------
 
-Regressor chains (see :class:`~sklearn.multioutput.RegressorChain`) is
-analogous to :class:`~sklearn.multioutput.ClassifierChain` as a way of
+Regressor chains (see :class:`~xlearn.multioutput.RegressorChain`) is
+analogous to :class:`~xlearn.multioutput.ClassifierChain` as a way of
 combining a number of regressions into a single multi-target model that is
 capable of exploiting correlations among targets.

@@ -1,4 +1,4 @@
-from sklearn.metrics.pairwise import pairwise_distances
+from xlearn.metrics.pairwise import pairwise_distances
 
 from .common import Benchmark
 from .datasets import _random_dataset
@@ -33,7 +33,8 @@ class PairwiseDistancesBenchmark(Benchmark):
             else:
                 n_samples = 12000
 
-        data = _random_dataset(n_samples=n_samples, representation=representation)
+        data = _random_dataset(n_samples=n_samples,
+                               representation=representation)
         self.X, self.X_val, self.y, self.y_val = data
 
         self.pdist_params = {"metric": metric, "n_jobs": n_jobs}

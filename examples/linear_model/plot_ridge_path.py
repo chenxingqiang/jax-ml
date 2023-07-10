@@ -5,7 +5,7 @@ Plot Ridge coefficients as a function of the regularization
 
 Shows the effect of collinearity in the coefficients of an estimator.
 
-.. currentmodule:: sklearn.linear_model
+.. currentmodule:: xlearn.linear_model
 
 :class:`Ridge` Regression is the estimator used in this example.
 Each color represents a different feature of the
@@ -31,20 +31,20 @@ in such a way that a balance is maintained between both.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import linear_model
+from xlearn import linear_model
 
 # X is the 10x10 Hilbert matrix
-X = 1.0 / (np.arange(1, 11) + np.arange(0, 10)[:, np.newaxis])
-y = np.ones(10)
+X = 1.0 / (jnp.arange(1, 11) + jnp.arange(0, 10)[:, jnp.newaxis])
+y = jnp.ones(10)
 
 # %%
 # Compute paths
 # -------------
 
 n_alphas = 200
-alphas = np.logspace(-10, -2, n_alphas)
+alphas = jnp.logspace(-10, -2, n_alphas)
 
 coefs = []
 for a in alphas:

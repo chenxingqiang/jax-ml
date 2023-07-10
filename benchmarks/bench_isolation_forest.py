@@ -19,13 +19,13 @@ case a warning is raised when computing the ROC curve.
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import fetch_covtype, fetch_kddcup99, fetch_openml
-from sklearn.ensemble import IsolationForest
-from sklearn.metrics import auc, roc_curve
-from sklearn.preprocessing import LabelBinarizer
-from sklearn.utils import shuffle as sh
+from xlearn.datasets import fetch_covtype, fetch_kddcup99, fetch_openml
+from xlearn.ensemble import IsolationForest
+from xlearn.metrics import auc, roc_curve
+from xlearn.preprocessing import LabelBinarizer
+from xlearn.utils import shuffle as sh
 
 print(__doc__)
 
@@ -35,11 +35,11 @@ def print_outlier_ratio(y):
     Helper function to show the distinct value count of element in the target.
     Useful indicator for the datasets used in bench_isolation_forest.py.
     """
-    uniq, cnt = np.unique(y, return_counts=True)
+    uniq, cnt = jnp.unique(y, return_counts=True)
     print("----- Target count values: ")
     for u, c in zip(uniq, cnt):
         print("------ %s -> %d occurrences" % (str(u), c))
-    print("----- Outlier ratio: %.5f" % (np.min(cnt) / len(y)))
+    print("----- Outlier ratio: %.5f" % (jnp.min(cnt) / len(y)))
 
 
 random_state = 1
@@ -66,7 +66,7 @@ for dat in datasets:
     if dat == "shuttle":
         dataset = fetch_openml("shuttle", as_frame=False, parser="pandas")
         X = dataset.data
-        y = dataset.target.astype(np.int64)
+        y = dataset.target.astype(jnp.int64)
         X, y = sh(X, y, random_state=random_state)
         # we remove data with label 4
         # normal data are then those of class 1
@@ -93,7 +93,7 @@ for dat in datasets:
     if dat == "SF":
         lb = LabelBinarizer()
         x1 = lb.fit_transform(X[:, 1].astype(str))
-        X = np.c_[X[:, :1], x1, X[:, 2:]]
+        X = jnp.c_[X[:, :1], x1, X[:, 2:]]
         y = (y != b"normal.").astype(int)
         print_outlier_ratio(y)
 
@@ -102,7 +102,7 @@ for dat in datasets:
         x1 = lb.fit_transform(X[:, 1].astype(str))
         x2 = lb.fit_transform(X[:, 2].astype(str))
         x3 = lb.fit_transform(X[:, 3].astype(str))
-        X = np.c_[X[:, :1], x1, x2, x3, X[:, 4:]]
+        X = jnp.c_[X[:, :1], x1, x2, x3, X[:, 4:]]
         y = (y != b"normal.").astype(int)
         print_outlier_ratio(y)
 
@@ -131,7 +131,7 @@ for dat in datasets:
     print("--- Preparing the plot elements...")
     if with_decision_function_histograms:
         fig, ax = plt.subplots(3, sharex=True, sharey=True)
-        bins = np.linspace(-0.5, 0.5, 200)
+        bins = jnp.linspace(-0.5, 0.5, 200)
         ax[0].hist(scoring, bins, color="black")
         ax[0].set_title("Decision function for %s dataset" % dat)
         ax[1].hist(scoring[y_test == 0], bins, color="b", label="normal data")

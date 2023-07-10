@@ -4,7 +4,7 @@
 Permutation feature importance
 ==============================
 
-.. currentmodule:: sklearn.inspection
+.. currentmodule:: xlearn.inspection
 
 Permutation feature importance is a model inspection technique that can be used
 for any :term:`fitted` :term:`estimator` when the data is tabular. This is
@@ -33,9 +33,9 @@ importances.
 
 Let's consider the following trained regression model::
 
-  >>> from sklearn.datasets import load_diabetes
-  >>> from sklearn.model_selection import train_test_split
-  >>> from sklearn.linear_model import Ridge
+  >>> from xlearn.datasets import load_diabetes
+  >>> from xlearn.model_selection import train_test_split
+  >>> from xlearn.linear_model import Ridge
   >>> diabetes = load_diabetes()
   >>> X_train, X_val, y_train, y_val = train_test_split(
   ...     diabetes.data, diabetes.target, random_state=0)
@@ -49,7 +49,7 @@ significantly larger than the chance level. This makes it possible to use the
 :func:`permutation_importance` function to probe which features are most
 predictive::
 
-  >>> from sklearn.inspection import permutation_importance
+  >>> from xlearn.inspection import permutation_importance
   >>> r = permutation_importance(model, X_val, y_val,
   ...                            n_repeats=30,
   ...                            random_state=0)

@@ -24,16 +24,16 @@ model with their true labels.
 # License: BSD
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from scipy import stats
 
-from sklearn import datasets
-from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.semi_supervised import LabelSpreading
+from xlearn import datasets
+from xlearn.metrics import classification_report, confusion_matrix
+from xlearn.semi_supervised import LabelSpreading
 
 digits = datasets.load_digits()
 rng = np.random.RandomState(0)
-indices = np.arange(len(digits.data))
+indices = jnp.arange(len(digits.data))
 rng.shuffle(indices)
 
 X = digits.data[indices[:330]]
@@ -44,14 +44,14 @@ n_total_samples = len(y)
 n_labeled_points = 40
 max_iterations = 5
 
-unlabeled_indices = np.arange(n_total_samples)[n_labeled_points:]
+unlabeled_indices = jnp.arange(n_total_samples)[n_labeled_points:]
 f = plt.figure()
 
 for i in range(max_iterations):
     if len(unlabeled_indices) == 0:
         print("No unlabeled items left to label.")
         break
-    y_train = np.copy(y)
+    y_train = jnp.copy(y)
     y_train[unlabeled_indices] = -1
 
     lp_model = LabelSpreading(gamma=0.25, max_iter=20)
@@ -60,7 +60,8 @@ for i in range(max_iterations):
     predicted_labels = lp_model.transduction_[unlabeled_indices]
     true_labels = y[unlabeled_indices]
 
-    cm = confusion_matrix(true_labels, predicted_labels, labels=lp_model.classes_)
+    cm = confusion_matrix(true_labels, predicted_labels,
+                          labels=lp_model.classes_)
 
     print("Iteration %i %s" % (i, 70 * "_"))
     print(
@@ -74,16 +75,17 @@ for i in range(max_iterations):
     print(cm)
 
     # compute the entropies of transduced label distributions
-    pred_entropies = stats.distributions.entropy(lp_model.label_distributions_.T)
+    pred_entropies = stats.distributions.entropy(
+        lp_model.label_distributions_.T)
 
     # select up to 5 digit examples that the classifier is most uncertain about
-    uncertainty_index = np.argsort(pred_entropies)[::-1]
+    uncertainty_index = jnp.argsort(pred_entropies)[::-1]
     uncertainty_index = uncertainty_index[
-        np.in1d(uncertainty_index, unlabeled_indices)
+        jnp.in1d(uncertainty_index, unlabeled_indices)
     ][:5]
 
     # keep track of indices that we get labels for
-    delete_indices = np.array([], dtype=int)
+    delete_indices = jnp.array([], dtype=int)
 
     # for more than 5 iterations, visualize the gain only on the first 5
     if i < 5:
@@ -108,10 +110,10 @@ for i in range(max_iterations):
             sub.axis("off")
 
         # labeling 5 points, remote from labeled set
-        (delete_index,) = np.where(unlabeled_indices == image_index)
-        delete_indices = np.concatenate((delete_indices, delete_index))
+        (delete_index,) = jnp.where(unlabeled_indices == image_index)
+        delete_indices = jnp.concatenate((delete_indices, delete_index))
 
-    unlabeled_indices = np.delete(unlabeled_indices, delete_indices)
+    unlabeled_indices = jnp.delete(unlabeled_indices, delete_indices)
     n_labeled_points += len(uncertainty_index)
 
 f.suptitle(
@@ -121,5 +123,6 @@ f.suptitle(
     ),
     y=1.15,
 )
-plt.subplots_adjust(left=0.2, bottom=0.03, right=0.9, top=0.9, wspace=0.2, hspace=0.85)
+plt.subplots_adjust(left=0.2, bottom=0.03, right=0.9,
+                    top=0.9, wspace=0.2, hspace=0.85)
 plt.show()

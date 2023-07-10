@@ -15,16 +15,16 @@ of the regularization parameter.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets, linear_model
+from xlearn import datasets, linear_model
 
 X, y = datasets.load_diabetes(return_X_y=True)
 
 print("Computing regularization path using the LARS ...")
 _, _, coefs = linear_model.lars_path(X, y, method="lasso", verbose=True)
 
-xx = np.sum(np.abs(coefs.T), axis=1)
+xx = jnp.sum(jnp.abs(coefs.T), axis=1)
 xx /= xx[-1]
 
 plt.plot(xx, coefs.T)

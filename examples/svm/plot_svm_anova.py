@@ -13,23 +13,25 @@ that our model achieves best performance when we select around 10% of features.
 # %%
 # Load some data to play with
 # ---------------------------
-import numpy as np
+from xlearn.model_selection import cross_val_score
+import matplotlib.pyplot as plt
+from xlearn.svm import SVC
+from xlearn.preprocessing import StandardScaler
+from xlearn.pipeline import Pipeline
+from xlearn.feature_selection import SelectPercentile, f_classif
+import jax.numpy as jnp
 
-from sklearn.datasets import load_iris
+from xlearn.datasets import load_iris
 
 X, y = load_iris(return_X_y=True)
 
 # Add non-informative features
 rng = np.random.RandomState(0)
-X = np.hstack((X, 2 * rng.random((X.shape[0], 36))))
+X = jnp.hstack((X, 2 * rng.random((X.shape[0], 36))))
 
 # %%
 # Create the pipeline
 # -------------------
-from sklearn.feature_selection import SelectPercentile, f_classif
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
 
 # Create a feature-selection transform, a scaler and an instance of SVM that we
 # combine together to have a full-blown estimator
@@ -45,9 +47,7 @@ clf = Pipeline(
 # %%
 # Plot the cross-validation score as a function of percentile of features
 # -----------------------------------------------------------------------
-import matplotlib.pyplot as plt
 
-from sklearn.model_selection import cross_val_score
 
 score_means = list()
 score_stds = list()
@@ -59,9 +59,9 @@ for percentile in percentiles:
     score_means.append(this_scores.mean())
     score_stds.append(this_scores.std())
 
-plt.errorbar(percentiles, score_means, np.array(score_stds))
+plt.errorbar(percentiles, score_means, jnp.array(score_stds))
 plt.title("Performance of the SVM-Anova varying the percentile of features selected")
-plt.xticks(np.linspace(0, 100, 11, endpoint=True))
+plt.xticks(jnp.linspace(0, 100, 11, endpoint=True))
 plt.xlabel("Percentile")
 plt.ylabel("Accuracy Score")
 plt.axis("tight")

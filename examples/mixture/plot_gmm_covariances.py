@@ -33,11 +33,11 @@ dimensions.
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets
-from sklearn.mixture import GaussianMixture
-from sklearn.model_selection import StratifiedKFold
+from xlearn import datasets
+from xlearn.mixture import GaussianMixture
+from xlearn.model_selection import StratifiedKFold
 
 colors = ["navy", "turquoise", "darkorange"]
 
@@ -49,14 +49,14 @@ def make_ellipses(gmm, ax):
         elif gmm.covariance_type == "tied":
             covariances = gmm.covariances_[:2, :2]
         elif gmm.covariance_type == "diag":
-            covariances = np.diag(gmm.covariances_[n][:2])
+            covariances = jnp.diag(gmm.covariances_[n][:2])
         elif gmm.covariance_type == "spherical":
-            covariances = np.eye(gmm.means_.shape[1]) * gmm.covariances_[n]
-        v, w = np.linalg.eigh(covariances)
-        u = w[0] / np.linalg.norm(w[0])
-        angle = np.arctan2(u[1], u[0])
-        angle = 180 * angle / np.pi  # convert to degrees
-        v = 2.0 * np.sqrt(2.0) * np.sqrt(v)
+            covariances = jnp.eye(gmm.means_.shape[1]) * gmm.covariances_[n]
+        v, w = jnp.linalg.eigh(covariances)
+        u = w[0] / jnp.linalg.norm(w[0])
+        angle = jnp.arctan2(u[1], u[0])
+        angle = 180 * angle / jnp.pi  # convert to degrees
+        v = 2.0 * jnp.sqrt(2.0) * jnp.sqrt(v)
         ell = mpl.patches.Ellipse(
             gmm.means_[n, :2], v[0], v[1], angle=180 + angle, color=color
         )
@@ -80,7 +80,7 @@ y_train = iris.target[train_index]
 X_test = iris.data[test_index]
 y_test = iris.target[test_index]
 
-n_classes = len(np.unique(y_train))
+n_classes = len(jnp.unique(y_train))
 
 # Try GMMs using different types of covariances.
 estimators = {
@@ -101,7 +101,7 @@ plt.subplots_adjust(
 for index, (name, estimator) in enumerate(estimators.items()):
     # Since we have class labels for the training data, we can
     # initialize the GMM parameters in a supervised manner.
-    estimator.means_init = np.array(
+    estimator.means_init = jnp.array(
         [X_train[y_train == i].mean(axis=0) for i in range(n_classes)]
     )
 
@@ -122,12 +122,14 @@ for index, (name, estimator) in enumerate(estimators.items()):
         plt.scatter(data[:, 0], data[:, 1], marker="x", color=color)
 
     y_train_pred = estimator.predict(X_train)
-    train_accuracy = np.mean(y_train_pred.ravel() == y_train.ravel()) * 100
-    plt.text(0.05, 0.9, "Train accuracy: %.1f" % train_accuracy, transform=h.transAxes)
+    train_accuracy = jnp.mean(y_train_pred.ravel() == y_train.ravel()) * 100
+    plt.text(0.05, 0.9, "Train accuracy: %.1f" %
+             train_accuracy, transform=h.transAxes)
 
     y_test_pred = estimator.predict(X_test)
-    test_accuracy = np.mean(y_test_pred.ravel() == y_test.ravel()) * 100
-    plt.text(0.05, 0.8, "Test accuracy: %.1f" % test_accuracy, transform=h.transAxes)
+    test_accuracy = jnp.mean(y_test_pred.ravel() == y_test.ravel()) * 100
+    plt.text(0.05, 0.8, "Test accuracy: %.1f" %
+             test_accuracy, transform=h.transAxes)
 
     plt.xticks(())
     plt.yticks(())

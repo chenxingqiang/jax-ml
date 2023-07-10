@@ -39,11 +39,11 @@ example, none of these could be applied that easily.
 
 import matplotlib.font_manager
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.covariance import EllipticEnvelope
-from sklearn.datasets import load_wine
-from sklearn.svm import OneClassSVM
+from xlearn.covariance import EllipticEnvelope
+from xlearn.datasets import load_wine
+from xlearn.svm import OneClassSVM
 
 # Define "classifiers" to be used
 classifiers = {
@@ -61,11 +61,11 @@ legend2 = {}
 X1 = load_wine()["data"][:, [1, 2]]  # two clusters
 
 # Learn a frontier for outlier detection with several classifiers
-xx1, yy1 = np.meshgrid(np.linspace(0, 6, 500), np.linspace(1, 4.5, 500))
+xx1, yy1 = jnp.meshgrid(jnp.linspace(0, 6, 500), jnp.linspace(1, 4.5, 500))
 for i, (clf_name, clf) in enumerate(classifiers.items()):
     plt.figure(1)
     clf.fit(X1)
-    Z1 = clf.decision_function(np.c_[xx1.ravel(), yy1.ravel()])
+    Z1 = clf.decision_function(jnp.c_[xx1.ravel(), yy1.ravel()])
     Z1 = Z1.reshape(xx1.shape)
     legend1[clf_name] = plt.contour(
         xx1, yy1, Z1, levels=[0], linewidths=2, colors=colors[i]
@@ -122,11 +122,11 @@ plt.show()
 X2 = load_wine()["data"][:, [6, 9]]  # "banana"-shaped
 
 # Learn a frontier for outlier detection with several classifiers
-xx2, yy2 = np.meshgrid(np.linspace(-1, 5.5, 500), np.linspace(-2.5, 19, 500))
+xx2, yy2 = jnp.meshgrid(jnp.linspace(-1, 5.5, 500), jnp.linspace(-2.5, 19, 500))
 for i, (clf_name, clf) in enumerate(classifiers.items()):
     plt.figure(2)
     clf.fit(X2)
-    Z2 = clf.decision_function(np.c_[xx2.ravel(), yy2.ravel()])
+    Z2 = clf.decision_function(jnp.c_[xx2.ravel(), yy2.ravel()])
     Z2 = Z2.reshape(xx2.shape)
     legend2[clf_name] = plt.contour(
         xx2, yy2, Z2, levels=[0], linewidths=2, colors=colors[i]

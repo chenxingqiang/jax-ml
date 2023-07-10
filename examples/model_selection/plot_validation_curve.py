@@ -14,14 +14,14 @@ is good but the validation score is poor.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import load_digits
-from sklearn.model_selection import ValidationCurveDisplay
-from sklearn.svm import SVC
+from xlearn.datasets import load_digits
+from xlearn.model_selection import ValidationCurveDisplay
+from xlearn.svm import SVC
 
 X, y = load_digits(return_X_y=True)
-subset_mask = np.isin(y, [1, 2])  # binary classification: 1 vs 2
+subset_mask = jnp.isin(y, [1, 2])  # binary classification: 1 vs 2
 X, y = X[subset_mask], y[subset_mask]
 
 disp = ValidationCurveDisplay.from_estimator(
@@ -29,7 +29,7 @@ disp = ValidationCurveDisplay.from_estimator(
     X,
     y,
     param_name="gamma",
-    param_range=np.logspace(-6, -1, 5),
+    param_range=jnp.logspace(-6, -1, 5),
     score_type="both",
     n_jobs=2,
     score_name="Accuracy",

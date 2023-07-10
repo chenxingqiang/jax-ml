@@ -32,16 +32,16 @@ up the data anywhere.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import KBinsDiscretizer
-from sklearn.tree import DecisionTreeRegressor
+from xlearn.linear_model import LinearRegression
+from xlearn.preprocessing import KBinsDiscretizer
+from xlearn.tree import DecisionTreeRegressor
 
 # construct the dataset
 rnd = np.random.RandomState(42)
 X = rnd.uniform(-3, 3, size=100)
-y = np.sin(X) + rnd.normal(size=len(X)) / 3
+y = jnp.sin(X) + rnd.normal(size=len(X)) / 3
 X = X.reshape(-1, 1)
 
 # transform the dataset with KBinsDiscretizer
@@ -50,11 +50,13 @@ X_binned = enc.fit_transform(X)
 
 # predict with original dataset
 fig, (ax1, ax2) = plt.subplots(ncols=2, sharey=True, figsize=(10, 4))
-line = np.linspace(-3, 3, 1000, endpoint=False).reshape(-1, 1)
+line = jnp.linspace(-3, 3, 1000, endpoint=False).reshape(-1, 1)
 reg = LinearRegression().fit(X, y)
-ax1.plot(line, reg.predict(line), linewidth=2, color="green", label="linear regression")
+ax1.plot(line, reg.predict(line), linewidth=2,
+         color="green", label="linear regression")
 reg = DecisionTreeRegressor(min_samples_split=3, random_state=0).fit(X, y)
-ax1.plot(line, reg.predict(line), linewidth=2, color="red", label="decision tree")
+ax1.plot(line, reg.predict(line), linewidth=2,
+         color="red", label="decision tree")
 ax1.plot(X[:, 0], y, "o", c="k")
 ax1.legend(loc="best")
 ax1.set_ylabel("Regression output")
@@ -72,7 +74,8 @@ ax2.plot(
     linestyle="-",
     label="linear regression",
 )
-reg = DecisionTreeRegressor(min_samples_split=3, random_state=0).fit(X_binned, y)
+reg = DecisionTreeRegressor(
+    min_samples_split=3, random_state=0).fit(X_binned, y)
 ax2.plot(
     line,
     reg.predict(line_binned),

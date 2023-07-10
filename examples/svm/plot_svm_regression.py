@@ -8,15 +8,15 @@ Toy example of 1D regression using linear, polynomial and RBF kernels.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.svm import SVR
+from xlearn.svm import SVR
 
 # %%
 # Generate sample data
 # --------------------
-X = np.sort(5 * np.random.rand(40, 1), axis=0)
-y = np.sin(X).ravel()
+X = jnp.sort(5 * np.random.rand(40, 1), axis=0)
+y = jnp.sin(X).ravel()
 
 # add noise to targets
 y[::5] += 3 * (0.5 - np.random.rand(8))
@@ -26,7 +26,8 @@ y[::5] += 3 * (0.5 - np.random.rand(8))
 # --------------------
 svr_rbf = SVR(kernel="rbf", C=100, gamma=0.1, epsilon=0.1)
 svr_lin = SVR(kernel="linear", C=100, gamma="auto")
-svr_poly = SVR(kernel="poly", C=100, gamma="auto", degree=3, epsilon=0.1, coef0=1)
+svr_poly = SVR(kernel="poly", C=100, gamma="auto",
+               degree=3, epsilon=0.1, coef0=1)
 
 # %%
 # Look at the results
@@ -55,8 +56,8 @@ for ix, svr in enumerate(svrs):
         label="{} support vectors".format(kernel_label[ix]),
     )
     axes[ix].scatter(
-        X[np.setdiff1d(np.arange(len(X)), svr.support_)],
-        y[np.setdiff1d(np.arange(len(X)), svr.support_)],
+        X[jnp.setdiff1d(jnp.arange(len(X)), svr.support_)],
+        y[jnp.setdiff1d(jnp.arange(len(X)), svr.support_)],
         facecolor="none",
         edgecolor="k",
         s=50,

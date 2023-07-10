@@ -4,7 +4,7 @@
 Novelty and Outlier Detection
 ===================================================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 Many applications require being able to decide whether a new observation
 belongs to the same distribution as existing observations (it is an
@@ -34,7 +34,7 @@ detection, novelties/anomalies can form a dense cluster as long as they are in
 a low density region of the training data, considered as normal in this
 context.
 
-The scikit-learn project provides a set of machine learning tools that
+The jax-learn project provides a set of machine learning tools that
 can be used both for novelty or outlier detection. This strategy is
 implemented with objects learning in an unsupervised way from the data::
 
@@ -95,7 +95,7 @@ Method                       Outlier detection                Novelty detection
 Overview of outlier detection methods
 =====================================
 
-A comparison of the outlier detection algorithms in scikit-learn. Local
+A comparison of the outlier detection algorithms in jax-learn. Local
 Outlier Factor (LOF) does not show a decision boundary in black as it
 has no predict method to be applied on new data when it is used for outlier
 detection.
@@ -162,7 +162,7 @@ and implemented in the :ref:`svm` module in the
 :class:`svm.OneClassSVM` object. It requires the choice of a
 kernel and a scalar parameter to define a frontier.  The RBF kernel is
 usually chosen although there exists no exact formula or algorithm to
-set its bandwidth parameter. This is the default in the scikit-learn
+set its bandwidth parameter. This is the default in the jax-learn
 implementation. The `nu` parameter, also known as the margin of
 the One-Class SVM, corresponds to the probability of finding a new,
 but regular, observation outside the frontier.
@@ -222,7 +222,7 @@ distributed). From this assumption, we generally try to define the
 "shape" of the data, and can define outlying observations as
 observations which stand far enough from the fit shape.
 
-The scikit-learn provides an object
+The jax-learn provides an object
 :class:`covariance.EllipticEnvelope` that fits a robust covariance
 estimate to the data, and thus fits an ellipse to the central data
 points, ignoring points outside the central mode.
@@ -291,9 +291,9 @@ This algorithm is illustrated below.
 The :class:`ensemble.IsolationForest` supports ``warm_start=True`` which
 allows you to add more trees to an already fitted model::
 
-  >>> from sklearn.ensemble import IsolationForest
-  >>> import numpy as np
-  >>> X = np.array([[-1, -1], [-2, -1], [-3, -2], [0, 0], [-20, 50], [3, 5]])
+  >>> from xlearn.ensemble import IsolationForest
+  >>> import jax.numpy as jnp
+  >>> X = jnp.array([[-1, -1], [-2, -1], [-3, -2], [0, 0], [-20, 50], [3, 5]])
   >>> clf = IsolationForest(n_estimators=10, warm_start=True)
   >>> clf.fit(X)  # fit 10 trees  # doctest: +SKIP
   >>> clf.set_params(n_estimators=20)  # add 10 more trees  # doctest: +SKIP

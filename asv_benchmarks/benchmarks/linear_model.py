@@ -1,4 +1,4 @@
-from sklearn.linear_model import (
+from xlearn.linear_model import (
     ElasticNet,
     Lasso,
     LinearRegression,
@@ -202,7 +202,8 @@ class ElasticNetBenchmark(Predictor, Estimator, Benchmark):
     def make_estimator(self, params):
         representation, precompute = params
 
-        estimator = ElasticNet(precompute=precompute, alpha=0.001, random_state=0)
+        estimator = ElasticNet(precompute=precompute,
+                               alpha=0.001, random_state=0)
 
         return estimator
 

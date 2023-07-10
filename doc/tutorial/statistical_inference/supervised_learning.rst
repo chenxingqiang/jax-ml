@@ -14,7 +14,7 @@ Supervised learning: predicting an output variable from high-dimensional observa
    ``y`` is a 1D array of length ``n_samples``.
 
    All supervised `estimators <https://en.wikipedia.org/wiki/Estimator>`_
-   in scikit-learn implement a ``fit(X, y)`` method to fit the model
+   in jax-learn implement a ``fit(X, y)`` method to fit the model
    and a ``predict(X)`` method that, given unlabeled observations ``X``,
    returns the predicted labels ``y``.
 
@@ -26,12 +26,12 @@ Supervised learning: predicting an output variable from high-dimensional observa
    is to predict a continuous target variable, it is said to be a
    **regression** task.
 
-   When doing classification in scikit-learn, ``y`` is a vector of integers
+   When doing classification in jax-learn, ``y`` is a vector of integers
    or strings.
 
-   Note: See the :ref:`Introduction to machine learning with scikit-learn
+   Note: See the :ref:`Introduction to machine learning with jax-learn
    Tutorial <introduction>` for a quick run-through on the basic machine
-   learning vocabulary used within scikit-learn.
+   learning vocabulary used within jax-learn.
 
 Nearest neighbor and the curse of dimensionality
 =================================================
@@ -42,10 +42,10 @@ Nearest neighbor and the curse of dimensionality
     different types of irises (Setosa, Versicolour, and Virginica) from
     their petal and sepal length and width::
 
-        >>> import numpy as np
-        >>> from sklearn import datasets
+        >>> import jax.numpy as jnp
+        >>> from xlearn import datasets
         >>> iris_X, iris_y = datasets.load_iris(return_X_y=True)
-        >>> np.unique(iris_y)
+        >>> jnp.unique(iris_y)
         array([0, 1, 2])
 
     .. image:: /auto_examples/datasets/images/sphx_glr_plot_iris_dataset_001.png
@@ -61,7 +61,7 @@ The simplest possible classifier is the
 given a new observation ``X_test``, find in the training set (i.e. the data
 used to train the estimator) the observation with the closest feature vector.
 (Please see the :ref:`Nearest Neighbors section<neighbors>` of the online
-Scikit-learn documentation for more information about this type of classifier.)
+Jax-learn documentation for more information about this type of classifier.)
 
 .. topic:: Training set and testing set
 
@@ -89,7 +89,7 @@ Scikit-learn documentation for more information about this type of classifier.)
     >>> iris_X_test = iris_X[indices[-10:]]
     >>> iris_y_test = iris_y[indices[-10:]]
     >>> # Create and fit a nearest-neighbor classifier
-    >>> from sklearn.neighbors import KNeighborsClassifier
+    >>> from xlearn.neighbors import KNeighborsClassifier
     >>> knn = KNeighborsClassifier()
     >>> knn.fit(iris_X_train, iris_y_train)
     KNeighborsClassifier()
@@ -148,7 +148,7 @@ Linear model: from regression to sparsity
 Linear regression
 ------------------
 
-.. currentmodule:: sklearn.linear_model
+.. currentmodule:: xlearn.linear_model
 
 :class:`LinearRegression`,
 in its simplest form, fits a linear model to the data set by adjusting
@@ -169,7 +169,7 @@ Linear models: :math:`y = X\beta + \epsilon`
 
 ::
 
-    >>> from sklearn import linear_model
+    >>> from xlearn import linear_model
     >>> regr = linear_model.LinearRegression()
     >>> regr.fit(diabetes_X_train, diabetes_y_train)
     LinearRegression()
@@ -179,7 +179,7 @@ Linear models: :math:`y = X\beta + \epsilon`
 
 
     >>> # The mean square error
-    >>> np.mean((regr.predict(diabetes_X_test) - diabetes_y_test)**2)
+    >>> jnp.mean((regr.predict(diabetes_X_test) - diabetes_y_test)**2)
     2004.5...
 
     >>> # Explained variance score: 1 is perfect prediction
@@ -199,9 +199,9 @@ induces high variance:
 
 ::
 
-    >>> X = np.c_[ .5, 1].T
+    >>> X = jnp.c_[ .5, 1].T
     >>> y = [.5, 1]
-    >>> test = np.c_[ 0, 2].T
+    >>> test = jnp.c_[ 0, 2].T
     >>> regr = linear_model.LinearRegression()
 
     >>> import matplotlib.pyplot as plt
@@ -248,7 +248,7 @@ This is an example of **bias/variance tradeoff**: the larger the ridge
 We can choose ``alpha`` to minimize left out error, this time using the
 diabetes dataset rather than our synthetic data::
 
-    >>> alphas = np.logspace(-4, -1, 6)
+    >>> alphas = jnp.logspace(-4, -1, 6)
     >>> print([regr.set_params(alpha=alpha)
     ...            .fit(diabetes_X_train, diabetes_y_train)
     ...            .score(diabetes_X_test, diabetes_y_test)
@@ -330,10 +330,10 @@ application of Occam's razor: *prefer simpler models*.
 .. topic:: **Different algorithms for the same problem**
 
     Different algorithms can be used to solve the same mathematical
-    problem. For instance the ``Lasso`` object in scikit-learn
+    problem. For instance the ``Lasso`` object in jax-learn
     solves the lasso regression problem using a
     `coordinate descent <https://en.wikipedia.org/wiki/Coordinate_descent>`_ method,
-    that is efficient on large datasets. However, scikit-learn also
+    that is efficient on large datasets. However, jax-learn also
     provides the :class:`LassoLars` object using the *LARS* algorithm,
     which is very efficient for problems in which the weight vector estimated
     is very sparse (i.e. problems with very few observations).
@@ -414,7 +414,7 @@ is calculated using many or all of the observations around the separating line
 a large value for ``C`` means the margin is calculated on observations close to
 the separating line (less regularization).
 
-.. currentmodule :: sklearn.svm
+.. currentmodule :: xlearn.svm
 
 .. figure:: /auto_examples/svm/images/sphx_glr_plot_svm_margin_001.png
    :target: ../../auto_examples/svm/plot_svm_margin.html
@@ -436,7 +436,7 @@ classification --:class:`SVC` (Support Vector Classification).
 
 ::
 
-    >>> from sklearn import svm
+    >>> from xlearn import svm
     >>> svc = svm.SVC(kernel='linear')
     >>> svc.fit(iris_X_train, iris_y_train)
     SVC(kernel='linear')

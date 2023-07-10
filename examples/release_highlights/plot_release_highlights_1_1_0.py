@@ -1,23 +1,23 @@
 # flake8: noqa
 """
 =======================================
-Release Highlights for scikit-learn 1.1
+Release Highlights for jax-learn 1.1
 =======================================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
-We are pleased to announce the release of scikit-learn 1.1! Many bug fixes
+We are pleased to announce the release of jax-learn 1.1! Many bug fixes
 and improvements were added, as well as some new key features. We detail
 below a few of the major features of this release. **For an exhaustive list of
 all the changes**, please refer to the :ref:`release notes <changes_1_1>`.
 
 To install the latest version (with pip)::
 
-    pip install --upgrade scikit-learn
+    pip install --upgrade jax-learn
 
 or with conda::
 
-    conda install -c conda-forge scikit-learn
+    conda install -c conda-forge jax-learn
 
 """
 
@@ -26,15 +26,27 @@ or with conda::
 # ----------------------------------------------------------------
 # :class:`ensemble.HistGradientBoostingRegressor` can model quantiles with
 # `loss="quantile"` and the new parameter `quantile`.
-from sklearn.ensemble import HistGradientBoostingRegressor
-import numpy as np
+from xlearn.cluster import KMeans, BisectingKMeans
+from xlearn.datasets import make_blobs
+from xlearn.decomposition import MiniBatchNMF
+from xlearn.preprocessing import OneHotEncoder
+import pandas as pd
+from xlearn.linear_model import LogisticRegression
+from xlearn.datasets import fetch_openml
+from xlearn.feature_selection import SelectKBest
+from xlearn.impute import SimpleImputer
+from xlearn.pipeline import make_pipeline
+from xlearn.preprocessing import OneHotEncoder, StandardScaler
+from xlearn.compose import ColumnTransformer
+from xlearn.ensemble import HistGradientBoostingRegressor
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
 # Simple regression function for X * cos(X)
 rng = np.random.RandomState(42)
-X_1d = np.linspace(0, 10, num=2000)
+X_1d = jnp.linspace(0, 10, num=2000)
 X = X_1d.reshape(-1, 1)
-y = X_1d * np.cos(X_1d) + rng.normal(scale=X_1d / 3)
+y = X_1d * jnp.cos(X_1d) + rng.normal(scale=X_1d / 3)
 
 quantiles = [0.95, 0.5, 0.05]
 parameters = dict(loss="quantile", max_bins=32, max_iter=50)
@@ -58,19 +70,13 @@ _ = ax.legend(loc="lower left")
 # :term:`get_feature_names_out` is now available in all Transformers. This enables
 # :class:`pipeline.Pipeline` to construct the output feature names for more complex
 # pipelines:
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.pipeline import make_pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.feature_selection import SelectKBest
-from sklearn.datasets import fetch_openml
-from sklearn.linear_model import LogisticRegression
 
 X, y = fetch_openml(
     "titanic", version=1, as_frame=True, return_X_y=True, parser="pandas"
 )
 numeric_features = ["age", "fare"]
-numeric_transformer = make_pipeline(SimpleImputer(strategy="median"), StandardScaler())
+numeric_transformer = make_pipeline(
+    SimpleImputer(strategy="median"), StandardScaler())
 categorical_features = ["embarked", "pclass"]
 
 preprocessor = ColumnTransformer(
@@ -93,7 +99,6 @@ log_reg.fit(X, y)
 # feature names of this pipeline slice are the features put into logistic
 # regression. These names correspond directly to the coefficients in the logistic
 # regression:
-import pandas as pd
 
 log_reg_input_features = log_reg[:-1].get_feature_names_out()
 pd.Series(log_reg[-1].coef_.ravel(), index=log_reg_input_features).plot.bar()
@@ -107,10 +112,8 @@ plt.tight_layout()
 # output for each feature. The parameters to enable the gathering of infrequent
 # categories are `min_frequency` and `max_categories`. See the
 # :ref:`User Guide <encoder_infrequent_categories>` for more details.
-from sklearn.preprocessing import OneHotEncoder
-import numpy as np
 
-X = np.array(
+X = jnp.array(
     [["dog"] * 5 + ["cat"] * 20 + ["rabbit"] * 10 + ["snake"] * 3], dtype=object
 ).T
 enc = OneHotEncoder(min_frequency=6, sparse_output=False).fit(X)
@@ -119,7 +122,7 @@ enc.infrequent_categories_
 # %%
 # Since dog and snake are infrequent categories, they are grouped together when
 # transformed:
-encoded = enc.transform(np.array([["dog"], ["snake"], ["cat"], ["rabbit"]]))
+encoded = enc.transform(jnp.array([["dog"], ["snake"], ["cat"], ["rabbit"]]))
 pd.DataFrame(encoded, columns=enc.get_feature_names_out())
 
 # %%
@@ -154,7 +157,7 @@ pd.DataFrame(encoded, columns=enc.get_feature_names_out())
 # - :class:`semi_supervised.LabelSpreading`
 #
 # To know more about the technical details of this work, you can read
-# `this suite of blog posts <https://blog.scikit-learn.org/technical/performances/>`_.
+# `this suite of blog posts <https://blog.jax-learn.cc/technical/performances/>`_.
 #
 # Moreover, the computation of loss functions has been refactored using
 # Cython resulting in performance improvements for the following estimators:
@@ -174,8 +177,6 @@ pd.DataFrame(encoded, columns=enc.get_feature_names_out())
 # large datasets. In particular, it implements `partial_fit`, which can be used for
 # online learning when the data is not readily available from the start, or when the
 # data does not fit into memory.
-import numpy as np
-from sklearn.decomposition import MiniBatchNMF
 
 rng = np.random.RandomState(0)
 n_samples, n_features, n_components = 10, 10, 5
@@ -194,7 +195,7 @@ X_reconstructed = W @ H
 
 print(
     f"relative reconstruction error: ",
-    f"{np.sum((X - X_reconstructed) ** 2) / np.sum(X**2):.5f}",
+    f"{jnp.sum((X - X_reconstructed) ** 2) / jnp.sum(X**2):.5f}",
 )
 
 # %%
@@ -205,9 +206,6 @@ print(
 # are picked progressively based on a previous clustering: a cluster is split into two
 # new clusters repeatedly until the target number of clusters is reached, giving a
 # hierarchical structure to the clustering.
-from sklearn.datasets import make_blobs
-from sklearn.cluster import KMeans, BisectingKMeans
-import matplotlib.pyplot as plt
 
 X, _ = make_blobs(n_samples=1000, centers=2, random_state=0)
 
@@ -216,7 +214,8 @@ bisect_km = BisectingKMeans(n_clusters=5, random_state=0).fit(X)
 
 fig, ax = plt.subplots(1, 2, figsize=(10, 5))
 ax[0].scatter(X[:, 0], X[:, 1], s=10, c=km.labels_)
-ax[0].scatter(km.cluster_centers_[:, 0], km.cluster_centers_[:, 1], s=20, c="r")
+ax[0].scatter(km.cluster_centers_[:, 0],
+              km.cluster_centers_[:, 1], s=20, c="r")
 ax[0].set_title("KMeans")
 
 ax[1].scatter(X[:, 0], X[:, 1], s=10, c=bisect_km.labels_)

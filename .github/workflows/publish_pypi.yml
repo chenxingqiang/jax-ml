@@ -26,14 +26,14 @@ jobs:
         pip install -U wheelhouse_uploader pyyaml
     - name: Downloading wheels and sdist from staging
       env:
-        SKLEARN_VERSION: ${{ github.event.inputs.version }}
+        XLEARN_VERSION: ${{ github.event.inputs.version }}
       run: |
-        echo "Download $SKLEARN_VERSION wheels and sdist"
+        echo "Download $XLEARN_VERSION wheels and sdist"
         python -m wheelhouse_uploader fetch \
-          --version $SKLEARN_VERSION \
+          --version $XLEARN_VERSION \
           --local-folder dist/ \
-          scikit-learn \
-          https://pypi.anaconda.org/scikit-learn-wheels-staging/simple/scikit-learn/
+          jax-learn \
+          https://pypi.anaconda.org/jax-learn-wheels-staging/simple/jax-learn/
     - name: Check dist has the correct number of artifacts
       run: |
         python build_tools/github/check_wheels.py

@@ -6,7 +6,7 @@ Benchmark for explicit feature map approximation of polynomial kernels
 An example illustrating the approximation of the feature map
 of an Homogeneous Polynomial kernel.
 
-.. currentmodule:: sklearn.kernel_approximation
+.. currentmodule:: xlearn.kernel_approximation
 
 It shows how to use :class:`PolynomialCountSketch` and :class:`Nystroem` to
 approximate the feature map of a polynomial kernel for
@@ -47,15 +47,15 @@ from time import time
 
 # Some common libraries
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import load_digits
-from sklearn.kernel_approximation import Nystroem, PolynomialCountSketch
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
+from xlearn.datasets import load_digits
+from xlearn.kernel_approximation import Nystroem, PolynomialCountSketch
+from xlearn.model_selection import train_test_split
+from xlearn.pipeline import Pipeline
 
 # Import SVM classifiers and feature map approximation algorithms
-from sklearn.svm import SVC, LinearSVC
+from xlearn.svm import SVC, LinearSVC
 
 # Split data in train and test sets
 X, y = load_digits()["data"], load_digits()["target"]
@@ -113,7 +113,8 @@ for k in out_dims:
 # Show results
 fig, ax = plt.subplots(figsize=(6, 4))
 ax.set_title("Accuracy results")
-ax.plot(out_dims, ps_svm_scores, label="PolynomialCountSketch + linear SVM", c="orange")
+ax.plot(out_dims, ps_svm_scores,
+        label="PolynomialCountSketch + linear SVM", c="orange")
 ax.plot(out_dims, ny_svm_scores, label="Nystroem + linear SVM", c="blue")
 ax.plot(
     [out_dims[0], out_dims[-1]],

@@ -4,9 +4,9 @@
 load("cirrus", "env", "fs", "http")
 
 def main(ctx):
-    # Only run for scikit-learn/scikit-learn. For debugging on a fork, you can
+    # Only run for jax-learn/jax-learn. For debugging on a fork, you can
     # comment out the following condition.
-    if env.get("CIRRUS_REPO_FULL_NAME") != "scikit-learn/scikit-learn":
+    if env.get("CIRRUS_REPO_FULL_NAME") != "jax-learn/jax-learn":
         return []
 
     arm_wheel_yaml = "build_tools/cirrus/arm_wheel.yml"

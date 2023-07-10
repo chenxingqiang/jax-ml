@@ -4,16 +4,16 @@ Kernel PCA
 ==========
 
 This example shows the difference between the Principal Components Analysis
-(:class:`~sklearn.decomposition.PCA`) and its kernelized version
-(:class:`~sklearn.decomposition.KernelPCA`).
+(:class:`~xlearn.decomposition.PCA`) and its kernelized version
+(:class:`~xlearn.decomposition.KernelPCA`).
 
-On the one hand, we show that :class:`~sklearn.decomposition.KernelPCA` is able
+On the one hand, we show that :class:`~xlearn.decomposition.KernelPCA` is able
 to find a projection of the data which linearly separates them while it is not the case
-with :class:`~sklearn.decomposition.PCA`.
+with :class:`~xlearn.decomposition.PCA`.
 
 Finally, we show that inverting this projection is an approximation with
-:class:`~sklearn.decomposition.KernelPCA`, while it is exact with
-:class:`~sklearn.decomposition.PCA`.
+:class:`~xlearn.decomposition.KernelPCA`, while it is exact with
+:class:`~xlearn.decomposition.PCA`.
 """
 
 # Authors: Mathieu Blondel
@@ -28,17 +28,20 @@ Finally, we show that inverting this projection is an approximation with
 # In this section, we show the advantages of using a kernel when
 # projecting data using a Principal Component Analysis (PCA). We create a
 # dataset made of two nested circles.
-from sklearn.datasets import make_circles
-from sklearn.model_selection import train_test_split
+from xlearn.decomposition import PCA, KernelPCA
+import matplotlib.pyplot as plt
+from xlearn.datasets import make_circles
+from xlearn.model_selection import train_test_split
 
 X, y = make_circles(n_samples=1_000, factor=0.3, noise=0.05, random_state=0)
-X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, stratify=y, random_state=0)
 
 # %%
 # Let's have a quick first look at the generated dataset.
-import matplotlib.pyplot as plt
 
-_, (train_ax, test_ax) = plt.subplots(ncols=2, sharex=True, sharey=True, figsize=(8, 4))
+_, (train_ax, test_ax) = plt.subplots(
+    ncols=2, sharex=True, sharey=True, figsize=(8, 4))
 
 train_ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train)
 train_ax.set_ylabel("Feature #1")
@@ -57,7 +60,6 @@ _ = test_ax.set_title("Testing data")
 # Now, we will use PCA with and without a kernel to see what is the effect of
 # using such a kernel. The kernel used here is a radial basis function (RBF)
 # kernel.
-from sklearn.decomposition import PCA, KernelPCA
 
 pca = PCA(n_components=2)
 kernel_pca = KernelPCA(
@@ -82,10 +84,12 @@ pca_proj_ax.set_ylabel("Principal component #1")
 pca_proj_ax.set_xlabel("Principal component #0")
 pca_proj_ax.set_title("Projection of testing data\n using PCA")
 
-kernel_pca_proj_ax.scatter(X_test_kernel_pca[:, 0], X_test_kernel_pca[:, 1], c=y_test)
+kernel_pca_proj_ax.scatter(
+    X_test_kernel_pca[:, 0], X_test_kernel_pca[:, 1], c=y_test)
 kernel_pca_proj_ax.set_ylabel("Principal component #1")
 kernel_pca_proj_ax.set_xlabel("Principal component #0")
-_ = kernel_pca_proj_ax.set_title("Projection of testing data\n using KernelPCA")
+_ = kernel_pca_proj_ax.set_title(
+    "Projection of testing data\n using KernelPCA")
 
 # %%
 # We recall that PCA transforms the data linearly. Intuitively, it means that
@@ -115,16 +119,17 @@ _ = kernel_pca_proj_ax.set_title("Projection of testing data\n using KernelPCA")
 # ------------------------------------------
 #
 # One particularity to have in mind when using
-# :class:`~sklearn.decomposition.KernelPCA` is related to the reconstruction
+# :class:`~xlearn.decomposition.KernelPCA` is related to the reconstruction
 # (i.e. the back projection in the original feature space). With
-# :class:`~sklearn.decomposition.PCA`, the reconstruction will be exact if
+# :class:`~xlearn.decomposition.PCA`, the reconstruction will be exact if
 # `n_components` is the same than the number of original features.
 # This is the case in this example.
 #
 # We can investigate if we get the original dataset when back projecting with
-# :class:`~sklearn.decomposition.KernelPCA`.
+# :class:`~xlearn.decomposition.KernelPCA`.
 X_reconstructed_pca = pca.inverse_transform(pca.transform(X_test))
-X_reconstructed_kernel_pca = kernel_pca.inverse_transform(kernel_pca.transform(X_test))
+X_reconstructed_kernel_pca = kernel_pca.inverse_transform(
+    kernel_pca.transform(X_test))
 
 # %%
 fig, (orig_data_ax, pca_back_proj_ax, kernel_pca_back_proj_ax) = plt.subplots(
@@ -136,30 +141,32 @@ orig_data_ax.set_ylabel("Feature #1")
 orig_data_ax.set_xlabel("Feature #0")
 orig_data_ax.set_title("Original test data")
 
-pca_back_proj_ax.scatter(X_reconstructed_pca[:, 0], X_reconstructed_pca[:, 1], c=y_test)
+pca_back_proj_ax.scatter(
+    X_reconstructed_pca[:, 0], X_reconstructed_pca[:, 1], c=y_test)
 pca_back_proj_ax.set_xlabel("Feature #0")
 pca_back_proj_ax.set_title("Reconstruction via PCA")
 
 kernel_pca_back_proj_ax.scatter(
-    X_reconstructed_kernel_pca[:, 0], X_reconstructed_kernel_pca[:, 1], c=y_test
+    X_reconstructed_kernel_pca[:,
+                               0], X_reconstructed_kernel_pca[:, 1], c=y_test
 )
 kernel_pca_back_proj_ax.set_xlabel("Feature #0")
 _ = kernel_pca_back_proj_ax.set_title("Reconstruction via KernelPCA")
 
 # %%
 # While we see a perfect reconstruction with
-# :class:`~sklearn.decomposition.PCA` we observe a different result for
-# :class:`~sklearn.decomposition.KernelPCA`.
+# :class:`~xlearn.decomposition.PCA` we observe a different result for
+# :class:`~xlearn.decomposition.KernelPCA`.
 #
-# Indeed, :meth:`~sklearn.decomposition.KernelPCA.inverse_transform` cannot
+# Indeed, :meth:`~xlearn.decomposition.KernelPCA.inverse_transform` cannot
 # rely on an analytical back-projection and thus an exact reconstruction.
-# Instead, a :class:`~sklearn.kernel_ridge.KernelRidge` is internally trained
+# Instead, a :class:`~xlearn.kernel_ridge.KernelRidge` is internally trained
 # to learn a mapping from the kernalized PCA basis to the original feature
 # space. This method therefore comes with an approximation introducing small
 # differences when back projecting in the original feature space.
 #
 # To improve the reconstruction using
-# :meth:`~sklearn.decomposition.KernelPCA.inverse_transform`, one can tune
-# `alpha` in :class:`~sklearn.decomposition.KernelPCA`, the regularization term
+# :meth:`~xlearn.decomposition.KernelPCA.inverse_transform`, one can tune
+# `alpha` in :class:`~xlearn.decomposition.KernelPCA`, the regularization term
 # which controls the reliance on the training data during the training of
 # the mapping.

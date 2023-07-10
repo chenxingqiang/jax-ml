@@ -4,7 +4,7 @@ Effect of transforming the targets in regression model
 ======================================================
 
 In this example, we give an overview of
-:class:`~sklearn.compose.TransformedTargetRegressor`. We use two examples
+:class:`~xlearn.compose.TransformedTargetRegressor`. We use two examples
 to illustrate the benefit of transforming the targets before learning a linear
 regression model. The first example uses synthetic data while the second
 example is based on the Ames housing data set.
@@ -14,6 +14,17 @@ example is based on the Ames housing data set.
 # Author: Guillaume Lemaitre <guillaume.lemaitre@inria.fr>
 # License: BSD 3 clause
 
+from xlearn.preprocessing import QuantileTransformer
+from xlearn.preprocessing import quantile_transform
+from xlearn.datasets import fetch_openml
+from xlearn.metrics import PredictionErrorDisplay
+from xlearn.linear_model import RidgeCV
+from xlearn.compose import TransformedTargetRegressor
+from xlearn.metrics import median_absolute_error, r2_score
+from xlearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+from xlearn.datasets import make_regression
+import jax.numpy as jnp
 print(__doc__)
 
 # %%
@@ -28,23 +39,19 @@ print(__doc__)
 #   2. applying an exponential function to obtain non-linear
 #      targets which cannot be fitted using a simple linear model.
 #
-# Therefore, a logarithmic (`np.log1p`) and an exponential function
-# (`np.expm1`) will be used to transform the targets before training a linear
+# Therefore, a logarithmic (`jnp.log1p`) and an exponential function
+# (`jnp.expm1`) will be used to transform the targets before training a linear
 # regression model and using it for prediction.
-import numpy as np
 
-from sklearn.datasets import make_regression
 
 X, y = make_regression(n_samples=10_000, noise=100, random_state=0)
-y = np.expm1((y + abs(y.min())) / 200)
-y_trans = np.log1p(y)
+y = jnp.expm1((y + abs(y.min())) / 200)
+y_trans = jnp.log1p(y)
 
 # %%
 # Below we plot the probability density functions of the target
 # before and after applying the logarithmic functions.
-import matplotlib.pyplot as plt
 
-from sklearn.model_selection import train_test_split
 
 f, (ax0, ax1) = plt.subplots(1, 2)
 
@@ -70,7 +77,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 # prediction. Subsequently, a logarithmic function is used to linearize the
 # targets, allowing better prediction even with a similar linear model as
 # reported by the median absolute error (MedAE).
-from sklearn.metrics import median_absolute_error, r2_score
 
 
 def compute_score(y_true, y_pred):
@@ -81,9 +87,6 @@ def compute_score(y_true, y_pred):
 
 
 # %%
-from sklearn.compose import TransformedTargetRegressor
-from sklearn.linear_model import RidgeCV
-from sklearn.metrics import PredictionErrorDisplay
 
 f, (ax0, ax1) = plt.subplots(1, 2, sharey=True)
 
@@ -91,7 +94,7 @@ ridge_cv = RidgeCV().fit(X_train, y_train)
 y_pred_ridge = ridge_cv.predict(X_test)
 
 ridge_cv_with_trans_target = TransformedTargetRegressor(
-    regressor=RidgeCV(), func=np.log1p, inverse_func=np.expm1
+    regressor=RidgeCV(), func=jnp.log1p, inverse_func=jnp.expm1
 ).fit(X_train, y_train)
 y_pred_ridge_with_trans_target = ridge_cv_with_trans_target.predict(X_test)
 
@@ -128,12 +131,10 @@ plt.tight_layout()
 # In a similar manner, the Ames housing data set is used to show the impact
 # of transforming the targets before learning a model. In this example, the
 # target to be predicted is the selling price of each house.
-from sklearn.datasets import fetch_openml
-from sklearn.preprocessing import quantile_transform
 
 ames = fetch_openml(name="house_prices", as_frame=True, parser="pandas")
 # Keep only numeric columns
-X = ames.data.select_dtypes(np.number)
+X = ames.data.select_dtypes(jnp.number)
 # Remove columns with NaN or Inf values
 X = X.drop(columns=["LotFrontage", "GarageYrBlt", "MasVnrArea"])
 # Let the price be in k$
@@ -143,9 +144,9 @@ y_trans = quantile_transform(
 ).squeeze()
 
 # %%
-# A :class:`~sklearn.preprocessing.QuantileTransformer` is used to normalize
+# A :class:`~xlearn.preprocessing.QuantileTransformer` is used to normalize
 # the target distribution before applying a
-# :class:`~sklearn.linear_model.RidgeCV` model.
+# :class:`~xlearn.linear_model.RidgeCV` model.
 f, (ax0, ax1) = plt.subplots(1, 2)
 
 ax0.hist(y, bins=100, density=True)
@@ -172,7 +173,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
 # shape due to residual values that vary depending on the value of predicted
 # target. With target transformation, the shape is more linear indicating
 # better model fit.
-from sklearn.preprocessing import QuantileTransformer
 
 f, (ax0, ax1) = plt.subplots(2, 2, sharey="row", figsize=(6.5, 8))
 
@@ -181,7 +181,8 @@ y_pred_ridge = ridge_cv.predict(X_test)
 
 ridge_cv_with_trans_target = TransformedTargetRegressor(
     regressor=RidgeCV(),
-    transformer=QuantileTransformer(n_quantiles=900, output_distribution="normal"),
+    transformer=QuantileTransformer(
+        n_quantiles=900, output_distribution="normal"),
 ).fit(X_train, y_train)
 y_pred_ridge_with_trans_target = ridge_cv_with_trans_target.predict(X_test)
 

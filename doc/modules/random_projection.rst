@@ -3,9 +3,9 @@
 ==================
 Random Projection
 ==================
-.. currentmodule:: sklearn.random_projection
+.. currentmodule:: xlearn.random_projection
 
-The :mod:`sklearn.random_projection` module implements a simple and
+The :mod:`xlearn.random_projection` module implements a simple and
 computationally efficient way to reduce the dimensionality of the data by
 trading a controlled amount of accuracy (as additional variance) for faster
 processing times and smaller model sizes. This module implements two types of
@@ -56,7 +56,7 @@ Knowing only the number of samples, the
 conservatively the minimal size of the random subspace to guarantee a
 bounded distortion introduced by the random projection::
 
-  >>> from sklearn.random_projection import johnson_lindenstrauss_min_dim
+  >>> from xlearn.random_projection import johnson_lindenstrauss_min_dim
   >>> johnson_lindenstrauss_min_dim(n_samples=1e6, eps=0.5)
   663
   >>> johnson_lindenstrauss_min_dim(n_samples=1e6, eps=[0.5, 0.1, 0.01])
@@ -98,8 +98,8 @@ matrix where components are drawn from the following distribution
 Here a small excerpt which illustrates how to use the Gaussian random
 projection transformer::
 
-  >>> import numpy as np
-  >>> from sklearn import random_projection
+  >>> import jax.numpy as jnp
+  >>> from xlearn import random_projection
   >>> X = np.random.rand(100, 10000)
   >>> transformer = random_projection.GaussianRandomProjection()
   >>> X_new = transformer.fit_transform(X)
@@ -139,8 +139,8 @@ recommended by Ping Li et al.: :math:`1 / \sqrt{n_{\text{features}}}`.
 Here a small excerpt which illustrates how to use the sparse random
 projection transformer::
 
-  >>> import numpy as np
-  >>> from sklearn import random_projection
+  >>> import jax.numpy as jnp
+  >>> from xlearn import random_projection
   >>> X = np.random.rand(100, 10000)
   >>> transformer = random_projection.SparseRandomProjection()
   >>> X_new = transformer.fit_transform(X)
@@ -183,8 +183,8 @@ dense, even if ``X`` is sparse.
 Here a small code example which illustrates how to use the inverse transform
 feature::
 
-  >>> import numpy as np
-  >>> from sklearn.random_projection import SparseRandomProjection
+  >>> import jax.numpy as jnp
+  >>> from xlearn.random_projection import SparseRandomProjection
   >>> X = np.random.rand(100, 10000)
   >>> transformer = SparseRandomProjection(
   ...   compute_inverse_components=True
@@ -197,5 +197,5 @@ feature::
   >>> X_new_inversed.shape
   (100, 10000)
   >>> X_new_again = transformer.transform(X_new_inversed)
-  >>> np.allclose(X_new, X_new_again)
+  >>> jnp.allclose(X_new, X_new_again)
   True

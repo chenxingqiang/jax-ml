@@ -12,21 +12,21 @@ The color map illustrates the decision function learned by the SVC.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import svm
+from xlearn import svm
 
-xx, yy = np.meshgrid(np.linspace(-3, 3, 500), np.linspace(-3, 3, 500))
+xx, yy = jnp.meshgrid(jnp.linspace(-3, 3, 500), jnp.linspace(-3, 3, 500))
 np.random.seed(0)
 X = np.random.randn(300, 2)
-Y = np.logical_xor(X[:, 0] > 0, X[:, 1] > 0)
+Y = jnp.logical_xor(X[:, 0] > 0, X[:, 1] > 0)
 
 # fit the model
 clf = svm.NuSVC(gamma="auto")
 clf.fit(X, Y)
 
 # plot the decision function for each datapoint on the grid
-Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+Z = clf.decision_function(jnp.c_[xx.ravel(), yy.ravel()])
 Z = Z.reshape(xx.shape)
 
 plt.imshow(
@@ -37,7 +37,8 @@ plt.imshow(
     origin="lower",
     cmap=plt.cm.PuOr_r,
 )
-contours = plt.contour(xx, yy, Z, levels=[0], linewidths=2, linestyles="dashed")
+contours = plt.contour(
+    xx, yy, Z, levels=[0], linewidths=2, linestyles="dashed")
 plt.scatter(X[:, 0], X[:, 1], s=30, c=Y, cmap=plt.cm.Paired, edgecolors="k")
 plt.xticks(())
 plt.yticks(())

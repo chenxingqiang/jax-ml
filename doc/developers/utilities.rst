@@ -4,19 +4,19 @@
 Utilities for Developers
 ========================
 
-Scikit-learn contains a number of utilities to help with development.  These are
-located in :mod:`sklearn.utils`, and include tools in a number of categories.
-All the following functions and classes are in the module :mod:`sklearn.utils`.
+Jax-learn contains a number of utilities to help with development.  These are
+located in :mod:`xlearn.utils`, and include tools in a number of categories.
+All the following functions and classes are in the module :mod:`xlearn.utils`.
 
 .. warning ::
 
-   These utilities are meant to be used internally within the scikit-learn
+   These utilities are meant to be used internally within the jax-learn
    package.  They are not guaranteed to be stable between versions of
-   scikit-learn.  Backports, in particular, will be removed as the scikit-learn
+   jax-learn.  Backports, in particular, will be removed as the jax-learn
    dependencies evolve.
 
 
-.. currentmodule:: sklearn.utils
+.. currentmodule:: xlearn.utils
 
 Validation Tools
 ================
@@ -46,7 +46,7 @@ should be used when applicable.
 
 - :func:`validation.check_memory` checks that input is ``joblib.Memory``-like,
   which means that it can be converted into a
-  ``sklearn.utils.Memory`` instance (typically a str denoting
+  ``xlearn.utils.Memory`` instance (typically a str denoting
   the ``cachedir``) or has the same interface.
 
 If your code relies on a random number generator, it should never use
@@ -68,13 +68,13 @@ number generator object.
 
 For example::
 
-    >>> from sklearn.utils import check_random_state
+    >>> from xlearn.utils import check_random_state
     >>> random_state = 0
     >>> random_state = check_random_state(random_state)
     >>> random_state.rand(4)
     array([0.5488135 , 0.71518937, 0.60276338, 0.54488318])
 
-When developing your own scikit-learn compatible estimator, the following
+When developing your own jax-learn compatible estimator, the following
 helpers are available.
 
 - :func:`validation.check_is_fitted`: check that the estimator has been fitted
@@ -98,10 +98,10 @@ Efficient Linear Algebra & Array Operations
   number of components.
 
 - :func:`arrayfuncs.cholesky_delete`:
-  (used in :func:`~sklearn.linear_model.lars_path`)  Remove an
+  (used in :func:`~xlearn.linear_model.lars_path`)  Remove an
   item from a cholesky factorization.
 
-- :func:`arrayfuncs.min_pos`: (used in ``sklearn.linear_model.least_angle``)
+- :func:`arrayfuncs.min_pos`: (used in ``xlearn.linear_model.least_angle``)
   Find the minimum of the positive values within an array.
 
 
@@ -121,7 +121,7 @@ Efficient Linear Algebra & Array Operations
   used in :func:`shuffle`, below.
 
 - :func:`shuffle`: Shuffle arrays or sparse matrices in a consistent way.
-  Used in :func:`~sklearn.cluster.k_means`.
+  Used in :func:`~xlearn.cluster.k_means`.
 
 
 Efficient Random Sampling
@@ -135,25 +135,25 @@ Efficient Random Sampling
 Efficient Routines for Sparse Matrices
 ======================================
 
-The ``sklearn.utils.sparsefuncs`` cython module hosts compiled extensions to
+The ``xlearn.utils.sparsefuncs`` cython module hosts compiled extensions to
 efficiently process ``scipy.sparse`` data.
 
 - :func:`sparsefuncs.mean_variance_axis`: compute the means and
   variances along a specified axis of a CSR matrix.
   Used for normalizing the tolerance stopping criterion in
-  :class:`~sklearn.cluster.KMeans`.
+  :class:`~xlearn.cluster.KMeans`.
 
 - :func:`sparsefuncs_fast.inplace_csr_row_normalize_l1` and
   :func:`sparsefuncs_fast.inplace_csr_row_normalize_l2`: can be used to normalize
   individual sparse samples to unit L1 or L2 norm as done in
-  :class:`~sklearn.preprocessing.Normalizer`.
+  :class:`~xlearn.preprocessing.Normalizer`.
 
 - :func:`sparsefuncs.inplace_csr_column_scale`: can be used to multiply the
   columns of a CSR matrix by a constant scale (one scale per column).
   Used for scaling features to unit standard deviation in
-  :class:`~sklearn.preprocessing.StandardScaler`.
+  :class:`~xlearn.preprocessing.StandardScaler`.
 
-- :func:`~sklearn.neighbors.sort_graph_by_row_values`: can be used to sort a
+- :func:`~xlearn.neighbors.sort_graph_by_row_values`: can be used to sort a
   CSR sparse matrix such that each row is stored with increasing values. This
   is useful to improve efficiency when using precomputed sparse distance
   matrices in estimators relying on nearest neighbors graph.
@@ -163,7 +163,7 @@ Graph Routines
 ==============
 
 - :func:`graph.single_source_shortest_path_length`:
-  (not currently used in scikit-learn)
+  (not currently used in jax-learn)
   Return the shortest path from a single source
   to all connected nodes on a graph.  Code is adapted from `networkx
   <https://networkx.github.io/>`_.
@@ -175,13 +175,13 @@ Testing Functions
 =================
 
 - :func:`discovery.all_estimators` : returns a list of all estimators in
-  scikit-learn to test for consistent behavior and interfaces.
+  jax-learn to test for consistent behavior and interfaces.
 
 - :func:`discovery.all_displays` : returns a list of all displays (related to
-  plotting API) in scikit-learn to test for consistent behavior and interfaces.
+  plotting API) in jax-learn to test for consistent behavior and interfaces.
 
 - :func:`discovery.all_functions` : returns a list all functions in
-  scikit-learn to test for consistent behavior and interfaces.
+  jax-learn to test for consistent behavior and interfaces.
 
 Multiclass and multilabel utility function
 ==========================================
@@ -197,8 +197,8 @@ Helper Functions
 ================
 
 - :class:`gen_even_slices`: generator to create ``n``-packs of slices going up
-  to ``n``.  Used in :func:`~sklearn.decomposition.dict_learning` and
-  :func:`~sklearn.cluster.k_means`.
+  to ``n``.  Used in :func:`~xlearn.decomposition.dict_learning` and
+  :func:`~xlearn.cluster.k_means`.
 
 - :class:`gen_batches`: generator to create slices containing batch size elements
   from 0 to ``n``
@@ -221,14 +221,14 @@ Hash Functions
   Count Min Sketch, feature hashing and implicitly defined sparse
   random projections::
 
-    >>> from sklearn.utils import murmurhash3_32
+    >>> from xlearn.utils import murmurhash3_32
     >>> murmurhash3_32("some feature", seed=0) == -384616559
     True
 
     >>> murmurhash3_32("some feature", seed=0, positive=True) == 3910350737
     True
 
-  The ``sklearn.utils.murmurhash`` module can also be "cimported" from
+  The ``xlearn.utils.murmurhash`` module can also be "cimported" from
   other cython modules so as to benefit from the high performance of
   MurmurHash while skipping the overhead of the Python interpreter.
 
@@ -238,5 +238,5 @@ Warnings and Exceptions
 
 - :class:`deprecated`: Decorator to mark a function or class as deprecated.
 
-- :class:`~sklearn.exceptions.ConvergenceWarning`: Custom warning to catch
-  convergence problems. Used in ``sklearn.covariance.graphical_lasso``.
+- :class:`~xlearn.exceptions.ConvergenceWarning`: Custom warning to catch
+  convergence problems. Used in ``xlearn.covariance.graphical_lasso``.

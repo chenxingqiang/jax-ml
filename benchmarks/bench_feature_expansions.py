@@ -1,18 +1,18 @@
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 import scipy.sparse as sparse
 
-from sklearn.preprocessing import PolynomialFeatures
+from xlearn.preprocessing import PolynomialFeatures
 
 degree = 2
 trials = 3
 num_rows = 1000
-dimensionalities = np.array([1, 2, 8, 16, 32, 64])
-densities = np.array([0.01, 0.1, 1.0])
-csr_times = {d: np.zeros(len(dimensionalities)) for d in densities}
-dense_times = {d: np.zeros(len(dimensionalities)) for d in densities}
+dimensionalities = jnp.array([1, 2, 8, 16, 32, 64])
+densities = jnp.array([0.01, 0.1, 1.0])
+csr_times = {d: jnp.zeros(len(dimensionalities)) for d in densities}
+dense_times = {d: jnp.zeros(len(dimensionalities)) for d in densities}
 transform = PolynomialFeatures(
     degree=degree, include_bias=False, interaction_only=False
 )
@@ -49,7 +49,8 @@ for density, ax in zip(densities, axes):
         label="dense",
         linestyle=dense_linestyle,
     )
-    ax.set_title("density %0.2f, degree=%d, n_samples=%d" % (density, degree, num_rows))
+    ax.set_title("density %0.2f, degree=%d, n_samples=%d" %
+                 (density, degree, num_rows))
     ax.legend()
     ax.set_xlabel("Dimensionality")
     ax.set_ylabel("Time (seconds)")

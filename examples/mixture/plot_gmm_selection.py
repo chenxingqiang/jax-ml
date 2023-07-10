@@ -23,20 +23,27 @@ candidates. Unlike Bayesian procedures, such inferences are prior-free.
 # One component is kept spherical yet shifted and re-scaled. The other one is
 # deformed to have a more general covariance matrix.
 
-import numpy as np
+from scipy import linalg
+from matplotlib.patches import Ellipse
+import seaborn as sns
+import pandas as pd
+from xlearn.model_selection import GridSearchCV
+from xlearn.mixture import GaussianMixture
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 
 n_samples = 500
 np.random.seed(0)
-C = np.array([[0.0, -0.1], [1.7, 0.4]])
-component_1 = np.dot(np.random.randn(n_samples, 2), C)  # general
-component_2 = 0.7 * np.random.randn(n_samples, 2) + np.array([-4, 1])  # spherical
+C = jnp.array([[0.0, -0.1], [1.7, 0.4]])
+component_1 = jnp.dot(np.random.randn(n_samples, 2), C)  # general
+component_2 = 0.7 * \
+    np.random.randn(n_samples, 2) + jnp.array([-4, 1])  # spherical
 
-X = np.concatenate([component_1, component_2])
+X = jnp.concatenate([component_1, component_2])
 
 # %%
 # We can visualize the different components:
 
-import matplotlib.pyplot as plt
 
 plt.scatter(component_1[:, 0], component_1[:, 1], s=0.8)
 plt.scatter(component_2[:, 0], component_2[:, 1], s=0.8)
@@ -57,16 +64,13 @@ plt.show()
 # - `"spherical"`: each component has its own single variance.
 #
 # We score the different models and keep the best model (the lowest BIC). This
-# is done by using :class:`~sklearn.model_selection.GridSearchCV` and a
+# is done by using :class:`~xlearn.model_selection.GridSearchCV` and a
 # user-defined score function which returns the negative BIC score, as
-# :class:`~sklearn.model_selection.GridSearchCV` is designed to **maximize** a
+# :class:`~xlearn.model_selection.GridSearchCV` is designed to **maximize** a
 # score (maximizing the negative BIC is equivalent to minimizing the BIC).
 #
 # The best set of parameters and estimator are stored in `best_parameters_` and
 # `best_estimator_`, respectively.
-
-from sklearn.mixture import GaussianMixture
-from sklearn.model_selection import GridSearchCV
 
 
 def gmm_bic_score(estimator, X):
@@ -92,7 +96,6 @@ grid_search.fit(X)
 # the cross-validation done by the grid search. We re-inverse the sign of the
 # BIC score to show the effect of minimizing it.
 
-import pandas as pd
 
 df = pd.DataFrame(grid_search.cv_results_)[
     ["param_n_components", "param_covariance_type", "mean_test_score"]
@@ -108,7 +111,6 @@ df = df.rename(
 df.sort_values(by="BIC score").head()
 
 # %%
-import seaborn as sns
 
 sns.catplot(
     data=df,
@@ -137,8 +139,6 @@ plt.show()
 # - `"diag"`: (`n_components`, `n_features`)
 # - `"spherical"`: (`n_components`,)
 
-from matplotlib.patches import Ellipse
-from scipy import linalg
 
 color_iter = sns.color_palette("tab10", 2)[::-1]
 Y_ = grid_search.predict(X)
@@ -153,13 +153,13 @@ for i, (mean, cov, color) in enumerate(
     )
 ):
     v, w = linalg.eigh(cov)
-    if not np.any(Y_ == i):
+    if not jnp.any(Y_ == i):
         continue
     plt.scatter(X[Y_ == i, 0], X[Y_ == i, 1], 0.8, color=color)
 
-    angle = np.arctan2(w[0][1], w[0][0])
-    angle = 180.0 * angle / np.pi  # convert to degrees
-    v = 2.0 * np.sqrt(2.0) * np.sqrt(v)
+    angle = jnp.arctan2(w[0][1], w[0][0])
+    angle = 180.0 * angle / jnp.pi  # convert to degrees
+    v = 2.0 * jnp.sqrt(2.0) * jnp.sqrt(v)
     ellipse = Ellipse(mean, v[0], v[1], angle=180.0 + angle, color=color)
     ellipse.set_clip_box(fig.bbox)
     ellipse.set_alpha(0.5)

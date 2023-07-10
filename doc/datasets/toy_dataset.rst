@@ -7,9 +7,9 @@
 Toy datasets
 ============
 
-.. currentmodule:: sklearn.datasets
+.. currentmodule:: xlearn.datasets
 
-scikit-learn comes with a few small standard datasets that do not require to
+jax-learn comes with a few small standard datasets that do not require to
 download any file from some external website.
 
 They can be loaded using the following functions:
@@ -24,17 +24,17 @@ They can be loaded using the following functions:
    load_breast_cancer
 
 These datasets are useful to quickly illustrate the behavior of the
-various algorithms implemented in scikit-learn. They are however often too
+various algorithms implemented in jax-learn. They are however often too
 small to be representative of real world machine learning tasks.
 
-.. include:: ../../sklearn/datasets/descr/iris.rst
+.. include:: ../../xlearn/datasets/descr/iris.rst
 
-.. include:: ../../sklearn/datasets/descr/diabetes.rst
+.. include:: ../../xlearn/datasets/descr/diabetes.rst
 
-.. include:: ../../sklearn/datasets/descr/digits.rst
+.. include:: ../../xlearn/datasets/descr/digits.rst
 
-.. include:: ../../sklearn/datasets/descr/linnerud.rst
+.. include:: ../../xlearn/datasets/descr/linnerud.rst
 
-.. include:: ../../sklearn/datasets/descr/wine_data.rst
+.. include:: ../../xlearn/datasets/descr/wine_data.rst
 
-.. include:: ../../sklearn/datasets/descr/breast_cancer.rst
+.. include:: ../../xlearn/datasets/descr/breast_cancer.rst

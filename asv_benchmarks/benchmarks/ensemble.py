@@ -1,4 +1,4 @@
-from sklearn.ensemble import (
+from xlearn.ensemble import (
     GradientBoostingClassifier,
     HistGradientBoostingClassifier,
     RandomForestClassifier,

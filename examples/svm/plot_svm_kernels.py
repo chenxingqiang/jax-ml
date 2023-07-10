@@ -14,12 +14,12 @@ data-points are not linearly separable.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import svm
+from xlearn import svm
 
 # Our dataset and targets
-X = np.c_[
+X = jnp.c_[
     (0.4, -0.7),
     (-1.5, -1),
     (-1.4, -0.9),
@@ -60,7 +60,8 @@ for kernel in ("linear", "poly", "rbf"):
         zorder=10,
         edgecolors="k",
     )
-    plt.scatter(X[:, 0], X[:, 1], c=Y, zorder=10, cmap=plt.cm.Paired, edgecolors="k")
+    plt.scatter(X[:, 0], X[:, 1], c=Y, zorder=10,
+                cmap=plt.cm.Paired, edgecolors="k")
 
     plt.axis("tight")
     x_min = -3
@@ -68,8 +69,8 @@ for kernel in ("linear", "poly", "rbf"):
     y_min = -3
     y_max = 3
 
-    XX, YY = np.mgrid[x_min:x_max:200j, y_min:y_max:200j]
-    Z = clf.decision_function(np.c_[XX.ravel(), YY.ravel()])
+    XX, YY = jnp.mgrid[x_min:x_max:200j, y_min:y_max:200j]
+    Z = clf.decision_function(jnp.c_[XX.ravel(), YY.ravel()])
 
     # Put the result into a color plot
     Z = Z.reshape(XX.shape)

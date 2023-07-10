@@ -1,4 +1,4 @@
-from sklearn.manifold import TSNE
+from xlearn.manifold import TSNE
 
 from .common import Benchmark, Estimator
 from .datasets import _digits_dataset

@@ -3,4 +3,4 @@
 Feature Selection
 -----------------------
 
-Examples concerning the :mod:`sklearn.feature_selection` module.
+Examples concerning the :mod:`xlearn.feature_selection` module.

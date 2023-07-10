@@ -1,4 +1,4 @@
-from sklearn.neighbors import KNeighborsClassifier
+from xlearn.neighbors import KNeighborsClassifier
 
 from .common import Benchmark, Estimator, Predictor
 from .datasets import _20newsgroups_lowdim_dataset
@@ -11,7 +11,8 @@ class KNeighborsClassifierBenchmark(Predictor, Estimator, Benchmark):
     """
 
     param_names = ["algorithm", "dimension", "n_jobs"]
-    params = (["brute", "kd_tree", "ball_tree"], ["low", "high"], Benchmark.n_jobs_vals)
+    params = (["brute", "kd_tree", "ball_tree"], [
+              "low", "high"], Benchmark.n_jobs_vals)
 
     def setup_cache(self):
         super().setup_cache()

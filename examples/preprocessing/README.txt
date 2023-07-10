@@ -3,4 +3,4 @@
 Preprocessing
 -------------
 
-Examples concerning the :mod:`sklearn.preprocessing` module.
+Examples concerning the :mod:`xlearn.preprocessing` module.

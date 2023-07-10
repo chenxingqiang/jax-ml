@@ -25,19 +25,22 @@ the clusters form a nice parcellation of the swiss roll.
 #           Gael Varoquaux, 2010
 # License: BSD 3 clause
 
+from xlearn.neighbors import kneighbors_graph
+import matplotlib.pyplot as plt
+from xlearn.cluster import AgglomerativeClustering
 import time as time
 
 # The following import is required
 # for 3D projection to work with matplotlib < 3.2
 import mpl_toolkits.mplot3d  # noqa: F401
-import numpy as np
+import jax.numpy as jnp
 
 # %%
 # Generate data
 # -------------
 #
 # We start by generating the Swiss Roll dataset.
-from sklearn.datasets import make_swiss_roll
+from xlearn.datasets import make_swiss_roll
 
 n_samples = 1500
 noise = 0.05
@@ -52,7 +55,6 @@ X[:, 1] *= 0.5
 # We perform AgglomerativeClustering which comes under Hierarchical Clustering
 # without any connectivity constraints.
 
-from sklearn.cluster import AgglomerativeClustering
 
 print("Compute unstructured hierarchical clustering...")
 st = time.time()
@@ -67,27 +69,26 @@ print(f"Number of points: {label.size}")
 # -----------
 # Plotting the unstructured hierarchical clusters.
 
-import matplotlib.pyplot as plt
 
 fig1 = plt.figure()
 ax1 = fig1.add_subplot(111, projection="3d", elev=7, azim=-80)
 ax1.set_position([0, 0, 0.95, 1])
-for l in np.unique(label):
+for l in jnp.unique(label):
     ax1.scatter(
         X[label == l, 0],
         X[label == l, 1],
         X[label == l, 2],
-        color=plt.cm.jet(float(l) / np.max(label + 1)),
+        color=plt.cm.jet(float(l) / jnp.max(label + 1)),
         s=20,
         edgecolor="k",
     )
-_ = fig1.suptitle(f"Without connectivity constraints (time {elapsed_time:.2f}s)")
+_ = fig1.suptitle(
+    f"Without connectivity constraints (time {elapsed_time:.2f}s)")
 
 # %%
 # We are defining k-Nearest Neighbors with 10 neighbors
 # -----------------------------------------------------
 
-from sklearn.neighbors import kneighbors_graph
 
 connectivity = kneighbors_graph(X, n_neighbors=10, include_self=False)
 
@@ -116,12 +117,12 @@ print(f"Number of points: {label.size}")
 fig2 = plt.figure()
 ax2 = fig2.add_subplot(121, projection="3d", elev=7, azim=-80)
 ax2.set_position([0, 0, 0.95, 1])
-for l in np.unique(label):
+for l in jnp.unique(label):
     ax2.scatter(
         X[label == l, 0],
         X[label == l, 1],
         X[label == l, 2],
-        color=plt.cm.jet(float(l) / np.max(label + 1)),
+        color=plt.cm.jet(float(l) / jnp.max(label + 1)),
         s=20,
         edgecolor="k",
     )

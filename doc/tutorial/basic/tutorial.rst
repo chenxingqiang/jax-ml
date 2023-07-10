@@ -1,13 +1,13 @@
 .. _introduction:
 
-An introduction to machine learning with scikit-learn
+An introduction to machine learning with jax-learn
 =====================================================
 
 .. topic:: Section contents
 
     In this section, we introduce the `machine learning
     <https://en.wikipedia.org/wiki/Machine_learning>`_
-    vocabulary that we use throughout scikit-learn and give a
+    vocabulary that we use throughout jax-learn and give a
     simple learning example.
 
 
@@ -26,7 +26,7 @@ Learning problems fall into a few categories:
  * `supervised learning <https://en.wikipedia.org/wiki/Supervised_learning>`_,
    in which the data comes with additional attributes that we want to predict
    (:ref:`Click here <supervised-learning>`
-   to go to the scikit-learn supervised learning page).This problem
+   to go to the jax-learn supervised learning page).This problem
    can be either:
 
     * `classification
@@ -57,7 +57,7 @@ Learning problems fall into a few categories:
    to project the data from a high-dimensional space down to two or three
    dimensions for the purpose of *visualization*
    (:ref:`Click here <unsupervised-learning>`
-   to go to the Scikit-Learn unsupervised learning page).
+   to go to the Jax-Learn unsupervised learning page).
 
 .. topic:: Training set and testing set
 
@@ -74,7 +74,7 @@ Learning problems fall into a few categories:
 Loading an example dataset
 --------------------------
 
-`scikit-learn` comes with a few standard datasets, for instance the
+`jax-learn` comes with a few standard datasets, for instance the
 `iris <https://en.wikipedia.org/wiki/Iris_flower_data_set>`_ and `digits
 <https://archive.ics.uci.edu/ml/datasets/Pen-Based+Recognition+of+Handwritten+Digits>`_
 datasets for classification and the `diabetes dataset
@@ -86,7 +86,7 @@ load the ``iris`` and ``digits`` datasets.  Our notational convention is that
 interpreter prompt::
 
   $ python
-  >>> from sklearn import datasets
+  >>> from xlearn import datasets
   >>> iris = datasets.load_iris()
   >>> digits = datasets.load_digits()
 
@@ -136,7 +136,7 @@ learn::
     The :ref:`simple example on this dataset
     <sphx_glr_auto_examples_classification_plot_digits_classification.py>` illustrates how starting
     from the original problem one can shape the data for consumption in
-    scikit-learn.
+    jax-learn.
 
 .. topic:: Loading from external datasets
 
@@ -151,17 +151,17 @@ possible classes (the digits zero through nine) on which we *fit* an
 `estimator <https://en.wikipedia.org/wiki/Estimator>`_ to be able to *predict*
 the classes to which unseen samples belong.
 
-In scikit-learn, an estimator for classification is a Python object that
+In jax-learn, an estimator for classification is a Python object that
 implements the methods ``fit(X, y)`` and ``predict(T)``.
 
-An example of an estimator is the class ``sklearn.svm.SVC``, which
+An example of an estimator is the class ``xlearn.svm.SVC``, which
 implements `support vector classification
 <https://en.wikipedia.org/wiki/Support_vector_machine>`_. The
 estimator's constructor takes as arguments the model's parameters.
 
 For now, we will consider the estimator as a black box::
 
-  >>> from sklearn import svm
+  >>> from xlearn import svm
   >>> clf = svm.SVC(gamma=0.001, C=100.)
 
 .. topic:: Choosing the parameters of the model
@@ -207,7 +207,7 @@ example that you can run and study:
 Conventions
 -----------
 
-scikit-learn estimators follow certain rules to make their behavior more
+jax-learn estimators follow certain rules to make their behavior more
 predictive.  These are described in more detail in the :ref:`glossary`.
 
 Type casting
@@ -216,12 +216,12 @@ Type casting
 Where possible, input of type ``float32`` will maintain its data type. Otherwise
 input will be cast to ``float64``::
 
-  >>> import numpy as np
-  >>> from sklearn import kernel_approximation
+  >>> import jax.numpy as jnp
+  >>> from xlearn import kernel_approximation
 
   >>> rng = np.random.RandomState(0)
   >>> X = rng.rand(10, 2000)
-  >>> X = np.array(X, dtype='float32')
+  >>> X = jnp.array(X, dtype='float32')
   >>> X.dtype
   dtype('float32')
 
@@ -240,7 +240,7 @@ sometimes lead to numerical stability problems causing the algorithm
 to be more sensitive to the scale of the values and :ref:`require
 adequate preprocessing<preprocessing_scaler>`.
 
-Keep in mind however that not all scikit-learn estimators attempt to
+Keep in mind however that not all jax-learn estimators attempt to
 work in `float32` mode. For instance, some transformers will always
 cast their input to `float64` and return `float64` transformed
 values as a result.
@@ -248,8 +248,8 @@ values as a result.
 Regression targets are cast to ``float64`` and classification targets are
 maintained::
 
-    >>> from sklearn import datasets
-    >>> from sklearn.svm import SVC
+    >>> from xlearn import datasets
+    >>> from xlearn.svm import SVC
     >>> iris = datasets.load_iris()
     >>> clf = SVC()
     >>> clf.fit(iris.data, iris.target)
@@ -275,9 +275,9 @@ Hyper-parameters of an estimator can be updated after it has been constructed
 via the :term:`set_params()<set_params>` method. Calling ``fit()`` more than
 once will overwrite what was learned by any previous ``fit()``::
 
-  >>> import numpy as np
-  >>> from sklearn.datasets import load_iris
-  >>> from sklearn.svm import SVC
+  >>> import jax.numpy as jnp
+  >>> from xlearn.datasets import load_iris
+  >>> from xlearn.svm import SVC
   >>> X, y = load_iris(return_X_y=True)
 
   >>> clf = SVC()
@@ -292,20 +292,20 @@ once will overwrite what was learned by any previous ``fit()``::
   array([0, 0, 0, 0, 0])
 
 Here, the default kernel ``rbf`` is first changed to ``linear`` via
-:func:`SVC.set_params()<sklearn.svm.SVC.set_params>` after the estimator has
+:func:`SVC.set_params()<xlearn.svm.SVC.set_params>` after the estimator has
 been constructed, and changed back to ``rbf`` to refit the estimator and to
 make a second prediction.
 
 Multiclass vs. multilabel fitting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When using :class:`multiclass classifiers <sklearn.multiclass>`,
+When using :class:`multiclass classifiers <xlearn.multiclass>`,
 the learning and prediction task that is performed is dependent on the format of
 the target data fit upon::
 
-    >>> from sklearn.svm import SVC
-    >>> from sklearn.multiclass import OneVsRestClassifier
-    >>> from sklearn.preprocessing import LabelBinarizer
+    >>> from xlearn.svm import SVC
+    >>> from xlearn.multiclass import OneVsRestClassifier
+    >>> from xlearn.preprocessing import LabelBinarizer
 
     >>> X = [[1, 2], [2, 4], [4, 5], [3, 2], [3, 1]]
     >>> y = [0, 0, 1, 1, 2]
@@ -327,7 +327,7 @@ It is also possible to fit upon a 2d array of binary label indicators::
            [0, 0, 0]])
 
 Here, the classifier is ``fit()``  on a 2d binary label representation of ``y``,
-using the :class:`LabelBinarizer <sklearn.preprocessing.LabelBinarizer>`.
+using the :class:`LabelBinarizer <xlearn.preprocessing.LabelBinarizer>`.
 In this case ``predict()`` returns a 2d array representing the corresponding
 multilabel predictions.
 
@@ -335,7 +335,7 @@ Note that the fourth and fifth instances returned all zeroes, indicating that
 they matched none of the three labels ``fit`` upon. With multilabel outputs, it
 is similarly possible for an instance to be assigned multiple labels::
 
-  >>> from sklearn.preprocessing import MultiLabelBinarizer
+  >>> from xlearn.preprocessing import MultiLabelBinarizer
   >>> y = [[0, 1], [0, 2], [1, 3], [0, 2, 3], [2, 4]]
   >>> y = MultiLabelBinarizer().fit_transform(y)
   >>> classif.fit(X, y).predict(X)
@@ -346,6 +346,6 @@ is similarly possible for an instance to be assigned multiple labels::
          [1, 0, 1, 0, 0]])
 
 In this case, the classifier is fit upon instances each assigned multiple labels.
-The :class:`MultiLabelBinarizer <sklearn.preprocessing.MultiLabelBinarizer>` is
+The :class:`MultiLabelBinarizer <xlearn.preprocessing.MultiLabelBinarizer>` is
 used to binarize the 2d array of multilabels to ``fit`` upon. As a result,
 ``predict()`` returns a 2d array with multiple predicted labels for each instance.

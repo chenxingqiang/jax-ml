@@ -23,7 +23,11 @@ detail.
 #
 # License: BSD 3 clause
 
-import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from xlearn.tree import DecisionTreeRegressor
+from xlearn.ensemble import AdaBoostRegressor
+import jax.numpy as jnp
 
 rng = np.random.RandomState(1)
 X = np.linspace(0, 6, 100)[:, np.newaxis]
@@ -39,8 +43,6 @@ y = np.sin(X).ravel() + np.sin(6 * X).ravel() + rng.normal(0, 0.1, X.shape[0])
 # of `max_depth=4` as base learner and will be built with `n_estimators=300`
 # of those base learners.
 
-from sklearn.ensemble import AdaBoostRegressor
-from sklearn.tree import DecisionTreeRegressor
 
 regr_1 = DecisionTreeRegressor(max_depth=4)
 
@@ -60,8 +62,6 @@ y_2 = regr_2.predict(X)
 # Finally, we plot how well our two regressors,
 # single decision tree regressor and AdaBoost regressor, could fit the data.
 
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 colors = sns.color_palette("colorblind")
 

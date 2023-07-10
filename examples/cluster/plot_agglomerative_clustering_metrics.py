@@ -39,20 +39,20 @@ thus the clustering puts them in the same cluster.
 
 import matplotlib.patheffects as PathEffects
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.metrics import pairwise_distances
+from xlearn.cluster import AgglomerativeClustering
+from xlearn.metrics import pairwise_distances
 
 np.random.seed(0)
 
 # Generate waveform data
 n_features = 2000
-t = np.pi * np.linspace(0, 1, n_features)
+t = jnp.pi * jnp.linspace(0, 1, n_features)
 
 
 def sqr(x):
-    return np.sign(np.cos(x))
+    return jnp.sign(jnp.cos(x))
 
 
 X = list()
@@ -63,7 +63,7 @@ for i, (phi, a) in enumerate([(0.5, 0.15), (0.5, 0.6), (0.3, 0.2)]):
         amplitude_noise = 0.04 * np.random.normal()
         additional_noise = 1 - 2 * np.random.rand(n_features)
         # Make the noise sparse
-        additional_noise[np.abs(additional_noise) < 0.997] = 0
+        additional_noise[jnp.abs(additional_noise) < 0.997] = 0
 
         X.append(
             12
@@ -74,8 +74,8 @@ for i, (phi, a) in enumerate([(0.5, 0.15), (0.5, 0.6), (0.3, 0.2)]):
         )
         y.append(i)
 
-X = np.array(X)
-y = np.array(y)
+X = jnp.array(X)
+y = jnp.array(y)
 
 n_clusters = 3
 
@@ -99,7 +99,7 @@ plt.suptitle("Ground truth", size=20, y=1)
 
 # Plot the distances
 for index, metric in enumerate(["cosine", "euclidean", "cityblock"]):
-    avg_dist = np.zeros((n_clusters, n_clusters))
+    avg_dist = jnp.zeros((n_clusters, n_clusters))
     plt.figure(figsize=(5, 4.5))
     for i in range(n_clusters):
         for j in range(n_clusters):
@@ -117,7 +117,8 @@ for index, metric in enumerate(["cosine", "euclidean", "cityblock"]):
                 horizontalalignment="center",
             )
             t.set_path_effects(
-                [PathEffects.withStroke(linewidth=5, foreground="w", alpha=0.5)]
+                [PathEffects.withStroke(
+                    linewidth=5, foreground="w", alpha=0.5)]
             )
 
     plt.imshow(avg_dist, interpolation="nearest", cmap="cividis", vmin=0)
@@ -136,7 +137,7 @@ for index, metric in enumerate(["cosine", "euclidean", "cityblock"]):
     model.fit(X)
     plt.figure()
     plt.axes([0, 0, 1, 1])
-    for l, color in zip(np.arange(model.n_clusters), colors):
+    for l, color in zip(jnp.arange(model.n_clusters), colors):
         plt.plot(X[model.labels_ == l].T, c=color, alpha=0.5)
     plt.axis("tight")
     plt.axis("off")

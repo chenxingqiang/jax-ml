@@ -16,14 +16,14 @@ details of the training data and learn from the noise, i.e. they overfit.
 
 # Import the necessary modules and libraries
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.tree import DecisionTreeRegressor
+from xlearn.tree import DecisionTreeRegressor
 
 # Create a random dataset
 rng = np.random.RandomState(1)
-X = np.sort(5 * rng.rand(80, 1), axis=0)
-y = np.sin(X).ravel()
+X = jnp.sort(5 * rng.rand(80, 1), axis=0)
+y = jnp.sin(X).ravel()
 y[::5] += 3 * (0.5 - rng.rand(16))
 
 # Fit regression model
@@ -33,7 +33,7 @@ regr_1.fit(X, y)
 regr_2.fit(X, y)
 
 # Predict
-X_test = np.arange(0.0, 5.0, 0.01)[:, np.newaxis]
+X_test = jnp.arange(0.0, 5.0, 0.01)[:, jnp.newaxis]
 y_1 = regr_1.predict(X_test)
 y_2 = regr_2.predict(X_test)
 

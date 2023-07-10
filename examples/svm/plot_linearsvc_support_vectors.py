@@ -10,11 +10,11 @@ vectors in LinearSVC.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import make_blobs
-from sklearn.inspection import DecisionBoundaryDisplay
-from sklearn.svm import LinearSVC
+from xlearn.datasets import make_blobs
+from xlearn.inspection import DecisionBoundaryDisplay
+from xlearn.svm import LinearSVC
 
 X, y = make_blobs(n_samples=40, centers=2, random_state=0)
 
@@ -25,10 +25,11 @@ for i, C in enumerate([1, 100]):
     # obtain the support vectors through the decision function
     decision_function = clf.decision_function(X)
     # we can also calculate the decision function manually
-    # decision_function = np.dot(X, clf.coef_[0]) + clf.intercept_[0]
+    # decision_function = jnp.dot(X, clf.coef_[0]) + clf.intercept_[0]
     # The support vectors are the samples that lie within the margin
     # boundaries, whose size is conventionally constrained to 1
-    support_vector_indices = np.where(np.abs(decision_function) <= 1 + 1e-15)[0]
+    support_vector_indices = jnp.where(
+        jnp.abs(decision_function) <= 1 + 1e-15)[0]
     support_vectors = X[support_vector_indices]
 
     plt.subplot(1, 2, i + 1)

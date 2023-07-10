@@ -31,15 +31,15 @@ meaningful despite the large reduction in dimension.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets
-from sklearn.decomposition import PCA
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier, NeighborhoodComponentsAnalysis
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
+from xlearn import datasets
+from xlearn.decomposition import PCA
+from xlearn.discriminant_analysis import LinearDiscriminantAnalysis
+from xlearn.model_selection import train_test_split
+from xlearn.neighbors import KNeighborsClassifier, NeighborhoodComponentsAnalysis
+from xlearn.pipeline import make_pipeline
+from xlearn.preprocessing import StandardScaler
 
 n_neighbors = 3
 random_state = 0
@@ -53,13 +53,15 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 dim = len(X[0])
-n_classes = len(np.unique(y))
+n_classes = len(jnp.unique(y))
 
 # Reduce dimension to 2 with PCA
-pca = make_pipeline(StandardScaler(), PCA(n_components=2, random_state=random_state))
+pca = make_pipeline(StandardScaler(), PCA(
+    n_components=2, random_state=random_state))
 
 # Reduce dimension to 2 with LinearDiscriminantAnalysis
-lda = make_pipeline(StandardScaler(), LinearDiscriminantAnalysis(n_components=2))
+lda = make_pipeline(
+    StandardScaler(), LinearDiscriminantAnalysis(n_components=2))
 
 # Reduce dimension to 2 with NeighborhoodComponentAnalysis
 nca = make_pipeline(
@@ -93,6 +95,7 @@ for i, (name, model) in enumerate(dim_reduction_methods):
     # Plot the projected points and show the evaluation score
     plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y, s=30, cmap="Set1")
     plt.title(
-        "{}, KNN (k={})\nTest accuracy = {:.2f}".format(name, n_neighbors, acc_knn)
+        "{}, KNN (k={})\nTest accuracy = {:.2f}".format(
+            name, n_neighbors, acc_knn)
     )
 plt.show()

@@ -16,15 +16,15 @@ stationary kernels often obtain better results.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.gaussian_process.kernels import RBF, DotProduct
+from xlearn.gaussian_process import GaussianProcessClassifier
+from xlearn.gaussian_process.kernels import RBF, DotProduct
 
-xx, yy = np.meshgrid(np.linspace(-3, 3, 50), np.linspace(-3, 3, 50))
+xx, yy = jnp.meshgrid(jnp.linspace(-3, 3, 50), jnp.linspace(-3, 3, 50))
 rng = np.random.RandomState(0)
 X = rng.randn(200, 2)
-Y = np.logical_xor(X[:, 0] > 0, X[:, 1] > 0)
+Y = jnp.logical_xor(X[:, 0] > 0, X[:, 1] > 0)
 
 # fit the model
 plt.figure(figsize=(10, 5))
@@ -33,7 +33,7 @@ for i, kernel in enumerate(kernels):
     clf = GaussianProcessClassifier(kernel=kernel, warm_start=True).fit(X, Y)
 
     # plot the decision function for each datapoint on the grid
-    Z = clf.predict_proba(np.vstack((xx.ravel(), yy.ravel())).T)[:, 1]
+    Z = clf.predict_proba(jnp.vstack((xx.ravel(), yy.ravel())).T)[:, 1]
     Z = Z.reshape(xx.shape)
 
     plt.subplot(1, 2, i + 1)
@@ -46,7 +46,8 @@ for i, kernel in enumerate(kernels):
         cmap=plt.cm.PuOr_r,
     )
     contours = plt.contour(xx, yy, Z, levels=[0.5], linewidths=2, colors=["k"])
-    plt.scatter(X[:, 0], X[:, 1], s=30, c=Y, cmap=plt.cm.Paired, edgecolors=(0, 0, 0))
+    plt.scatter(X[:, 0], X[:, 1], s=30, c=Y,
+                cmap=plt.cm.Paired, edgecolors=(0, 0, 0))
     plt.xticks(())
     plt.yticks(())
     plt.axis([-3, 3, -3, 3])

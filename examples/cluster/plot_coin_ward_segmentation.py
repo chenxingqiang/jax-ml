@@ -17,6 +17,13 @@ for each segmented region to be in one piece.
 # Generate data
 # -------------
 
+import matplotlib.pyplot as plt
+from xlearn.cluster import AgglomerativeClustering
+import time as time
+from xlearn.feature_extraction.image import grid_to_graph
+from skimage.transform import rescale
+from scipy.ndimage import gaussian_filter
+import jax.numpy as jnp
 from skimage.data import coins
 
 orig_coins = coins()
@@ -26,9 +33,6 @@ orig_coins = coins()
 # Applying a Gaussian filter for smoothing prior to down-scaling
 # reduces aliasing artifacts.
 
-import numpy as np
-from scipy.ndimage import gaussian_filter
-from skimage.transform import rescale
 
 smoothened_coins = gaussian_filter(orig_coins, sigma=2)
 rescaled_coins = rescale(
@@ -38,7 +42,7 @@ rescaled_coins = rescale(
     anti_aliasing=False,
 )
 
-X = np.reshape(rescaled_coins, (-1, 1))
+X = jnp.reshape(rescaled_coins, (-1, 1))
 
 # %%
 # Define structure of the data
@@ -46,7 +50,6 @@ X = np.reshape(rescaled_coins, (-1, 1))
 #
 # Pixels are connected to their neighbors.
 
-from sklearn.feature_extraction.image import grid_to_graph
 
 connectivity = grid_to_graph(*rescaled_coins.shape)
 
@@ -54,9 +57,6 @@ connectivity = grid_to_graph(*rescaled_coins.shape)
 # Compute clustering
 # ------------------
 
-import time as time
-
-from sklearn.cluster import AgglomerativeClustering
 
 print("Compute structured hierarchical clustering...")
 st = time.time()
@@ -65,10 +65,10 @@ ward = AgglomerativeClustering(
     n_clusters=n_clusters, linkage="ward", connectivity=connectivity
 )
 ward.fit(X)
-label = np.reshape(ward.labels_, rescaled_coins.shape)
+label = jnp.reshape(ward.labels_, rescaled_coins.shape)
 print(f"Elapsed time: {time.time() - st:.3f}s")
 print(f"Number of pixels: {label.size}")
-print(f"Number of clusters: {np.unique(label).size}")
+print(f"Number of clusters: {jnp.unique(label).size}")
 
 # %%
 # Plot the results on an image
@@ -78,7 +78,6 @@ print(f"Number of clusters: {np.unique(label).size}")
 # use a ``n_cluster`` larger than the number of coins because the segmentation
 # is finding a large in the background.
 
-import matplotlib.pyplot as plt
 
 plt.figure(figsize=(5, 5))
 plt.imshow(rescaled_coins, cmap=plt.cm.gray)

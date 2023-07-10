@@ -5,7 +5,7 @@ Sparse coding with a precomputed dictionary
 
 Transform a signal as a sparse combination of Ricker wavelets. This example
 visually compares different sparse coding methods using the
-:class:`~sklearn.decomposition.SparseCoder` estimator. The Ricker (also known
+:class:`~xlearn.decomposition.SparseCoder` estimator. The Ricker (also known
 as Mexican hat or the second derivative of a Gaussian) is not a particularly
 good kernel to represent piecewise constant signals like this one. It can
 therefore be seen how much adding different widths of atoms matters and it
@@ -17,29 +17,29 @@ is performed in order to stay on the same order of magnitude.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.decomposition import SparseCoder
+from xlearn.decomposition import SparseCoder
 
 
 def ricker_function(resolution, center, width):
     """Discrete sub-sampled Ricker (Mexican hat) wavelet"""
-    x = np.linspace(0, resolution - 1, resolution)
+    x = jnp.linspace(0, resolution - 1, resolution)
     x = (
-        (2 / (np.sqrt(3 * width) * np.pi**0.25))
+        (2 / (jnp.sqrt(3 * width) * jnp.pi**0.25))
         * (1 - (x - center) ** 2 / width**2)
-        * np.exp(-((x - center) ** 2) / (2 * width**2))
+        * jnp.exp(-((x - center) ** 2) / (2 * width**2))
     )
     return x
 
 
 def ricker_matrix(width, resolution, n_components):
     """Dictionary of Ricker (Mexican hat) wavelets"""
-    centers = np.linspace(0, resolution - 1, n_components)
-    D = np.empty((n_components, resolution))
+    centers = jnp.linspace(0, resolution - 1, n_components)
+    D = jnp.empty((n_components, resolution))
     for i, center in enumerate(centers):
         D[i] = ricker_function(resolution, center, width)
-    D /= np.sqrt(np.sum(D**2, axis=1))[:, np.newaxis]
+    D /= jnp.sqrt(jnp.sum(D**2, axis=1))[:, jnp.newaxis]
     return D
 
 
@@ -49,19 +49,21 @@ width = 100
 n_components = resolution // subsampling
 
 # Compute a wavelet dictionary
-D_fixed = ricker_matrix(width=width, resolution=resolution, n_components=n_components)
-D_multi = np.r_[
+D_fixed = ricker_matrix(
+    width=width, resolution=resolution, n_components=n_components)
+D_multi = jnp.r_[
     tuple(
-        ricker_matrix(width=w, resolution=resolution, n_components=n_components // 5)
+        ricker_matrix(width=w, resolution=resolution,
+                      n_components=n_components // 5)
         for w in (10, 50, 100, 500, 1000)
     )
 ]
 
 # Generate a signal
-y = np.linspace(0, resolution - 1, resolution)
+y = jnp.linspace(0, resolution - 1, resolution)
 first_quarter = y < resolution / 4
 y[first_quarter] = 3.0
-y[np.logical_not(first_quarter)] = -1.0
+y[jnp.logical_not(first_quarter)] = -1.0
 
 # List the different sparse coding methods in the following format:
 # (title, transform_algorithm, transform_alpha,
@@ -88,14 +90,15 @@ for subplot, (D, title) in enumerate(
             transform_algorithm=algo,
         )
         x = coder.transform(y.reshape(1, -1))
-        density = len(np.flatnonzero(x))
-        x = np.ravel(np.dot(x, D))
-        squared_error = np.sum((y - x) ** 2)
+        density = len(jnp.flatnonzero(x))
+        x = jnp.ravel(jnp.dot(x, D))
+        squared_error = jnp.sum((y - x) ** 2)
         plt.plot(
             x,
             color=color,
             lw=lw,
-            label="%s: %s nonzero coefs,\n%.2f error" % (title, density, squared_error),
+            label="%s: %s nonzero coefs,\n%.2f error" % (
+                title, density, squared_error),
         )
 
     # Soft thresholding debiasing
@@ -103,10 +106,10 @@ for subplot, (D, title) in enumerate(
         dictionary=D, transform_algorithm="threshold", transform_alpha=20
     )
     x = coder.transform(y.reshape(1, -1))
-    _, idx = np.where(x != 0)
-    x[0, idx], _, _, _ = np.linalg.lstsq(D[idx, :].T, y, rcond=None)
-    x = np.ravel(np.dot(x, D))
-    squared_error = np.sum((y - x) ** 2)
+    _, idx = jnp.where(x != 0)
+    x[0, idx], _, _, _ = jnp.linalg.lstsq(D[idx, :].T, y, rcond=None)
+    x = jnp.ravel(jnp.dot(x, D))
+    squared_error = jnp.sum((y - x) ** 2)
     plt.plot(
         x,
         color="darkorange",

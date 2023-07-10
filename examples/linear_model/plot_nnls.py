@@ -9,10 +9,12 @@ linear regression.
 
 """
 
+from xlearn.linear_model import LinearRegression
+from xlearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.metrics import r2_score
+from xlearn.metrics import r2_score
 
 # %%
 # Generate some random data
@@ -23,20 +25,18 @@ X = np.random.randn(n_samples, n_features)
 true_coef = 3 * np.random.randn(n_features)
 # Threshold coefficients to render them non-negative
 true_coef[true_coef < 0] = 0
-y = np.dot(X, true_coef)
+y = jnp.dot(X, true_coef)
 
 # Add some noise
 y += 5 * np.random.normal(size=(n_samples,))
 
 # %%
 # Split the data in train set and test set
-from sklearn.model_selection import train_test_split
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
 
 # %%
 # Fit the Non-Negative least squares.
-from sklearn.linear_model import LinearRegression
 
 reg_nnls = LinearRegression(positive=True)
 y_pred_nnls = reg_nnls.fit(X_train, y_train).predict(X_test)

@@ -28,13 +28,13 @@ There are three options to assign labels:
 import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from scipy.ndimage import gaussian_filter
 from skimage.data import coins
 from skimage.transform import rescale
 
-from sklearn.cluster import spectral_clustering
-from sklearn.feature_extraction import image
+from xlearn.cluster import spectral_clustering
+from xlearn.feature_extraction import image
 
 # load the coins as a numpy array
 orig_coins = coins()
@@ -43,7 +43,8 @@ orig_coins = coins()
 # Applying a Gaussian filter for smoothing prior to down-scaling
 # reduces aliasing artifacts.
 smoothened_coins = gaussian_filter(orig_coins, sigma=2)
-rescaled_coins = rescale(smoothened_coins, 0.2, mode="reflect", anti_aliasing=False)
+rescaled_coins = rescale(smoothened_coins, 0.2,
+                         mode="reflect", anti_aliasing=False)
 
 # Convert the image into a graph with the value of the gradient on the
 # edges.
@@ -54,7 +55,7 @@ graph = image.img_to_graph(rescaled_coins)
 # actual image. For beta=1, the segmentation is close to a voronoi
 beta = 10
 eps = 1e-6
-graph.data = np.exp(-beta * graph.data / graph.data.std()) + eps
+graph.data = jnp.exp(-beta * graph.data / graph.data.std()) + eps
 
 # The number of segmented regions to display needs to be chosen manually.
 # The current version of 'spectral_clustering' does not support determining

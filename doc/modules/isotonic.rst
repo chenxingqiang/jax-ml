@@ -4,7 +4,7 @@
 Isotonic regression
 ===================
 
-.. currentmodule:: sklearn.isotonic
+.. currentmodule:: xlearn.isotonic
 
 The class :class:`IsotonicRegression` fits a non-decreasing real function to
 1-dimensional data. It solves the following problem:

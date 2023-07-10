@@ -2,7 +2,7 @@
 =========================================
 Advanced Plotting With Partial Dependence
 =========================================
-The :class:`~sklearn.inspection.PartialDependenceDisplay` object can be used
+The :class:`~xlearn.inspection.PartialDependenceDisplay` object can be used
 for plotting without needing to recalculate the partial dependence. In this
 example, we show how to plot partial dependence plots and how to quickly
 customize the plot with the visualization API.
@@ -16,12 +16,12 @@ customize the plot with the visualization API.
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from sklearn.datasets import load_diabetes
-from sklearn.inspection import PartialDependenceDisplay
-from sklearn.neural_network import MLPRegressor
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.tree import DecisionTreeRegressor
+from xlearn.datasets import load_diabetes
+from xlearn.inspection import PartialDependenceDisplay
+from xlearn.neural_network import MLPRegressor
+from xlearn.pipeline import make_pipeline
+from xlearn.preprocessing import StandardScaler
+from xlearn.tree import DecisionTreeRegressor
 
 # %%
 # Train models on the diabetes dataset
@@ -37,7 +37,8 @@ y = diabetes.target
 tree = DecisionTreeRegressor()
 mlp = make_pipeline(
     StandardScaler(),
-    MLPRegressor(hidden_layer_sizes=(100, 100), tol=1e-2, max_iter=500, random_state=0),
+    MLPRegressor(hidden_layer_sizes=(100, 100),
+                 tol=1e-2, max_iter=500, random_state=0),
 )
 tree.fit(X, y)
 mlp.fit(X, y)
@@ -48,17 +49,18 @@ mlp.fit(X, y)
 #
 # We plot partial dependence curves for features "age" and "bmi" (body mass
 # index) for the decision tree. With two features,
-# :func:`~sklearn.inspection.PartialDependenceDisplay.from_estimator` expects to plot
+# :func:`~xlearn.inspection.PartialDependenceDisplay.from_estimator` expects to plot
 # two curves. Here the plot function place a grid of two plots using the space
 # defined by `ax` .
 fig, ax = plt.subplots(figsize=(12, 6))
 ax.set_title("Decision Tree")
-tree_disp = PartialDependenceDisplay.from_estimator(tree, X, ["age", "bmi"], ax=ax)
+tree_disp = PartialDependenceDisplay.from_estimator(
+    tree, X, ["age", "bmi"], ax=ax)
 
 # %%
 # The partial dependence curves can be plotted for the multi-layer perceptron.
 # In this case, `line_kw` is passed to
-# :func:`~sklearn.inspection.PartialDependenceDisplay.from_estimator` to change the
+# :func:`~xlearn.inspection.PartialDependenceDisplay.from_estimator` to change the
 # color of the curve.
 fig, ax = plt.subplots(figsize=(12, 6))
 ax.set_title("Multi-layer Perceptron")
@@ -71,7 +73,7 @@ mlp_disp = PartialDependenceDisplay.from_estimator(
 # ======================================================
 #
 # The `tree_disp` and `mlp_disp`
-# :class:`~sklearn.inspection.PartialDependenceDisplay` objects contain all the
+# :class:`~xlearn.inspection.PartialDependenceDisplay` objects contain all the
 # computed information needed to recreate the partial dependence curves. This
 # means we can easily create additional plots without needing to recompute the
 # curves.
@@ -79,7 +81,7 @@ mlp_disp = PartialDependenceDisplay.from_estimator(
 # One way to plot the curves is to place them in the same figure, with the
 # curves of each model on each row. First, we create a figure with two axes
 # within two rows and one column. The two axes are passed to the
-# :func:`~sklearn.inspection.PartialDependenceDisplay.plot` functions of
+# :func:`~xlearn.inspection.PartialDependenceDisplay.plot` functions of
 # `tree_disp` and `mlp_disp`. The given axes will be used by the plotting
 # function to draw the partial dependence. The resulting plot places the
 # decision tree partial dependence curves in the first row of the
@@ -94,7 +96,7 @@ ax2.set_title("Multi-layer Perceptron")
 # %%
 # Another way to compare the curves is to plot them on top of each other. Here,
 # we create a figure with one row and two columns. The axes are passed into the
-# :func:`~sklearn.inspection.PartialDependenceDisplay.plot` function as a list,
+# :func:`~xlearn.inspection.PartialDependenceDisplay.plot` function as a list,
 # which will plot the partial dependence curves of each model on the same axes.
 # The length of the axes list must be equal to the number of plots drawn.
 

@@ -1,6 +1,6 @@
-# Documentation for scikit-learn
+# Documentation for jax-learn
 
 This directory contains the full manual and website as displayed at
-http://scikit-learn.org. See
-http://scikit-learn.org/dev/developers/contributing.html#documentation for
-detailed information about the documentation. 
+<http://jax-learn.cc>. See
+<http://jax-learn.cc/dev/developers/contributing.html#documentation> for
+detailed information about the documentation.

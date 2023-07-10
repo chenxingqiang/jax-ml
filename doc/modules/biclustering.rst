@@ -5,7 +5,7 @@ Biclustering
 ============
 
 Biclustering can be performed with the module
-:mod:`sklearn.cluster.bicluster`. Biclustering algorithms simultaneously
+:mod:`xlearn.cluster.bicluster`. Biclustering algorithms simultaneously
 cluster rows and columns of a data matrix. These clusters of rows and
 columns are known as biclusters. Each determines a submatrix of the
 original data matrix with some desired properties.
@@ -13,10 +13,10 @@ original data matrix with some desired properties.
 For instance, given a matrix of shape ``(10, 10)``, one possible bicluster
 with three rows and two columns induces a submatrix of shape ``(3, 2)``::
 
-    >>> import numpy as np
-    >>> data = np.arange(100).reshape(10, 10)
-    >>> rows = np.array([0, 2, 3])[:, np.newaxis]
-    >>> columns = np.array([1, 2])
+    >>> import jax.numpy as jnp
+    >>> data = jnp.arange(100).reshape(10, 10)
+    >>> rows = jnp.array([0, 2, 3])[:, jnp.newaxis]
+    >>> columns = jnp.array([1, 2])
     >>> data[rows, columns]
     array([[ 1,  2],
            [21, 22],
@@ -82,7 +82,7 @@ diagonal and checkerboard bicluster structures.
     these alternate names.
 
 
-.. currentmodule:: sklearn.cluster.bicluster
+.. currentmodule:: xlearn.cluster.bicluster
 
 
 .. _spectral_coclustering:
@@ -250,7 +250,7 @@ clustering this :math:`n \times q` matrix yields the column labels.
 
 .. _biclustering_evaluation:
 
-.. currentmodule:: sklearn.metrics
+.. currentmodule:: xlearn.metrics
 
 Biclustering evaluation
 =======================
@@ -258,7 +258,7 @@ Biclustering evaluation
 There are two ways of evaluating a biclustering result: internal and
 external. Internal measures, such as cluster stability, rely only on
 the data and the result themselves. Currently there are no internal
-bicluster measures in scikit-learn. External measures refer to an
+bicluster measures in jax-learn. External measures refer to an
 external source of information, such as the true solution. When
 working with real data the true solution is usually unknown, but
 biclustering artificial data may be useful for evaluating algorithms

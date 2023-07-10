@@ -18,10 +18,10 @@ create a non-convex decision boundary in that area.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import make_blobs
-from sklearn.svm import SVC
+from xlearn.datasets import make_blobs
+from xlearn.svm import SVC
 
 X, y = make_blobs(random_state=27)
 
@@ -36,17 +36,17 @@ for break_ties, title, ax in zip((False, True), titles, sub.flatten()):
     xlim = [X[:, 0].min(), X[:, 0].max()]
     ylim = [X[:, 1].min(), X[:, 1].max()]
 
-    xs = np.linspace(xlim[0], xlim[1], 1000)
-    ys = np.linspace(ylim[0], ylim[1], 1000)
-    xx, yy = np.meshgrid(xs, ys)
+    xs = jnp.linspace(xlim[0], xlim[1], 1000)
+    ys = jnp.linspace(ylim[0], ylim[1], 1000)
+    xx, yy = jnp.meshgrid(xs, ys)
 
-    pred = svm.predict(np.c_[xx.ravel(), yy.ravel()])
+    pred = svm.predict(jnp.c_[xx.ravel(), yy.ravel()])
 
     colors = [plt.cm.Accent(i) for i in [0, 4, 7]]
 
     points = ax.scatter(X[:, 0], X[:, 1], c=y, cmap="Accent")
     classes = [(0, 1), (0, 2), (1, 2)]
-    line = np.linspace(X[:, 1].min() - 5, X[:, 1].max() + 5)
+    line = jnp.linspace(X[:, 1].min() - 5, X[:, 1].max() + 5)
     ax.imshow(
         -pred.reshape(xx.shape),
         cmap="Accent",

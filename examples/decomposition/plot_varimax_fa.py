@@ -20,11 +20,11 @@ positively on sepal width.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import load_iris
-from sklearn.decomposition import PCA, FactorAnalysis
-from sklearn.preprocessing import StandardScaler
+from xlearn.datasets import load_iris
+from xlearn.decomposition import PCA, FactorAnalysis
+from xlearn.preprocessing import StandardScaler
 
 # %%
 # Load Iris data
@@ -36,7 +36,7 @@ feature_names = data["feature_names"]
 # Plot covariance of Iris features
 ax = plt.axes()
 
-im = ax.imshow(np.corrcoef(X.T), cmap="RdBu_r", vmin=-1, vmax=1)
+im = ax.imshow(jnp.corrcoef(X.T), cmap="RdBu_r", vmin=-1, vmax=1)
 
 ax.set_xticks([0, 1, 2, 3])
 ax.set_xticklabels(list(feature_names), rotation=90)
@@ -66,9 +66,9 @@ for ax, (method, fa) in zip(axes, methods):
     print("\n\n %s :\n" % method)
     print(components)
 
-    vmax = np.abs(components).max()
+    vmax = jnp.abs(components).max()
     ax.imshow(components, cmap="RdBu_r", vmax=vmax, vmin=-vmax)
-    ax.set_yticks(np.arange(len(feature_names)))
+    ax.set_yticks(jnp.arange(len(feature_names)))
     ax.set_yticklabels(feature_names)
     ax.set_title(str(method))
     ax.set_xticks([0, 1])

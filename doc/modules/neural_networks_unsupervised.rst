@@ -4,7 +4,7 @@
 Neural network models (unsupervised)
 ====================================
 
-.. currentmodule:: sklearn.neural_network
+.. currentmodule:: xlearn.neural_network
 
 
 .. _rbm:
@@ -18,7 +18,7 @@ of RBMs often give good results when fed into a linear classifier such as a
 linear SVM or a perceptron.
 
 The model makes assumptions regarding the distribution of inputs. At the moment,
-scikit-learn only provides :class:`BernoulliRBM`, which assumes the inputs are
+jax-learn only provides :class:`BernoulliRBM`, which assumes the inputs are
 either binary values or values between 0 and 1, each encoding the probability
 that the specific feature would be turned on.
 

@@ -21,13 +21,13 @@ NY, USA: Springer New York Inc..
 # Author: Wenhao Zhang <wenhaoz@ucla.edu>
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import load_digits
-from sklearn.decomposition import PCA
-from sklearn.model_selection import GridSearchCV
-from sklearn.pipeline import Pipeline
-from sklearn.svm import LinearSVC
+from xlearn.datasets import load_digits
+from xlearn.decomposition import PCA
+from xlearn.model_selection import GridSearchCV
+from xlearn.pipeline import Pipeline
+from xlearn.svm import LinearSVC
 
 
 def lower_bound(cv_results):
@@ -46,7 +46,7 @@ def lower_bound(cv_results):
         Lower bound within 1 standard deviation of the
         best `mean_test_score`.
     """
-    best_score_idx = np.argmax(cv_results["mean_test_score"])
+    best_score_idx = jnp.argmax(cv_results["mean_test_score"])
 
     return (
         cv_results["mean_test_score"][best_score_idx]
@@ -71,7 +71,7 @@ def best_low_complexity(cv_results):
         `mean_test_score`.
     """
     threshold = lower_bound(cv_results)
-    candidate_idx = np.flatnonzero(cv_results["mean_test_score"] >= threshold)
+    candidate_idx = jnp.flatnonzero(cv_results["mean_test_score"] >= threshold)
     best_idx = candidate_idx[
         cv_results["param_reduce_dim__n_components"][candidate_idx].argmin()
     ]
@@ -105,7 +105,7 @@ plt.figure()
 plt.bar(n_components, test_scores, width=1.3, color="b")
 
 lower = lower_bound(grid.cv_results_)
-plt.axhline(np.max(test_scores), linestyle="--", color="y", label="Best score")
+plt.axhline(jnp.max(test_scores), linestyle="--", color="y", label="Best score")
 plt.axhline(lower, linestyle="--", color=".5", label="Best score - 1 std")
 
 plt.title("Balance model complexity and cross-validated score")

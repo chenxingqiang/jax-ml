@@ -41,29 +41,26 @@ The same task has been used in a number of papers including:
 
 """
 
-# Author: Peter Prettenhofer <peter.prettenhofer@gmail.com>
-#         Arnaud Joly <arnaud.v.joly@gmail.com>
-# License: BSD 3 clause
 
 import argparse
 import os
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 from joblib import Memory
 
-from sklearn.datasets import fetch_covtype, get_data_home
-from sklearn.ensemble import (
+from xlearn.datasets import fetch_covtype, get_data_home
+from xlearn.ensemble import (
     ExtraTreesClassifier,
     GradientBoostingClassifier,
     RandomForestClassifier,
 )
-from sklearn.linear_model import LogisticRegression, SGDClassifier
-from sklearn.metrics import zero_one_loss
-from sklearn.naive_bayes import GaussianNB
-from sklearn.svm import LinearSVC
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.utils import check_array
+from xlearn.linear_model import LogisticRegression, SGDClassifier
+from xlearn.metrics import zero_one_loss
+from xlearn.naive_bayes import GaussianNB
+from xlearn.svm import LinearSVC
+from xlearn.tree import DecisionTreeClassifier
+from xlearn.utils import check_array
 
 # Memoize the data extraction and memory map the resulting
 # train / test splits in readonly mode
@@ -73,7 +70,7 @@ memory = Memory(
 
 
 @memory.cache
-def load_data(dtype=np.float32, order="C", random_state=13):
+def load_data(dtype=jnp.float32, order="C", random_state=13):
     """Load the data, then cache and memmap the train/test split"""
     ######################################################################
     # Load dataset
@@ -161,15 +158,15 @@ if __name__ == "__main__":
     print("Dataset statistics:")
     print("===================")
     print("%s %d" % ("number of features:".ljust(25), X_train.shape[1]))
-    print("%s %d" % ("number of classes:".ljust(25), np.unique(y_train).size))
+    print("%s %d" % ("number of classes:".ljust(25), jnp.unique(y_train).size))
     print("%s %s" % ("data type:".ljust(25), X_train.dtype))
     print(
         "%s %d (pos=%d, neg=%d, size=%dMB)"
         % (
             "number of train samples:".ljust(25),
             X_train.shape[0],
-            np.sum(y_train == 1),
-            np.sum(y_train == 0),
+            jnp.sum(y_train == 1),
+            jnp.sum(y_train == 0),
             int(X_train.nbytes / 1e6),
         )
     )
@@ -178,8 +175,8 @@ if __name__ == "__main__":
         % (
             "number of test samples:".ljust(25),
             X_test.shape[0],
-            np.sum(y_test == 1),
-            np.sum(y_test == 0),
+            jnp.sum(y_test == 1),
+            jnp.sum(y_test == 0),
             int(X_test.nbytes / 1e6),
         )
     )
@@ -219,7 +216,8 @@ if __name__ == "__main__":
     print()
     print("Classification performance:")
     print("===========================")
-    print("%s %s %s %s" % ("Classifier  ", "train-time", "test-time", "error-rate"))
+    print("%s %s %s %s" %
+          ("Classifier  ", "train-time", "test-time", "error-rate"))
     print("-" * 44)
     for name in sorted(args["classifiers"], key=error.get):
         print(

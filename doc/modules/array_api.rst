@@ -8,14 +8,14 @@
 Array API support (experimental)
 ================================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 The `Array API <https://data-apis.org/array-api/latest/>`_ specification defines
 a standard API for all array manipulation libraries with a NumPy-like API.
-Scikit-learn's Array API support requires
+Jax-learn's Array API support requires
 `array-api-compat <https://github.com/data-apis/array-api-compat>`__ to be installed.
 
-Some scikit-learn estimators that primarily rely on NumPy (as opposed to using
+Some jax-learn estimators that primarily rely on NumPy (as opposed to using
 Cython) to implement the algorithmic logic of their `fit`, `predict` or
 `transform` methods can be configured to accept any Array API compatible input
 datastructures and automatically dispatch operations to the underlying namespace
@@ -26,7 +26,7 @@ explicitly as explained in the following.
 
 .. note::
     Currently, only `cupy.array_api`, `numpy.array_api`, `cupy`, and `PyTorch`
-    are known to work with scikit-learn's estimators.
+    are known to work with jax-learn's estimators.
 
 Example usage
 =============
@@ -35,9 +35,9 @@ Here is an example code snippet to demonstrate how to use `CuPy
 <https://cupy.dev/>`_ to run
 :class:`~discriminant_analysis.LinearDiscriminantAnalysis` on a GPU::
 
-    >>> from sklearn.datasets import make_classification
-    >>> from sklearn import config_context
-    >>> from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    >>> from xlearn.datasets import make_classification
+    >>> from xlearn import config_context
+    >>> from xlearn.discriminant_analysis import LinearDiscriminantAnalysis
     >>> import cupy
 
     >>> X_np, y_np = make_classification(random_state=0)
@@ -58,7 +58,7 @@ Array API namespace was used for training, then fitted attributes will be on the
 GPU. We provide a experimental `_estimator_with_converted_arrays` utility that
 transfers an estimator attributes from Array API to a ndarray::
 
-    >>> from sklearn.utils._array_api import _estimator_with_converted_arrays
+    >>> from xlearn.utils._array_api import _estimator_with_converted_arrays
     >>> cupy_to_ndarray = lambda array : array.get()
     >>> lda_np = _estimator_with_converted_arrays(lda, cupy_to_ndarray)
     >>> X_trans = lda_np.transform(X_np)
@@ -92,7 +92,7 @@ Estimators with support for `Array API`-compatible inputs
 
 Coverage for more estimators is expected to grow over time. Please follow the
 dedicated `meta-issue on GitHub
-<https://github.com/scikit-learn/scikit-learn/issues/22352>`_ to track progress.
+<https://github.com/jax-learn/jax-learn/issues/22352>`_ to track progress.
 
 Common estimator checks
 =======================

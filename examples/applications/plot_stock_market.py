@@ -23,9 +23,14 @@ that are linked tend to fluctuate in relation to each other during a day.
 # `data.nasdaq.com <https://data.nasdaq.com/>`_ and
 # `alphavantage.co <https://www.alphavantage.co/>`_.
 
+from matplotlib.collections import LineCollection
+import matplotlib.pyplot as plt
+from xlearn import manifold
+from xlearn import cluster
+from xlearn import covariance
 import sys
 
-import numpy as np
+import jax.numpy as jnp
 import pandas as pd
 
 symbol_dict = {
@@ -88,20 +93,20 @@ symbol_dict = {
 }
 
 
-symbols, names = np.array(sorted(symbol_dict.items())).T
+symbols, names = jnp.array(sorted(symbol_dict.items())).T
 
 quotes = []
 
 for symbol in symbols:
     print("Fetching quote history for %r" % symbol, file=sys.stderr)
     url = (
-        "https://raw.githubusercontent.com/scikit-learn/examples-data/"
+        "https://raw.githubusercontent.com/jax-learn/examples-data/"
         "master/financial-data/{}.csv"
     )
     quotes.append(pd.read_csv(url.format(symbol)))
 
-close_prices = np.vstack([q["close"] for q in quotes])
-open_prices = np.vstack([q["open"] for q in quotes])
+close_prices = jnp.vstack([q["close"] for q in quotes])
+open_prices = jnp.vstack([q["open"] for q in quotes])
 
 # The daily variations of the quotes are what carry the most information
 variation = close_prices - open_prices
@@ -118,9 +123,8 @@ variation = close_prices - open_prices
 # symbol, the symbols that it is connected to are those useful to explain
 # its fluctuations.
 
-from sklearn import covariance
 
-alphas = np.logspace(-1.5, 1, num=10)
+alphas = jnp.logspace(-1.5, 1, num=10)
 edge_model = covariance.GraphicalLassoCV(alphas=alphas)
 
 # standardize the time series: using correlations rather than covariance
@@ -135,7 +139,7 @@ edge_model.fit(X)
 #
 # We use clustering to group together quotes that behave similarly. Here,
 # amongst the :ref:`various clustering techniques <clustering>` available
-# in the scikit-learn, we use :ref:`affinity_propagation` as it does
+# in the jax-learn, we use :ref:`affinity_propagation` as it does
 # not enforce equal-size clusters, and it can choose automatically the
 # number of clusters from the data.
 #
@@ -145,9 +149,9 @@ edge_model.fit(X)
 # be considered as having a similar impact at the level of the full stock
 # market.
 
-from sklearn import cluster
 
-_, labels = cluster.affinity_propagation(edge_model.covariance_, random_state=0)
+_, labels = cluster.affinity_propagation(
+    edge_model.covariance_, random_state=0)
 n_labels = labels.max()
 
 for i in range(n_labels + 1):
@@ -167,7 +171,6 @@ for i in range(n_labels + 1):
 # Finding a low-dimension embedding for visualization: find the best position of
 # the nodes (the stocks) on a 2D plane
 
-from sklearn import manifold
 
 node_position_model = manifold.LocallyLinearEmbedding(
     n_components=2, eigen_solver="dense", n_neighbors=6
@@ -192,8 +195,6 @@ embedding = node_position_model.fit_transform(X.T).T
 # heuristic based on the direction of the nearest neighbor along each
 # axis.
 
-import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
 
 plt.figure(1, facecolor="w", figsize=(10, 8))
 plt.clf()
@@ -202,10 +203,10 @@ plt.axis("off")
 
 # Plot the graph of partial correlations
 partial_correlations = edge_model.precision_.copy()
-d = 1 / np.sqrt(np.diag(partial_correlations))
+d = 1 / jnp.sqrt(jnp.diag(partial_correlations))
 partial_correlations *= d
-partial_correlations *= d[:, np.newaxis]
-non_zero = np.abs(np.triu(partial_correlations, k=1)) > 0.02
+partial_correlations *= d[:, jnp.newaxis]
+non_zero = jnp.abs(jnp.triu(partial_correlations, k=1)) > 0.02
 
 # Plot the nodes using the coordinates of our embedding
 plt.scatter(
@@ -213,13 +214,13 @@ plt.scatter(
 )
 
 # Plot the edges
-start_idx, end_idx = np.where(non_zero)
+start_idx, end_idx = jnp.where(non_zero)
 # a sequence of (*line0*, *line1*, *line2*), where::
 #            linen = (x0, y0), (x1, y1), ... (xm, ym)
 segments = [
     [embedding[:, start], embedding[:, stop]] for start, stop in zip(start_idx, end_idx)
 ]
-values = np.abs(partial_correlations[non_zero])
+values = jnp.abs(partial_correlations[non_zero])
 lc = LineCollection(
     segments, zorder=0, cmap=plt.cm.hot_r, norm=plt.Normalize(0, 0.7 * values.max())
 )
@@ -234,8 +235,8 @@ for index, (name, label, (x, y)) in enumerate(zip(names, labels, embedding.T)):
     dx[index] = 1
     dy = y - embedding[1]
     dy[index] = 1
-    this_dx = dx[np.argmin(np.abs(dy))]
-    this_dy = dy[np.argmin(np.abs(dx))]
+    this_dx = dx[jnp.argmin(jnp.abs(dy))]
+    this_dy = dy[jnp.argmin(jnp.abs(dx))]
     if this_dx > 0:
         horizontalalignment = "left"
         x = x + 0.002

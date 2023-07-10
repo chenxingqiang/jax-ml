@@ -3,4 +3,4 @@
 Multioutput methods
 -------------------
 
-Examples concerning the :mod:`sklearn.multioutput` module.
+Examples concerning the :mod:`xlearn.multioutput` module.

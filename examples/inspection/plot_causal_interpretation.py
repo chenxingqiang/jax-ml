@@ -26,7 +26,12 @@ identifying that causal effect.
 # and parental hourly wage. Finally, we model hourly wages as a linear function
 # of all the previous variables and a random component. Note that all variables
 # have a positive effect on hourly wages.
-import numpy as np
+import matplotlib.pyplot as plt
+from xlearn.metrics import r2_score
+from xlearn.linear_model import LinearRegression
+from xlearn.model_selection import train_test_split
+import seaborn as sns
+import jax.numpy as jnp
 import pandas as pd
 
 n_samples = 10_000
@@ -66,7 +71,6 @@ hourly_wages[hourly_wages < 0] = 0
 # The following plot shows the distribution of each variable, and pairwise
 # scatter plots. Key to our OVB story is the positive relationship between
 # ability and college degree.
-import seaborn as sns
 
 df = pd.DataFrame(
     {
@@ -84,23 +88,22 @@ grid = sns.pairplot(df, diag_kind="kde", corner=True)
 # In the next section, we train predictive models and we therefore split the
 # target column from over features and we split the data into a training and a
 # testing set.
-from sklearn.model_selection import train_test_split
 
 target_name = "hourly wage"
 X, y = df.drop(columns=target_name), df[target_name]
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=0)
 
 # %%
 # Income prediction with fully observed variables
 # -----------------------------------------------
 #
 # First, we train a predictive model, a
-# :class:`~sklearn.linear_model.LinearRegression` model. In this experiment,
+# :class:`~xlearn.linear_model.LinearRegression` model. In this experiment,
 # we assume that all variables used by the true generative model are available.
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
 
-features_names = ["experience", "parent hourly wage", "college degree", "ability"]
+features_names = ["experience", "parent hourly wage",
+                  "college degree", "ability"]
 
 regressor_with_ability = LinearRegression()
 regressor_with_ability.fit(X_train[features_names], y_train)
@@ -113,7 +116,6 @@ print(f"R2 score with ability: {R2_with_ability:.3f}")
 # This model predicts well the hourly wages as shown by the high R2 score. We
 # plot the model coefficients to show that we exactly recover the values of
 # the true generative model.
-import matplotlib.pyplot as plt
 
 model_coef = pd.Series(regressor_with_ability.coef_, index=features_names)
 coef = pd.concat(
@@ -123,7 +125,8 @@ coef = pd.concat(
 )
 ax = coef.plot.barh()
 ax.set_xlabel("Coefficient values")
-ax.set_title("Coefficients of the linear regression including the ability features")
+ax.set_title(
+    "Coefficients of the linear regression including the ability features")
 _ = plt.tight_layout()
 
 # %%
@@ -138,7 +141,8 @@ features_names = ["experience", "parent hourly wage", "college degree"]
 
 regressor_without_ability = LinearRegression()
 regressor_without_ability.fit(X_train[features_names], y_train)
-y_pred_without_ability = regressor_without_ability.predict(X_test[features_names])
+y_pred_without_ability = regressor_without_ability.predict(
+    X_test[features_names])
 R2_without_ability = r2_score(y_test, y_pred_without_ability)
 
 print(f"R2 score without ability: {R2_without_ability:.3f}")
@@ -156,7 +160,8 @@ coef = pd.concat(
 )
 ax = coef.plot.barh()
 ax.set_xlabel("Coefficient values")
-_ = ax.set_title("Coefficients of the linear regression excluding the ability feature")
+_ = ax.set_title(
+    "Coefficients of the linear regression excluding the ability feature")
 plt.tight_layout()
 plt.show()
 

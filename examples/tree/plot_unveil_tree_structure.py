@@ -16,19 +16,19 @@ show how to retrieve:
 
 """
 
-import numpy as np
+import jax.numpy as jnp
 from matplotlib import pyplot as plt
 
-from sklearn import tree
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+from xlearn import tree
+from xlearn.datasets import load_iris
+from xlearn.model_selection import train_test_split
+from xlearn.tree import DecisionTreeClassifier
 
 ##############################################################################
 # Train tree classifier
 # ---------------------
-# First, we fit a :class:`~sklearn.tree.DecisionTreeClassifier` using the
-# :func:`~sklearn.datasets.load_iris` dataset.
+# First, we fit a :class:`~xlearn.tree.DecisionTreeClassifier` using the
+# :func:`~xlearn.datasets.load_iris` dataset.
 
 iris = load_iris()
 X = iris.data
@@ -149,7 +149,7 @@ leaf_id = clf.apply(X_test)
 sample_id = 0
 # obtain ids of the nodes `sample_id` goes through, i.e., row `sample_id`
 node_index = node_indicator.indices[
-    node_indicator.indptr[sample_id] : node_indicator.indptr[sample_id + 1]
+    node_indicator.indptr[sample_id]: node_indicator.indptr[sample_id + 1]
 ]
 
 print("Rules used to predict sample {id}:\n".format(id=sample_id))
@@ -182,7 +182,8 @@ for node_id in node_index:
 
 sample_ids = [0, 1]
 # boolean array indicating the nodes both samples go through
-common_nodes = node_indicator.toarray()[sample_ids].sum(axis=0) == len(sample_ids)
+common_nodes = node_indicator.toarray(
+)[sample_ids].sum(axis=0) == len(sample_ids)
 # obtain node ids using position in array
 common_node_id = np.arange(n_nodes)[common_nodes]
 
@@ -191,4 +192,5 @@ print(
         samples=sample_ids, nodes=common_node_id
     )
 )
-print("This is {prop}% of all nodes.".format(prop=100 * len(common_node_id) / n_nodes))
+print("This is {prop}% of all nodes.".format(
+    prop=100 * len(common_node_id) / n_nodes))

@@ -11,7 +11,7 @@
 .. include:: tune_toc.rst
 
 =======================
-Welcome to scikit-learn
+Welcome to jax-learn
 =======================
 
 |

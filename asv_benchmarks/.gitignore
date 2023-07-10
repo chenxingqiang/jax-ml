@@ -2,5 +2,5 @@
 env/
 html/
 results/
-scikit-learn/
+jax-learn/
 benchmarks/cache/

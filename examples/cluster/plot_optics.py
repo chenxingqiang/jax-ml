@@ -3,7 +3,7 @@
 Demo of OPTICS clustering algorithm
 ===================================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 Finds core samples of high density and expands clusters from them.
 This example uses data that is generated so that the clusters have
@@ -22,9 +22,9 @@ thresholds in DBSCAN.
 
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.cluster import OPTICS, cluster_optics_dbscan
+from xlearn.cluster import OPTICS, cluster_optics_dbscan
 
 # Generate sample data
 
@@ -37,7 +37,7 @@ C3 = [1, -2] + 0.2 * np.random.randn(n_points_per_cluster, 2)
 C4 = [-2, 3] + 0.3 * np.random.randn(n_points_per_cluster, 2)
 C5 = [3, -2] + 1.6 * np.random.randn(n_points_per_cluster, 2)
 C6 = [5, 6] + 2 * np.random.randn(n_points_per_cluster, 2)
-X = np.vstack((C1, C2, C3, C4, C5, C6))
+X = jnp.vstack((C1, C2, C3, C4, C5, C6))
 
 clust = OPTICS(min_samples=50, xi=0.05, min_cluster_size=0.05)
 
@@ -57,7 +57,7 @@ labels_200 = cluster_optics_dbscan(
     eps=2,
 )
 
-space = np.arange(len(X))
+space = jnp.arange(len(X))
 reachability = clust.reachability_[clust.ordering_]
 labels = clust.labels_[clust.ordering_]
 
@@ -75,8 +75,8 @@ for klass, color in zip(range(0, 5), colors):
     Rk = reachability[labels == klass]
     ax1.plot(Xk, Rk, color, alpha=0.3)
 ax1.plot(space[labels == -1], reachability[labels == -1], "k.", alpha=0.3)
-ax1.plot(space, np.full_like(space, 2.0, dtype=float), "k-", alpha=0.5)
-ax1.plot(space, np.full_like(space, 0.5, dtype=float), "k-.", alpha=0.5)
+ax1.plot(space, jnp.full_like(space, 2.0, dtype=float), "k-", alpha=0.5)
+ax1.plot(space, jnp.full_like(space, 0.5, dtype=float), "k-.", alpha=0.5)
 ax1.set_ylabel("Reachability (epsilon distance)")
 ax1.set_title("Reachability Plot")
 

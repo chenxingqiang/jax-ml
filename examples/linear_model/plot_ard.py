@@ -35,7 +35,15 @@ non-linear relationship between `X` and `y`.
 # potentially to arbitrary large weights. Having a prior on the weights and a
 # penalty alleviates the problem. Finally, gaussian noise is added.
 
-from sklearn.datasets import make_regression
+from xlearn.preprocessing import PolynomialFeatures, StandardScaler
+from xlearn.pipeline import make_pipeline
+import jax.numpy as jnp
+from matplotlib.colors import SymLogNorm
+import seaborn as sns
+import matplotlib.pyplot as plt
+from xlearn.linear_model import ARDRegression, BayesianRidge, LinearRegression
+import pandas as pd
+from xlearn.datasets import make_regression
 
 X, y, true_weights = make_regression(
     n_samples=100,
@@ -53,9 +61,6 @@ X, y, true_weights = make_regression(
 # We now fit both Bayesian models and the OLS to later compare the models'
 # coefficients.
 
-import pandas as pd
-
-from sklearn.linear_model import ARDRegression, BayesianRidge, LinearRegression
 
 olr = LinearRegression().fit(X, y)
 brr = BayesianRidge(compute_score=True, n_iter=30).fit(X, y)
@@ -75,9 +80,6 @@ df = pd.DataFrame(
 #
 # Now we compare the coefficients of each model with the weights of
 # the true generative model.
-import matplotlib.pyplot as plt
-import seaborn as sns
-from matplotlib.colors import SymLogNorm
 
 plt.figure(figsize=(10, 6))
 ax = sns.heatmap(
@@ -103,10 +105,9 @@ _ = plt.title("Models' coefficients")
 # %%
 # Plot the marginal log-likelihood
 # --------------------------------
-import numpy as np
 
-ard_scores = -np.array(ard.scores_)
-brr_scores = -np.array(brr.scores_)
+ard_scores = -jnp.array(ard.scores_)
+brr_scores = -jnp.array(brr.scores_)
 plt.plot(ard_scores, color="navy", label="ARD")
 plt.plot(brr_scores, color="red", label="BayesianRidge")
 plt.ylabel("Log-likelihood")
@@ -126,24 +127,22 @@ _ = plt.title("Models log-likelihood")
 # We create a target that is a non-linear function of the input feature.
 # Noise following a standard uniform distribution is added.
 
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
 rng = np.random.RandomState(0)
 n_samples = 110
 
 # sort the data to make plotting easier later
-X = np.sort(-10 * rng.rand(n_samples) + 10)
+X = jnp.sort(-10 * rng.rand(n_samples) + 10)
 noise = rng.normal(0, 1, n_samples) * 1.35
-y = np.sqrt(X) * np.sin(X) + noise
+y = jnp.sqrt(X) * jnp.sin(X) + noise
 full_data = pd.DataFrame({"input_feature": X, "target": y})
 X = X.reshape((-1, 1))
 
 # extrapolation
-X_plot = np.linspace(10, 10.4, 10)
-y_plot = np.sqrt(X_plot) * np.sin(X_plot)
-X_plot = np.concatenate((X, X_plot.reshape((-1, 1))))
-y_plot = np.concatenate((y - noise, y_plot))
+X_plot = jnp.linspace(10, 10.4, 10)
+y_plot = jnp.sqrt(X_plot) * jnp.sin(X_plot)
+X_plot = jnp.concatenate((X, X_plot.reshape((-1, 1))))
+y_plot = jnp.concatenate((y - noise, y_plot))
 
 # %%
 # Fit the regressors
@@ -152,9 +151,9 @@ y_plot = np.concatenate((y - noise, y_plot))
 # Here we try a degree 10 polynomial to potentially overfit, though the bayesian
 # linear models regularize the size of the polynomial coefficients. As
 # `fit_intercept=True` by default for
-# :class:`~sklearn.linear_model.ARDRegression` and
-# :class:`~sklearn.linear_model.BayesianRidge`, then
-# :class:`~sklearn.preprocessing.PolynomialFeatures` should not introduce an
+# :class:`~xlearn.linear_model.ARDRegression` and
+# :class:`~xlearn.linear_model.BayesianRidge`, then
+# :class:`~xlearn.preprocessing.PolynomialFeatures` should not introduce an
 # additional bias feature. By setting `return_std=True`, the bayesian regressors
 # return the standard deviation of the posterior distribution for the model
 # parameters.
@@ -181,7 +180,8 @@ ax = sns.scatterplot(
     data=full_data, x="input_feature", y="target", color="black", alpha=0.75
 )
 ax.plot(X_plot, y_plot, color="black", label="Ground Truth")
-ax.plot(X_plot, y_brr, color="red", label="BayesianRidge with polynomial features")
+ax.plot(X_plot, y_brr, color="red",
+        label="BayesianRidge with polynomial features")
 ax.plot(X_plot, y_ard, color="navy", label="ARD with polynomial features")
 ax.fill_between(
     X_plot.ravel(),

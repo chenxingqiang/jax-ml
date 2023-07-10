@@ -1,4 +1,4 @@
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 .. _glossary:
 
@@ -7,7 +7,7 @@ Glossary of Common Terms and API Elements
 =========================================
 
 This glossary hopes to definitively represent the tacit and explicit
-conventions applied in Scikit-learn and its API, while providing a reference
+conventions applied in Jax-learn and its API, while providing a reference
 for users and contributors. It aims to describe the concepts and either detail
 their corresponding API or link to other relevant parts of the documentation
 which do so. By linking to glossary entries from the API Reference and User
@@ -36,11 +36,11 @@ General Concepts
 
     API
         Refers to both the *specific* interfaces for estimators implemented in
-        Scikit-learn and the *generalized* conventions across types of
+        Jax-learn and the *generalized* conventions across types of
         estimators as described in this glossary and :ref:`overviewed in the
         contributor documentation <api_overview>`.
 
-        The specific interfaces that constitute Scikit-learn's public API are
+        The specific interfaces that constitute Jax-learn's public API are
         largely documented in :ref:`api_ref`. However, we less formally consider
         anything as public API if none of the identifiers required to access it
         begins with ``_``.  We generally try to maintain :term:`backwards
@@ -50,7 +50,7 @@ General Concepts
         are not assured to be stable.
 
     array-like
-        The most common data format for *input* to Scikit-learn estimators and
+        The most common data format for *input* to Jax-learn estimators and
         functions, array-like is any type object for which
         :func:`numpy.asarray` will produce an array of appropriate shape
         (usually 1 or 2-dimensional) of appropriate dtype (usually numeric).
@@ -69,7 +69,7 @@ General Concepts
         * an iterator
         * a generator
 
-        Note that *output* from scikit-learn estimators and functions (e.g.
+        Note that *output* from jax-learn estimators and functions (e.g.
         predictions) should generally be arrays or sparse matrices, or lists
         thereof (as in multi-output :class:`tree.DecisionTreeClassifier`'s
         ``predict_proba``). An estimator where ``predict()`` returns a list or
@@ -135,7 +135,7 @@ General Concepts
         Serialization
             We make no assurances that pickling an estimator in one version
             will allow it to be unpickled to an equivalent model in the
-            subsequent version.  (For estimators in the sklearn package, we
+            subsequent version.  (For estimators in the xlearn package, we
             issue a warning when this unpickling is attempted, even if it may
             happen to work.)  See :ref:`persistence_limitations`.
         :func:`utils.estimator_checks.check_estimator`
@@ -158,27 +158,27 @@ General Concepts
         A categorical or nominal :term:`feature` is one that has a
         finite set of discrete values across the population of data.
         These are commonly represented as columns of integers or
-        strings. Strings will be rejected by most scikit-learn
+        strings. Strings will be rejected by most jax-learn
         estimators, and integers will be treated as ordinal or
         count-valued. For the use with most estimators, categorical
         variables should be one-hot encoded. Notable exceptions include
         tree-based models such as random forests and gradient boosting
         models that often work better and faster with integer-coded
         categorical variables.
-        :class:`~sklearn.preprocessing.OrdinalEncoder` helps encoding
+        :class:`~xlearn.preprocessing.OrdinalEncoder` helps encoding
         string-valued categorical features as ordinal integers, and
-        :class:`~sklearn.preprocessing.OneHotEncoder` can be used to
+        :class:`~xlearn.preprocessing.OneHotEncoder` can be used to
         one-hot encode categorical features.
         See also :ref:`preprocessing_categorical_features` and the
         `categorical-encoding
-        <https://github.com/scikit-learn-contrib/category_encoders>`_
+        <https://github.com/jax-learn-contrib/category_encoders>`_
         package for tools related to encoding categorical features.
 
     clone
     cloned
         To copy an :term:`estimator instance` and create a new one with
         identical :term:`parameters`, but without any fitted
-        :term:`attributes`, using :func:`~sklearn.base.clone`.
+        :term:`attributes`, using :func:`~xlearn.base.clone`.
 
         When ``fit`` is called, a :term:`meta-estimator` usually clones
         a wrapped estimator instance before fitting the cloned instance.
@@ -195,10 +195,10 @@ General Concepts
 
     common tests
         This refers to the tests run on almost every estimator class in
-        Scikit-learn to check they comply with basic API conventions.  They are
+        Jax-learn to check they comply with basic API conventions.  They are
         available for external use through
         :func:`utils.estimator_checks.check_estimator`, with most of the
-        implementation in ``sklearn/utils/estimator_checks.py``.
+        implementation in ``xlearn/utils/estimator_checks.py``.
 
         Note: Some exceptions to the common testing regime are currently
         hard-coded into the library, but we hope to replace this by marking
@@ -250,13 +250,13 @@ General Concepts
     data type
         NumPy arrays assume a homogeneous data type throughout, available in
         the ``.dtype`` attribute of an array (or sparse matrix). We generally
-        assume simple data types for scikit-learn data: float or integer.
+        assume simple data types for jax-learn data: float or integer.
         We may support object or string data types for arrays before encoding
         or vectorizing.  Our estimators do not work with struct arrays, for
         instance.
 
         Our documentation can sometimes give information about the dtype
-        precision, e.g. `np.int32`, `np.int64`, etc. When the precision is
+        precision, e.g. `jnp.int32`, `jnp.int64`, etc. When the precision is
         provided, it refers to the NumPy dtype. If an arbitrary precision is
         used, the documentation will refer to dtype `integer` or `floating`.
         Note that in this case, the precision can be platform dependent.
@@ -281,8 +281,8 @@ General Concepts
           can only determine if ``clf`` is probabilistic after fitting it on
           some data::
 
-              >>> from sklearn.model_selection import GridSearchCV
-              >>> from sklearn.linear_model import SGDClassifier
+              >>> from xlearn.model_selection import GridSearchCV
+              >>> from xlearn.linear_model import SGDClassifier
               >>> clf = GridSearchCV(SGDClassifier(),
               ...                    param_grid={'loss': ['log_loss', 'hinge']})
 
@@ -324,7 +324,7 @@ General Concepts
         We try to give examples of basic usage for most functions and
         classes in the API:
 
-        * as doctests in their docstrings (i.e. within the ``sklearn/`` library
+        * as doctests in their docstrings (i.e. within the ``xlearn/`` library
           code itself).
         * as examples in the :ref:`example gallery <general_examples>`
           rendered (using `sphinx-gallery
@@ -398,7 +398,7 @@ General Concepts
         Elsewhere features are known as attributes, predictors, regressors, or
         independent variables.
 
-        Nearly all estimators in scikit-learn assume that features are numeric,
+        Nearly all estimators in jax-learn assume that features are numeric,
         finite and not missing, even when they have semantically distinct
         domains and distributions (categorical, ordinal, count-valued,
         real-valued, interval). See also :term:`categorical feature` and
@@ -429,7 +429,7 @@ General Concepts
         We provide ad hoc function interfaces for many algorithms, while
         :term:`estimator` classes provide a more consistent interface.
 
-        In particular, Scikit-learn may provide a function interface that fits
+        In particular, Jax-learn may provide a function interface that fits
         a model to some data and returns the learnt model parameters, as in
         :func:`linear_model.enet_path`.  For transductive models, this also
         returns the embedding or cluster labels, as in
@@ -468,11 +468,11 @@ General Concepts
     inductive
         Inductive (contrasted with :term:`transductive`) machine learning
         builds a model of some data that can then be applied to new instances.
-        Most estimators in Scikit-learn are inductive, having :term:`predict`
+        Most estimators in Jax-learn are inductive, having :term:`predict`
         and/or :term:`transform` methods.
 
     joblib
-        A Python library (https://joblib.readthedocs.io) used in Scikit-learn to
+        A Python library (https://joblib.readthedocs.io) used in Jax-learn to
         facilite simple parallelism and caching.  Joblib is oriented towards
         efficiently working with numpy arrays, such as through use of
         :term:`memory mapping`. See :ref:`parallelism` for more
@@ -503,12 +503,12 @@ General Concepts
         A memory efficiency strategy that keeps data on disk rather than
         copying it into main memory.  Memory maps can be created for arrays
         that can be read, written, or both, using :obj:`numpy.memmap`. When
-        using :term:`joblib` to parallelize operations in Scikit-learn, it
+        using :term:`joblib` to parallelize operations in Jax-learn, it
         may automatically memmap large arrays to reduce memory duplication
         overhead in multiprocessing.
 
     missing values
-        Most Scikit-learn estimators do not work with missing values. When they
+        Most Jax-learn estimators do not work with missing values. When they
         do (e.g. in :class:`impute.SimpleImputer`), NaN is the preferred
         representation of missing values in float arrays.  If the array has
         integer dtype, NaN cannot be represented. For this reason, we support
@@ -535,7 +535,7 @@ General Concepts
         in ``doc/modules/``. Unlike the :ref:`API reference <api_ref>` provided
         through docstrings, the User Guide aims to:
 
-        * group tools provided by Scikit-learn together thematically or in
+        * group tools provided by Jax-learn together thematically or in
           terms of usage;
         * motivate why someone would use each particular tool, often through
           comparison;
@@ -546,7 +546,7 @@ General Concepts
     np
         A shorthand for Numpy due to the conventional import statement::
 
-            import numpy as np
+            import jax.numpy as jnp
 
     online learning
         Where a model is iteratively updated by receiving each batch of ground
@@ -680,13 +680,13 @@ General Concepts
         sample properties and their routing in :term:`meta-estimators`, though
         a ``fit_params`` parameter is often used.
 
-    scikit-learn-contrib
-        A venue for publishing Scikit-learn-compatible libraries that are
+    jax-learn-contrib
+        A venue for publishing Jax-learn-compatible libraries that are
         broadly authorized by the core developers and the contrib community,
         but not maintained by the core developer team.
-        See https://scikit-learn-contrib.github.io.
+        See https://jax-learn-contrib.github.io.
 
-    scikit-learn enhancement proposals
+    jax-learn enhancement proposals
     SLEP
     SLEPs
         Changes to the API principles and changes to dependencies or supported
@@ -694,10 +694,10 @@ General Concepts
         decision-making process outlined in :ref:`governance`.
         For all votes, a proposal must have been made public and discussed before the
         vote. Such a proposal must be a consolidated document, in the form of a
-        "Scikit-Learn Enhancement Proposal" (SLEP), rather than a long discussion on an
+        "Jax-Learn Enhancement Proposal" (SLEP), rather than a long discussion on an
         issue. A SLEP must be submitted as a pull-request to
-        `enhancement proposals <https://scikit-learn-enhancement-proposals.readthedocs.io>`_ using the
-        `SLEP template <https://scikit-learn-enhancement-proposals.readthedocs.io/en/latest/slep_template.html>`_.
+        `enhancement proposals <https://jax-learn-enhancement-proposals.readthedocs.io>`_ using the
+        `SLEP template <https://jax-learn-enhancement-proposals.readthedocs.io/en/latest/slep_template.html>`_.
 
     semi-supervised
     semi-supervised learning
@@ -715,7 +715,7 @@ General Concepts
         several underlying sparse data representations, or *formats*.
         Some formats are more efficient than others for particular tasks, and
         when a particular format provides especial benefit, we try to document
-        this fact in Scikit-learn parameter descriptions.
+        this fact in Jax-learn parameter descriptions.
 
         Some sparse matrix formats (notably CSR, CSC, COO and LIL) distinguish
         between *implicit* and *explicit* zeros. Explicit zeros are stored
@@ -723,7 +723,7 @@ General Concepts
         while implicit zeros correspond to every element not otherwise defined
         in explicit storage.
 
-        Two semantics for sparse matrices are used in Scikit-learn:
+        Two semantics for sparse matrices are used in Jax-learn:
 
         matrix semantics
             The sparse matrix is interpreted as an array with implicit and
@@ -769,7 +769,7 @@ General Concepts
         The *dependent variable* in :term:`supervised` (and
         :term:`semisupervised`) learning, passed as :term:`y` to an estimator's
         :term:`fit` method.  Also known as *dependent variable*, *outcome
-        variable*, *response variable*, *ground truth* or *label*. Scikit-learn
+        variable*, *response variable*, *ground truth* or *label*. Jax-learn
         works with targets that have minimal structure: a class from a finite
         set, a finite real-valued number, multiple classes, or multiple
         numbers. See :ref:`glossary_target_types`.
@@ -809,7 +809,7 @@ Class APIs and Estimator Types
 
         A classifier supports modeling some of :term:`binary`,
         :term:`multiclass`, :term:`multilabel`, or :term:`multiclass
-        multioutput` targets.  Within scikit-learn, all classifiers support
+        multioutput` targets.  Within jax-learn, all classifiers support
         multi-class classification, defaulting to using a one-vs-rest
         strategy over the binary classification problem.
 
@@ -1125,7 +1125,7 @@ Target Types
         For semi-supervised classification, :term:`unlabeled` samples should
         have the special label -1 in ``y``.
 
-        Within scikit-learn, all estimators supporting binary classification
+        Within jax-learn, all estimators supporting binary classification
         also support multiclass classification, using One-vs-Rest by default.
 
         A :class:`preprocessing.LabelEncoder` helps to canonicalize multiclass
@@ -1217,7 +1217,7 @@ Methods
             predicted class.  Columns are ordered according to
             :term:`classes_`.
         multilabel classification
-            Scikit-learn is inconsistent in its representation of :term:`multilabel`
+            Jax-learn is inconsistent in its representation of :term:`multilabel`
             decision functions. It may be represented one of two ways:
 
             - List of 2d arrays, each array of shape: (`n_samples`, 2), like in
@@ -1491,7 +1491,7 @@ functions or non-estimator constructors.
         ``class_weight='balanced'`` can be used to give all classes
         equal weight by giving each sample a weight inversely related
         to its class's prevalence in the training data:
-        ``n_samples / (n_classes * np.bincount(y))``. Class weights will be
+        ``n_samples / (n_classes * jnp.bincount(y))``. Class weights will be
         used differently depending on the algorithm: for linear models (such
         as linear SVM or logistic regression), the class weights will alter the
         loss function by weighting the loss of each sample by its class weight.
@@ -1526,7 +1526,7 @@ functions or non-estimator constructors.
           :func:`utils.multiclass.type_of_target`).
         - A :term:`cross-validation splitter` instance. Refer to the
           :ref:`User Guide <cross_validation>` for splitters available
-          within Scikit-learn.
+          within Jax-learn.
         - An iterable yielding train/test splits.
 
         With some exceptions (especially where not using cross validation at
@@ -1608,7 +1608,7 @@ functions or non-estimator constructors.
         might be used in some configuration.
 
         For more details on the use of ``joblib`` and its interactions with
-        scikit-learn, please refer to our :ref:`parallelism notes
+        jax-learn, please refer to our :ref:`parallelism notes
         <parallelism>`.
 
     ``pos_label``
@@ -1618,7 +1618,7 @@ functions or non-estimator constructors.
         metrics such as precision and recall.
 
     ``random_state``
-        Whenever randomization is part of a Scikit-learn algorithm, a
+        Whenever randomization is part of a Jax-learn algorithm, a
         ``random_state`` parameter may be provided to control the random number
         generator used.  Note that the mere presence of ``random_state`` doesn't
         mean that randomization is always used, as it may be dependent on
@@ -1626,7 +1626,7 @@ functions or non-estimator constructors.
 
         The passed value will have an effect on the reproducibility of the
         results returned by the function (:term:`fit`, :term:`split`, or any
-        other function like :func:`~sklearn.cluster.k_means`). `random_state`'s
+        other function like :func:`~xlearn.cluster.k_means`). `random_state`'s
         value may be:
 
         None (default)
@@ -1654,7 +1654,7 @@ functions or non-estimator constructors.
         input ``random_state`` and return a :class:`~numpy.random.RandomState`
         instance.
 
-        For more details on how to control the randomness of scikit-learn
+        For more details on how to control the randomness of jax-learn
         objects and avoid common pitfalls, you may refer to :ref:`randomness`.
 
     ``scoring``
@@ -1678,7 +1678,7 @@ functions or non-estimator constructors.
         :func:`metrics.check_scoring`.
 
     ``verbose``
-        Logging is not handled very consistently in Scikit-learn at present,
+        Logging is not handled very consistently in Jax-learn at present,
         but when it is provided as an option, the ``verbose`` parameter is
         usually available to choose no logging (set to False). Any True value
         should enable some logging, but larger integers (e.g. above 10) may be

@@ -4,7 +4,7 @@
 Covariance estimation
 ===================================================
 
-.. currentmodule:: sklearn.covariance
+.. currentmodule:: xlearn.covariance
 
 
 Many statistical problems require the estimation of a
@@ -12,7 +12,7 @@ population's covariance matrix, which can be seen as an estimation of
 data set scatter plot shape. Most of the time, such an estimation has
 to be done on a sample whose properties (size, structure, homogeneity)
 have a large influence on the estimation's quality. The
-:mod:`sklearn.covariance` package provides tools for accurately estimating
+:mod:`xlearn.covariance` package provides tools for accurately estimating
 a population's covariance matrix under various settings.
 
 We assume that the observations are independent and identically
@@ -63,7 +63,7 @@ empirical covariance matrix cannot be inverted for numerical
 reasons. To avoid such an inversion problem, a transformation of the
 empirical covariance matrix has been introduced: the ``shrinkage``.
 
-In scikit-learn, this transformation (with a user-defined shrinkage
+In jax-learn, this transformation (with a user-defined shrinkage
 coefficient) can be directly applied to a pre-computed covariance with
 the :func:`shrunk_covariance` method. Also, a shrunk estimator of the
 covariance can be fitted to data with a :class:`ShrunkCovariance` object
@@ -101,7 +101,7 @@ covariance matrix.
 
 The Ledoit-Wolf estimator of the covariance matrix can be computed on
 a sample with the :meth:`ledoit_wolf` function of the
-:mod:`sklearn.covariance` package, or it can be otherwise obtained by
+:mod:`xlearn.covariance` package, or it can be otherwise obtained by
 fitting a :class:`LedoitWolf` object to the same sample.
 
 .. note:: **Case when population covariance matrix is isotropic**
@@ -146,7 +146,7 @@ Wolf's formula. The resulting estimator is known as the Oracle
 Shrinkage Approximating estimator of the covariance.
 
 The OAS estimator of the covariance matrix can be computed on a sample
-with the :meth:`oas` function of the :mod:`sklearn.covariance`
+with the :meth:`oas` function of the :mod:`xlearn.covariance`
 package, or it can be otherwise obtained by fitting an :class:`OAS`
 object to the same sample.
 
@@ -286,7 +286,7 @@ sets. Alternatively, robust covariance estimators can be used to
 perform outlier detection and discard/downweight some observations
 according to further processing of the data.
 
-The ``sklearn.covariance`` package implements a robust estimator of covariance,
+The ``xlearn.covariance`` package implements a robust estimator of covariance,
 the Minimum Covariance Determinant [3]_.
 
 
@@ -306,7 +306,7 @@ set ("reweighting step").
 
 Rousseeuw and Van Driessen [4]_ developed the FastMCD algorithm in order
 to compute the Minimum Covariance Determinant. This algorithm is used
-in scikit-learn when fitting an MCD object to data. The FastMCD
+in jax-learn when fitting an MCD object to data. The FastMCD
 algorithm also computes a robust estimate of the data set location at
 the same time.
 

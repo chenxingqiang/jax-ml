@@ -4,11 +4,11 @@
 Imputation of missing values
 ============================
 
-.. currentmodule:: sklearn.impute
+.. currentmodule:: xlearn.impute
 
 For various reasons, many real world datasets contain missing values, often
 encoded as blanks, NaNs or other placeholders. Such datasets however are
-incompatible with scikit-learn estimators which assume that all values in an
+incompatible with jax-learn estimators which assume that all values in an
 array are numerical, and that all have and hold meaning. A basic strategy to
 use incomplete datasets is to discard entire rows and/or columns containing
 missing values. However, this comes at the price of losing data which may be
@@ -39,15 +39,15 @@ missing values are located. This class also allows for different missing values
 encodings.
 
 The following snippet demonstrates how to replace missing values,
-encoded as ``np.nan``, using the mean value of the columns (axis 0)
+encoded as ``jnp.nan``, using the mean value of the columns (axis 0)
 that contain the missing values::
 
-    >>> import numpy as np
-    >>> from sklearn.impute import SimpleImputer
-    >>> imp = SimpleImputer(missing_values=np.nan, strategy='mean')
-    >>> imp.fit([[1, 2], [np.nan, 3], [7, 6]])
+    >>> import jax.numpy as jnp
+    >>> from xlearn.impute import SimpleImputer
+    >>> imp = SimpleImputer(missing_values=jnp.nan, strategy='mean')
+    >>> imp.fit([[1, 2], [jnp.nan, 3], [7, 6]])
     SimpleImputer()
-    >>> X = [[np.nan, 2], [6, np.nan], [7, 6]]
+    >>> X = [[jnp.nan, 2], [6, jnp.nan], [7, 6]]
     >>> print(imp.transform(X))
     [[4.          2.        ]
      [6.          3.666...]
@@ -76,8 +76,8 @@ string values or pandas categoricals when using the ``'most_frequent'`` or
 
     >>> import pandas as pd
     >>> df = pd.DataFrame([["a", "x"],
-    ...                    [np.nan, "y"],
-    ...                    ["a", np.nan],
+    ...                    [jnp.nan, "y"],
+    ...                    ["a", jnp.nan],
     ...                    ["b", "y"]], dtype="category")
     ...
     >>> imp = SimpleImputer(strategy="most_frequent")
@@ -114,15 +114,15 @@ imputation round are returned.
 
 ::
 
-    >>> import numpy as np
-    >>> from sklearn.experimental import enable_iterative_imputer
-    >>> from sklearn.impute import IterativeImputer
+    >>> import jax.numpy as jnp
+    >>> from xlearn.experimental import enable_iterative_imputer
+    >>> from xlearn.impute import IterativeImputer
     >>> imp = IterativeImputer(max_iter=10, random_state=0)
-    >>> imp.fit([[1, 2], [3, 6], [4, 8], [np.nan, 3], [7, np.nan]])
+    >>> imp.fit([[1, 2], [3, 6], [4, 8], [jnp.nan, 3], [7, jnp.nan]])
     IterativeImputer(random_state=0)
-    >>> X_test = [[np.nan, 2], [6, np.nan], [np.nan, 6]]
+    >>> X_test = [[jnp.nan, 2], [6, jnp.nan], [jnp.nan, 6]]
     >>> # the model learns that the second feature is double the first
-    >>> print(np.round(imp.transform(X_test)))
+    >>> print(jnp.round(imp.transform(X_test)))
     [[ 1.  2.]
      [ 6. 12.]
      [ 3.  6.]]
@@ -190,7 +190,7 @@ Nearest neighbors imputation
 
 The :class:`KNNImputer` class provides imputation for filling in missing values
 using the k-Nearest Neighbors approach. By default, a euclidean distance metric
-that supports missing values, :func:`~sklearn.metrics.nan_euclidean_distances`,
+that supports missing values, :func:`~xlearn.metrics.nan_euclidean_distances`,
 is used to find the nearest neighbors. Each missing feature is imputed using
 values from ``n_neighbors`` nearest neighbors that have a value for the
 feature. The feature of the neighbors are averaged uniformly or weighted by
@@ -205,12 +205,12 @@ always missing in training, it is removed during `transform`. For more
 information on the methodology, see ref. [OL2001]_.
 
 The following snippet demonstrates how to replace missing values,
-encoded as ``np.nan``, using the mean feature value of the two nearest
+encoded as ``jnp.nan``, using the mean feature value of the two nearest
 neighbors of samples with missing values::
 
-    >>> import numpy as np
-    >>> from sklearn.impute import KNNImputer
-    >>> nan = np.nan
+    >>> import jax.numpy as jnp
+    >>> from xlearn.impute import KNNImputer
+    >>> nan = jnp.nan
     >>> X = [[1, 2, nan], [3, 4, 3], [nan, 6, 5], [8, 8, 7]]
     >>> imputer = KNNImputer(n_neighbors=2, weights="uniform")
     >>> imputer.fit_transform(X)
@@ -229,17 +229,17 @@ neighbors of samples with missing values::
 Keeping the number of features constant
 =======================================
 
-By default, the scikit-learn imputers will drop fully empty features, i.e.
+By default, the jax-learn imputers will drop fully empty features, i.e.
 columns containing only missing values. For instance::
 
   >>> imputer = SimpleImputer()
-  >>> X = np.array([[np.nan, 1], [np.nan, 2], [np.nan, 3]])
+  >>> X = jnp.array([[jnp.nan, 1], [jnp.nan, 2], [jnp.nan, 3]])
   >>> imputer.fit_transform(X)
   array([[1.],
          [2.],
          [3.]])
 
-The first feature in `X` containing only `np.nan` was dropped after the
+The first feature in `X` containing only `jnp.nan` was dropped after the
 imputation. While this feature will not help in predictive setting, dropping
 the columns will change the shape of `X` which could be problematic when using
 imputers in a more complex machine-learning pipeline. The parameter
@@ -273,8 +273,8 @@ enforces the data type to be float. The parameter ``missing_values`` allows to
 specify other placeholder such as integer. In the following example, we will
 use ``-1`` as missing values::
 
-  >>> from sklearn.impute import MissingIndicator
-  >>> X = np.array([[-1, -1, 1, 3],
+  >>> from xlearn.impute import MissingIndicator
+  >>> X = jnp.array([[-1, -1, 1, 3],
   ...               [4, -1, 0, -1],
   ...               [8, -1, 1, 0]])
   >>> indicator = MissingIndicator(missing_values=-1)
@@ -308,14 +308,14 @@ the :class:`FeatureUnion` or :class:`ColumnTransformer` to add the indicator
 features to the regular features. First we obtain the `iris` dataset, and add
 some missing values to it.
 
-  >>> from sklearn.datasets import load_iris
-  >>> from sklearn.impute import SimpleImputer, MissingIndicator
-  >>> from sklearn.model_selection import train_test_split
-  >>> from sklearn.pipeline import FeatureUnion, make_pipeline
-  >>> from sklearn.tree import DecisionTreeClassifier
+  >>> from xlearn.datasets import load_iris
+  >>> from xlearn.impute import SimpleImputer, MissingIndicator
+  >>> from xlearn.model_selection import train_test_split
+  >>> from xlearn.pipeline import FeatureUnion, make_pipeline
+  >>> from xlearn.tree import DecisionTreeClassifier
   >>> X, y = load_iris(return_X_y=True)
   >>> mask = np.random.randint(0, 2, size=X.shape).astype(bool)
-  >>> X[mask] = np.nan
+  >>> X[mask] = jnp.nan
   >>> X_train, X_test, y_train, _ = train_test_split(X, y, test_size=100,
   ...                                                random_state=0)
 

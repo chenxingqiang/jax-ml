@@ -27,12 +27,12 @@ original data.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import make_circles
-from sklearn.decomposition import TruncatedSVD
-from sklearn.ensemble import ExtraTreesClassifier, RandomTreesEmbedding
-from sklearn.naive_bayes import BernoulliNB
+from xlearn.datasets import make_circles
+from xlearn.decomposition import TruncatedSVD
+from xlearn.ensemble import ExtraTreesClassifier, RandomTreesEmbedding
+from xlearn.naive_bayes import BernoulliNB
 
 # make a synthetic dataset
 X, y = make_circles(factor=0.5, random_state=0, noise=0.05)
@@ -77,10 +77,10 @@ ax.set_yticks(())
 h = 0.01
 x_min, x_max = X[:, 0].min() - 0.5, X[:, 0].max() + 0.5
 y_min, y_max = X[:, 1].min() - 0.5, X[:, 1].max() + 0.5
-xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+xx, yy = jnp.meshgrid(jnp.arange(x_min, x_max, h), jnp.arange(y_min, y_max, h))
 
 # transform grid using RandomTreesEmbedding
-transformed_grid = hasher.transform(np.c_[xx.ravel(), yy.ravel()])
+transformed_grid = hasher.transform(jnp.c_[xx.ravel(), yy.ravel()])
 y_grid_pred = nb.predict_proba(transformed_grid)[:, 1]
 
 ax = plt.subplot(223)
@@ -93,7 +93,7 @@ ax.set_xticks(())
 ax.set_yticks(())
 
 # transform grid using ExtraTreesClassifier
-y_grid_pred = trees.predict_proba(np.c_[xx.ravel(), yy.ravel()])[:, 1]
+y_grid_pred = trees.predict_proba(jnp.c_[xx.ravel(), yy.ravel()])[:, 1]
 
 ax = plt.subplot(224)
 ax.set_title("ExtraTrees predictions")

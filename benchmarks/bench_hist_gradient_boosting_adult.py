@@ -1,16 +1,16 @@
 import argparse
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 import pandas as pd
 
-from sklearn.compose import make_column_selector, make_column_transformer
-from sklearn.datasets import fetch_openml
-from sklearn.ensemble import HistGradientBoostingClassifier
-from sklearn.ensemble._hist_gradient_boosting.utils import get_equivalent_estimator
-from sklearn.metrics import accuracy_score, roc_auc_score
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OrdinalEncoder
+from xlearn.compose import make_column_selector, make_column_transformer
+from xlearn.datasets import fetch_openml
+from xlearn.ensemble import HistGradientBoostingClassifier
+from xlearn.ensemble._hist_gradient_boosting.utils import get_equivalent_estimator
+from xlearn.metrics import accuracy_score, roc_auc_score
+from xlearn.model_selection import train_test_split
+from xlearn.preprocessing import OrdinalEncoder
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--n-leaf-nodes", type=int, default=31)
@@ -46,10 +46,12 @@ def predict(est, data_test, target_test):
     toc = time()
     roc_auc = roc_auc_score(target_test, predicted_proba_test[:, 1])
     acc = accuracy_score(target_test, predicted_test)
-    print(f"predicted in {toc - tic:.3f}s, ROC AUC: {roc_auc:.4f}, ACC: {acc :.4f}")
+    print(
+        f"predicted in {toc - tic:.3f}s, ROC AUC: {roc_auc:.4f}, ACC: {acc :.4f}")
 
 
-data = fetch_openml(data_id=179, as_frame=True, parser="pandas")  # adult dataset
+data = fetch_openml(data_id=179, as_frame=True,
+                    parser="pandas")  # adult dataset
 X, y = data.data, data.target
 
 # Ordinal encode the categories to use the native support available in HGBDT
@@ -64,7 +66,7 @@ X = pd.DataFrame(
     columns=preprocessing.get_feature_names_out(),
 )
 
-n_classes = len(np.unique(y))
+n_classes = len(jnp.unique(y))
 n_features = X.shape[1]
 n_categorical_features = len(cat_columns)
 n_numerical_features = n_features - n_categorical_features
@@ -72,9 +74,11 @@ print(f"Number of features: {n_features}")
 print(f"Number of categorical features: {n_categorical_features}")
 print(f"Number of numerical features: {n_numerical_features}")
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=0)
 
-is_categorical = [True] * n_categorical_features + [False] * n_numerical_features
+is_categorical = [True] * n_categorical_features + \
+    [False] * n_numerical_features
 est = HistGradientBoostingClassifier(
     loss="log_loss",
     learning_rate=lr,
@@ -87,7 +91,7 @@ est = HistGradientBoostingClassifier(
     verbose=verbose,
 )
 
-fit(est, X_train, y_train, "sklearn")
+fit(est, X_train, y_train, "xlearn")
 predict(est, X_test, y_test)
 
 if args.lightgbm:
@@ -96,5 +100,6 @@ if args.lightgbm:
     categorical_features = [
         f_idx for (f_idx, is_cat) in enumerate(is_categorical) if is_cat
     ]
-    fit(est, X_train, y_train, "lightgbm", categorical_feature=categorical_features)
+    fit(est, X_train, y_train, "lightgbm",
+        categorical_feature=categorical_features)
     predict(est, X_test, y_test)

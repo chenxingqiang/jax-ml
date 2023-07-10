@@ -26,18 +26,19 @@ analogous to the random splits in Random Forests
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets, ensemble
-from sklearn.metrics import log_loss
-from sklearn.model_selection import train_test_split
+from xlearn import datasets, ensemble
+from xlearn.metrics import log_loss
+from xlearn.model_selection import train_test_split
 
 X, y = datasets.make_hastie_10_2(n_samples=4000, random_state=1)
 
 # map labels from {-1, 1} to {0, 1}
-labels, y = np.unique(y, return_inverse=True)
+labels, y = jnp.unique(y, return_inverse=True)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.8, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.8, random_state=0)
 
 original_params = {
     "n_estimators": 400,
@@ -51,7 +52,8 @@ plt.figure()
 
 for label, color, setting in [
     ("No shrinkage", "orange", {"learning_rate": 1.0, "subsample": 1.0}),
-    ("learning_rate=0.2", "turquoise", {"learning_rate": 0.2, "subsample": 1.0}),
+    ("learning_rate=0.2", "turquoise", {
+     "learning_rate": 0.2, "subsample": 1.0}),
     ("subsample=0.5", "blue", {"learning_rate": 1.0, "subsample": 0.5}),
     (
         "learning_rate=0.2, subsample=0.5",
@@ -71,13 +73,13 @@ for label, color, setting in [
     clf.fit(X_train, y_train)
 
     # compute test set deviance
-    test_deviance = np.zeros((params["n_estimators"],), dtype=np.float64)
+    test_deviance = jnp.zeros((params["n_estimators"],), dtype=jnp.float64)
 
     for i, y_proba in enumerate(clf.staged_predict_proba(X_test)):
         test_deviance[i] = 2 * log_loss(y_test, y_proba[:, 1])
 
     plt.plot(
-        (np.arange(test_deviance.shape[0]) + 1)[::5],
+        (jnp.arange(test_deviance.shape[0]) + 1)[::5],
         test_deviance[::5],
         "-",
         color=color,

@@ -3,7 +3,7 @@
 Column Transformer with Mixed Types
 ===================================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 This example illustrates how to apply different preprocessing and feature
 extraction pipelines to different subsets of features, using
@@ -30,16 +30,18 @@ model.
 # License: BSD 3 clause
 
 # %%
-import numpy as np
+import pandas as pd
+from xlearn.compose import make_column_selector as selector
+import jax.numpy as jnp
 
-from sklearn.compose import ColumnTransformer
-from sklearn.datasets import fetch_openml
-from sklearn.feature_selection import SelectPercentile, chi2
-from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import RandomizedSearchCV, train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from xlearn.compose import ColumnTransformer
+from xlearn.datasets import fetch_openml
+from xlearn.feature_selection import SelectPercentile, chi2
+from xlearn.impute import SimpleImputer
+from xlearn.linear_model import LogisticRegression
+from xlearn.model_selection import RandomizedSearchCV, train_test_split
+from xlearn.pipeline import Pipeline
+from xlearn.preprocessing import OneHotEncoder, StandardScaler
 
 np.random.seed(0)
 
@@ -75,7 +77,8 @@ X, y = fetch_openml(
 
 numeric_features = ["age", "fare"]
 numeric_transformer = Pipeline(
-    steps=[("imputer", SimpleImputer(strategy="median")), ("scaler", StandardScaler())]
+    steps=[("imputer", SimpleImputer(strategy="median")),
+           ("scaler", StandardScaler())]
 )
 
 categorical_features = ["embarked", "sex", "pclass"]
@@ -96,10 +99,12 @@ preprocessor = ColumnTransformer(
 # Append classifier to preprocessing pipeline.
 # Now we have a full prediction pipeline.
 clf = Pipeline(
-    steps=[("preprocessor", preprocessor), ("classifier", LogisticRegression())]
+    steps=[("preprocessor", preprocessor),
+           ("classifier", LogisticRegression())]
 )
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=0)
 
 clf.fit(X_train, y_train)
 print("model score: %.3f" % clf.score(X_test, y_test))
@@ -117,7 +122,7 @@ clf
 # When dealing with a cleaned dataset, the preprocessing can be automatic by
 # using the data types of the column to decide whether to treat a column as a
 # numerical or categorical feature.
-# :func:`sklearn.compose.make_column_selector` gives this possibility.
+# :func:`xlearn.compose.make_column_selector` gives this possibility.
 # First, let's only select a subset of columns to simplify our
 # example.
 
@@ -143,7 +148,6 @@ X_train.info()
 #    refer to their documentation regarding `Categorical data
 #    <https://pandas.pydata.org/pandas-docs/stable/user_guide/categorical.html>`_.
 
-from sklearn.compose import make_column_selector as selector
 
 preprocessor = ColumnTransformer(
     transformers=[
@@ -152,7 +156,8 @@ preprocessor = ColumnTransformer(
     ]
 )
 clf = Pipeline(
-    steps=[("preprocessor", preprocessor), ("classifier", LogisticRegression())]
+    steps=[("preprocessor", preprocessor),
+           ("classifier", LogisticRegression())]
 )
 
 
@@ -179,10 +184,10 @@ selector(dtype_include="category")(X_train)
 # hyperparameters as part of the ``Pipeline``.
 # We will search for both the imputer strategy of the numeric preprocessing
 # and the regularization parameter of the logistic regression using
-# :class:`~sklearn.model_selection.RandomizedSearchCV`. This
+# :class:`~xlearn.model_selection.RandomizedSearchCV`. This
 # hyperparameter search randomly selects a fixed number of parameter
 # settings configured by `n_iter`. Alternatively, one can use
-# :class:`~sklearn.model_selection.GridSearchCV` but the cartesian product of
+# :class:`~xlearn.model_selection.GridSearchCV` but the cartesian product of
 # the parameter space will be evaluated.
 
 param_grid = {
@@ -209,7 +214,6 @@ print(f"Internal CV score: {search_cv.best_score_:.3f}")
 
 # %%
 # We can also introspect the top grid search results as a pandas dataframe:
-import pandas as pd
 
 cv_results = pd.DataFrame(search_cv.cv_results_)
 cv_results = cv_results.sort_values("mean_test_score", ascending=False)

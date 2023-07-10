@@ -2,7 +2,7 @@
 
 To run this benchmark, you will need,
 
- * scikit-learn
+ * jax-learn
  * pandas
  * memory_profiler
  * psutil (optional, but recommended)
@@ -11,12 +11,12 @@ To run this benchmark, you will need,
 import itertools
 import timeit
 
-import numpy as np
+import jax.numpy as jnp
 import pandas as pd
 from memory_profiler import memory_usage
 
-from sklearn.datasets import fetch_20newsgroups
-from sklearn.feature_extraction.text import (
+from xlearn.datasets import fetch_20newsgroups
+from xlearn.feature_extraction.text import (
     CountVectorizer,
     HashingVectorizer,
     TfidfVectorizer,
@@ -51,11 +51,11 @@ for Vectorizer, (analyzer, ngram_range) in itertools.product(
     dt = timeit.repeat(
         run_vectorizer(Vectorizer, text, **params), number=1, repeat=n_repeat
     )
-    bench["time"] = "{:.3f} (+-{:.3f})".format(np.mean(dt), np.std(dt))
+    bench["time"] = "{:.3f} (+-{:.3f})".format(jnp.mean(dt), jnp.std(dt))
 
     mem_usage = memory_usage(run_vectorizer(Vectorizer, text, **params))
 
-    bench["memory"] = "{:.1f}".format(np.max(mem_usage))
+    bench["memory"] = "{:.1f}".format(jnp.max(mem_usage))
 
     res.append(bench)
 

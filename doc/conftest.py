@@ -3,12 +3,12 @@ import warnings
 from os import environ
 from os.path import exists, join
 
-from sklearn.datasets import get_data_home
-from sklearn.datasets._base import _pkl_filepath
-from sklearn.datasets._twenty_newsgroups import CACHE_NAME
-from sklearn.utils import IS_PYPY
-from sklearn.utils._testing import SkipTest, check_skip_network
-from sklearn.utils.fixes import parse_version
+from xlearn.datasets import get_data_home
+from xlearn.datasets._base import _pkl_filepath
+from xlearn.datasets._twenty_newsgroups import CACHE_NAME
+from xlearn.utils import IS_PYPY
+from xlearn.utils._testing import SkipTest, check_skip_network
+from xlearn.utils.fixes import parse_version
 
 
 def setup_labeled_faces():
@@ -44,14 +44,15 @@ def setup_loading_other_datasets():
     try:
         import pandas  # noqa
     except ImportError:
-        raise SkipTest("Skipping loading_other_datasets.rst, pandas not installed")
+        raise SkipTest(
+            "Skipping loading_other_datasets.rst, pandas not installed")
 
-    # checks SKLEARN_SKIP_NETWORK_TESTS to see if test should run
-    run_network_tests = environ.get("SKLEARN_SKIP_NETWORK_TESTS", "1") == "0"
+    # checks XLEARN_SKIP_NETWORK_TESTS to see if test should run
+    run_network_tests = environ.get("XLEARN_SKIP_NETWORK_TESTS", "1") == "0"
     if not run_network_tests:
         raise SkipTest(
             "Skipping loading_other_datasets.rst, tests can be "
-            "enabled by setting SKLEARN_SKIP_NETWORK_TESTS=0"
+            "enabled by setting XLEARN_SKIP_NETWORK_TESTS=0"
         )
 
 
@@ -81,7 +82,8 @@ def setup_preprocessing():
         import pandas  # noqa
 
         if parse_version(pandas.__version__) < parse_version("1.1.0"):
-            raise SkipTest("Skipping preprocessing.rst, pandas version < 1.1.0")
+            raise SkipTest(
+                "Skipping preprocessing.rst, pandas version < 1.1.0")
     except ImportError:
         raise SkipTest("Skipping preprocessing.rst, pandas not installed")
 
@@ -90,7 +92,8 @@ def setup_unsupervised_learning():
     try:
         import skimage  # noqa
     except ImportError:
-        raise SkipTest("Skipping unsupervised_learning.rst, scikit-image not installed")
+        raise SkipTest(
+            "Skipping unsupervised_learning.rst, jax-image not installed")
     # ignore deprecation warnings from scipy.misc.face
     warnings.filterwarnings(
         "ignore", "The binary mode of fromstring", DeprecationWarning
@@ -102,7 +105,8 @@ def skip_if_matplotlib_not_installed(fname):
         import matplotlib  # noqa
     except ImportError:
         basename = os.path.basename(fname)
-        raise SkipTest(f"Skipping doctests for {basename}, matplotlib not installed")
+        raise SkipTest(
+            f"Skipping doctests for {basename}, matplotlib not installed")
 
 
 def skip_if_cupy_not_installed(fname):
@@ -127,7 +131,8 @@ def pytest_runtest_setup(item):
     elif fname.endswith("datasets/twenty_newsgroups.rst") or is_index:
         setup_twenty_newsgroups()
     elif (
-        fname.endswith("tutorial/text_analytics/working_with_text_data.rst") or is_index
+        fname.endswith(
+            "tutorial/text_analytics/working_with_text_data.rst") or is_index
     ):
         setup_working_with_text_data()
     elif fname.endswith("modules/compose.rst") or is_index:

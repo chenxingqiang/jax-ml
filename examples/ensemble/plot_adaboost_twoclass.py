@@ -5,7 +5,7 @@ Two-class AdaBoost
 
 This example fits an AdaBoosted decision stump on a non-linearly separable
 classification dataset composed of two "Gaussian quantiles" clusters
-(see :func:`sklearn.datasets.make_gaussian_quantiles`) and plots the decision
+(see :func:`xlearn.datasets.make_gaussian_quantiles`) and plots the decision
 boundary and decision scores. The distributions of decision scores are shown
 separately for samples of class A and B. The predicted class label for each
 sample is determined by the sign of the decision score. Samples with decision
@@ -22,12 +22,12 @@ with a decision score above some value.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import make_gaussian_quantiles
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.inspection import DecisionBoundaryDisplay
-from sklearn.tree import DecisionTreeClassifier
+from xlearn.datasets import make_gaussian_quantiles
+from xlearn.ensemble import AdaBoostClassifier
+from xlearn.inspection import DecisionBoundaryDisplay
+from xlearn.tree import DecisionTreeClassifier
 
 # Construct dataset
 X1, y1 = make_gaussian_quantiles(

@@ -8,19 +8,19 @@
 Model persistence
 =================
 
-After training a scikit-learn model, it is desirable to have a way to persist
+After training a jax-learn model, it is desirable to have a way to persist
 the model for future use without having to retrain. The following sections give
-you some hints on how to persist a scikit-learn model.
+you some hints on how to persist a jax-learn model.
 
 Python specific serialization
 -----------------------------
 
-It is possible to save a model in scikit-learn by using Python's built-in
+It is possible to save a model in jax-learn by using Python's built-in
 persistence model, namely `pickle
 <https://docs.python.org/3/library/pickle.html>`_::
 
-  >>> from sklearn import svm
-  >>> from sklearn import datasets
+  >>> from xlearn import svm
+  >>> from xlearn import datasets
   >>> clf = svm.SVC()
   >>> X, y= datasets.load_iris(return_X_y=True)
   >>> clf.fit(X, y)
@@ -34,10 +34,10 @@ persistence model, namely `pickle
   >>> y[0]
   0
 
-In the specific case of scikit-learn, it may be better to use joblib's
+In the specific case of jax-learn, it may be better to use joblib's
 replacement of pickle (``dump`` & ``load``), which is more efficient on
 objects that carry large numpy arrays internally as is often the case for
-fitted scikit-learn estimators, but can only pickle to the disk and not to a
+fitted jax-learn estimators, but can only pickle to the disk and not to a
 string::
 
   >>> from joblib import dump, load
@@ -55,18 +55,18 @@ with::
    available `here
    <https://joblib.readthedocs.io/en/latest/persistence.html>`_.
 
-When an estimator is unpickled with a scikit-learn version that is inconsistent
+When an estimator is unpickled with a jax-learn version that is inconsistent
 with the version the estimator was pickled with, a
-:class:`~sklearn.exceptions.InconsistentVersionWarning` is raised. This warning
+:class:`~xlearn.exceptions.InconsistentVersionWarning` is raised. This warning
 can be caught to obtain the original version the estimator was pickled with:
 
-  from sklearn.exceptions import InconsistentVersionWarning
+  from xlearn.exceptions import InconsistentVersionWarning
   warnings.simplefilter("error", InconsistentVersionWarning)
 
   try:
       est = pickle.loads("model_from_prevision_version.pickle")
   except InconsistentVersionWarning as w:
-      print(w.original_sklearn_version)
+      print(w.original_xlearn_version)
 
 .. _persistence_limitations:
 
@@ -78,17 +78,17 @@ and security. Because of this,
 
 * Never unpickle untrusted data as it could lead to malicious code being
   executed upon loading.
-* While models saved using one version of scikit-learn might load in
+* While models saved using one version of jax-learn might load in
   other versions, this is entirely unsupported and inadvisable. It should
   also be kept in mind that operations performed on such data could give
   different and unexpected results.
 
-In order to rebuild a similar model with future versions of scikit-learn,
+In order to rebuild a similar model with future versions of jax-learn,
 additional metadata should be saved along the pickled model:
 
 * The training data, e.g. a reference to an immutable snapshot
 * The python source code used to generate the model
-* The versions of scikit-learn and its dependencies
+* The versions of jax-learn and its dependencies
 * The cross validation score obtained on the training data
 
 This should make it possible to check that the cross-validation score is in the
@@ -154,8 +154,8 @@ It aims to facilitate the conversion of the data
 models between different machine learning frameworks, and to improve their
 portability on different computing architectures. More details are available
 from the `ONNX tutorial <https://onnx.ai/get-started.html>`_.
-To convert scikit-learn model to ONNX a specific tool `sklearn-onnx
-<http://onnx.ai/sklearn-onnx/>`_ has been developed.
+To convert jax-learn model to ONNX a specific tool `xlearn-onnx
+<http://onnx.ai/xlearn-onnx/>`_ has been developed.
 
 PMML is an implementation of the `XML
 <https://en.wikipedia.org/wiki/XML>`_ document standard
@@ -164,6 +164,6 @@ Being human and machine readable,
 PMML is a good option for model validation on different platforms and
 long term archiving. On the other hand, as XML in general, its verbosity does
 not help in production when performance is critical.
-To convert scikit-learn model to PMML you can use for example `sklearn2pmml
-<https://github.com/jpmml/sklearn2pmml>`_ distributed under the Affero GPLv3
+To convert jax-learn model to PMML you can use for example `xlearn2pmml
+<https://github.com/jpmml/xlearn2pmml>`_ distributed under the Affero GPLv3
 license.

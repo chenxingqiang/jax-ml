@@ -4,9 +4,9 @@
 Preprocessing data
 ==================
 
-.. currentmodule:: sklearn.preprocessing
+.. currentmodule:: xlearn.preprocessing
 
-The ``sklearn.preprocessing`` package provides several common
+The ``xlearn.preprocessing`` package provides several common
 utility functions and transformer classes to change raw feature vectors
 into a representation that is more suitable for the downstream estimators.
 
@@ -23,7 +23,7 @@ Standardization, or mean removal and variance scaling
 =====================================================
 
 **Standardization** of datasets is a **common requirement for many
-machine learning estimators** implemented in scikit-learn; they might behave
+machine learning estimators** implemented in jax-learn; they might behave
 badly if the individual features do not more or less look like standard
 normally distributed data: Gaussian with **zero mean and unit variance**.
 
@@ -41,14 +41,14 @@ than others, it might dominate the objective function and make the
 estimator unable to learn from other features correctly as expected.
 
 
-The :mod:`~sklearn.preprocessing` module provides the
+The :mod:`~xlearn.preprocessing` module provides the
 :class:`StandardScaler` utility class, which is a quick and
 easy way to perform the following operation on an array-like
 dataset::
 
-  >>> from sklearn import preprocessing
-  >>> import numpy as np
-  >>> X_train = np.array([[ 1., -1.,  2.],
+  >>> from xlearn import preprocessing
+  >>> import jax.numpy as jnp
+  >>> X_train = jnp.array([[ 1., -1.,  2.],
   ...                     [ 2.,  0.,  0.],
   ...                     [ 0.,  1., -1.]])
   >>> scaler = preprocessing.StandardScaler().fit(X_train)
@@ -68,9 +68,9 @@ dataset::
          [-1.22...,  1.22..., -1.06...]])
 
 ..
-        >>> import numpy as np
-        >>> print_options = np.get_printoptions()
-        >>> np.set_printoptions(suppress=True)
+        >>> import jax.numpy as jnp
+        >>> print_options = jnp.get_printoptions()
+        >>> jnp.set_printoptions(suppress=True)
 
 Scaled data has zero mean and unit variance::
 
@@ -80,18 +80,18 @@ Scaled data has zero mean and unit variance::
   >>> X_scaled.std(axis=0)
   array([1., 1., 1.])
 
-..    >>> print_options = np.set_printoptions(print_options)
+..    >>> print_options = jnp.set_printoptions(print_options)
 
 This class implements the ``Transformer`` API to compute the mean and
 standard deviation on a training set so as to be able to later re-apply the
 same transformation on the testing set. This class is hence suitable for
-use in the early steps of a :class:`~sklearn.pipeline.Pipeline`::
+use in the early steps of a :class:`~xlearn.pipeline.Pipeline`::
 
-  >>> from sklearn.datasets import make_classification
-  >>> from sklearn.linear_model import LogisticRegression
-  >>> from sklearn.model_selection import train_test_split
-  >>> from sklearn.pipeline import make_pipeline
-  >>> from sklearn.preprocessing import StandardScaler
+  >>> from xlearn.datasets import make_classification
+  >>> from xlearn.linear_model import LogisticRegression
+  >>> from xlearn.model_selection import train_test_split
+  >>> from xlearn.pipeline import make_pipeline
+  >>> from xlearn.preprocessing import StandardScaler
 
   >>> X, y = make_classification(random_state=42)
   >>> X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
@@ -122,7 +122,7 @@ standard deviations of features and preserving zero entries in sparse data.
 
 Here is an example to scale a toy data matrix to the ``[0, 1]`` range::
 
-  >>> X_train = np.array([[ 1., -1.,  2.],
+  >>> X_train = jnp.array([[ 1., -1.,  2.],
   ...                     [ 2.,  0.,  0.],
   ...                     [ 0.,  1., -1.]])
   ...
@@ -137,7 +137,7 @@ The same instance of the transformer can then be applied to some new test data
 unseen during the fit call: the same scaling and shifting operations will be
 applied to be consistent with the transformation performed on the train data::
 
-  >>> X_test = np.array([[-3., -1.,  4.]])
+  >>> X_test = jnp.array([[-3., -1.,  4.]])
   >>> X_test_minmax = min_max_scaler.transform(X_test)
   >>> X_test_minmax
   array([[-1.5       ,  0.        ,  1.66666667]])
@@ -165,7 +165,7 @@ that is already centered at zero or sparse data.
 
 Here is how to use the toy data from the previous example with this scaler::
 
-  >>> X_train = np.array([[ 1., -1.,  2.],
+  >>> X_train = jnp.array([[ 1., -1.,  2.],
   ...                     [ 2.,  0.,  0.],
   ...                     [ 0.,  1., -1.]])
   ...
@@ -175,7 +175,7 @@ Here is how to use the toy data from the previous example with this scaler::
   array([[ 0.5, -1. ,  1. ],
          [ 1. ,  0. ,  0. ],
          [ 0. ,  1. , -0.5]])
-  >>> X_test = np.array([[ -3., -1.,  4.]])
+  >>> X_test = jnp.array([[ -3., -1.,  4.]])
   >>> X_test_maxabs = max_abs_scaler.transform(X_test)
   >>> X_test_maxabs
   array([[-1.5, -1. ,  2. ]])
@@ -231,7 +231,7 @@ more robust estimates for the center and range of your data.
   independently, since a downstream model can further make some assumption
   on the linear independence of the features.
 
-  To address this issue you can use :class:`~sklearn.decomposition.PCA` with
+  To address this issue you can use :class:`~xlearn.decomposition.PCA` with
   ``whiten=True`` to further remove the linear correlation across features.
 
 .. _kernel_centering:
@@ -333,30 +333,30 @@ Mapping to a Uniform distribution
 transformation to map the data to a uniform distribution
 with values between 0 and 1::
 
-  >>> from sklearn.datasets import load_iris
-  >>> from sklearn.model_selection import train_test_split
+  >>> from xlearn.datasets import load_iris
+  >>> from xlearn.model_selection import train_test_split
   >>> X, y = load_iris(return_X_y=True)
   >>> X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
   >>> quantile_transformer = preprocessing.QuantileTransformer(random_state=0)
   >>> X_train_trans = quantile_transformer.fit_transform(X_train)
   >>> X_test_trans = quantile_transformer.transform(X_test)
-  >>> np.percentile(X_train[:, 0], [0, 25, 50, 75, 100]) # doctest: +SKIP
+  >>> jnp.percentile(X_train[:, 0], [0, 25, 50, 75, 100]) # doctest: +SKIP
   array([ 4.3,  5.1,  5.8,  6.5,  7.9])
 
 This feature corresponds to the sepal length in cm. Once the quantile
 transformation applied, those landmarks approach closely the percentiles
 previously defined::
 
-  >>> np.percentile(X_train_trans[:, 0], [0, 25, 50, 75, 100])
+  >>> jnp.percentile(X_train_trans[:, 0], [0, 25, 50, 75, 100])
   ... # doctest: +SKIP
   array([ 0.00... ,  0.24...,  0.49...,  0.73...,  0.99... ])
 
 This can be confirmed on a independent testing set with similar remarks::
 
-  >>> np.percentile(X_test[:, 0], [0, 25, 50, 75, 100])
+  >>> jnp.percentile(X_test[:, 0], [0, 25, 50, 75, 100])
   ... # doctest: +SKIP
   array([ 4.4  ,  5.125,  5.75 ,  6.175,  7.3  ])
-  >>> np.percentile(X_test_trans[:, 0], [0, 25, 50, 75, 100])
+  >>> jnp.percentile(X_test_trans[:, 0], [0, 25, 50, 75, 100])
   ... # doctest: +SKIP
   array([ 0.01...,  0.25...,  0.46...,  0.60... ,  0.94...])
 
@@ -478,7 +478,7 @@ The ``preprocessing`` module further provides a utility class
 the class is stateless as this operation treats samples independently).
 
 This class is hence suitable for use in the early steps of a
-:class:`~sklearn.pipeline.Pipeline`::
+:class:`~xlearn.pipeline.Pipeline`::
 
   >>> normalizer = preprocessing.Normalizer().fit(X)  # fit does nothing
   >>> normalizer
@@ -533,15 +533,15 @@ new feature of integers (0 to n_categories - 1)::
     array([[0., 1., 1.]])
 
 Such integer representation can, however, not be used directly with all
-scikit-learn estimators, as these expect continuous input, and would interpret
+jax-learn estimators, as these expect continuous input, and would interpret
 the categories as being ordered, which is often not desired (i.e. the set of
 browsers was ordered arbitrarily).
 
 By default, :class:`OrdinalEncoder` will also passthrough missing values that
-are indicated by `np.nan`.
+are indicated by `jnp.nan`.
 
     >>> enc = preprocessing.OrdinalEncoder()
-    >>> X = [['male'], ['female'], [np.nan], ['female']]
+    >>> X = [['male'], ['female'], [jnp.nan], ['female']]
     >>> enc.fit_transform(X)
     array([[ 1.],
            [ 0.],
@@ -550,10 +550,10 @@ are indicated by `np.nan`.
 
 :class:`OrdinalEncoder` provides a parameter `encoded_missing_value` to encode
 the missing values without the need to create a pipeline and using
-:class:`~sklearn.impute.SimpleImputer`.
+:class:`~xlearn.impute.SimpleImputer`.
 
     >>> enc = preprocessing.OrdinalEncoder(encoded_missing_value=-1)
-    >>> X = [['male'], ['female'], [np.nan], ['female']]
+    >>> X = [['male'], ['female'], [jnp.nan], ['female']]
     >>> enc.fit_transform(X)
     array([[ 1.],
            [ 0.],
@@ -562,8 +562,8 @@ the missing values without the need to create a pipeline and using
 
 The above processing is equivalent to the following pipeline::
 
-    >>> from sklearn.pipeline import Pipeline
-    >>> from sklearn.impute import SimpleImputer
+    >>> from xlearn.pipeline import Pipeline
+    >>> from xlearn.impute import SimpleImputer
     >>> enc = Pipeline(steps=[
     ...     ("encoder", preprocessing.OrdinalEncoder()),
     ...     ("imputer", SimpleImputer(strategy="constant", fill_value=-1)),
@@ -575,7 +575,7 @@ The above processing is equivalent to the following pipeline::
            [ 0.]])
 
 Another possibility to convert categorical features to features that can be used
-with scikit-learn estimators is to use a one-of-K, also known as one-hot or
+with jax-learn estimators is to use a one-of-K, also known as one-hot or
 dummy encoding.
 This type of encoding can be obtained with the :class:`OneHotEncoder`,
 which transforms each categorical feature with
@@ -642,7 +642,7 @@ instead of ``n_categories`` columns by using the ``drop`` parameter. This
 parameter allows the user to specify a category for each feature to be dropped.
 This is useful to avoid co-linearity in the input matrix in some classifiers.
 Such functionality is useful, for example, when using non-regularized
-regression (:class:`LinearRegression <sklearn.linear_model.LinearRegression>`),
+regression (:class:`LinearRegression <xlearn.linear_model.LinearRegression>`),
 since co-linearity would cause the covariance matrix to be non-invertible::
 
     >>> X = [['male', 'from US', 'uses Safari'],
@@ -703,7 +703,7 @@ considering the missing values as an additional category::
 
     >>> X = [['male', 'Safari'],
     ...      ['female', None],
-    ...      [np.nan, 'Firefox']]
+    ...      [jnp.nan, 'Firefox']]
     >>> enc = preprocessing.OneHotEncoder(handle_unknown='error').fit(X)
     >>> enc.categories_
     [array(['female', 'male', nan], dtype=object),
@@ -713,10 +713,10 @@ considering the missing values as an additional category::
            [1., 0., 0., 0., 0., 1.],
            [0., 0., 1., 1., 0., 0.]])
 
-If a feature contains both `np.nan` and `None`, they will be considered
+If a feature contains both `jnp.nan` and `None`, they will be considered
 separate categories::
 
-    >>> X = [['Safari'], [None], [np.nan], ['Firefox']]
+    >>> X = [['Safari'], [None], [jnp.nan], ['Firefox']]
     >>> enc = preprocessing.OneHotEncoder(handle_unknown='error').fit(X)
     >>> enc.categories_
     [array(['Firefox', 'Safari', None, nan], dtype=object)]
@@ -754,12 +754,12 @@ enable the gathering of infrequent categories are `min_frequency` and
 In the following example with :class:`OrdinalEncoder`, the categories `'dog' and
 'snake'` are considered infrequent::
 
-   >>> X = np.array([['dog'] * 5 + ['cat'] * 20 + ['rabbit'] * 10 +
+   >>> X = jnp.array([['dog'] * 5 + ['cat'] * 20 + ['rabbit'] * 10 +
    ...               ['snake'] * 3], dtype=object).T
    >>> enc = preprocessing.OrdinalEncoder(min_frequency=6).fit(X)
    >>> enc.infrequent_categories_
    [array(['dog', 'snake'], dtype=object)]
-   >>> enc.transform(np.array([['dog'], ['cat'], ['rabbit'], ['snake']]))
+   >>> enc.transform(jnp.array([['dog'], ['cat'], ['rabbit'], ['snake']]))
    array([[2.],
           [0.],
           [1.],
@@ -773,14 +773,14 @@ result in up to `max_categories + 2` integer codes. In the following example,
 category, "b" and "c" are their own categories, unknown values are encoded as 3
 and missing values are encoded as 4.
 
-  >>> X_train = np.array(
-  ...     [["a"] * 5 + ["b"] * 20 + ["c"] * 10 + ["d"] * 3 + [np.nan]],
+  >>> X_train = jnp.array(
+  ...     [["a"] * 5 + ["b"] * 20 + ["c"] * 10 + ["d"] * 3 + [jnp.nan]],
   ...     dtype=object).T
   >>> enc = preprocessing.OrdinalEncoder(
   ...     handle_unknown="use_encoded_value", unknown_value=3,
   ...     max_categories=3, encoded_missing_value=4)
   >>> _ = enc.fit(X_train)
-  >>> X_test = np.array([["a"], ["b"], ["c"], ["d"], ["e"], [np.nan]], dtype=object)
+  >>> X_test = jnp.array([["a"], ["b"], ["c"], ["d"], ["e"], [jnp.nan]], dtype=object)
   >>> enc.transform(X_test)
   array([[2.],
          [0.],
@@ -795,7 +795,7 @@ categories::
    >>> enc = preprocessing.OneHotEncoder(min_frequency=6, sparse_output=False).fit(X)
    >>> enc.infrequent_categories_
    [array(['dog', 'snake'], dtype=object)]
-   >>> enc.transform(np.array([['dog'], ['cat'], ['rabbit'], ['snake']]))
+   >>> enc.transform(jnp.array([['dog'], ['cat'], ['rabbit'], ['snake']]))
    array([[0., 0., 1.],
           [1., 0., 0.],
           [0., 1., 0.],
@@ -807,14 +807,14 @@ be considered infrequent::
    >>> enc = preprocessing.OneHotEncoder(
    ...    handle_unknown='infrequent_if_exist', sparse_output=False, min_frequency=6)
    >>> enc = enc.fit(X)
-   >>> enc.transform(np.array([['dragon']]))
+   >>> enc.transform(jnp.array([['dragon']]))
    array([[0., 0., 1.]])
 
 :meth:`OneHotEncoder.get_feature_names_out` uses 'infrequent' as the infrequent
 feature name::
 
    >>> enc.get_feature_names_out()
-   array(['x0_cat', 'x0_rabbit', 'x0_infrequent_sklearn'], dtype=object)
+   array(['x0_cat', 'x0_rabbit', 'x0_infrequent_xlearn'], dtype=object)
 
 When `'handle_unknown'` is set to `'infrequent_if_exist'` and an unknown
 category is encountered in transform:
@@ -825,7 +825,7 @@ category is encountered in transform:
    category will be denoted as `None`.
 
 2. If there is an infrequent category during training, the unknown category
-   will be considered infrequent. In the inverse transform, 'infrequent_sklearn'
+   will be considered infrequent. In the inverse transform, 'infrequent_xlearn'
    will be used to represent the infrequent category.
 
 Infrequent categories can also be configured using `max_categories`. In the
@@ -862,7 +862,7 @@ ordering. In the following example, "b", "c", and "d", have the same cardinality
 and with `max_categories=2`, "b" and "c" are infrequent because they have a higher
 lexicon order.
 
-   >>> X = np.asarray([["a"] * 20 + ["b"] * 10 + ["c"] * 10 + ["d"] * 10], dtype=object).T
+   >>> X = jnp.asarray([["a"] * 20 + ["b"] * 10 + ["c"] * 10 + ["d"] * 10], dtype=object).T
    >>> enc = preprocessing.OneHotEncoder(max_categories=3).fit(X)
    >>> enc.infrequent_categories_
    [array(['b', 'c'], dtype=object)]
@@ -872,7 +872,7 @@ lexicon order.
 Target Encoder
 --------------
 
-.. currentmodule:: sklearn.preprocessing
+.. currentmodule:: xlearn.preprocessing
 
 The :class:`TargetEncoder` uses the target mean conditioned on the categorical
 feature for encoding unordered categories, i.e. nominal categories [PAR]_
@@ -939,7 +939,7 @@ This encoding is the same as the 'full data'
 encoding learned in :meth:`~TargetEncoder.fit_transform`.
 
 .. note::
-  :class:`TargetEncoder` considers missing values, such as `np.nan` or `None`,
+  :class:`TargetEncoder` considers missing values, such as `jnp.nan` or `None`,
   as another category and encodes them like any other category. Categories
   that are not seen during `fit` are encoded with the target mean, i.e.
   `target_mean_`.
@@ -982,7 +982,7 @@ K-bins discretization
 
 :class:`KBinsDiscretizer` discretizes features into ``k`` bins::
 
-  >>> X = np.array([[ -3., 5., 15 ],
+  >>> X = jnp.array([[ -3., 5., 15 ],
   ...               [  0., 6., 14 ],
   ...               [  6., 3., 11 ]])
   >>> est = preprocessing.KBinsDiscretizer(n_bins=[3, 2, 2], encode='ordinal').fit(X)
@@ -1006,7 +1006,7 @@ Based on these bin intervals, ``X`` is transformed as follows::
          [ 2., 0., 0.]])
 
 The resulting dataset contains ordinal attributes which can be further used
-in a :class:`~sklearn.pipeline.Pipeline`.
+in a :class:`~xlearn.pipeline.Pipeline`.
 
 Discretization is similar to constructing histograms for continuous data.
 However, histograms focus on counting features which fall into particular
@@ -1019,17 +1019,17 @@ equally populated bins in each feature. The 'kmeans' strategy defines bins based
 on a k-means clustering procedure performed on each feature independently.
 
 Be aware that one can specify custom bins by passing a callable defining the
-discretization strategy to :class:`~sklearn.preprocessing.FunctionTransformer`.
+discretization strategy to :class:`~xlearn.preprocessing.FunctionTransformer`.
 For instance, we can use the Pandas function :func:`pandas.cut`::
 
   >>> import pandas as pd
-  >>> import numpy as np
-  >>> bins = [0, 1, 13, 20, 60, np.inf]
+  >>> import jax.numpy as jnp
+  >>> bins = [0, 1, 13, 20, 60, jnp.inf]
   >>> labels = ['infant', 'kid', 'teen', 'adult', 'senior citizen']
   >>> transformer = preprocessing.FunctionTransformer(
   ...     pd.cut, kw_args={'bins': bins, 'labels': labels, 'retbins': False}
   ... )
-  >>> X = np.array([0.2, 2, 15, 25, 97])
+  >>> X = jnp.array([0.2, 2, 15, 25, 97])
   >>> transformer.fit_transform(X)
   ['infant', 'kid', 'teen', 'adult', 'senior citizen']
   Categories (5, object): ['infant' < 'kid' < 'teen' < 'adult' < 'senior citizen']
@@ -1050,7 +1050,7 @@ features to get boolean values**. This can be useful for downstream
 probabilistic estimators that make assumption that the input data
 is distributed according to a multi-variate `Bernoulli distribution
 <https://en.wikipedia.org/wiki/Bernoulli_distribution>`_. For instance,
-this is the case for the :class:`~sklearn.neural_network.BernoulliRBM`.
+this is the case for the :class:`~xlearn.neural_network.BernoulliRBM`.
 
 It is also common among the text processing community to use binary
 feature values (probably to simplify the probabilistic reasoning) even
@@ -1059,7 +1059,7 @@ often perform slightly better in practice.
 
 As for the :class:`Normalizer`, the utility class
 :class:`Binarizer` is meant to be used in the early stages of
-:class:`~sklearn.pipeline.Pipeline`. The ``fit`` method does nothing
+:class:`~xlearn.pipeline.Pipeline`. The ``fit`` method does nothing
 as each sample is treated independently of others::
 
   >>> X = [[ 1., -1.,  2.],
@@ -1126,9 +1126,9 @@ A simple and common method to use is polynomial features, which can get
 features' high-order and interaction terms. It is implemented in
 :class:`PolynomialFeatures`::
 
-    >>> import numpy as np
-    >>> from sklearn.preprocessing import PolynomialFeatures
-    >>> X = np.arange(6).reshape(3, 2)
+    >>> import jax.numpy as jnp
+    >>> from xlearn.preprocessing import PolynomialFeatures
+    >>> X = jnp.arange(6).reshape(3, 2)
     >>> X
     array([[0, 1],
            [2, 3],
@@ -1145,7 +1145,7 @@ The features of X have been transformed from :math:`(X_1, X_2)` to
 In some cases, only interaction terms among features are required, and it can
 be gotten with the setting ``interaction_only=True``::
 
-    >>> X = np.arange(9).reshape(3, 3)
+    >>> X = jnp.arange(9).reshape(3, 3)
     >>> X
     array([[0, 1, 2],
            [3, 4, 5],
@@ -1160,8 +1160,8 @@ The features of X have been transformed from :math:`(X_1, X_2, X_3)` to
 :math:`(1, X_1, X_2, X_3, X_1X_2, X_1X_3, X_2X_3, X_1X_2X_3)`.
 
 Note that polynomial features are used implicitly in `kernel methods
-<https://en.wikipedia.org/wiki/Kernel_method>`_ (e.g., :class:`~sklearn.svm.SVC`,
-:class:`~sklearn.decomposition.KernelPCA`) when using polynomial :ref:`svm_kernels`.
+<https://en.wikipedia.org/wiki/Kernel_method>`_ (e.g., :class:`~xlearn.svm.SVC`,
+:class:`~xlearn.decomposition.KernelPCA`) when using polynomial :ref:`svm_kernels`.
 
 See :ref:`sphx_glr_auto_examples_linear_model_plot_polynomial_interpolation.py`
 for Ridge regression using created polynomial features.
@@ -1205,9 +1205,9 @@ Some of the advantages of splines over polynomials are:
 
 The following code snippet shows splines in action::
 
-    >>> import numpy as np
-    >>> from sklearn.preprocessing import SplineTransformer
-    >>> X = np.arange(5).reshape(5, 1)
+    >>> import jax.numpy as jnp
+    >>> from xlearn.preprocessing import SplineTransformer
+    >>> X = jnp.arange(5).reshape(5, 1)
     >>> X
     array([[0],
            [1],
@@ -1227,7 +1227,7 @@ three middle diagonals are non-zero for ``degree=2``. The higher the degree,
 the more overlapping of the splines.
 
 Interestingly, a :class:`SplineTransformer` of ``degree=0`` is the same as
-:class:`~sklearn.preprocessing.KBinsDiscretizer` with
+:class:`~xlearn.preprocessing.KBinsDiscretizer` with
 ``encode='onehot-dense'`` and ``n_bins = n_knots - 1`` if
 ``knots = strategy``.
 
@@ -1255,10 +1255,10 @@ to assist in data cleaning or processing. You can implement a transformer from
 an arbitrary function with :class:`FunctionTransformer`. For example, to build
 a transformer that applies a log transformation in a pipeline, do::
 
-    >>> import numpy as np
-    >>> from sklearn.preprocessing import FunctionTransformer
-    >>> transformer = FunctionTransformer(np.log1p, validate=True)
-    >>> X = np.array([[0, 1], [2, 3]])
+    >>> import jax.numpy as jnp
+    >>> from xlearn.preprocessing import FunctionTransformer
+    >>> transformer = FunctionTransformer(jnp.log1p, validate=True)
+    >>> X = jnp.array([[0, 1], [2, 3]])
     >>> # Since FunctionTransformer is no-op during fit, we can call transform directly
     >>> transformer.transform(X)
     array([[0.        , 0.69314718],

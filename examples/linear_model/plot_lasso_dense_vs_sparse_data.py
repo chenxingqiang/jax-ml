@@ -12,8 +12,8 @@ from time import time
 
 from scipy import linalg, sparse
 
-from sklearn.datasets import make_regression
-from sklearn.linear_model import Lasso
+from xlearn.datasets import make_regression
+from xlearn.linear_model import Lasso
 
 # %%
 # Comparing the two Lasso implementations on Dense data

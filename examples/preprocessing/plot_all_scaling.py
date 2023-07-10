@@ -25,10 +25,10 @@ Scalers are linear (or more precisely affine) transformers and differ from each
 other in the way they estimate the parameters used to shift and scale each
 feature.
 
-:class:`~sklearn.preprocessing.QuantileTransformer` provides non-linear
+:class:`~xlearn.preprocessing.QuantileTransformer` provides non-linear
 transformations in which distances
 between marginal outliers and inliers are shrunk.
-:class:`~sklearn.preprocessing.PowerTransformer` provides
+:class:`~xlearn.preprocessing.PowerTransformer` provides
 non-linear transformations in which data is mapped to a normal distribution to
 stabilize variance and minimize skewness.
 
@@ -46,12 +46,12 @@ of the results_.
 # License: BSD 3 clause
 
 import matplotlib as mpl
-import numpy as np
+import jax.numpy as jnp
 from matplotlib import cm
 from matplotlib import pyplot as plt
 
-from sklearn.datasets import fetch_california_housing
-from sklearn.preprocessing import (
+from xlearn.datasets import fetch_california_housing
+from xlearn.preprocessing import (
     MaxAbsScaler,
     MinMaxScaler,
     Normalizer,
@@ -220,10 +220,10 @@ def make_plot(item_idx):
 
     # zoom-in
     zoom_in_percentile_range = (0, 99)
-    cutoffs_X0 = np.percentile(X[:, 0], zoom_in_percentile_range)
-    cutoffs_X1 = np.percentile(X[:, 1], zoom_in_percentile_range)
+    cutoffs_X0 = jnp.percentile(X[:, 0], zoom_in_percentile_range)
+    cutoffs_X1 = jnp.percentile(X[:, 1], zoom_in_percentile_range)
 
-    non_outliers_mask = np.all(X > [cutoffs_X0[0], cutoffs_X1[0]], axis=1) & np.all(
+    non_outliers_mask = jnp.all(X > [cutoffs_X0[0], cutoffs_X1[0]], axis=1) & jnp.all(
         X < [cutoffs_X0[1], cutoffs_X1[1]], axis=1
     )
     plot_distribution(
@@ -268,7 +268,7 @@ make_plot(0)
 # StandardScaler
 # --------------
 #
-# :class:`~sklearn.preprocessing.StandardScaler` removes the mean and scales
+# :class:`~xlearn.preprocessing.StandardScaler` removes the mean and scales
 # the data to unit variance. The scaling shrinks the range of the feature
 # values as shown in the left figure below.
 # However, the outliers have an influence when computing the empirical mean and
@@ -278,7 +278,7 @@ make_plot(0)
 # the transformed median income feature while the same data is squeezed in the
 # smaller [-0.2, 0.2] range for the transformed average house occupancy.
 #
-# :class:`~sklearn.preprocessing.StandardScaler` therefore cannot guarantee
+# :class:`~xlearn.preprocessing.StandardScaler` therefore cannot guarantee
 # balanced feature scales in the
 # presence of outliers.
 
@@ -288,14 +288,14 @@ make_plot(1)
 # MinMaxScaler
 # ------------
 #
-# :class:`~sklearn.preprocessing.MinMaxScaler` rescales the data set such that
+# :class:`~xlearn.preprocessing.MinMaxScaler` rescales the data set such that
 # all feature values are in
 # the range [0, 1] as shown in the right panel below. However, this scaling
 # compresses all inliers into the narrow range [0, 0.005] for the transformed
 # average house occupancy.
 #
-# Both :class:`~sklearn.preprocessing.StandardScaler` and
-# :class:`~sklearn.preprocessing.MinMaxScaler` are very sensitive to the
+# Both :class:`~xlearn.preprocessing.StandardScaler` and
+# :class:`~xlearn.preprocessing.MinMaxScaler` are very sensitive to the
 # presence of outliers.
 
 make_plot(2)
@@ -304,15 +304,15 @@ make_plot(2)
 # MaxAbsScaler
 # ------------
 #
-# :class:`~sklearn.preprocessing.MaxAbsScaler` is similar to
-# :class:`~sklearn.preprocessing.MinMaxScaler` except that the
+# :class:`~xlearn.preprocessing.MaxAbsScaler` is similar to
+# :class:`~xlearn.preprocessing.MinMaxScaler` except that the
 # values are mapped across several ranges depending on whether negative
 # OR positive values are present. If only positive values are present, the
 # range is [0, 1]. If only negative values are present, the range is [-1, 0].
 # If both negative and positive values are present, the range is [-1, 1].
-# On positive only data, both :class:`~sklearn.preprocessing.MinMaxScaler`
-# and :class:`~sklearn.preprocessing.MaxAbsScaler` behave similarly.
-# :class:`~sklearn.preprocessing.MaxAbsScaler` therefore also suffers from
+# On positive only data, both :class:`~xlearn.preprocessing.MinMaxScaler`
+# and :class:`~xlearn.preprocessing.MaxAbsScaler` behave similarly.
+# :class:`~xlearn.preprocessing.MaxAbsScaler` therefore also suffers from
 # the presence of large outliers.
 
 make_plot(3)
@@ -322,7 +322,7 @@ make_plot(3)
 # ------------
 #
 # Unlike the previous scalers, the centering and scaling statistics of
-# :class:`~sklearn.preprocessing.RobustScaler`
+# :class:`~xlearn.preprocessing.RobustScaler`
 # are based on percentiles and are therefore not influenced by a small
 # number of very large marginal outliers. Consequently, the resulting range of
 # the transformed feature values is larger than for the previous scalers and,
@@ -338,12 +338,12 @@ make_plot(4)
 # PowerTransformer
 # ----------------
 #
-# :class:`~sklearn.preprocessing.PowerTransformer` applies a power
+# :class:`~xlearn.preprocessing.PowerTransformer` applies a power
 # transformation to each feature to make the data more Gaussian-like in order
 # to stabilize variance and minimize skewness. Currently the Yeo-Johnson
 # and Box-Cox transforms are supported and the optimal
 # scaling factor is determined via maximum likelihood estimation in both
-# methods. By default, :class:`~sklearn.preprocessing.PowerTransformer` applies
+# methods. By default, :class:`~xlearn.preprocessing.PowerTransformer` applies
 # zero-mean, unit variance normalization. Note that
 # Box-Cox can only be applied to strictly positive data. Income and average
 # house occupancy happen to be strictly positive, but if negative values are
@@ -356,19 +356,19 @@ make_plot(6)
 # QuantileTransformer (uniform output)
 # ------------------------------------
 #
-# :class:`~sklearn.preprocessing.QuantileTransformer` applies a non-linear
+# :class:`~xlearn.preprocessing.QuantileTransformer` applies a non-linear
 # transformation such that the
 # probability density function of each feature will be mapped to a uniform
 # or Gaussian distribution. In this case, all the data, including outliers,
 # will be mapped to a uniform distribution with the range [0, 1], making
 # outliers indistinguishable from inliers.
 #
-# :class:`~sklearn.preprocessing.RobustScaler` and
-# :class:`~sklearn.preprocessing.QuantileTransformer` are robust to outliers in
+# :class:`~xlearn.preprocessing.RobustScaler` and
+# :class:`~xlearn.preprocessing.QuantileTransformer` are robust to outliers in
 # the sense that adding or removing outliers in the training set will yield
 # approximately the same transformation. But contrary to
-# :class:`~sklearn.preprocessing.RobustScaler`,
-# :class:`~sklearn.preprocessing.QuantileTransformer` will also automatically
+# :class:`~xlearn.preprocessing.RobustScaler`,
+# :class:`~xlearn.preprocessing.QuantileTransformer` will also automatically
 # collapse any outlier by setting them to the a priori defined range boundaries
 # (0 and 1). This can result in saturation artifacts for extreme values.
 
@@ -387,7 +387,7 @@ make_plot(8)
 # Normalizer
 # ----------
 #
-# The :class:`~sklearn.preprocessing.Normalizer` rescales the vector for each
+# The :class:`~xlearn.preprocessing.Normalizer` rescales the vector for each
 # sample to have unit norm,
 # independently of the distribution of the samples. It can be seen on both
 # figures below where all samples are mapped onto the unit circle. In our

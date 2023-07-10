@@ -3,7 +3,7 @@
 Imputing missing values with variants of IterativeImputer
 =========================================================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 The :class:`~impute.IterativeImputer` class is very flexible - it can be
 used with a variety of estimators to do round-robin regression, treating every
@@ -45,20 +45,20 @@ complex and costly missing values imputation strategies.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 import pandas as pd
 
-from sklearn.datasets import fetch_california_housing
-from sklearn.ensemble import RandomForestRegressor
+from xlearn.datasets import fetch_california_housing
+from xlearn.ensemble import RandomForestRegressor
 
 # To use this experimental feature, we need to explicitly ask for it:
-from sklearn.experimental import enable_iterative_imputer  # noqa
-from sklearn.impute import IterativeImputer, SimpleImputer
-from sklearn.kernel_approximation import Nystroem
-from sklearn.linear_model import BayesianRidge, Ridge
-from sklearn.model_selection import cross_val_score
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.pipeline import make_pipeline
+from xlearn.experimental import enable_iterative_imputer  # noqa
+from xlearn.impute import IterativeImputer, SimpleImputer
+from xlearn.kernel_approximation import Nystroem
+from xlearn.linear_model import BayesianRidge, Ridge
+from xlearn.model_selection import cross_val_score
+from xlearn.neighbors import KNeighborsRegressor
+from xlearn.pipeline import make_pipeline
 
 N_SPLITS = 5
 
@@ -83,15 +83,15 @@ score_full_data = pd.DataFrame(
 # Add a single missing value to each row
 X_missing = X_full.copy()
 y_missing = y_full
-missing_samples = np.arange(n_samples)
+missing_samples = jnp.arange(n_samples)
 missing_features = rng.choice(n_features, n_samples, replace=True)
-X_missing[missing_samples, missing_features] = np.nan
+X_missing[missing_samples, missing_features] = jnp.nan
 
 # Estimate the score after imputation (mean and median strategies)
 score_simple_imputer = pd.DataFrame()
 for strategy in ("mean", "median"):
     estimator = make_pipeline(
-        SimpleImputer(missing_values=np.nan, strategy=strategy), br_estimator
+        SimpleImputer(missing_values=jnp.nan, strategy=strategy), br_estimator
     )
     score_simple_imputer[strategy] = cross_val_score(
         estimator, X_missing, y_missing, scoring="neg_mean_squared_error", cv=N_SPLITS
@@ -112,7 +112,8 @@ estimators = [
         random_state=0,
     ),
     make_pipeline(
-        Nystroem(kernel="polynomial", degree=2, random_state=0), Ridge(alpha=1e3)
+        Nystroem(kernel="polynomial", degree=2,
+                 random_state=0), Ridge(alpha=1e3)
     ),
     KNeighborsRegressor(n_neighbors=15),
 ]
@@ -147,7 +148,7 @@ errors = scores.std()
 means.plot.barh(xerr=errors, ax=ax)
 ax.set_title("California Housing Regression with Different Imputation Methods")
 ax.set_xlabel("MSE (smaller is better)")
-ax.set_yticks(np.arange(means.shape[0]))
+ax.set_yticks(jnp.arange(means.shape[0]))
 ax.set_yticklabels([" w/ ".join(label) for label in means.index.tolist()])
 plt.tight_layout(pad=1)
 plt.show()

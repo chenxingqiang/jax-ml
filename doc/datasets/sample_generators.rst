@@ -7,9 +7,9 @@
 Generated datasets
 ==================
 
-.. currentmodule:: sklearn.datasets
+.. currentmodule:: xlearn.datasets
 
-In addition, scikit-learn includes various random sample generators that
+In addition, jax-learn includes various random sample generators that
 can be used to build artificial datasets of controlled size and complexity.
 
 Generators for classification and clustering

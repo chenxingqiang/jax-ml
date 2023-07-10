@@ -4,7 +4,7 @@ Imputing missing values before building an estimator
 ====================================================
 
 Missing values can be replaced by the mean, the median or the most frequent
-value using the basic :class:`~sklearn.impute.SimpleImputer`.
+value using the basic :class:`~xlearn.impute.SimpleImputer`.
 
 In this example we will investigate different imputation techniques:
 
@@ -22,7 +22,7 @@ house value for California districts.
 As neither of these datasets have missing values, we will remove some
 values to create new versions with artificially missing data. The performance
 of
-:class:`~sklearn.ensemble.RandomForestRegressor` on the full original dataset
+:class:`~xlearn.ensemble.RandomForestRegressor` on the full original dataset
 is then compared the performance on the altered datasets with the artificially
 missing values imputed using different techniques.
 
@@ -36,15 +36,20 @@ missing values imputed using different techniques.
 ################################################
 #
 # First we download the two datasets. Diabetes dataset is shipped with
-# scikit-learn. It has 442 entries, each with 10 features. California Housing
+# jax-learn. It has 442 entries, each with 10 features. California Housing
 # dataset is much larger with 20640 entries and 8 features. It needs to be
 # downloaded. We will only use the first 400 entries for the sake of speeding
 # up the calculations but feel free to use the whole dataset.
 #
 
-import numpy as np
+import matplotlib.pyplot as plt
+from xlearn.pipeline import make_pipeline
+from xlearn.model_selection import cross_val_score
+from xlearn.impute import IterativeImputer, KNNImputer, SimpleImputer
+from xlearn.ensemble import RandomForestRegressor
+import jax.numpy as jnp
 
-from sklearn.datasets import fetch_california_housing, load_diabetes
+from xlearn.datasets import fetch_california_housing, load_diabetes
 
 rng = np.random.RandomState(42)
 
@@ -63,19 +68,20 @@ def add_missing_values(X_full, y_full):
     missing_rate = 0.75
     n_missing_samples = int(n_samples * missing_rate)
 
-    missing_samples = np.zeros(n_samples, dtype=bool)
+    missing_samples = jnp.zeros(n_samples, dtype=bool)
     missing_samples[:n_missing_samples] = True
 
     rng.shuffle(missing_samples)
     missing_features = rng.randint(0, n_features, n_missing_samples)
     X_missing = X_full.copy()
-    X_missing[missing_samples, missing_features] = np.nan
+    X_missing[missing_samples, missing_features] = jnp.nan
     y_missing = y_full.copy()
 
     return X_missing, y_missing
 
 
-X_miss_california, y_miss_california = add_missing_values(X_california, y_california)
+X_miss_california, y_miss_california = add_missing_values(
+    X_california, y_california)
 
 X_miss_diabetes, y_miss_diabetes = add_missing_values(X_diabetes, y_diabetes)
 
@@ -89,13 +95,9 @@ X_miss_diabetes, y_miss_diabetes = add_missing_values(X_diabetes, y_diabetes)
 
 rng = np.random.RandomState(0)
 
-from sklearn.ensemble import RandomForestRegressor
 
 # To use the experimental IterativeImputer, we need to explicitly ask for it:
-from sklearn.experimental import enable_iterative_imputer  # noqa
-from sklearn.impute import IterativeImputer, KNNImputer, SimpleImputer
-from sklearn.model_selection import cross_val_score
-from sklearn.pipeline import make_pipeline
+from xlearn.experimental import enable_iterative_imputer  # noqa
 
 N_SPLITS = 4
 regressor = RandomForestRegressor(random_state=0)
@@ -119,10 +121,10 @@ def get_scores_for_imputer(imputer, X_missing, y_missing):
 
 x_labels = []
 
-mses_california = np.zeros(5)
-stds_california = np.zeros(5)
-mses_diabetes = np.zeros(5)
-stds_diabetes = np.zeros(5)
+mses_california = jnp.zeros(5)
+stds_california = jnp.zeros(5)
+mses_diabetes = jnp.zeros(5)
+stds_diabetes = jnp.zeros(5)
 
 # %%
 # Estimate the score
@@ -138,7 +140,8 @@ def get_full_score(X_full, y_full):
     return full_scores.mean(), full_scores.std()
 
 
-mses_california[0], stds_california[0] = get_full_score(X_california, y_california)
+mses_california[0], stds_california[0] = get_full_score(
+    X_california, y_california)
 mses_diabetes[0], stds_diabetes[0] = get_full_score(X_diabetes, y_diabetes)
 x_labels.append("Full data")
 
@@ -154,7 +157,7 @@ x_labels.append("Full data")
 
 def get_impute_zero_score(X_missing, y_missing):
     imputer = SimpleImputer(
-        missing_values=np.nan, add_indicator=True, strategy="constant", fill_value=0
+        missing_values=jnp.nan, add_indicator=True, strategy="constant", fill_value=0
     )
     zero_impute_scores = get_scores_for_imputer(imputer, X_missing, y_missing)
     return zero_impute_scores.mean(), zero_impute_scores.std()
@@ -173,12 +176,12 @@ x_labels.append("Zero imputation")
 # kNN-imputation of the missing values
 # ------------------------------------
 #
-# :class:`~sklearn.impute.KNNImputer` imputes missing values using the weighted
+# :class:`~xlearn.impute.KNNImputer` imputes missing values using the weighted
 # or unweighted mean of the desired number of nearest neighbors.
 
 
 def get_impute_knn_score(X_missing, y_missing):
-    imputer = KNNImputer(missing_values=np.nan, add_indicator=True)
+    imputer = KNNImputer(missing_values=jnp.nan, add_indicator=True)
     knn_impute_scores = get_scores_for_imputer(imputer, X_missing, y_missing)
     return knn_impute_scores.mean(), knn_impute_scores.std()
 
@@ -199,7 +202,8 @@ x_labels.append("KNN Imputation")
 
 
 def get_impute_mean(X_missing, y_missing):
-    imputer = SimpleImputer(missing_values=np.nan, strategy="mean", add_indicator=True)
+    imputer = SimpleImputer(missing_values=jnp.nan,
+                            strategy="mean", add_indicator=True)
     mean_impute_scores = get_scores_for_imputer(imputer, X_missing, y_missing)
     return mean_impute_scores.mean(), mean_impute_scores.std()
 
@@ -207,7 +211,8 @@ def get_impute_mean(X_missing, y_missing):
 mses_california[3], stds_california[3] = get_impute_mean(
     X_miss_california, y_miss_california
 )
-mses_diabetes[3], stds_diabetes[3] = get_impute_mean(X_miss_diabetes, y_miss_diabetes)
+mses_diabetes[3], stds_diabetes[3] = get_impute_mean(
+    X_miss_diabetes, y_miss_diabetes)
 x_labels.append("Mean Imputation")
 
 
@@ -215,7 +220,7 @@ x_labels.append("Mean Imputation")
 # Iterative imputation of the missing values
 # ------------------------------------------
 #
-# Another option is the :class:`~sklearn.impute.IterativeImputer`. This uses
+# Another option is the :class:`~xlearn.impute.IterativeImputer`. This uses
 # round-robin linear regression, modeling each feature with missing values as a
 # function of other features, in turn.
 # The version implemented assumes Gaussian (output) variables. If your features
@@ -226,14 +231,15 @@ x_labels.append("Mean Imputation")
 
 def get_impute_iterative(X_missing, y_missing):
     imputer = IterativeImputer(
-        missing_values=np.nan,
+        missing_values=jnp.nan,
         add_indicator=True,
         random_state=0,
         n_nearest_features=3,
         max_iter=1,
         sample_posterior=True,
     )
-    iterative_impute_scores = get_scores_for_imputer(imputer, X_missing, y_missing)
+    iterative_impute_scores = get_scores_for_imputer(
+        imputer, X_missing, y_missing)
     return iterative_impute_scores.mean(), iterative_impute_scores.std()
 
 
@@ -255,10 +261,9 @@ mses_california = mses_california * -1
 # Finally we are going to visualize the score:
 #
 
-import matplotlib.pyplot as plt
 
 n_bars = len(mses_diabetes)
-xval = np.arange(n_bars)
+xval = jnp.arange(n_bars)
 
 colors = ["r", "g", "b", "orange", "black"]
 
@@ -276,7 +281,8 @@ for j in xval:
     )
 
 ax1.set_title("Imputation Techniques with Diabetes Data")
-ax1.set_xlim(left=np.min(mses_diabetes) * 0.9, right=np.max(mses_diabetes) * 1.1)
+ax1.set_xlim(left=jnp.min(mses_diabetes) * 0.9,
+             right=jnp.max(mses_diabetes) * 1.1)
 ax1.set_yticks(xval)
 ax1.set_xlabel("MSE")
 ax1.invert_yaxis()

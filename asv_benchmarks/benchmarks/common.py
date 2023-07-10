@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from multiprocessing import cpu_count
 from pathlib import Path
 
-import numpy as np
+import jax.numpy as jnp
 
 
 def get_from_config():
@@ -219,7 +219,7 @@ class Predictor(ABC):
                 y_val_pred_base = estimator_base.predict(self.X_val)
                 y_val_pred = self.estimator.predict(self.X_val)
 
-                return np.allclose(y_val_pred_base, y_val_pred)
+                return jnp.allclose(y_val_pred_base, y_val_pred)
 
     @property
     @abstractmethod
@@ -248,7 +248,7 @@ class Transformer(ABC):
                 X_val_t_base = estimator_base.transform(self.X_val)
                 X_val_t = self.estimator.transform(self.X_val)
 
-                return np.allclose(X_val_t_base, X_val_t)
+                return jnp.allclose(X_val_t_base, X_val_t)
 
     @property
     @abstractmethod

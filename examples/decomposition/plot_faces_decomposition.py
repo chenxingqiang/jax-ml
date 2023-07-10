@@ -5,7 +5,7 @@ Faces dataset decompositions
 
 This example applies to :ref:`olivetti_faces_dataset` different unsupervised
 matrix decomposition (dimension reduction) methods from the module
-:py:mod:`sklearn.decomposition` (see the documentation chapter
+:py:mod:`xlearn.decomposition` (see the documentation chapter
 :ref:`decompositions`).
 
 
@@ -24,15 +24,17 @@ import logging
 import matplotlib.pyplot as plt
 from numpy.random import RandomState
 
-from sklearn import cluster, decomposition
-from sklearn.datasets import fetch_olivetti_faces
+from xlearn import cluster, decomposition
+from xlearn.datasets import fetch_olivetti_faces
 
 rng = RandomState(0)
 
 # Display progress logs on stdout
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s %(levelname)s %(message)s")
 
-faces, _ = fetch_olivetti_faces(return_X_y=True, shuffle=True, random_state=rng)
+faces, _ = fetch_olivetti_faces(
+    return_X_y=True, shuffle=True, random_state=rng)
 n_samples, n_features = faces.shape
 
 # Global centering (focus on one feature, centering all samples)
@@ -73,7 +75,8 @@ def plot_gallery(title, images, n_col=n_col, n_row=n_row, cmap=plt.cm.gray):
         )
         ax.axis("off")
 
-    fig.colorbar(im, ax=axs, orientation="horizontal", shrink=0.99, aspect=40, pad=0.01)
+    fig.colorbar(im, ax=axs, orientation="horizontal",
+                 shrink=0.99, aspect=40, pad=0.01)
     plt.show()
 
 
@@ -103,7 +106,7 @@ plot_gallery("Faces from dataset", faces_centered[:n_components])
 #
 # .. note::
 #
-#     The Eigenfaces estimator, via the :py:mod:`sklearn.decomposition.PCA`,
+#     The Eigenfaces estimator, via the :py:mod:`xlearn.decomposition.PCA`,
 #     also provides a scalar `noise_variance_` (the mean of pixelwise variance)
 #     that cannot be displayed as an image.
 
@@ -113,7 +116,8 @@ pca_estimator = decomposition.PCA(
 )
 pca_estimator.fit(faces_centered)
 plot_gallery(
-    "Eigenfaces - PCA using randomized SVD", pca_estimator.components_[:n_components]
+    "Eigenfaces - PCA using randomized SVD", pca_estimator.components_[
+        :n_components]
 )
 
 # %%
@@ -125,7 +129,8 @@ plot_gallery(
 # %%
 nmf_estimator = decomposition.NMF(n_components=n_components, tol=5e-3)
 nmf_estimator.fit(faces)  # original non- negative dataset
-plot_gallery("Non-negative components - NMF", nmf_estimator.components_[:n_components])
+plot_gallery("Non-negative components - NMF",
+             nmf_estimator.components_[:n_components])
 
 # %%
 # Independent components - FastICA
@@ -139,7 +144,8 @@ ica_estimator = decomposition.FastICA(
 )
 ica_estimator.fit(faces_centered)
 plot_gallery(
-    "Independent components - FastICA", ica_estimator.components_[:n_components]
+    "Independent components - FastICA", ica_estimator.components_[
+        :n_components]
 )
 
 # %%
@@ -148,7 +154,7 @@ plot_gallery(
 #
 # Mini-batch sparse PCA (`MiniBatchSparsePCA`) extracts the set of sparse
 # components that best reconstruct the data. This variant is faster but
-# less accurate than the similar :py:mod:`sklearn.decomposition.SparsePCA`.
+# less accurate than the similar :py:mod:`xlearn.decomposition.SparsePCA`.
 
 # %%
 batch_pca_estimator = decomposition.MiniBatchSparsePCA(
@@ -173,7 +179,8 @@ batch_dict_estimator = decomposition.MiniBatchDictionaryLearning(
     n_components=n_components, alpha=0.1, max_iter=50, batch_size=3, random_state=rng
 )
 batch_dict_estimator.fit(faces_centered)
-plot_gallery("Dictionary learning", batch_dict_estimator.components_[:n_components])
+plot_gallery("Dictionary learning",
+             batch_dict_estimator.components_[:n_components])
 
 # %%
 # Cluster centers - MiniBatchKMeans
@@ -209,7 +216,8 @@ plot_gallery(
 # Read more in the :ref:`User Guide <FA>`.
 
 # %%
-fa_estimator = decomposition.FactorAnalysis(n_components=n_components, max_iter=20)
+fa_estimator = decomposition.FactorAnalysis(
+    n_components=n_components, max_iter=20)
 fa_estimator.fit(faces_centered)
 plot_gallery("Factor Analysis (FA)", fa_estimator.components_[:n_components])
 
@@ -248,7 +256,8 @@ plt.show()
 # Red indicates negative values, blue indicates positive values,
 # and white represents zeros.
 
-plot_gallery("Faces from dataset", faces_centered[:n_components], cmap=plt.cm.RdBu)
+plot_gallery("Faces from dataset",
+             faces_centered[:n_components], cmap=plt.cm.RdBu)
 
 # %%
 # Similar to the previous examples, we change parameters and train

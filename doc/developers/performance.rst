@@ -5,7 +5,7 @@ How to optimize for speed
 =========================
 
 The following gives some practical guidelines to help you write efficient
-code for the scikit-learn project.
+code for the jax-learn project.
 
 .. note::
 
@@ -26,9 +26,9 @@ code for the scikit-learn project.
 Python, Cython or C/C++?
 ========================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
-In general, the scikit-learn project emphasizes the **readability** of
+In general, the jax-learn project emphasizes the **readability** of
 the source code to make it easy for the project users to dive into the
 source code so as to understand how the algorithm behaves on their data
 but also for ease of maintainability (by the developers).
@@ -53,7 +53,7 @@ following:
   2. If there exists a well maintained BSD or MIT **C/C++** implementation
      of the same algorithm that is not too big, you can write a
      **Cython wrapper** for it and include a copy of the source code
-     of the library in the scikit-learn source tree: this strategy is
+     of the library in the jax-learn source tree: this strategy is
      used for the classes :class:`svm.LinearSVC`, :class:`svm.SVC` and
      :class:`linear_model.LogisticRegression` (wrappers for liblinear
      and libsvm).
@@ -83,7 +83,7 @@ to generate C files. You are responsible for adding .c/.cpp extensions along
 with build parameters in each submodule ``setup.py``.
 
 C/C++ generated files are embedded in distributed stable packages. The goal is
-to make it possible to install scikit-learn stable version
+to make it possible to install jax-learn stable version
 on any machine with Python, Numpy, Scipy and C/C++ compiler.
 
 .. _profiling-python-code:
@@ -96,12 +96,12 @@ loads and prepare you data and then use the IPython integrated profiler
 for interactively exploring the relevant part for the code.
 
 Suppose we want to profile the Non Negative Matrix Factorization module
-of scikit-learn. Let us setup a new IPython session and load the digits
+of jax-learn. Let us setup a new IPython session and load the digits
 dataset and as in the :ref:`sphx_glr_auto_examples_classification_plot_digits_classification.py` example::
 
-  In [1]: from sklearn.decomposition import NMF
+  In [1]: from xlearn.decomposition import NMF
 
-  In [2]: from sklearn.datasets import load_digits
+  In [2]: from xlearn.datasets import load_digits
 
   In [3]: X, _ = load_digits(return_X_y=True)
 
@@ -203,17 +203,17 @@ This will register the ``%lprun`` magic command in the IPython terminal applicat
 
 Now restart IPython and let us use this new toy::
 
-  In [1]: from sklearn.datasets import load_digits
+  In [1]: from xlearn.datasets import load_digits
 
-  In [2]: from sklearn.decomposition import NMF
-    ... : from sklearn.decomposition._nmf import _nls_subproblem
+  In [2]: from xlearn.decomposition import NMF
+    ... : from xlearn.decomposition._nmf import _nls_subproblem
 
   In [3]: X, _ = load_digits(return_X_y=True)
 
   In [4]: %lprun -f _nls_subproblem NMF(n_components=16, tol=1e-2).fit(X)
   Timer unit: 1e-06 s
 
-  File: sklearn/decomposition/nmf.py
+  File: xlearn/decomposition/nmf.py
   Function: _nls_subproblem at line 137
   Total time: 1.73153 s
 
@@ -227,25 +227,25 @@ Now restart IPython and let us use this new toy::
      172                                                   raise ValueError("Negative values in H_init passed to NLS solver.")
      173
      174        48          139      2.9      0.0      H = H_init
-     175        48       112141   2336.3      5.8      WtV = np.dot(W.T, V)
-     176        48        16144    336.3      0.8      WtW = np.dot(W.T, W)
+     175        48       112141   2336.3      5.8      WtV = jnp.dot(W.T, V)
+     176        48        16144    336.3      0.8      WtW = jnp.dot(W.T, W)
      177
      178                                               # values justified in the paper
      179        48          144      3.0      0.0      alpha = 1
      180        48          113      2.4      0.0      beta = 0.1
      181       638         1880      2.9      0.1      for n_iter in range(1, max_iter + 1):
-     182       638       195133    305.9     10.2          grad = np.dot(WtW, H) - WtV
-     183       638       495761    777.1     25.9          proj_gradient = norm(grad[np.logical_or(grad < 0, H > 0)])
+     182       638       195133    305.9     10.2          grad = jnp.dot(WtW, H) - WtV
+     183       638       495761    777.1     25.9          proj_gradient = norm(grad[jnp.logical_or(grad < 0, H > 0)])
      184       638         2449      3.8      0.1          if proj_gradient < tol:
      185        48          130      2.7      0.0              break
      186
      187      1474         4474      3.0      0.2          for inner_iter in range(1, 20):
      188      1474        83833     56.9      4.4              Hn = H - alpha * grad
-     189                                                       # Hn = np.where(Hn > 0, Hn, 0)
+     189                                                       # Hn = jnp.where(Hn > 0, Hn, 0)
      190      1474       194239    131.8     10.1              Hn = _pos(Hn)
      191      1474        48858     33.1      2.5              d = Hn - H
-     192      1474       150407    102.0      7.8              gradd = np.sum(grad * d)
-     193      1474       515390    349.7     26.9              dQd = np.sum(np.dot(WtW, d) * d)
+     192      1474       150407    102.0      7.8              gradd = jnp.sum(grad * d)
+     193      1474       515390    349.7     26.9              dQd = jnp.sum(jnp.dot(WtW, d) * d)
      ...
 
 By looking at the top values of the ``% Time`` column it is really easy to
@@ -304,9 +304,9 @@ directory::
 Another useful magic that ``memory_profiler`` defines is ``%memit``, which is
 analogous to ``%timeit``. It can be used as follows::
 
-    In [1]: import numpy as np
+    In [1]: import jax.numpy as jnp
 
-    In [2]: %memit np.zeros(1e7)
+    In [2]: %memit jnp.zeros(1e7)
     maximum of 3: 76.402344 MB per loop
 
 For more details, see the docstrings of the magics, using ``%memit?`` and
@@ -327,7 +327,7 @@ Python extension module.
 
 The `Cython's documentation <http://docs.cython.org/>`_ contains a tutorial and
 reference guide for developing such a module.
-For more information about developing in Cython for scikit-learn, see :ref:`cython`.
+For more information about developing in Cython for jax-learn, see :ref:`cython`.
 
 
 .. _profiling-compiled-extension:
@@ -360,8 +360,8 @@ Using a debugger, gdb
   .. code-block:: bash
 
          git clone https://github.com/python/cpython.git
-         conda create -n debug-scikit-dev
-         conda activate debug-scikit-dev
+         conda create -n debug-jax-dev
+         conda activate debug-jax-dev
          cd cpython
          mkdir debug
          cd debug

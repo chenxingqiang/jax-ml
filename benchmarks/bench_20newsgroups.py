@@ -1,19 +1,19 @@
 import argparse
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import fetch_20newsgroups_vectorized
-from sklearn.dummy import DummyClassifier
-from sklearn.ensemble import (
+from xlearn.datasets import fetch_20newsgroups_vectorized
+from xlearn.dummy import DummyClassifier
+from xlearn.ensemble import (
     AdaBoostClassifier,
     ExtraTreesClassifier,
     RandomForestClassifier,
 )
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.utils.validation import check_array
+from xlearn.linear_model import LogisticRegression
+from xlearn.metrics import accuracy_score
+from xlearn.naive_bayes import MultinomialNB
+from xlearn.utils.validation import check_array
 
 ESTIMATORS = {
     "dummy": DummyClassifier(),
@@ -37,8 +37,9 @@ if __name__ == "__main__":
 
     data_train = fetch_20newsgroups_vectorized(subset="train")
     data_test = fetch_20newsgroups_vectorized(subset="test")
-    X_train = check_array(data_train.data, dtype=np.float32, accept_sparse="csc")
-    X_test = check_array(data_test.data, dtype=np.float32, accept_sparse="csr")
+    X_train = check_array(
+        data_train.data, dtype=jnp.float32, accept_sparse="csc")
+    X_test = check_array(data_test.data, dtype=jnp.float32, accept_sparse="csr")
     y_train = data_train.target
     y_test = data_test.target
 
@@ -47,7 +48,7 @@ if __name__ == "__main__":
     print(f"X_train.shape = {X_train.shape}")
     print(f"X_train.format = {X_train.format}")
     print(f"X_train.dtype = {X_train.dtype}")
-    print(f"X_train density = {X_train.nnz / np.prod(X_train.shape)}")
+    print(f"X_train density = {X_train.nnz / jnp.prod(X_train.shape)}")
     print(f"y_train {y_train.shape}")
     print(f"X_test {X_test.shape}")
     print(f"X_test.format = {X_test.format}")

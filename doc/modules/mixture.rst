@@ -6,9 +6,9 @@
 Gaussian mixture models
 =======================
 
-.. currentmodule:: sklearn.mixture
+.. currentmodule:: xlearn.mixture
 
-``sklearn.mixture`` is a package which enables one to learn
+``xlearn.mixture`` is a package which enables one to learn
 Gaussian Mixture Models (diagonal, spherical, tied and full covariance
 matrices supported), sample them, and estimate them from
 data. Facilities to help determine the appropriate number of
@@ -29,7 +29,7 @@ mixture models as generalizing k-means clustering to incorporate
 information about the covariance structure of the data as well as the
 centers of the latent Gaussians.
 
-Scikit-learn implements different classes to estimate Gaussian
+Jax-learn implements different classes to estimate Gaussian
 mixture models, that correspond to different estimation strategies,
 detailed below.
 

@@ -10,16 +10,16 @@ on the hand-written digits dataset.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets
-from sklearn.linear_model import (
+from xlearn import datasets
+from xlearn.linear_model import (
     LogisticRegression,
     PassiveAggressiveClassifier,
     Perceptron,
     SGDClassifier,
 )
-from sklearn.model_selection import train_test_split
+from xlearn.model_selection import train_test_split
 
 heldout = [0.95, 0.90, 0.75, 0.50, 0.01]
 # Number of rounds to fit and evaluate an estimator.
@@ -32,7 +32,8 @@ classifiers = [
     ("Perceptron", Perceptron(max_iter=110)),
     (
         "Passive-Aggressive I",
-        PassiveAggressiveClassifier(max_iter=110, loss="hinge", C=1.0, tol=1e-4),
+        PassiveAggressiveClassifier(
+            max_iter=110, loss="hinge", C=1.0, tol=1e-4),
     ),
     (
         "Passive-Aggressive II",
@@ -42,11 +43,12 @@ classifiers = [
     ),
     (
         "SAG",
-        LogisticRegression(max_iter=110, solver="sag", tol=1e-1, C=1.0e4 / X.shape[0]),
+        LogisticRegression(max_iter=110, solver="sag",
+                           tol=1e-1, C=1.0e4 / X.shape[0]),
     ),
 ]
 
-xx = 1.0 - np.array(heldout)
+xx = 1.0 - jnp.array(heldout)
 
 for name, clf in classifiers:
     print("training %s" % name)
@@ -60,8 +62,8 @@ for name, clf in classifiers:
             )
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
-            yy_.append(1 - np.mean(y_pred == y_test))
-        yy.append(np.mean(yy_))
+            yy_.append(1 - jnp.mean(y_pred == y_test))
+        yy.append(jnp.mean(yy_))
     plt.plot(xx, yy, label=name)
 
 plt.legend(loc="upper right")

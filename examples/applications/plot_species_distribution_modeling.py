@@ -9,7 +9,7 @@ model the geographic distribution of two South American
 mammals given past observations and 14 environmental
 variables. Since we have only positive examples (there are
 no unsuccessful observations), we cast this problem as a
-density estimation problem and use the :class:`~sklearn.svm.OneClassSVM`
+density estimation problem and use the :class:`~xlearn.svm.OneClassSVM`
 as our modeling tool. The dataset is provided by Phillips et. al. (2006).
 If available, the example uses
 `basemap <https://matplotlib.org/basemap/>`_
@@ -44,11 +44,11 @@ References
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import metrics, svm
-from sklearn.datasets import fetch_species_distributions
-from sklearn.utils import Bunch
+from xlearn import metrics, svm
+from xlearn.datasets import fetch_species_distributions
+from xlearn.utils import Bunch
 
 # if basemap is available, we'll use it.
 # otherwise, we'll improvise later...
@@ -80,9 +80,9 @@ def construct_grids(batch):
     ymax = ymin + (batch.Ny * batch.grid_size)
 
     # x coordinates of the grid cells
-    xgrid = np.arange(xmin, xmax, batch.grid_size)
+    xgrid = jnp.arange(xmin, xmax, batch.grid_size)
     # y coordinates of the grid cells
-    ygrid = np.arange(ymin, ymax, batch.grid_size)
+    ygrid = jnp.arange(ymin, ymax, batch.grid_size)
 
     return (xgrid, ygrid)
 
@@ -103,8 +103,8 @@ def create_species_bunch(species_name, train, test, coverages, xgrid, ygrid):
         bunch["pts_%s" % label] = pts
 
         # determine coverage values for each of the training & testing points
-        ix = np.searchsorted(xgrid, pts["dd long"])
-        iy = np.searchsorted(ygrid, pts["dd lat"])
+        ix = jnp.searchsorted(xgrid, pts["dd long"])
+        iy = jnp.searchsorted(ygrid, pts["dd lat"])
         bunch["cov_%s" % label] = coverages[:, -iy, ix].T
 
     return bunch
@@ -131,7 +131,7 @@ def plot_species_distribution(
     xgrid, ygrid = construct_grids(data)
 
     # The grid in x,y coordinates
-    X, Y = np.meshgrid(xgrid, ygrid[::-1])
+    X, Y = jnp.meshgrid(xgrid, ygrid[::-1])
 
     # create a bunch for each species
     BV_bunch = create_species_bunch(
@@ -143,7 +143,7 @@ def plot_species_distribution(
 
     # background points (grid coordinates) for evaluation
     np.random.seed(13)
-    background_points = np.c_[
+    background_points = jnp.c_[
         np.random.randint(low=0, high=data.Ny, size=10000),
         np.random.randint(low=0, high=data.Nx, size=10000),
     ].T
@@ -193,17 +193,17 @@ def plot_species_distribution(
         print(" - predict species distribution")
 
         # Predict species distribution using the training data
-        Z = np.ones((data.Ny, data.Nx), dtype=np.float64)
+        Z = jnp.ones((data.Ny, data.Nx), dtype=jnp.float64)
 
         # We'll predict only for the land points.
-        idx = np.where(land_reference > -9999)
+        idx = jnp.where(land_reference > -9999)
         coverages_land = data.coverages[:, idx[0], idx[1]].T
 
         pred = clf.decision_function((coverages_land - mean) / std)
         Z *= pred.min()
         Z[idx[0], idx[1]] = pred
 
-        levels = np.linspace(Z.min(), Z.max(), 25)
+        levels = jnp.linspace(Z.min(), Z.max(), 25)
         Z[land_reference == -9999] = -9999
 
         # plot contours of the prediction
@@ -234,8 +234,8 @@ def plot_species_distribution(
         # Compute AUC with regards to background points
         pred_background = Z[background_points[0], background_points[1]]
         pred_test = clf.decision_function((species.cov_test - mean) / std)
-        scores = np.r_[pred_test, pred_background]
-        y = np.r_[np.ones(pred_test.shape), np.zeros(pred_background.shape)]
+        scores = jnp.r_[pred_test, pred_background]
+        y = jnp.r_[jnp.ones(pred_test.shape), jnp.zeros(pred_background.shape)]
         fpr, tpr, thresholds = metrics.roc_curve(y, scores)
         roc_auc = metrics.auc(fpr, tpr)
         plt.text(-35, -70, "AUC: %.3f" % roc_auc, ha="right")

@@ -27,12 +27,12 @@ import operator
 from collections import defaultdict
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.cluster import MiniBatchKMeans, SpectralCoclustering
-from sklearn.datasets import fetch_20newsgroups
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.cluster import v_measure_score
+from xlearn.cluster import MiniBatchKMeans, SpectralCoclustering
+from xlearn.datasets import fetch_20newsgroups
+from xlearn.feature_extraction.text import TfidfVectorizer
+from xlearn.metrics.cluster import v_measure_score
 
 
 def number_normalizer(tokens):
@@ -133,7 +133,8 @@ def most_common(d):
     return sorted(d.items(), key=operator.itemgetter(1), reverse=True)
 
 
-bicluster_ncuts = list(bicluster_ncut(i) for i in range(len(newsgroups.target_names)))
+bicluster_ncuts = list(bicluster_ncut(i)
+                       for i in range(len(newsgroups.target_names)))
 best_idx = np.argsort(bicluster_ncuts)[:5]
 
 print()

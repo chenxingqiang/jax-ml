@@ -17,9 +17,9 @@ import matplotlib.pyplot as plt
 
 # unused but required import for doing 3d projections with matplotlib < 3.2
 import mpl_toolkits.mplot3d  # noqa: F401
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets, decomposition
+from xlearn import datasets, decomposition
 
 np.random.seed(5)
 
@@ -49,8 +49,9 @@ for name, label in [("Setosa", 0), ("Versicolour", 1), ("Virginica", 2)]:
         bbox=dict(alpha=0.5, edgecolor="w", facecolor="w"),
     )
 # Reorder the labels to have colors matching the cluster results
-y = np.choose(y, [1, 2, 0]).astype(float)
-ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=y, cmap=plt.cm.nipy_spectral, edgecolor="k")
+y = jnp.choose(y, [1, 2, 0]).astype(float)
+ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=y,
+           cmap=plt.cm.nipy_spectral, edgecolor="k")
 
 ax.xaxis.set_ticklabels([])
 ax.yaxis.set_ticklabels([])

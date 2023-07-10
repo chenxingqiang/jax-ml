@@ -4,13 +4,13 @@ Lasso model selection via information criteria
 ==============================================
 
 This example reproduces the example of Fig. 2 of [ZHT2007]_. A
-:class:`~sklearn.linear_model.LassoLarsIC` estimator is fit on a
+:class:`~xlearn.linear_model.LassoLarsIC` estimator is fit on a
 diabetes dataset and the AIC and the BIC criteria are used to select
 the best model.
 
 .. note::
     It is important to note that the optimization to find `alpha` with
-    :class:`~sklearn.linear_model.LassoLarsIC` relies on the AIC or BIC
+    :class:`~xlearn.linear_model.LassoLarsIC` relies on the AIC or BIC
     criteria that are computed in-sample, thus on the training set directly.
     This approach differs from the cross-validation procedure. For a comparison
     of the two approaches, you can refer to the following example:
@@ -30,26 +30,29 @@ the best model.
 
 # %%
 # We will use the diabetes dataset.
-from sklearn.datasets import load_diabetes
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
+from xlearn.preprocessing import StandardScaler
+from xlearn.pipeline import make_pipeline
+from xlearn.linear_model import LassoLarsIC
+from xlearn.datasets import load_diabetes
 
 X, y = load_diabetes(return_X_y=True, as_frame=True)
 n_samples = X.shape[0]
 X.head()
 
 # %%
-# Scikit-learn provides an estimator called
-# :class:`~sklearn.linear_model.LinearLarsIC` that uses either Akaike's
+# Jax-learn provides an estimator called
+# :class:`~xlearn.linear_model.LinearLarsIC` that uses either Akaike's
 # information criterion (AIC) or the Bayesian information criterion (BIC) to
 # select the best model. Before fitting
 # this model, we will scale the dataset.
 #
 # In the following, we are going to fit two models to compare the values
 # reported by AIC and BIC.
-from sklearn.linear_model import LassoLarsIC
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 
-lasso_lars_ic = make_pipeline(StandardScaler(), LassoLarsIC(criterion="aic")).fit(X, y)
+lasso_lars_ic = make_pipeline(
+    StandardScaler(), LassoLarsIC(criterion="aic")).fit(X, y)
 
 
 # %%
@@ -60,11 +63,10 @@ lasso_lars_ic = make_pipeline(StandardScaler(), LassoLarsIC(criterion="aic")).fi
 # :ref:`mathematical detail section for the User Guide <lasso_lars_ic>`.
 def zou_et_al_criterion_rescaling(criterion, n_samples, noise_variance):
     """Rescale the information criterion to follow the definition of Zou et al."""
-    return criterion - n_samples * np.log(2 * np.pi * noise_variance) - n_samples
+    return criterion - n_samples * jnp.log(2 * jnp.pi * noise_variance) - n_samples
 
 
 # %%
-import numpy as np
 
 aic_criterion = zou_et_al_criterion_rescaling(
     lasso_lars_ic[-1].criterion_,
@@ -72,7 +74,7 @@ aic_criterion = zou_et_al_criterion_rescaling(
     lasso_lars_ic[-1].noise_variance_,
 )
 
-index_alpha_path_aic = np.flatnonzero(
+index_alpha_path_aic = jnp.flatnonzero(
     lasso_lars_ic[-1].alphas_ == lasso_lars_ic[-1].alpha_
 )[0]
 
@@ -85,7 +87,7 @@ bic_criterion = zou_et_al_criterion_rescaling(
     lasso_lars_ic[-1].noise_variance_,
 )
 
-index_alpha_path_bic = np.flatnonzero(
+index_alpha_path_bic = jnp.flatnonzero(
     lasso_lars_ic[-1].alphas_ == lasso_lars_ic[-1].alpha_
 )[0]
 
@@ -98,7 +100,6 @@ index_alpha_path_aic == index_alpha_path_bic
 # %%
 # Finally, we can plot the AIC and BIC criterion and the subsequent selected
 # regularization parameter.
-import matplotlib.pyplot as plt
 
 plt.plot(aic_criterion, color="tab:blue", marker="o", label="AIC criterion")
 plt.plot(bic_criterion, color="tab:orange", marker="o", label="BIC criterion")

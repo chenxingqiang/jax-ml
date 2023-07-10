@@ -18,17 +18,17 @@ from time import time
 
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from scipy.interpolate import interp1d
 
-from sklearn.datasets import fetch_covtype, fetch_kddcup99
-from sklearn.kernel_approximation import Nystroem
-from sklearn.linear_model import SGDOneClassSVM
-from sklearn.metrics import auc, roc_curve
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import LabelBinarizer, StandardScaler
-from sklearn.svm import OneClassSVM
-from sklearn.utils import shuffle
+from xlearn.datasets import fetch_covtype, fetch_kddcup99
+from xlearn.kernel_approximation import Nystroem
+from xlearn.linear_model import SGDOneClassSVM
+from xlearn.metrics import auc, roc_curve
+from xlearn.pipeline import make_pipeline
+from xlearn.preprocessing import LabelBinarizer, StandardScaler
+from xlearn.svm import OneClassSVM
+from xlearn.utils import shuffle
 
 font = {"weight": "normal", "size": 15}
 
@@ -42,16 +42,16 @@ def print_outlier_ratio(y):
     Helper function to show the distinct value count of element in the target.
     Useful indicator for the datasets used in bench_isolation_forest.py.
     """
-    uniq, cnt = np.unique(y, return_counts=True)
+    uniq, cnt = jnp.unique(y, return_counts=True)
     print("----- Target count values: ")
     for u, c in zip(uniq, cnt):
         print("------ %s -> %d occurrences" % (str(u), c))
-    print("----- Outlier ratio: %.5f" % (np.min(cnt) / len(y)))
+    print("----- Outlier ratio: %.5f" % (jnp.min(cnt) / len(y)))
 
 
 # for roc curve computation
 n_axis = 1000
-x_axis = np.linspace(0, 1, n_axis)
+x_axis = jnp.linspace(0, 1, n_axis)
 
 datasets = ["http", "smtp", "SA", "SF", "forestcover"]
 
@@ -60,8 +60,8 @@ novelty_detection = False  # if False, training set polluted by outliers
 random_states = [42]
 nu = 0.05
 
-results_libsvm = np.empty((len(datasets), n_axis + 5))
-results_online = np.empty((len(datasets), n_axis + 5))
+results_libsvm = jnp.empty((len(datasets), n_axis + 5))
+results_online = jnp.empty((len(datasets), n_axis + 5))
 
 for dat, dataset_name in enumerate(datasets):
     print(dataset_name)
@@ -91,7 +91,7 @@ for dat, dataset_name in enumerate(datasets):
         # features to apply LabelBinarizer
         lb = LabelBinarizer()
         x1 = lb.fit_transform(X[:, 1].astype(str))
-        X = np.c_[X[:, :1], x1, X[:, 2:]]
+        X = jnp.c_[X[:, :1], x1, X[:, 2:]]
         y = (y != b"normal.").astype(int)
 
     if dataset_name == "SA":
@@ -101,7 +101,7 @@ for dat, dataset_name in enumerate(datasets):
         x1 = lb.fit_transform(X[:, 1].astype(str))
         x2 = lb.fit_transform(X[:, 2].astype(str))
         x3 = lb.fit_transform(X[:, 3].astype(str))
-        X = np.c_[X[:, :1], x1, x2, x3, X[:, 4:]]
+        X = jnp.c_[X[:, :1], x1, x2, x3, X[:, 4:]]
         y = (y != b"normal.").astype(int)
 
     if dataset_name in ["http", "smtp"]:
@@ -109,7 +109,7 @@ for dat, dataset_name in enumerate(datasets):
 
     print_outlier_ratio(y)
 
-    n_samples, n_features = np.shape(X)
+    n_samples, n_features = jnp.shape(X)
     if dataset_name == "SA":  # LibSVM too long with n_samples // 2
         n_samples_train = n_samples // 20
     else:
@@ -119,8 +119,8 @@ for dat, dataset_name in enumerate(datasets):
     print("n_train: ", n_samples_train)
     print("n_features: ", n_features)
 
-    tpr_libsvm = np.zeros(n_axis)
-    tpr_online = np.zeros(n_axis)
+    tpr_libsvm = jnp.zeros(n_axis)
+    tpr_online = jnp.zeros(n_axis)
     fit_time_libsvm = 0
     fit_time_online = 0
     predict_time_libsvm = 0
@@ -222,7 +222,7 @@ auc_online_all = results_online[:, 2]
 
 
 width = 0.7
-ind = 2 * np.arange(len(datasets))
+ind = 2 * jnp.arange(len(datasets))
 x_tickslabels = [
     (name + "\n" + r"$n={:,d}$" + "\n" + r"$d={:d}$").format(int(n), int(d))
     for name, n, d in zip(datasets, n_train_all, n_features_all)
@@ -285,7 +285,8 @@ fig, ax = plt.subplots(figsize=(15, 8))
 ax.set_ylabel("Testing time (sec) - Log scale")
 ax.set_yscale("log")
 rect_libsvm = ax.bar(ind, predict_time_libsvm_all, color="r", width=width)
-rect_online = ax.bar(ind + width, predict_time_online_all, color="y", width=width)
+rect_online = ax.bar(ind + width, predict_time_online_all,
+                     color="y", width=width)
 ax.legend((rect_libsvm[0], rect_online[0]), ("LibSVM", "Online SVM"))
 ax.set_xticks(ind + width / 2)
 ax.set_xticklabels(x_tickslabels)

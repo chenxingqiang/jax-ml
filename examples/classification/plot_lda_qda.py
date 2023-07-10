@@ -15,6 +15,12 @@ class has its own standard deviation with QDA.
 # Colormap
 # --------
 
+from xlearn.discriminant_analysis import (
+    LinearDiscriminantAnalysis,
+    QuadraticDiscriminantAnalysis,
+)
+from scipy import linalg
+import jax.numpy as jnp
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import colors
@@ -33,8 +39,6 @@ plt.cm.register_cmap(cmap=cmap)
 # %%
 # Datasets generation functions
 # -----------------------------
-
-import numpy as np
 
 
 def dataset_fixed_cov():
@@ -67,8 +71,6 @@ def dataset_cov():
 # Plot functions
 # --------------
 
-from scipy import linalg
-
 
 def plot_data(lda, X, y, y_pred, fig_index):
     splot = plt.subplot(2, 2, fig_index)
@@ -88,7 +90,8 @@ def plot_data(lda, X, y, y_pred, fig_index):
 
     # class 0: dots
     plt.scatter(X0_tp[:, 0], X0_tp[:, 1], marker=".", color="red")
-    plt.scatter(X0_fp[:, 0], X0_fp[:, 1], marker="x", s=20, color="#990000")  # dark red
+    plt.scatter(X0_fp[:, 0], X0_fp[:, 1], marker="x",
+                s=20, color="#990000")  # dark red
 
     # class 1: dots
     plt.scatter(X1_tp[:, 0], X1_tp[:, 1], marker=".", color="blue")
@@ -100,7 +103,8 @@ def plot_data(lda, X, y, y_pred, fig_index):
     nx, ny = 200, 100
     x_min, x_max = plt.xlim()
     y_min, y_max = plt.ylim()
-    xx, yy = np.meshgrid(np.linspace(x_min, x_max, nx), np.linspace(y_min, y_max, ny))
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, nx),
+                         np.linspace(y_min, y_max, ny))
     Z = lda.predict_proba(np.c_[xx.ravel(), yy.ravel()])
     Z = Z[:, 1].reshape(xx.shape)
     plt.pcolormesh(
@@ -172,10 +176,6 @@ plt.suptitle(
     fontsize=15,
 )
 
-from sklearn.discriminant_analysis import (
-    LinearDiscriminantAnalysis,
-    QuadraticDiscriminantAnalysis,
-)
 
 for i, (X, y) in enumerate([dataset_fixed_cov(), dataset_cov()]):
     # Linear Discriminant Analysis

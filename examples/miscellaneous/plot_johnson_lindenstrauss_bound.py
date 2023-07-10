@@ -17,11 +17,11 @@ import sys
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import fetch_20newsgroups_vectorized, load_digits
-from sklearn.metrics.pairwise import euclidean_distances
-from sklearn.random_projection import (
+from xlearn.datasets import fetch_20newsgroups_vectorized, load_digits
+from xlearn.metrics.pairwise import euclidean_distances
+from xlearn.random_projection import (
     SparseRandomProjection,
     johnson_lindenstrauss_min_dim,
 )
@@ -52,11 +52,11 @@ from sklearn.random_projection import (
 # in order to guarantee an ``eps``-embedding.
 
 # range of admissible distortions
-eps_range = np.linspace(0.1, 0.99, 5)
-colors = plt.cm.Blues(np.linspace(0.3, 1.0, len(eps_range)))
+eps_range = jnp.linspace(0.1, 0.99, 5)
+colors = plt.cm.Blues(jnp.linspace(0.3, 1.0, len(eps_range)))
 
 # range of number of samples (observation) to embed
-n_samples_range = np.logspace(1, 9, 9)
+n_samples_range = jnp.logspace(1, 9, 9)
 
 plt.figure()
 for eps, color in zip(eps_range, colors):
@@ -76,11 +76,11 @@ plt.show()
 # dimensions ``n_components`` for a given number of samples ``n_samples``
 
 # range of admissible distortions
-eps_range = np.linspace(0.01, 0.99, 100)
+eps_range = jnp.linspace(0.01, 0.99, 100)
 
 # range of number of samples (observation) to embed
-n_samples_range = np.logspace(2, 6, 5)
-colors = plt.cm.Blues(np.linspace(0.3, 1.0, len(n_samples_range)))
+n_samples_range = jnp.logspace(2, 6, 5)
+colors = plt.cm.Blues(jnp.linspace(0.3, 1.0, len(n_samples_range)))
 
 plt.figure()
 for n_samples, color in zip(n_samples_range, colors):
@@ -132,7 +132,7 @@ print(
     "random projections"
 )
 
-n_components_range = np.array([300, 1_000, 10_000])
+n_components_range = jnp.array([300, 1_000, 10_000])
 dists = euclidean_distances(data, squared=True).ravel()
 
 # select only non-identical samples pairs
@@ -152,7 +152,8 @@ for n_components in n_components_range:
         n_bytes += rp.components_.indices.nbytes
         print(f"Random matrix with size: {n_bytes / 1e6:0.3f} MB")
 
-    projected_dists = euclidean_distances(projected_data, squared=True).ravel()[nonzero]
+    projected_dists = euclidean_distances(
+        projected_data, squared=True).ravel()[nonzero]
 
     plt.figure()
     min_dist = min(projected_dists.min(), dists.min())
@@ -166,18 +167,20 @@ for n_components in n_components_range:
     )
     plt.xlabel("Pairwise squared distances in original space")
     plt.ylabel("Pairwise squared distances in projected space")
-    plt.title("Pairwise distances distribution for n_components=%d" % n_components)
+    plt.title("Pairwise distances distribution for n_components=%d" %
+              n_components)
     cb = plt.colorbar()
     cb.set_label("Sample pairs counts")
 
     rates = projected_dists / dists
-    print(f"Mean distances rate: {np.mean(rates):.2f} ({np.std(rates):.2f})")
+    print(f"Mean distances rate: {jnp.mean(rates):.2f} ({jnp.std(rates):.2f})")
 
     plt.figure()
     plt.hist(rates, bins=50, range=(0.0, 2.0), edgecolor="k", density=True)
     plt.xlabel("Squared distances rate: projected / original")
     plt.ylabel("Distribution of samples pairs")
-    plt.title("Histogram of pairwise distance rates for n_components=%d" % n_components)
+    plt.title("Histogram of pairwise distance rates for n_components=%d" %
+              n_components)
 
     # TODO: compute the expected value of eps and add them to the previous plot
     # as vertical lines / region

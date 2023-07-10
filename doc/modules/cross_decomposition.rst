@@ -4,7 +4,7 @@
 Cross decomposition
 ===================
 
-.. currentmodule:: sklearn.cross_decomposition
+.. currentmodule:: xlearn.cross_decomposition
 
 The cross decomposition module contains **supervised** estimators for
 dimensionality reduction and regression, belonging to the "Partial Least
@@ -161,7 +161,7 @@ of components is limited by `min(n_samples, n_features, n_targets)` in
 `min(n_samples, n_features)`.
 
 :class:`PLSRegression` is also known as PLS1 (single targets) and PLS2
-(multiple targets). Much like :class:`~sklearn.linear_model.Lasso`,
+(multiple targets). Much like :class:`~xlearn.linear_model.Lasso`,
 :class:`PLSRegression` is a form of regularized linear regression where the
 number of components controls the strength of the regularization.
 

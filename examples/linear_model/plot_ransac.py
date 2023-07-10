@@ -15,10 +15,10 @@ and the fitted line is determined only by the identified inliers.
 
 """
 
-import numpy as np
+import jax.numpy as jnp
 from matplotlib import pyplot as plt
 
-from sklearn import datasets, linear_model
+from xlearn import datasets, linear_model
 
 n_samples = 1000
 n_outliers = 50
@@ -46,10 +46,10 @@ lr.fit(X, y)
 ransac = linear_model.RANSACRegressor()
 ransac.fit(X, y)
 inlier_mask = ransac.inlier_mask_
-outlier_mask = np.logical_not(inlier_mask)
+outlier_mask = jnp.logical_not(inlier_mask)
 
 # Predict data of estimated models
-line_X = np.arange(X.min(), X.max())[:, np.newaxis]
+line_X = jnp.arange(X.min(), X.max())[:, jnp.newaxis]
 line_y = lr.predict(line_X)
 line_y_ransac = ransac.predict(line_X)
 

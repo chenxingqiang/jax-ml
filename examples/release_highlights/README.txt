@@ -3,4 +3,4 @@
 Release Highlights
 ------------------
 
-These examples illustrate the main features of the releases of scikit-learn.
+These examples illustrate the main features of the releases of jax-learn.

@@ -30,20 +30,20 @@ which is well known to have this percolation instability.
 import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.neighbors import kneighbors_graph
+from xlearn.cluster import AgglomerativeClustering
+from xlearn.neighbors import kneighbors_graph
 
 # Generate sample data
 n_samples = 1500
 np.random.seed(0)
-t = 1.5 * np.pi * (1 + 3 * np.random.rand(1, n_samples))
-x = t * np.cos(t)
-y = t * np.sin(t)
+t = 1.5 * jnp.pi * (1 + 3 * np.random.rand(1, n_samples))
+x = t * jnp.cos(t)
+y = t * jnp.sin(t)
 
 
-X = np.concatenate((x, y))
+X = jnp.concatenate((x, y))
 X += 0.7 * np.random.randn(2, n_samples)
 X = X.T
 
@@ -65,7 +65,8 @@ for connectivity in (None, knn_graph):
             t0 = time.time()
             model.fit(X)
             elapsed_time = time.time() - t0
-            plt.scatter(X[:, 0], X[:, 1], c=model.labels_, cmap=plt.cm.nipy_spectral)
+            plt.scatter(X[:, 0], X[:, 1], c=model.labels_,
+                        cmap=plt.cm.nipy_spectral)
             plt.title(
                 "linkage=%s\n(time %.2fs)" % (linkage, elapsed_time),
                 fontdict=dict(verticalalignment="top"),

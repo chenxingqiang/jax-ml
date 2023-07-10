@@ -59,7 +59,7 @@ In particular, one can run a `single test based on its node ID
 
 .. prompt:: bash $
 
-  pytest -v sklearn/linear_model/tests/test_logistic.py::test_sparsify
+  pytest -v xlearn/linear_model/tests/test_logistic.py::test_sparsify
 
 or use the `-k pytest parameter
 <https://docs.pytest.org/en/latest/example/markers.html#using-k-expr-to-select-tests-based-on-their-name>`_
@@ -67,7 +67,7 @@ to select tests based on their name. For instance,:
 
 .. prompt:: bash $
 
-  pytest sklearn/tests/test_common.py -v -k LogisticRegression
+  pytest xlearn/tests/test_common.py -v -k LogisticRegression
 
 will run all :term:`common tests` for the ``LogisticRegression`` estimator.
 
@@ -116,9 +116,9 @@ replies <https://github.com/settings/replies/>`_ for reviewing:
 Issue: Usage questions
     ::
 
-        You are asking a usage question. The issue tracker is for bugs and new features. For usage questions, it is recommended to try [Stack Overflow](https://stackoverflow.com/questions/tagged/scikit-learn) or [the Mailing List](https://mail.python.org/mailman/listinfo/scikit-learn).
+        You are asking a usage question. The issue tracker is for bugs and new features. For usage questions, it is recommended to try [Stack Overflow](https://stackoverflow.com/questions/tagged/jax-learn) or [the Mailing List](https://mail.python.org/mailman/listinfo/jax-learn).
 
-        Unfortunately, we need to close this issue as this issue tracker is a communication tool used for the development of scikit-learn. The additional activity created by usage questions crowds it too much and impedes this development. The conversation can continue here, however there is no guarantee that is will receive attention from core developers.
+        Unfortunately, we need to close this issue as this issue tracker is a communication tool used for the development of jax-learn. The additional activity created by usage questions crowds it too much and impedes this development. The conversation can continue here, however there is no guarantee that is will receive attention from core developers.
 
 
 Issue: You're welcome to update the docs
@@ -136,7 +136,7 @@ Issue: Software versions
 
         To help diagnose your issue, please paste the output of:
         ```py
-        import sklearn; sklearn.show_versions()
+        import xlearn; xlearn.show_versions()
         ```
         Thanks.
 
@@ -180,7 +180,7 @@ Issue/Comment: Linking to comments
 PR-NEW: Better description and title
     ::
 
-        Thanks for the pull request! Please make the title of the PR more descriptive. The title will become the commit message when this is merged. You should state what issue (or PR) it fixes/resolves in the description using the syntax described [here](https://scikit-learn.org/dev/developers/contributing.html#contributing-pull-requests).
+        Thanks for the pull request! Please make the title of the PR more descriptive. The title will become the commit message when this is merged. You should state what issue (or PR) it fixes/resolves in the description using the syntax described [here](https://jax-learn.cc/dev/developers/contributing.html#contributing-pull-requests).
 
 PR-NEW: Fix #
     ::
@@ -190,7 +190,7 @@ PR-NEW: Fix #
 PR-NEW or Issue: Maintenance cost
     ::
 
-        Every feature we include has a [maintenance cost](https://scikit-learn.org/dev/faq.html#why-are-you-so-selective-on-what-algorithms-you-include-in-scikit-learn). Our maintainers are mostly volunteers. For a new feature to be included, we need evidence that it is often useful and, ideally, [well-established](https://scikit-learn.org/dev/faq.html#what-are-the-inclusion-criteria-for-new-algorithms) in the literature or in practice. Also, we expect PR authors to take part in the maintenance for the code they submit, at least initially. That doesn't stop you implementing it for yourself and publishing it in a separate repository, or even [scikit-learn-contrib](https://scikit-learn-contrib.github.io).
+        Every feature we include has a [maintenance cost](https://jax-learn.cc/dev/faq.html#why-are-you-so-selective-on-what-algorithms-you-include-in-jax-learn). Our maintainers are mostly volunteers. For a new feature to be included, we need evidence that it is often useful and, ideally, [well-established](https://jax-learn.cc/dev/faq.html#what-are-the-inclusion-criteria-for-new-algorithms) in the literature or in practice. Also, we expect PR authors to take part in the maintenance for the code they submit, at least initially. That doesn't stop you implementing it for yourself and publishing it in a separate repository, or even [jax-learn-contrib](https://jax-learn-contrib.github.io).
 
 PR-WIP: What's needed before merge?
     ::
@@ -210,7 +210,7 @@ PR-WIP: PEP8
 PR-MRG: Patience
     ::
 
-        Before merging, we generally require two core developers to agree that your pull request is desirable and ready. [Please be patient](https://scikit-learn.org/dev/faq.html#why-is-my-pull-request-not-getting-any-attention), as we mostly rely on volunteered time from busy core developers. (You are also welcome to help us out with [reviewing other PRs](https://scikit-learn.org/dev/developers/contributing.html#code-review-guidelines).)
+        Before merging, we generally require two core developers to agree that your pull request is desirable and ready. [Please be patient](https://jax-learn.cc/dev/faq.html#why-is-my-pull-request-not-getting-any-attention), as we mostly rely on volunteered time from busy core developers. (You are also welcome to help us out with [reviewing other PRs](https://jax-learn.cc/dev/developers/contributing.html#code-review-guidelines).)
 
 PR-MRG: Add to what's new
     ::
@@ -229,7 +229,7 @@ Debugging memory errors in Cython with valgrind
 
 While python/numpy's built-in memory management is relatively robust, it can
 lead to performance penalties for some routines. For this reason, much of
-the high-performance code in scikit-learn is written in cython. This
+the high-performance code in jax-learn is written in cython. This
 performance gain comes with a tradeoff, however: it is very easy for memory
 bugs to crop up in cython code, especially in situations where that code
 relies heavily on pointer arithmetic.
@@ -298,7 +298,7 @@ source code:
     mkdir arm64
     pushd arm64
     wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh
-    git clone https://github.com/scikit-learn/scikit-learn.git
+    git clone https://github.com/jax-learn/jax-learn.git
 
 Use docker to install QEMU user mode and run an ARM64v8 container with access
 to your shared folder under the `/io` mount point:
@@ -327,10 +327,10 @@ previously installed under `/io/miniforge3`:
 as the `/root` home folder is part of the ephemeral docker container. Every
 file or directory stored under `/io` is persistent on the other hand.
 
-You can then build scikit-learn as usual (you will need to install compiler
-tools and dependencies using apt or conda as usual). Building scikit-learn
+You can then build jax-learn as usual (you will need to install compiler
+tools and dependencies using apt or conda as usual). Building jax-learn
 takes a lot of time because of the emulation layer, however it needs to be
-done only once if you put the scikit-learn folder under the `/io` mount
+done only once if you put the jax-learn folder under the `/io` mount
 point.
 
 Then use pytest to run only the tests of the module you are interested in

@@ -7,11 +7,11 @@ This example demonstrates Gradient Boosting to produce a predictive
 model from an ensemble of weak predictive models. Gradient boosting can be used
 for regression and classification problems. Here, we will train a model to
 tackle a diabetes regression task. We will obtain the results from
-:class:`~sklearn.ensemble.GradientBoostingRegressor` with least squares loss
+:class:`~xlearn.ensemble.GradientBoostingRegressor` with least squares loss
 and 500 regression trees of depth 4.
 
 Note: For larger datasets (n_samples >= 10000), please refer to
-:class:`~sklearn.ensemble.HistGradientBoostingRegressor`.
+:class:`~xlearn.ensemble.HistGradientBoostingRegressor`.
 
 """
 
@@ -22,12 +22,12 @@ Note: For larger datasets (n_samples >= 10000), please refer to
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets, ensemble
-from sklearn.inspection import permutation_importance
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
+from xlearn import datasets, ensemble
+from xlearn.inspection import permutation_importance
+from xlearn.metrics import mean_squared_error
+from xlearn.model_selection import train_test_split
 
 # %%
 # Load the data
@@ -59,7 +59,7 @@ X, y = diabetes.data, diabetes.target
 #
 # `loss` : loss function to optimize. The least squares function is  used in
 # this case however, there are many other options (see
-# :class:`~sklearn.ensemble.GradientBoostingRegressor` ).
+# :class:`~xlearn.ensemble.GradientBoostingRegressor` ).
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.1, random_state=13
@@ -93,7 +93,7 @@ print("The mean squared error (MSE) on test set: {:.4f}".format(mse))
 # Finally, we will visualize the results. To do that we will first compute the
 # test set deviance and then plot it against boosting iterations.
 
-test_score = np.zeros((params["n_estimators"],), dtype=np.float64)
+test_score = jnp.zeros((params["n_estimators"],), dtype=jnp.float64)
 for i, y_pred in enumerate(reg.staged_predict(X_test)):
     test_score[i] = mean_squared_error(y_test, y_pred)
 
@@ -101,13 +101,13 @@ fig = plt.figure(figsize=(6, 6))
 plt.subplot(1, 1, 1)
 plt.title("Deviance")
 plt.plot(
-    np.arange(params["n_estimators"]) + 1,
+    jnp.arange(params["n_estimators"]) + 1,
     reg.train_score_,
     "b-",
     label="Training Set Deviance",
 )
 plt.plot(
-    np.arange(params["n_estimators"]) + 1, test_score, "r-", label="Test Set Deviance"
+    jnp.arange(params["n_estimators"]) + 1, test_score, "r-", label="Test Set Deviance"
 )
 plt.legend(loc="upper right")
 plt.xlabel("Boosting Iterations")
@@ -132,12 +132,12 @@ plt.show()
 # show that they overlap with 0.
 
 feature_importance = reg.feature_importances_
-sorted_idx = np.argsort(feature_importance)
-pos = np.arange(sorted_idx.shape[0]) + 0.5
+sorted_idx = jnp.argsort(feature_importance)
+pos = jnp.arange(sorted_idx.shape[0]) + 0.5
 fig = plt.figure(figsize=(12, 6))
 plt.subplot(1, 2, 1)
 plt.barh(pos, feature_importance[sorted_idx], align="center")
-plt.yticks(pos, np.array(diabetes.feature_names)[sorted_idx])
+plt.yticks(pos, jnp.array(diabetes.feature_names)[sorted_idx])
 plt.title("Feature Importance (MDI)")
 
 result = permutation_importance(
@@ -148,7 +148,7 @@ plt.subplot(1, 2, 2)
 plt.boxplot(
     result.importances[sorted_idx].T,
     vert=False,
-    labels=np.array(diabetes.feature_names)[sorted_idx],
+    labels=jnp.array(diabetes.feature_names)[sorted_idx],
 )
 plt.title("Permutation Importance (test set)")
 fig.tight_layout()

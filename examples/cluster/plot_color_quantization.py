@@ -28,12 +28,12 @@ randomly) is also shown.
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.cluster import KMeans
-from sklearn.datasets import load_sample_image
-from sklearn.metrics import pairwise_distances_argmin
-from sklearn.utils import shuffle
+from xlearn.cluster import KMeans
+from xlearn.datasets import load_sample_image
+from xlearn.metrics import pairwise_distances_argmin
+from xlearn.utils import shuffle
 
 n_colors = 64
 
@@ -43,12 +43,12 @@ china = load_sample_image("china.jpg")
 # Convert to floats instead of the default 8 bits integer coding. Dividing by
 # 255 is important so that plt.imshow behaves works well on float data (need to
 # be in the range [0-1])
-china = np.array(china, dtype=np.float64) / 255
+china = jnp.array(china, dtype=jnp.float64) / 255
 
 # Load Image and transform to a 2D numpy array.
 w, h, d = original_shape = tuple(china.shape)
 assert d == 3
-image_array = np.reshape(china, (w * h, d))
+image_array = jnp.reshape(china, (w * h, d))
 
 print("Fitting model on a small sub-sample of the data")
 t0 = time()

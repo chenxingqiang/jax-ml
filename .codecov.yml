@@ -26,9 +26,9 @@ codecov:
     after_n_builds: 6
 
 ignore:
-- "sklearn/externals"
-- "sklearn/_build_utils"
-- "sklearn/__check_build"
-- "sklearn/_min_dependencies.py"
+- "xlearn/externals"
+- "xlearn/_build_utils"
+- "xlearn/__check_build"
+- "xlearn/_min_dependencies.py"
 - "**/setup.py"
 - "**/conftest.py"

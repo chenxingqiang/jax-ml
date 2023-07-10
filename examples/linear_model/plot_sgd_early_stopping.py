@@ -29,7 +29,7 @@ until the validation score did not improve by at least ``tol`` during the last
 at the attribute ``n_iter_``.
 
 This example illustrates how the early stopping can used in the
-:class:`~sklearn.linear_model.SGDClassifier` model to achieve almost the same
+:class:`~xlearn.linear_model.SGDClassifier` model to achieve almost the same
 accuracy as compared to a model built without early stopping. This can
 significantly reduce training time. Note that scores differ between the
 stopping criteria even from early iterations because some of the training data
@@ -45,24 +45,25 @@ import sys
 import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 import pandas as pd
 
-from sklearn import linear_model
-from sklearn.datasets import fetch_openml
-from sklearn.exceptions import ConvergenceWarning
-from sklearn.model_selection import train_test_split
-from sklearn.utils import shuffle
-from sklearn.utils._testing import ignore_warnings
+from xlearn import linear_model
+from xlearn.datasets import fetch_openml
+from xlearn.exceptions import ConvergenceWarning
+from xlearn.model_selection import train_test_split
+from xlearn.utils import shuffle
+from xlearn.utils._testing import ignore_warnings
 
 
 def load_mnist(n_samples=None, class_0="0", class_1="8"):
     """Load MNIST, select two classes, shuffle and return only n_samples."""
     # Load data from http://openml.org/d/554
-    mnist = fetch_openml("mnist_784", version=1, as_frame=False, parser="pandas")
+    mnist = fetch_openml("mnist_784", version=1,
+                         as_frame=False, parser="pandas")
 
     # take only two classes for binary classification
-    mask = np.logical_or(mnist.target == class_0, mnist.target == class_1)
+    mask = jnp.logical_or(mnist.target == class_0, mnist.target == class_1)
 
     X, y = shuffle(mnist.data[mask], mnist.target[mask], random_state=42)
     if n_samples is not None:
@@ -100,7 +101,8 @@ estimator_dict = {
 
 # Load the dataset
 X, y = load_mnist(n_samples=10000)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.5, random_state=0)
 
 results = []
 for estimator_name, estimator in estimator_dict.items():

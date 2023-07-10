@@ -15,16 +15,16 @@ We will be using two datasets:
       the post is written about.
 
 We will model the complexity influence on three different estimators:
-    - :class:`~sklearn.linear_model.SGDClassifier` (for classification data)
+    - :class:`~xlearn.linear_model.SGDClassifier` (for classification data)
       which implements stochastic gradient descent learning;
 
-    - :class:`~sklearn.svm.NuSVR` (for regression data) which implements
+    - :class:`~xlearn.svm.NuSVR` (for regression data) which implements
       Nu support vector regression;
 
-    - :class:`~sklearn.ensemble.GradientBoostingRegressor` builds an additive
+    - :class:`~xlearn.ensemble.GradientBoostingRegressor` builds an additive
       model in a forward stage-wise fashion. Notice that
-      :class:`~sklearn.ensemble.HistGradientBoostingRegressor` is much faster
-      than :class:`~sklearn.ensemble.GradientBoostingRegressor` starting with
+      :class:`~xlearn.ensemble.HistGradientBoostingRegressor` is much faster
+      than :class:`~xlearn.ensemble.GradientBoostingRegressor` starting with
       intermediate datasets (`n_samples >= 10_000`), which is not the case for
       this example.
 
@@ -44,14 +44,14 @@ Hamming Loss).
 import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.linear_model import SGDClassifier
-from sklearn.metrics import hamming_loss, mean_squared_error
-from sklearn.model_selection import train_test_split
-from sklearn.svm import NuSVR
+from xlearn import datasets
+from xlearn.ensemble import GradientBoostingRegressor
+from xlearn.linear_model import SGDClassifier
+from xlearn.metrics import hamming_loss, mean_squared_error
+from xlearn.model_selection import train_test_split
+from xlearn.svm import NuSVR
 
 # Initialize random generator
 np.random.seed(0)
@@ -63,7 +63,7 @@ np.random.seed(0)
 # First we load both datasets.
 #
 # .. note:: We are using
-#    :func:`~sklearn.datasets.fetch_20newsgroups_vectorized` to download 20
+#    :func:`~xlearn.datasets.fetch_20newsgroups_vectorized` to download 20
 #    newsgroups dataset. It returns ready-to-use features.
 #
 # .. note:: ``X`` of the 20 newsgroups dataset is a sparse matrix while ``X``
@@ -77,14 +77,16 @@ def generate_data(case):
         X, y = datasets.load_diabetes(return_X_y=True)
         train_size = 0.8
     elif case == "classification":
-        X, y = datasets.fetch_20newsgroups_vectorized(subset="all", return_X_y=True)
+        X, y = datasets.fetch_20newsgroups_vectorized(
+            subset="all", return_X_y=True)
         train_size = 0.4  # to make the example run faster
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, train_size=train_size, random_state=0
     )
 
-    data = {"X_train": X_train, "X_test": X_test, "y_train": y_train, "y_test": y_test}
+    data = {"X_train": X_train, "X_test": X_test,
+            "y_train": y_train, "y_test": y_test}
     return data
 
 
@@ -158,7 +160,7 @@ def benchmark_influence(conf):
 
 def _count_nonzero_coefficients(estimator):
     a = estimator.coef_.toarray()
-    return np.count_nonzero(a)
+    return jnp.count_nonzero(a)
 
 
 configurations = [
@@ -276,8 +278,10 @@ def plot_influence(conf, mse_values, prediction_times, complexities):
 
 
 for conf in configurations:
-    prediction_performances, prediction_times, complexities = benchmark_influence(conf)
-    plot_influence(conf, prediction_performances, prediction_times, complexities)
+    prediction_performances, prediction_times, complexities = benchmark_influence(
+        conf)
+    plot_influence(conf, prediction_performances,
+                   prediction_times, complexities)
 plt.show()
 
 ##############################################################################

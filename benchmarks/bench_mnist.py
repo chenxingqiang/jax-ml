@@ -34,28 +34,29 @@ import argparse
 import os
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 from joblib import Memory
 
-from sklearn.datasets import fetch_openml, get_data_home
-from sklearn.dummy import DummyClassifier
-from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
-from sklearn.kernel_approximation import Nystroem, RBFSampler
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import zero_one_loss
-from sklearn.neural_network import MLPClassifier
-from sklearn.pipeline import make_pipeline
-from sklearn.svm import LinearSVC
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.utils import check_array
+from xlearn.datasets import fetch_openml, get_data_home
+from xlearn.dummy import DummyClassifier
+from xlearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
+from xlearn.kernel_approximation import Nystroem, RBFSampler
+from xlearn.linear_model import LogisticRegression
+from xlearn.metrics import zero_one_loss
+from xlearn.neural_network import MLPClassifier
+from xlearn.pipeline import make_pipeline
+from xlearn.svm import LinearSVC
+from xlearn.tree import DecisionTreeClassifier
+from xlearn.utils import check_array
 
 # Memoize the data extraction and memory map the resulting
 # train / test splits in readonly mode
-memory = Memory(os.path.join(get_data_home(), "mnist_benchmark_data"), mmap_mode="r")
+memory = Memory(os.path.join(get_data_home(),
+                "mnist_benchmark_data"), mmap_mode="r")
 
 
 @memory.cache
-def load_data(dtype=np.float32, order="F"):
+def load_data(dtype=jnp.float32, order="F"):
     """Load the data, then cache and memmap the train/test split"""
     ######################################################################
     # Load dataset
@@ -87,7 +88,8 @@ ESTIMATORS = {
         Nystroem(gamma=0.015, n_components=1000), LinearSVC(C=100, dual="auto")
     ),
     "SampledRBF-SVM": make_pipeline(
-        RBFSampler(gamma=0.015, n_components=1000), LinearSVC(C=100, dual="auto")
+        RBFSampler(gamma=0.015, n_components=1000), LinearSVC(
+            C=100, dual="auto")
     ),
     "LogisticRegression-SAG": LogisticRegression(solver="sag", tol=1e-1, C=1e4),
     "LogisticRegression-SAGA": LogisticRegression(solver="saga", tol=1e-1, C=1e4),
@@ -160,7 +162,7 @@ if __name__ == "__main__":
     print("Dataset statistics:")
     print("===================")
     print("%s %d" % ("number of features:".ljust(25), X_train.shape[1]))
-    print("%s %d" % ("number of classes:".ljust(25), np.unique(y_train).size))
+    print("%s %d" % ("number of classes:".ljust(25), jnp.unique(y_train).size))
     print("%s %s" % ("data type:".ljust(25), X_train.dtype))
     print(
         "%s %d (size=%dMB)"

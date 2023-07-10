@@ -1,5 +1,5 @@
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import GridSearchCV, cross_val_score
+from xlearn.ensemble import RandomForestClassifier
+from xlearn.model_selection import GridSearchCV, cross_val_score
 
 from .common import Benchmark, Estimator, Predictor
 from .datasets import _synth_classification_dataset
@@ -22,7 +22,8 @@ class CrossValidationBenchmark(Benchmark):
         data = _synth_classification_dataset(n_samples=50000, n_features=100)
         self.X, self.X_val, self.y, self.y_val = data
 
-        self.clf = RandomForestClassifier(n_estimators=50, max_depth=10, random_state=0)
+        self.clf = RandomForestClassifier(
+            n_estimators=50, max_depth=10, random_state=0)
 
         cv = 16 if Benchmark.data_size == "large" else 4
 

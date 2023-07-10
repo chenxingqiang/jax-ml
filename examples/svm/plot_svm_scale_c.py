@@ -59,7 +59,12 @@ that are appropriate for each type of regularization.
 # We will demonstrate this effect by using a synthetic dataset. This
 # dataset will be sparse, meaning that only a few features will be informative
 # and useful for the model.
-from sklearn.datasets import make_classification
+import matplotlib.pyplot as plt
+from xlearn.model_selection import ShuffleSplit, validation_curve
+import pandas as pd
+import jax.numpy as jnp
+from xlearn.svm import LinearSVC
+from xlearn.datasets import make_classification
 
 n_samples, n_features = 100, 300
 X, y = make_classification(
@@ -68,24 +73,21 @@ X, y = make_classification(
 
 # %%
 # Now, we can define a linear SVC with the `l1` penalty.
-from sklearn.svm import LinearSVC
 
 model_l1 = LinearSVC(penalty="l1", loss="squared_hinge", dual=False, tol=1e-3)
 
 # %%
 # We will compute the mean test score for different values of `C`.
-import numpy as np
-import pandas as pd
 
-from sklearn.model_selection import ShuffleSplit, validation_curve
 
-Cs = np.logspace(-2.3, -1.3, 10)
-train_sizes = np.linspace(0.3, 0.7, 3)
+Cs = jnp.logspace(-2.3, -1.3, 10)
+train_sizes = jnp.linspace(0.3, 0.7, 3)
 labels = [f"fraction: {train_size}" for train_size in train_sizes]
 
 results = {"C": Cs}
 for label, train_size in zip(labels, train_sizes):
-    cv = ShuffleSplit(train_size=train_size, test_size=0.3, n_splits=50, random_state=1)
+    cv = ShuffleSplit(train_size=train_size, test_size=0.3,
+                      n_splits=50, random_state=1)
     train_scores, test_scores = validation_curve(
         model_l1, X, y, param_name="C", param_range=Cs, cv=cv
     )
@@ -93,7 +95,6 @@ for label, train_size in zip(labels, train_sizes):
 results = pd.DataFrame(results)
 
 # %%
-import matplotlib.pyplot as plt
 
 fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(12, 6))
 
@@ -129,18 +130,19 @@ _ = fig.suptitle("Effect of scaling C with L1 penalty")
 # with the `l2` penalty and check the test score via cross-validation and
 # plot the results with and without scaling the parameter `C`.
 rng = np.random.RandomState(1)
-y = np.sign(0.5 - rng.rand(n_samples))
-X = rng.randn(n_samples, n_features // 5) + y[:, np.newaxis]
+y = jnp.sign(0.5 - rng.rand(n_samples))
+X = rng.randn(n_samples, n_features // 5) + y[:, jnp.newaxis]
 X += 5 * rng.randn(n_samples, n_features // 5)
 
 # %%
 model_l2 = LinearSVC(penalty="l2", loss="squared_hinge", dual=True)
-Cs = np.logspace(-4.5, -2, 10)
+Cs = jnp.logspace(-4.5, -2, 10)
 
 labels = [f"fraction: {train_size}" for train_size in train_sizes]
 results = {"C": Cs}
 for label, train_size in zip(labels, train_sizes):
-    cv = ShuffleSplit(train_size=train_size, test_size=0.3, n_splits=50, random_state=1)
+    cv = ShuffleSplit(train_size=train_size, test_size=0.3,
+                      n_splits=50, random_state=1)
     train_scores, test_scores = validation_curve(
         model_l2, X, y, param_name="C", param_range=Cs, cv=cv
     )
@@ -148,7 +150,6 @@ for label, train_size in zip(labels, train_sizes):
 results = pd.DataFrame(results)
 
 # %%
-import matplotlib.pyplot as plt
 
 fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(12, 6))
 

@@ -6,23 +6,23 @@ SGD: Penalties
 Contours of where the penalty is equal to 1
 for the three penalties L1, L2 and elastic-net.
 
-All of the above are supported by :class:`~sklearn.linear_model.SGDClassifier`
-and :class:`~sklearn.linear_model.SGDRegressor`.
+All of the above are supported by :class:`~xlearn.linear_model.SGDClassifier`
+and :class:`~xlearn.linear_model.SGDRegressor`.
 
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
 l1_color = "navy"
 l2_color = "c"
 elastic_net_color = "darkorange"
 
-line = np.linspace(-1.5, 1.5, 1001)
-xx, yy = np.meshgrid(line, line)
+line = jnp.linspace(-1.5, 1.5, 1001)
+xx, yy = jnp.meshgrid(line, line)
 
 l2 = xx**2 + yy**2
-l1 = np.abs(xx) + np.abs(yy)
+l1 = jnp.abs(xx) + jnp.abs(yy)
 rho = 0.5
 elastic_net = rho * l1 + (1 - rho) * l2
 
@@ -47,8 +47,10 @@ plt.clabel(
     fmt={1.0: "elastic-net"},
     manual=[(-1, -1)],
 )
-plt.clabel(l2_contour, inline=1, fontsize=18, fmt={1.0: "L2"}, manual=[(-1, -1)])
-plt.clabel(l1_contour, inline=1, fontsize=18, fmt={1.0: "L1"}, manual=[(-1, -1)])
+plt.clabel(l2_contour, inline=1, fontsize=18,
+           fmt={1.0: "L2"}, manual=[(-1, -1)])
+plt.clabel(l1_contour, inline=1, fontsize=18,
+           fmt={1.0: "L1"}, manual=[(-1, -1)])
 
 plt.tight_layout()
 plt.show()

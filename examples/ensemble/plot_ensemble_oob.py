@@ -30,8 +30,8 @@ from collections import OrderedDict
 
 import matplotlib.pyplot as plt
 
-from sklearn.datasets import make_classification
-from sklearn.ensemble import RandomForestClassifier
+from xlearn.datasets import make_classification
+from xlearn.ensemble import RandomForestClassifier
 
 RANDOM_STATE = 123
 

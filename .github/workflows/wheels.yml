@@ -26,12 +26,12 @@ jobs:
   check_build_trigger:
     name: Check build trigger
     runs-on: ubuntu-latest
-    if: github.repository == 'scikit-learn/scikit-learn'
+    if: github.repository == 'jax-learn/jax-learn'
     outputs:
       build: ${{ steps.check_build_trigger.outputs.build }}
 
     steps:
-      - name: Checkout scikit-learn
+      - name: Checkout jax-learn
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -54,7 +54,7 @@ jobs:
         include:
           # Window 64 bit
           # Note: windows-2019 is needed for older Python versions:
-          # https://github.com/scikit-learn/scikit-learn/issues/22530
+          # https://github.com/jax-learn/jax-learn/issues/22530
           - os: windows-2019
             python: 38
             platform_id: win_amd64
@@ -104,7 +104,7 @@ jobs:
             platform_id: macosx_x86_64
 
     steps:
-      - name: Checkout scikit-learn
+      - name: Checkout jax-learn
         uses: actions/checkout@v3
 
       - name: Setup Python
@@ -116,8 +116,8 @@ jobs:
         env:
           CONFTEST_PATH: ${{ github.workspace }}/conftest.py
           CONFTEST_NAME: conftest.py
-          CIBW_ENVIRONMENT: SKLEARN_SKIP_NETWORK_TESTS=1
-                            SKLEARN_BUILD_PARALLEL=3
+          CIBW_ENVIRONMENT: XLEARN_SKIP_NETWORK_TESTS=1
+                            XLEARN_BUILD_PARALLEL=3
           CIBW_BUILD: cp${{ matrix.python }}-${{ matrix.platform_id }}
           CIBW_ARCHS: all
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.manylinux_image }}
@@ -155,7 +155,7 @@ jobs:
     if: needs.check_build_trigger.outputs.build
 
     steps:
-      - name: Checkout scikit-learn
+      - name: Checkout jax-learn
         uses: actions/checkout@v3
 
       - name: Setup Python
@@ -166,12 +166,12 @@ jobs:
       - name: Build source distribution
         run: bash build_tools/github/build_source.sh
         env:
-          SKLEARN_BUILD_PARALLEL: 3
+          XLEARN_BUILD_PARALLEL: 3
 
       - name: Test source distribution
         run: bash build_tools/github/test_source.sh
         env:
-          SKLEARN_SKIP_NETWORK_TESTS: 1
+          XLEARN_SKIP_NETWORK_TESTS: 1
 
       - name: Store artifacts
         uses: actions/upload-artifact@v3
@@ -187,7 +187,7 @@ jobs:
     if: github.event_name != 'pull_request'
 
     steps:
-      - name: Checkout scikit-learn
+      - name: Checkout jax-learn
         uses: actions/checkout@v3
 
       - name: Download artifacts
@@ -201,8 +201,8 @@ jobs:
       - name: Upload artifacts
         env:
           # Secret variables need to be mapped to environment variables explicitly
-          SCIKIT_LEARN_NIGHTLY_UPLOAD_TOKEN: ${{ secrets.SCIKIT_LEARN_NIGHTLY_UPLOAD_TOKEN }}
-          SCIKIT_LEARN_STAGING_UPLOAD_TOKEN: ${{ secrets.SCIKIT_LEARN_STAGING_UPLOAD_TOKEN }}
+          JAX_LEARN_NIGHTLY_UPLOAD_TOKEN: ${{ secrets.JAX_LEARN_NIGHTLY_UPLOAD_TOKEN }}
+          JAX_LEARN_STAGING_UPLOAD_TOKEN: ${{ secrets.JAX_LEARN_STAGING_UPLOAD_TOKEN }}
           ARTIFACTS_PATH: dist/artifact
         # Force a replacement if the remote file already exists
         run: bash build_tools/github/upload_anaconda.sh

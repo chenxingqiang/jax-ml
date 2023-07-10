@@ -19,13 +19,13 @@ correspond to the scorer (key) that is set to the ``refit`` attribute.
 # Author: Raghav RV <rvraghav93@gmail.com>
 # License: BSD
 
-import numpy as np
+import jax.numpy as jnp
 from matplotlib import pyplot as plt
 
-from sklearn.datasets import make_hastie_10_2
-from sklearn.metrics import accuracy_score, make_scorer
-from sklearn.model_selection import GridSearchCV
-from sklearn.tree import DecisionTreeClassifier
+from xlearn.datasets import make_hastie_10_2
+from xlearn.metrics import accuracy_score, make_scorer
+from xlearn.model_selection import GridSearchCV
+from xlearn.tree import DecisionTreeClassifier
 
 # %%
 # Running ``GridSearchCV`` using multiple evaluation metrics
@@ -59,7 +59,8 @@ results = gs.cv_results_
 # -------------------
 
 plt.figure(figsize=(13, 13))
-plt.title("GridSearchCV evaluating using multiple scorers simultaneously", fontsize=16)
+plt.title(
+    "GridSearchCV evaluating using multiple scorers simultaneously", fontsize=16)
 
 plt.xlabel("min_samples_split")
 plt.ylabel("Score")
@@ -69,7 +70,7 @@ ax.set_xlim(0, 402)
 ax.set_ylim(0.73, 1)
 
 # Get the regular numpy array from the MaskedArray
-X_axis = np.array(results["param_min_samples_split"].data, dtype=float)
+X_axis = jnp.array(results["param_min_samples_split"].data, dtype=float)
 
 for scorer, color in zip(sorted(scoring), ["g", "k"]):
     for sample, style in (("train", "--"), ("test", "-")):
@@ -91,7 +92,7 @@ for scorer, color in zip(sorted(scoring), ["g", "k"]):
             label="%s (%s)" % (scorer, sample),
         )
 
-    best_index = np.nonzero(results["rank_test_%s" % scorer] == 1)[0][0]
+    best_index = jnp.nonzero(results["rank_test_%s" % scorer] == 1)[0][0]
     best_score = results["mean_test_%s" % scorer][best_index]
 
     # Plot a dotted vertical line at the best score for that scorer marked by x

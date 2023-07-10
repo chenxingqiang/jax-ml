@@ -18,10 +18,10 @@ corner) is the "ideal" point.
 
 .. note::
 
-    - See :func:`sklearn.metrics.roc_curve` for further information about ROC
+    - See :func:`xlearn.metrics.roc_curve` for further information about ROC
       curves.
 
-    - See :func:`sklearn.metrics.det_curve` for further information about
+    - See :func:`xlearn.metrics.det_curve` for further information about
       DET curves.
 
     - This example is loosely based on
@@ -37,9 +37,14 @@ corner) is the "ideal" point.
 # Generate synthetic data
 # -----------------------
 
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from xlearn.metrics import DetCurveDisplay, RocCurveDisplay
+import matplotlib.pyplot as plt
+from xlearn.svm import LinearSVC
+from xlearn.pipeline import make_pipeline
+from xlearn.ensemble import RandomForestClassifier
+from xlearn.datasets import make_classification
+from xlearn.model_selection import train_test_split
+from xlearn.preprocessing import StandardScaler
 
 X, y = make_classification(
     n_samples=1_000,
@@ -50,7 +55,8 @@ X, y = make_classification(
     n_clusters_per_class=1,
 )
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.4, random_state=0)
 
 # %%
 # Define the classifiers
@@ -59,11 +65,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_
 # Here we define two different classifiers. The goal is to visually compare their
 # statistical performance across thresholds using the ROC and DET curves. There
 # is no particular reason why these classifiers are chosen other classifiers
-# available in scikit-learn.
+# available in jax-learn.
 
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.pipeline import make_pipeline
-from sklearn.svm import LinearSVC
 
 classifiers = {
     "Linear SVM": make_pipeline(StandardScaler(), LinearSVC(C=0.025, dual="auto")),
@@ -78,12 +81,9 @@ classifiers = {
 #
 # DET curves are commonly plotted in normal deviate scale. To achieve this the
 # DET display transforms the error rates as returned by the
-# :func:`~sklearn.metrics.det_curve` and the axis scale using
+# :func:`~xlearn.metrics.det_curve` and the axis scale using
 # :func:`scipy.stats.norm`.
 
-import matplotlib.pyplot as plt
-
-from sklearn.metrics import DetCurveDisplay, RocCurveDisplay
 
 fig, [ax_roc, ax_det] = plt.subplots(1, 2, figsize=(11, 5))
 

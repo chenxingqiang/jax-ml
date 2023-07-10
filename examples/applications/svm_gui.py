@@ -18,10 +18,17 @@ If all examples are from the same class, it uses a one-class SVM.
 #
 # License: BSD 3 clause
 
+from xlearn.datasets import dump_svmlight_file
+from xlearn import svm
+from matplotlib.figure import Figure
+from matplotlib.contour import ContourSet
+import jax.numpy as jnp
+import tkinter as Tk
+import sys
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib
 
 matplotlib.use("TkAgg")
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 try:
     from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
@@ -30,15 +37,7 @@ except ImportError:
     from matplotlib.backends.backend_tkagg import (
         NavigationToolbar2TkAgg as NavigationToolbar2Tk,
     )
-import sys
-import tkinter as Tk
 
-import numpy as np
-from matplotlib.contour import ContourSet
-from matplotlib.figure import Figure
-
-from sklearn import svm
-from sklearn.datasets import dump_svmlight_file
 
 y_min, y_max = -50, 50
 x_min, x_max = -50, 50
@@ -70,7 +69,7 @@ class Model:
         self.surface = surface
 
     def dump_svmlight_file(self, file):
-        data = np.array(self.data)
+        data = jnp.array(self.data)
         X = data[:, 0:2]
         y = data[:, 2]
         dump_svmlight_file(X, y, file)
@@ -86,7 +85,7 @@ class Controller:
 
     def fit(self):
         print("fit the model")
-        train = np.array(self.model.data)
+        train = jnp.array(self.model.data)
         X = train[:, 0:2]
         y = train[:, 2]
 
@@ -95,7 +94,7 @@ class Controller:
         coef0 = float(self.coef0.get())
         degree = int(self.degree.get())
         kernel_map = {0: "linear", 1: "rbf", 2: "poly"}
-        if len(np.unique(y)) == 1:
+        if len(jnp.unique(y)) == 1:
             clf = svm.OneClassSVM(
                 kernel=kernel_map[self.kernel.get()],
                 gamma=gamma,
@@ -123,10 +122,10 @@ class Controller:
 
     def decision_surface(self, cls):
         delta = 1
-        x = np.arange(x_min, x_max + delta, delta)
-        y = np.arange(y_min, y_max + delta, delta)
-        X1, X2 = np.meshgrid(x, y)
-        Z = cls.decision_function(np.c_[X1.ravel(), X2.ravel()])
+        x = jnp.arange(x_min, x_max + delta, delta)
+        y = jnp.arange(y_min, y_max + delta, delta)
+        X1, X2 = jnp.meshgrid(x, y)
+        Z = cls.decision_function(jnp.c_[X1.ravel(), X2.ravel()])
         Z = Z.reshape(X1.shape)
         return X1, X2, Z
 
@@ -252,7 +251,8 @@ class View:
             linestyles = ["dashed", "solid", "dashed"]
             colors = "k"
             self.contours.append(
-                self.ax.contour(X1, X2, Z, levels, colors=colors, linestyles=linestyles)
+                self.ax.contour(X1, X2, Z, levels,
+                                colors=colors, linestyles=linestyles)
             )
         elif type == 1:
             self.contours.append(
@@ -261,7 +261,8 @@ class View:
                 )
             )
             self.contours.append(
-                self.ax.contour(X1, X2, Z, [0.0], colors="k", linestyles=["solid"])
+                self.ax.contour(X1, X2, Z, [0.0],
+                                colors="k", linestyles=["solid"])
             )
         else:
             raise ValueError("surface type unknown")
@@ -299,7 +300,8 @@ class ControllBar:
         controller.complexity.set("1.0")
         c = Tk.Frame(valbox)
         Tk.Label(c, text="C:", anchor="e", width=7).pack(side=Tk.LEFT)
-        Tk.Entry(c, width=6, textvariable=controller.complexity).pack(side=Tk.LEFT)
+        Tk.Entry(c, width=6, textvariable=controller.complexity).pack(
+            side=Tk.LEFT)
         c.pack()
 
         controller.gamma = Tk.StringVar()
@@ -342,7 +344,8 @@ class ControllBar:
 
         cmap_group.pack(side=Tk.LEFT)
 
-        train_button = Tk.Button(fm, text="Fit", width=5, command=controller.fit)
+        train_button = Tk.Button(
+            fm, text="Fit", width=5, command=controller.fit)
         train_button.pack()
         fm.pack(side=Tk.LEFT)
         Tk.Button(fm, text="Clear", width=5, command=controller.clear_data).pack(
@@ -370,7 +373,7 @@ def main(argv):
     root = Tk.Tk()
     model = Model()
     controller = Controller(model)
-    root.wm_title("Scikit-learn Libsvm GUI")
+    root.wm_title("Jax-learn Libsvm GUI")
     view = View(root, controller)
     model.add_observer(view)
     Tk.mainloop()

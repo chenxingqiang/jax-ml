@@ -4,7 +4,7 @@ Illustration of prior and posterior Gaussian process for different kernels
 ==========================================================================
 
 This example illustrates the prior and posterior of a
-:class:`~sklearn.gaussian_process.GaussianProcessRegressor` with different
+:class:`~xlearn.gaussian_process.GaussianProcessRegressor` with different
 kernels. Mean, standard deviation, and 5 samples are shown for both prior
 and posterior distributions.
 
@@ -26,12 +26,18 @@ refer to the :ref:`User Guide <gp_kernels>`.
 # the Gaussian process.
 #
 # This function will take a
-# :class:`~sklearn.gaussian_process.GaussianProcessRegressor` model and will
+# :class:`~xlearn.gaussian_process.GaussianProcessRegressor` model and will
 # drawn sample from the Gaussian process. If the model was not fit, the samples
 # are drawn from the prior distribution while after model fitting, the samples are
 # drawn from the posterior distribution.
+from xlearn.gaussian_process.kernels import Matern
+from xlearn.gaussian_process.kernels import ConstantKernel, DotProduct
+from xlearn.gaussian_process.kernels import ExpSineSquared
+from xlearn.gaussian_process.kernels import RationalQuadratic
+from xlearn.gaussian_process.kernels import RBF
+from xlearn.gaussian_process import GaussianProcessRegressor
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
 
 def plot_gpr_samples(gpr_model, n_samples, ax):
@@ -45,13 +51,13 @@ def plot_gpr_samples(gpr_model, n_samples, ax):
     Parameters
     ----------
     gpr_model : `GaussianProcessRegressor`
-        A :class:`~sklearn.gaussian_process.GaussianProcessRegressor` model.
+        A :class:`~xlearn.gaussian_process.GaussianProcessRegressor` model.
     n_samples : int
         The number of samples to draw from the Gaussian process distribution.
     ax : matplotlib axis
         The matplotlib axis where to plot the samples.
     """
-    x = np.linspace(0, 5, 100)
+    x = jnp.linspace(0, 5, 100)
     X = x.reshape(-1, 1)
 
     y_mean, y_std = gpr_model.predict(X, return_std=True)
@@ -85,7 +91,7 @@ def plot_gpr_samples(gpr_model, n_samples, ax):
 # We will create a training dataset that we will use in the different sections.
 rng = np.random.RandomState(4)
 X_train = rng.uniform(0, 5, 10).reshape(-1, 1)
-y_train = np.sin((X_train[:, 0] - 2.5) ** 2)
+y_train = jnp.sin((X_train[:, 0] - 2.5) ** 2)
 n_samples = 5
 
 # %%
@@ -97,8 +103,6 @@ n_samples = 5
 #
 # Radial Basis Function kernel
 # ............................
-from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF
 
 kernel = 1.0 * RBF(length_scale=1.0, length_scale_bounds=(1e-1, 10.0))
 gpr = GaussianProcessRegressor(kernel=kernel, random_state=0)
@@ -112,7 +116,8 @@ axs[0].set_title("Samples from prior distribution")
 # plot posterior
 gpr.fit(X_train, y_train)
 plot_gpr_samples(gpr, n_samples=n_samples, ax=axs[1])
-axs[1].scatter(X_train[:, 0], y_train, color="red", zorder=10, label="Observations")
+axs[1].scatter(X_train[:, 0], y_train, color="red",
+               zorder=10, label="Observations")
 axs[1].legend(bbox_to_anchor=(1.05, 1.5), loc="upper left")
 axs[1].set_title("Samples from posterior distribution")
 
@@ -129,9 +134,9 @@ print(
 # %%
 # Rational Quadradtic kernel
 # ..........................
-from sklearn.gaussian_process.kernels import RationalQuadratic
 
-kernel = 1.0 * RationalQuadratic(length_scale=1.0, alpha=0.1, alpha_bounds=(1e-5, 1e15))
+kernel = 1.0 * RationalQuadratic(length_scale=1.0,
+                                 alpha=0.1, alpha_bounds=(1e-5, 1e15))
 gpr = GaussianProcessRegressor(kernel=kernel, random_state=0)
 
 fig, axs = plt.subplots(nrows=2, sharex=True, sharey=True, figsize=(10, 8))
@@ -143,7 +148,8 @@ axs[0].set_title("Samples from prior distribution")
 # plot posterior
 gpr.fit(X_train, y_train)
 plot_gpr_samples(gpr, n_samples=n_samples, ax=axs[1])
-axs[1].scatter(X_train[:, 0], y_train, color="red", zorder=10, label="Observations")
+axs[1].scatter(X_train[:, 0], y_train, color="red",
+               zorder=10, label="Observations")
 axs[1].legend(bbox_to_anchor=(1.05, 1.5), loc="upper left")
 axs[1].set_title("Samples from posterior distribution")
 
@@ -160,7 +166,6 @@ print(
 # %%
 # Exp-Sine-Squared kernel
 # .......................
-from sklearn.gaussian_process.kernels import ExpSineSquared
 
 kernel = 1.0 * ExpSineSquared(
     length_scale=1.0,
@@ -179,7 +184,8 @@ axs[0].set_title("Samples from prior distribution")
 # plot posterior
 gpr.fit(X_train, y_train)
 plot_gpr_samples(gpr, n_samples=n_samples, ax=axs[1])
-axs[1].scatter(X_train[:, 0], y_train, color="red", zorder=10, label="Observations")
+axs[1].scatter(X_train[:, 0], y_train, color="red",
+               zorder=10, label="Observations")
 axs[1].legend(bbox_to_anchor=(1.05, 1.5), loc="upper left")
 axs[1].set_title("Samples from posterior distribution")
 
@@ -196,7 +202,6 @@ print(
 # %%
 # Dot-product kernel
 # ..................
-from sklearn.gaussian_process.kernels import ConstantKernel, DotProduct
 
 kernel = ConstantKernel(0.1, (0.01, 10.0)) * (
     DotProduct(sigma_0=1.0, sigma_0_bounds=(0.1, 10.0)) ** 2
@@ -212,7 +217,8 @@ axs[0].set_title("Samples from prior distribution")
 # plot posterior
 gpr.fit(X_train, y_train)
 plot_gpr_samples(gpr, n_samples=n_samples, ax=axs[1])
-axs[1].scatter(X_train[:, 0], y_train, color="red", zorder=10, label="Observations")
+axs[1].scatter(X_train[:, 0], y_train, color="red",
+               zorder=10, label="Observations")
 axs[1].legend(bbox_to_anchor=(1.05, 1.5), loc="upper left")
 axs[1].set_title("Samples from posterior distribution")
 
@@ -229,9 +235,9 @@ print(
 # %%
 # Matérn kernel
 # ..............
-from sklearn.gaussian_process.kernels import Matern
 
-kernel = 1.0 * Matern(length_scale=1.0, length_scale_bounds=(1e-1, 10.0), nu=1.5)
+kernel = 1.0 * Matern(length_scale=1.0,
+                      length_scale_bounds=(1e-1, 10.0), nu=1.5)
 gpr = GaussianProcessRegressor(kernel=kernel, random_state=0)
 
 fig, axs = plt.subplots(nrows=2, sharex=True, sharey=True, figsize=(10, 8))
@@ -243,7 +249,8 @@ axs[0].set_title("Samples from prior distribution")
 # plot posterior
 gpr.fit(X_train, y_train)
 plot_gpr_samples(gpr, n_samples=n_samples, ax=axs[1])
-axs[1].scatter(X_train[:, 0], y_train, color="red", zorder=10, label="Observations")
+axs[1].scatter(X_train[:, 0], y_train, color="red",
+               zorder=10, label="Observations")
 axs[1].legend(bbox_to_anchor=(1.05, 1.5), loc="upper left")
 axs[1].set_title("Samples from posterior distribution")
 

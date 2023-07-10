@@ -8,7 +8,7 @@ for a bike sharing demand regression task that is highly dependent on business
 cycles (days, weeks, months) and yearly season cycles.
 
 In the process, we introduce how to perform periodic feature engineering using
-the :class:`sklearn.preprocessing.SplineTransformer` class and its
+the :class:`xlearn.preprocessing.SplineTransformer` class and its
 `extrapolation="periodic"` option.
 
 """
@@ -18,7 +18,24 @@ the :class:`sklearn.preprocessing.SplineTransformer` class and its
 # ---------------------------------------------------
 #
 # We start by loading the data from the OpenML repository.
-from sklearn.datasets import fetch_openml
+from xlearn.metrics import PredictionErrorDisplay
+from xlearn.kernel_approximation import Nystroem
+from xlearn.preprocessing import PolynomialFeatures
+from xlearn.pipeline import FeatureUnion
+from xlearn.preprocessing import SplineTransformer
+import pandas as pd
+from xlearn.preprocessing import FunctionTransformer
+from xlearn.preprocessing import MinMaxScaler, OneHotEncoder
+from xlearn.linear_model import RidgeCV
+import jax.numpy as jnp
+from xlearn.preprocessing import OrdinalEncoder
+from xlearn.pipeline import make_pipeline
+from xlearn.model_selection import cross_validate
+from xlearn.ensemble import HistGradientBoostingRegressor
+from xlearn.compose import ColumnTransformer
+from xlearn.model_selection import TimeSeriesSplit
+import matplotlib.pyplot as plt
+from xlearn.datasets import fetch_openml
 
 bike_sharing = fetch_openml(
     "Bike_Sharing_Demand", version=2, as_frame=True, parser="pandas"
@@ -33,7 +50,6 @@ df = bike_sharing.frame
 # distinguish the commute patterns in the morning and evenings of the work days
 # and the leisure use of the bikes on the weekends with a more spread peak
 # demand around the middle of the days:
-import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots(figsize=(12, 4))
 average_week_demand = df.groupby(["weekday", "hour"])["count"].mean()
@@ -129,7 +145,6 @@ X["season"].value_counts()
 # model. This represents a bit less than a month and a half of contiguous test
 # data:
 
-from sklearn.model_selection import TimeSeriesSplit
 
 ts_cv = TimeSeriesSplit(
     n_splits=5,
@@ -180,11 +195,6 @@ X.iloc[train_4]
 #
 # The numerical variables need no preprocessing and, for the sake of simplicity,
 # we only try the default hyper-parameters for this model:
-from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import HistGradientBoostingRegressor
-from sklearn.model_selection import cross_validate
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import OrdinalEncoder
 
 categorical_columns = [
     "weather",
@@ -258,15 +268,12 @@ evaluate(gbrt_pipeline, X, y, cv=ts_cv)
 #
 # As usual for linear models, categorical variables need to be one-hot encoded.
 # For consistency, we scale the numerical features to the same 0-1 range using
-# class:`sklearn.preprocessing.MinMaxScaler`, although in this case it does not
+# class:`xlearn.preprocessing.MinMaxScaler`, although in this case it does not
 # impact the results much because they are already on comparable scales:
-import numpy as np
 
-from sklearn.linear_model import RidgeCV
-from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 
 one_hot_encoder = OneHotEncoder(handle_unknown="ignore", sparse_output=False)
-alphas = np.logspace(-6, 6, 25)
+alphas = jnp.logspace(-6, 6, 25)
 naive_linear_pipeline = make_pipeline(
     ColumnTransformer(
         transformers=[
@@ -332,7 +339,7 @@ evaluate(one_hot_linear_pipeline, X, y, cv=ts_cv)
 # the day was represented in minutes since the start of the day instead of
 # hours, one-hot encoding would have introduced 1440 features instead of 24.
 # This could cause some significant overfitting. To avoid this we could use
-# :func:`sklearn.preprocessing.KBinsDiscretizer` instead to re-bin the number
+# :func:`xlearn.preprocessing.KBinsDiscretizer` instead to re-bin the number
 # of levels of fine-grained ordinal or numerical variables while still
 # benefitting from the non-monotonic expressivity advantages of one-hot
 # encoding.
@@ -352,25 +359,23 @@ evaluate(one_hot_linear_pipeline, X, y, cv=ts_cv)
 # Each ordinal time feature is transformed into 2 features that together encode
 # equivalent information in a non-monotonic way, and more importantly without
 # any jump between the first and the last value of the periodic range.
-from sklearn.preprocessing import FunctionTransformer
 
 
 def sin_transformer(period):
-    return FunctionTransformer(lambda x: np.sin(x / period * 2 * np.pi))
+    return FunctionTransformer(lambda x: jnp.sin(x / period * 2 * jnp.pi))
 
 
 def cos_transformer(period):
-    return FunctionTransformer(lambda x: np.cos(x / period * 2 * np.pi))
+    return FunctionTransformer(lambda x: jnp.cos(x / period * 2 * jnp.pi))
 
 
 # %%
 #
 # Let us visualize the effect of this feature expansion on some synthetic hour
 # data with a bit of extrapolation beyond hour=23:
-import pandas as pd
 
 hour_df = pd.DataFrame(
-    np.arange(26).reshape(-1, 1),
+    jnp.arange(26).reshape(-1, 1),
     columns=["hour"],
 )
 hour_df["hour_sin"] = sin_transformer(24).fit_transform(hour_df)["hour"]
@@ -429,7 +434,6 @@ evaluate(cyclic_cossin_linear_pipeline, X, y, cv=ts_cv)
 # using spline transformations with a large enough number of splines, and as a
 # result a larger number of expanded features compared to the sine/cosine
 # transformation:
-from sklearn.preprocessing import SplineTransformer
 
 
 def periodic_spline_transformer(period, n_splines=None, degree=3):
@@ -439,7 +443,7 @@ def periodic_spline_transformer(period, n_splines=None, degree=3):
     return SplineTransformer(
         degree=degree,
         n_knots=n_knots,
-        knots=np.linspace(0, period, n_knots).reshape(n_knots, 1),
+        knots=jnp.linspace(0, period, n_knots).reshape(n_knots, 1),
         extrapolation="periodic",
         include_bias=True,
     )
@@ -450,7 +454,7 @@ def periodic_spline_transformer(period, n_splines=None, degree=3):
 # Again, let us visualize the effect of this feature expansion on some
 # synthetic hour data with a bit of extrapolation beyond hour=23:
 hour_df = pd.DataFrame(
-    np.linspace(0, 26, 1000).reshape(-1, 1),
+    jnp.linspace(0, 26, 1000).reshape(-1, 1),
     columns=["hour"],
 )
 splines = periodic_spline_transformer(24, n_splines=12).fit_transform(hour_df)
@@ -458,7 +462,8 @@ splines_df = pd.DataFrame(
     splines,
     columns=[f"spline_{i}" for i in range(splines.shape[1])],
 )
-pd.concat([hour_df, splines_df], axis="columns").plot(x="hour", cmap=plt.cm.tab20b)
+pd.concat([hour_df, splines_df], axis="columns").plot(
+    x="hour", cmap=plt.cm.tab20b)
 _ = plt.title("Periodic spline-based encoding for the 'hour' feature")
 
 
@@ -475,9 +480,12 @@ _ = plt.title("Periodic spline-based encoding for the 'hour' feature")
 cyclic_spline_transformer = ColumnTransformer(
     transformers=[
         ("categorical", one_hot_encoder, categorical_columns),
-        ("cyclic_month", periodic_spline_transformer(12, n_splines=6), ["month"]),
-        ("cyclic_weekday", periodic_spline_transformer(7, n_splines=3), ["weekday"]),
-        ("cyclic_hour", periodic_spline_transformer(24, n_splines=12), ["hour"]),
+        ("cyclic_month", periodic_spline_transformer(
+            12, n_splines=6), ["month"]),
+        ("cyclic_weekday", periodic_spline_transformer(
+            7, n_splines=3), ["weekday"]),
+        ("cyclic_hour", periodic_spline_transformer(
+            24, n_splines=12), ["hour"]),
     ],
     remainder=MinMaxScaler(),
 )
@@ -508,10 +516,12 @@ one_hot_linear_pipeline.fit(X.iloc[train_0], y.iloc[train_0])
 one_hot_linear_predictions = one_hot_linear_pipeline.predict(X.iloc[test_0])
 
 cyclic_cossin_linear_pipeline.fit(X.iloc[train_0], y.iloc[train_0])
-cyclic_cossin_linear_predictions = cyclic_cossin_linear_pipeline.predict(X.iloc[test_0])
+cyclic_cossin_linear_predictions = cyclic_cossin_linear_pipeline.predict(
+    X.iloc[test_0])
 
 cyclic_spline_linear_pipeline.fit(X.iloc[train_0], y.iloc[train_0])
-cyclic_spline_linear_predictions = cyclic_spline_linear_pipeline.predict(X.iloc[test_0])
+cyclic_spline_linear_predictions = cyclic_spline_linear_pipeline.predict(
+    X.iloc[test_0])
 
 # %%
 # We visualize those predictions by zooming on the last 96 hours (4 days) of
@@ -526,7 +536,8 @@ ax.plot(
     label="Actual demand",
     color="black",
 )
-ax.plot(naive_linear_predictions[last_hours], "x-", label="Ordinal time features")
+ax.plot(naive_linear_predictions[last_hours],
+        "x-", label="Ordinal time features")
 ax.plot(
     cyclic_cossin_linear_predictions[last_hours],
     "x-",
@@ -616,14 +627,14 @@ cyclic_spline_linear_pipeline[:-1].transform(X).shape
 # However, it is possible to use the `PolynomialFeatures` class on coarse
 # grained spline encoded hours to model the "workingday"/"hours" interaction
 # explicitly without introducing too many new variables:
-from sklearn.pipeline import FeatureUnion
-from sklearn.preprocessing import PolynomialFeatures
 
 hour_workday_interaction = make_pipeline(
     ColumnTransformer(
         [
-            ("cyclic_hour", periodic_spline_transformer(24, n_splines=8), ["hour"]),
-            ("workingday", FunctionTransformer(lambda x: x == "True"), ["workingday"]),
+            ("cyclic_hour", periodic_spline_transformer(
+                24, n_splines=8), ["hour"]),
+            ("workingday", FunctionTransformer(
+                lambda x: x == "True"), ["workingday"]),
         ]
     ),
     PolynomialFeatures(degree=2, interaction_only=True, include_bias=False),
@@ -662,7 +673,6 @@ evaluate(cyclic_spline_interactions_pipeline, X, y, cv=ts_cv)
 #
 # Alternatively, we can use the Nyström method to compute an approximate
 # polynomial kernel expansion. Let us try the latter:
-from sklearn.kernel_approximation import Nystroem
 
 cyclic_spline_poly_pipeline = make_pipeline(
     cyclic_spline_transformer,
@@ -715,7 +725,8 @@ one_hot_poly_pipeline.fit(X.iloc[train_0], y.iloc[train_0])
 one_hot_poly_predictions = one_hot_poly_pipeline.predict(X.iloc[test_0])
 
 cyclic_spline_poly_pipeline.fit(X.iloc[train_0], y.iloc[train_0])
-cyclic_spline_poly_predictions = cyclic_spline_poly_pipeline.predict(X.iloc[test_0])
+cyclic_spline_poly_predictions = cyclic_spline_poly_pipeline.predict(
+    X.iloc[test_0])
 
 # %%
 # Again we zoom on the last 4 days of the test set:
@@ -770,9 +781,9 @@ _ = ax.legend()
 #
 # Let us finally get a more quantative look at the prediction errors of those
 # three models using the true vs predicted demand scatter plots:
-from sklearn.metrics import PredictionErrorDisplay
 
-fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(13, 7), sharex=True, sharey="row")
+fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(
+    13, 7), sharex=True, sharey="row")
 fig.suptitle("Non-linear regression models", y=1.0)
 predictions = [
     one_hot_poly_predictions,
@@ -794,9 +805,9 @@ for axis_idx, kind in enumerate(plot_kinds):
             scatter_kwargs={"alpha": 0.3},
             ax=ax,
         )
-        ax.set_xticks(np.linspace(0, 1, num=5))
+        ax.set_xticks(jnp.linspace(0, 1, num=5))
         if axis_idx == 0:
-            ax.set_yticks(np.linspace(0, 1, num=5))
+            ax.set_yticks(jnp.linspace(0, 1, num=5))
             ax.legend(
                 ["Best model", label],
                 loc="upper center",
@@ -825,7 +836,7 @@ plt.show()
 # features.
 #
 # The `Nystroem` + `RidgeCV` regressor could also have been replaced by
-# :class:`~sklearn.neural_network.MLPRegressor` with one or two hidden layers
+# :class:`~xlearn.neural_network.MLPRegressor` with one or two hidden layers
 # and we would have obtained quite similar results.
 #
 # The dataset we used in this case study is sampled on a hourly basis. However

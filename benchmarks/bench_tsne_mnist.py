@@ -13,27 +13,28 @@ import os
 import os.path as op
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 from joblib import Memory
 
-from sklearn.datasets import fetch_openml
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-from sklearn.neighbors import NearestNeighbors
-from sklearn.utils import check_array
-from sklearn.utils import shuffle as _shuffle
-from sklearn.utils._openmp_helpers import _openmp_effective_n_threads
+from xlearn.datasets import fetch_openml
+from xlearn.decomposition import PCA
+from xlearn.manifold import TSNE
+from xlearn.neighbors import NearestNeighbors
+from xlearn.utils import check_array
+from xlearn.utils import shuffle as _shuffle
+from xlearn.utils._openmp_helpers import _openmp_effective_n_threads
 
 LOG_DIR = "mnist_tsne_output"
 if not os.path.exists(LOG_DIR):
     os.mkdir(LOG_DIR)
 
 
-memory = Memory(os.path.join(LOG_DIR, "mnist_tsne_benchmark_data"), mmap_mode="r")
+memory = Memory(os.path.join(
+    LOG_DIR, "mnist_tsne_benchmark_data"), mmap_mode="r")
 
 
 @memory.cache
-def load_data(dtype=np.float32, order="C", shuffle=True, seed=0):
+def load_data(dtype=jnp.float32, order="C", shuffle=True, seed=0):
     """Load the data, then cache and memmap the train/test split"""
     print("Loading dataset...")
     data = fetch_openml("mnist_784", as_frame=True, parser="pandas")
@@ -54,7 +55,7 @@ def nn_accuracy(X, X_embedded, k=1):
     knn = NearestNeighbors(n_neighbors=1, n_jobs=-1)
     _, neighbors_X = knn.fit(X).kneighbors()
     _, neighbors_X_embedded = knn.fit(X_embedded).kneighbors()
-    return np.mean(neighbors_X == neighbors_X_embedded)
+    return jnp.mean(neighbors_X == neighbors_X_embedded)
 
 
 def tsne_fit_transform(model, data):
@@ -124,7 +125,8 @@ if __name__ == "__main__":
         verbose=args.verbose,
         n_iter=1000,
     )
-    methods.append(("sklearn TSNE", lambda data: tsne_fit_transform(tsne, data)))
+    methods.append(
+        ("xlearn TSNE", lambda data: tsne_fit_transform(tsne, data)))
 
     if args.bhtsne:
         try:
@@ -183,11 +185,13 @@ $ cd ..
         for name, method in methods:
             print("Fitting {} on {} samples...".format(name, n))
             t0 = time()
-            np.save(
-                os.path.join(LOG_DIR, "mnist_{}_{}.npy".format("original", n)), X_train
+            jnp.save(
+                os.path.join(LOG_DIR, "mnist_{}_{}.npy".format(
+                    "original", n)), X_train
             )
-            np.save(
-                os.path.join(LOG_DIR, "mnist_{}_{}.npy".format("original_labels", n)),
+            jnp.save(
+                os.path.join(LOG_DIR, "mnist_{}_{}.npy".format(
+                    "original_labels", n)),
                 y_train,
             )
             X_embedded, n_iter = method(X_train)
@@ -195,12 +199,14 @@ $ cd ..
             precision_5 = nn_accuracy(X_train, X_embedded)
             print(
                 "Fitting {} on {} samples took {:.3f}s in {:d} iterations, "
-                "nn accuracy: {:0.3f}".format(name, n, duration, n_iter, precision_5)
+                "nn accuracy: {:0.3f}".format(
+                    name, n, duration, n_iter, precision_5)
             )
             results.append(dict(method=name, duration=duration, n_samples=n))
             with open(log_filename, "w", encoding="utf-8") as f:
                 json.dump(results, f)
             method_name = sanitize(name)
-            np.save(
-                op.join(LOG_DIR, "mnist_{}_{}.npy".format(method_name, n)), X_embedded
+            jnp.save(
+                op.join(LOG_DIR, "mnist_{}_{}.npy".format(
+                    method_name, n)), X_embedded
             )

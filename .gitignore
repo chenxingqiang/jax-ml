@@ -8,8 +8,8 @@
 *.swo
 .DS_Store
 build
-sklearn/datasets/__config__.py
-sklearn/**/*.html
+xlearn/datasets/__config__.py
+xlearn/**/*.html
 
 dist/
 MANIFEST
@@ -21,7 +21,7 @@ doc/min_dependency_table.rst
 doc/min_dependency_substitutions.rst
 *.pdf
 pip-log.txt
-scikit_learn.egg-info/
+jax_learn.egg-info/
 .coverage
 coverage
 *.py,cover
@@ -76,29 +76,29 @@ _configtest.o.d
 .mypy_cache/
 
 # virtualenv from advanced installation guide
-sklearn-env/
+xlearn-env/
 
 # files generated from a template
-sklearn/_loss/_loss.pyx
-sklearn/utils/_seq_dataset.pyx
-sklearn/utils/_seq_dataset.pxd
-sklearn/utils/_weight_vector.pyx
-sklearn/utils/_weight_vector.pxd
-sklearn/linear_model/_sag_fast.pyx
-sklearn/linear_model/_sgd_fast.pyx
-sklearn/metrics/_dist_metrics.pyx
-sklearn/metrics/_dist_metrics.pxd
-sklearn/metrics/_pairwise_distances_reduction/_argkmin.pxd
-sklearn/metrics/_pairwise_distances_reduction/_argkmin.pyx
-sklearn/metrics/_pairwise_distances_reduction/_argkmin_classmode.pyx
-sklearn/metrics/_pairwise_distances_reduction/_base.pxd
-sklearn/metrics/_pairwise_distances_reduction/_base.pyx
-sklearn/metrics/_pairwise_distances_reduction/_datasets_pair.pxd
-sklearn/metrics/_pairwise_distances_reduction/_datasets_pair.pyx
-sklearn/metrics/_pairwise_distances_reduction/_middle_term_computer.pxd
-sklearn/metrics/_pairwise_distances_reduction/_middle_term_computer.pyx
-sklearn/metrics/_pairwise_distances_reduction/_radius_neighbors.pxd
-sklearn/metrics/_pairwise_distances_reduction/_radius_neighbors.pyx
+xlearn/_loss/_loss.pyx
+xlearn/utils/_seq_dataset.pyx
+xlearn/utils/_seq_dataset.pxd
+xlearn/utils/_weight_vector.pyx
+xlearn/utils/_weight_vector.pxd
+xlearn/linear_model/_sag_fast.pyx
+xlearn/linear_model/_sgd_fast.pyx
+xlearn/metrics/_dist_metrics.pyx
+xlearn/metrics/_dist_metrics.pxd
+xlearn/metrics/_pairwise_distances_reduction/_argkmin.pxd
+xlearn/metrics/_pairwise_distances_reduction/_argkmin.pyx
+xlearn/metrics/_pairwise_distances_reduction/_argkmin_classmode.pyx
+xlearn/metrics/_pairwise_distances_reduction/_base.pxd
+xlearn/metrics/_pairwise_distances_reduction/_base.pyx
+xlearn/metrics/_pairwise_distances_reduction/_datasets_pair.pxd
+xlearn/metrics/_pairwise_distances_reduction/_datasets_pair.pyx
+xlearn/metrics/_pairwise_distances_reduction/_middle_term_computer.pxd
+xlearn/metrics/_pairwise_distances_reduction/_middle_term_computer.pyx
+xlearn/metrics/_pairwise_distances_reduction/_radius_neighbors.pxd
+xlearn/metrics/_pairwise_distances_reduction/_radius_neighbors.pyx
 
 # Default JupyterLite content
 jupyterlite_contents

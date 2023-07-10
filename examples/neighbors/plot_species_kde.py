@@ -41,10 +41,10 @@ References
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import fetch_species_distributions
-from sklearn.neighbors import KernelDensity
+from xlearn.datasets import fetch_species_distributions
+from xlearn.neighbors import KernelDensity
 
 # if basemap is available, we'll use it.
 # otherwise, we'll improvise later...
@@ -76,9 +76,9 @@ def construct_grids(batch):
     ymax = ymin + (batch.Ny * batch.grid_size)
 
     # x coordinates of the grid cells
-    xgrid = np.arange(xmin, xmax, batch.grid_size)
+    xgrid = jnp.arange(xmin, xmax, batch.grid_size)
     # y coordinates of the grid cells
-    ygrid = np.arange(ymin, ymax, batch.grid_size)
+    ygrid = jnp.arange(ymin, ymax, batch.grid_size)
 
     return (xgrid, ygrid)
 
@@ -87,22 +87,22 @@ def construct_grids(batch):
 data = fetch_species_distributions()
 species_names = ["Bradypus Variegatus", "Microryzomys Minutus"]
 
-Xtrain = np.vstack([data["train"]["dd lat"], data["train"]["dd long"]]).T
-ytrain = np.array(
+Xtrain = jnp.vstack([data["train"]["dd lat"], data["train"]["dd long"]]).T
+ytrain = jnp.array(
     [d.decode("ascii").startswith("micro") for d in data["train"]["species"]],
     dtype="int",
 )
-Xtrain *= np.pi / 180.0  # Convert lat/long to radians
+Xtrain *= jnp.pi / 180.0  # Convert lat/long to radians
 
 # Set up the data grid for the contour plot
 xgrid, ygrid = construct_grids(data)
-X, Y = np.meshgrid(xgrid[::5], ygrid[::5][::-1])
+X, Y = jnp.meshgrid(xgrid[::5], ygrid[::5][::-1])
 land_reference = data.coverages[6][::5, ::5]
 land_mask = (land_reference > -9999).ravel()
 
-xy = np.vstack([Y.ravel(), X.ravel()]).T
+xy = jnp.vstack([Y.ravel(), X.ravel()]).T
 xy = xy[land_mask]
-xy *= np.pi / 180.0
+xy *= jnp.pi / 180.0
 
 # Plot map of South America with distributions of each species
 fig = plt.figure()
@@ -119,12 +119,12 @@ for i in range(2):
     kde.fit(Xtrain[ytrain == i])
 
     # evaluate only on the land: -9999 indicates ocean
-    Z = np.full(land_mask.shape[0], -9999, dtype="int")
-    Z[land_mask] = np.exp(kde.score_samples(xy))
+    Z = jnp.full(land_mask.shape[0], -9999, dtype="int")
+    Z[land_mask] = jnp.exp(kde.score_samples(xy))
     Z = Z.reshape(X.shape)
 
     # plot contours of the density
-    levels = np.linspace(0, Z.max(), 25)
+    levels = jnp.linspace(0, Z.max(), 25)
     plt.contourf(X, Y, Z, levels=levels, cmap=plt.cm.Reds)
 
     if basemap:

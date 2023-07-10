@@ -21,14 +21,14 @@ other estimators.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.gaussian_process.kernels import RBF
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-from sklearn.svm import SVC
+from xlearn import datasets
+from xlearn.gaussian_process import GaussianProcessClassifier
+from xlearn.gaussian_process.kernels import RBF
+from xlearn.linear_model import LogisticRegression
+from xlearn.metrics import accuracy_score
+from xlearn.svm import SVC
 
 iris = datasets.load_iris()
 X = iris.data[:, 0:2]  # we only take the first two features for visualization

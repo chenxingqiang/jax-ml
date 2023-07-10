@@ -11,9 +11,9 @@ This exercise is used in the :ref:`using_kernels_tut` part of the
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets, svm
+from xlearn import datasets, svm
 
 iris = datasets.load_iris()
 X = iris.data
@@ -31,8 +31,8 @@ y = y[order].astype(float)
 
 X_train = X[: int(0.9 * n_sample)]
 y_train = y[: int(0.9 * n_sample)]
-X_test = X[int(0.9 * n_sample) :]
-y_test = y[int(0.9 * n_sample) :]
+X_test = X[int(0.9 * n_sample):]
+y_test = y[int(0.9 * n_sample):]
 
 # fit the model
 for kernel in ("linear", "rbf", "poly"):
@@ -56,8 +56,8 @@ for kernel in ("linear", "rbf", "poly"):
     y_min = X[:, 1].min()
     y_max = X[:, 1].max()
 
-    XX, YY = np.mgrid[x_min:x_max:200j, y_min:y_max:200j]
-    Z = clf.decision_function(np.c_[XX.ravel(), YY.ravel()])
+    XX, YY = jnp.mgrid[x_min:x_max:200j, y_min:y_max:200j]
+    Z = clf.decision_function(jnp.c_[XX.ravel(), YY.ravel()])
 
     # Put the result into a color plot
     Z = Z.reshape(XX.shape)

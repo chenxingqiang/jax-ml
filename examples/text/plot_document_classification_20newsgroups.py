@@ -3,7 +3,7 @@
 Classification of text documents using sparse features
 ======================================================
 
-This is an example showing how scikit-learn can be used to classify documents by
+This is an example showing how jax-learn can be used to classify documents by
 topics using a `Bag of Words approach
 <https://en.wikipedia.org/wiki/Bag-of-words_model>`_. This example uses a
 Tf-idf-weighted document-term sparse matrix to encode the features and
@@ -36,10 +36,22 @@ script :ref:`sphx_glr_auto_examples_text_plot_document_clustering.py`.
 # the classification problem "too easy". This is achieved using simple
 # heuristics that are neither perfect nor standard, hence disabled by default.
 
+from xlearn.svm import LinearSVC
+from xlearn.neighbors import KNeighborsClassifier, NearestCentroid
+from xlearn.naive_bayes import ComplementNB
+from xlearn.linear_model import LogisticRegression, SGDClassifier
+from xlearn.ensemble import RandomForestClassifier
+from xlearn.utils.extmath import density
+from xlearn import metrics
+import pandas as pd
+import jax.numpy as jnp
+from xlearn.metrics import ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
+from xlearn.linear_model import RidgeClassifier
 from time import time
 
-from sklearn.datasets import fetch_20newsgroups
-from sklearn.feature_extraction.text import TfidfVectorizer
+from xlearn.datasets import fetch_20newsgroups
+from xlearn.feature_extraction.text import TfidfVectorizer
 
 categories = [
     "alt.atheism",
@@ -140,15 +152,14 @@ X_train, X_test, y_train, y_test, feature_names, target_names = load_dataset(
 
 # %%
 # Our first model is an instance of the
-# :class:`~sklearn.linear_model.RidgeClassifier` class. This is a linear
+# :class:`~xlearn.linear_model.RidgeClassifier` class. This is a linear
 # classification model that uses the mean squared error on {-1, 1} encoded
 # targets, one for each possible class. Contrary to
-# :class:`~sklearn.linear_model.LogisticRegression`,
-# :class:`~sklearn.linear_model.RidgeClassifier` does not
+# :class:`~xlearn.linear_model.LogisticRegression`,
+# :class:`~xlearn.linear_model.RidgeClassifier` does not
 # provide probabilistic predictions (no `predict_proba` method),
 # but it is often faster to train.
 
-from sklearn.linear_model import RidgeClassifier
 
 clf = RidgeClassifier(tol=1e-2, solver="sparse_cg")
 clf.fit(X_train, y_train)
@@ -158,9 +169,6 @@ pred = clf.predict(X_test)
 # We plot the confusion matrix of this classifier to find if there is a pattern
 # in the classification errors.
 
-import matplotlib.pyplot as plt
-
-from sklearn.metrics import ConfusionMatrixDisplay
 
 fig, ax = plt.subplots(figsize=(10, 5))
 ConfusionMatrixDisplay.from_predictions(y_test, pred, ax=ax)
@@ -184,29 +192,27 @@ _ = ax.set_title(
 # We can gain a deeper understanding of how this classifier makes its decisions
 # by looking at the words with the highest average feature effects:
 
-import numpy as np
-import pandas as pd
-
 
 def plot_feature_effects():
     # learned coefficients weighted by frequency of appearance
-    average_feature_effects = clf.coef_ * np.asarray(X_train.mean(axis=0)).ravel()
+    average_feature_effects = clf.coef_ * \
+        jnp.asarray(X_train.mean(axis=0)).ravel()
 
     for i, label in enumerate(target_names):
-        top5 = np.argsort(average_feature_effects[i])[-5:][::-1]
+        top5 = jnp.argsort(average_feature_effects[i])[-5:][::-1]
         if i == 0:
             top = pd.DataFrame(feature_names[top5], columns=[label])
             top_indices = top5
         else:
             top[label] = feature_names[top5]
-            top_indices = np.concatenate((top_indices, top5), axis=None)
-    top_indices = np.unique(top_indices)
+            top_indices = jnp.concatenate((top_indices, top5), axis=None)
+    top_indices = jnp.unique(top_indices)
     predictive_words = feature_names[top_indices]
 
     # plot feature effects
     bar_size = 0.25
     padding = 0.75
-    y_locs = np.arange(len(top_indices)) * (4 * bar_size + padding)
+    y_locs = jnp.arange(len(top_indices)) * (4 * bar_size + padding)
 
     fig, ax = plt.subplots(figsize=(10, 8))
     for i, label in enumerate(target_names):
@@ -232,7 +238,8 @@ def plot_feature_effects():
     return ax
 
 
-_ = plot_feature_effects().set_title("Average feature effect on the original data")
+_ = plot_feature_effects().set_title(
+    "Average feature effect on the original data")
 
 # %%
 # We can observe that the most predictive words are often strongly positively
@@ -266,7 +273,7 @@ for doc in data_train.data:
 # Model with metadata stripping
 # -----------------------------
 #
-# The `remove` option of the 20 newsgroups dataset loader in scikit-learn allows
+# The `remove` option of the 20 newsgroups dataset loader in jax-learn allows
 # to heuristically attempt to filter out some of this unwanted metadata that
 # makes the classification problem artificially easier. Be aware that such
 # filtering of the text contents is far from perfect.
@@ -300,7 +307,8 @@ _ = ax.set_title(
 # without access to the metadata is less accurate but more representative of the
 # intended text classification problem.
 
-_ = plot_feature_effects().set_title("Average feature effects on filtered documents")
+_ = plot_feature_effects().set_title(
+    "Average feature effects on filtered documents")
 
 # %%
 # In the next section we keep the dataset without metadata to compare several
@@ -310,15 +318,12 @@ _ = plot_feature_effects().set_title("Average feature effects on filtered docume
 # Benchmarking classifiers
 # ========================
 #
-# Scikit-learn provides many different kinds of classification algorithms. In
+# Jax-learn provides many different kinds of classification algorithms. In
 # this section we will train a selection of those classifiers on the same text
 # classification problem and measure both their generalization performance
 # (accuracy on the test set) and their computation performance (speed), both at
 # training time and testing time. For such purpose we define the following
 # benchmarking utilities:
-
-from sklearn import metrics
-from sklearn.utils.extmath import density
 
 
 def benchmark(clf, custom_name=False):
@@ -363,11 +368,6 @@ def benchmark(clf, custom_name=False):
 # :ref:`sphx_glr_auto_examples_model_selection_plot_grid_search_text_feature_extraction.py`  # noqa: E501
 # for a demo on how such tuning can be done.
 
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression, SGDClassifier
-from sklearn.naive_bayes import ComplementNB
-from sklearn.neighbors import KNeighborsClassifier, NearestCentroid
-from sklearn.svm import LinearSVC
 
 results = []
 for clf, name in (
@@ -400,13 +400,13 @@ for clf, name in (
 # The scatter plots show the trade-off between the test accuracy and the
 # training and testing time of each classifier.
 
-indices = np.arange(len(results))
+indices = jnp.arange(len(results))
 
 results = [[x[i] for x in results] for i in range(4)]
 
 clf_names, score, training_time, test_time = results
-training_time = np.array(training_time)
-test_time = np.array(test_time)
+training_time = jnp.array(training_time)
+test_time = jnp.array(test_time)
 
 fig, ax1 = plt.subplots(figsize=(10, 8))
 ax1.scatter(score, training_time, s=60)

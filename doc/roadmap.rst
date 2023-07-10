@@ -14,13 +14,13 @@ Roadmap
 Purpose of this document
 ------------------------
 This document list general directions that core contributors are interested
-to see developed in scikit-learn. The fact that an item is listed here is in
+to see developed in jax-learn. The fact that an item is listed here is in
 no way a promise that it will happen, as resources are limited. Rather, it
 is an indication that help is welcomed on this topic.
 
-Statement of purpose: Scikit-learn in 2018
+Statement of purpose: Jax-learn in 2018
 ------------------------------------------
-Eleven years after the inception of Scikit-learn, much has changed in the
+Eleven years after the inception of Jax-learn, much has changed in the
 world of machine learning. Key changes include:
 
 * Computational tools: The exploitation of GPUs, distributed programming
@@ -33,14 +33,14 @@ world of machine learning. Key changes include:
 
 A more subtle change over the last decade is that, due to changing interests
 in ML, PhD students in machine learning are more likely to contribute to
-PyTorch, Dask, etc. than to Scikit-learn, so our contributor pool is very
+PyTorch, Dask, etc. than to Jax-learn, so our contributor pool is very
 different to a decade ago.
 
-Scikit-learn remains very popular in practice for trying out canonical
+Jax-learn remains very popular in practice for trying out canonical
 machine learning techniques, particularly for applications in experimental
 science and in data science. A lot of what we provide is now very mature.
 But it can be costly to maintain, and we cannot therefore include arbitrary
-new implementations. Yet Scikit-learn is also essential in defining an API
+new implementations. Yet Jax-learn is also essential in defining an API
 framework for the development of interoperable machine learning components
 external to the core library.
 
@@ -55,7 +55,7 @@ external to the core library.
   and infrastructures (e.g. distributed processing)
 
 Many of the more fine-grained goals can be found under the `API tag
-<https://github.com/scikit-learn/scikit-learn/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3AAPI>`_
+<https://github.com/jax-learn/jax-learn/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3AAPI>`_
 on the issue tracker.
 
 Architectural / general goals
@@ -97,7 +97,7 @@ the document up to date as we work on these issues.
 
 #. More didactic documentation
 
-   * More and more options have been added to scikit-learn. As a result, the
+   * More and more options have been added to jax-learn. As a result, the
      documentation is crowded which makes it hard for beginners to get the big
      picture. Some work could be done in prioritizing the information.
 
@@ -121,14 +121,14 @@ the document up to date as we work on these issues.
      the data is split/sampled. :issue:`6231` :issue:`8100`
    * We have no way to handle a mixture of categorical and continuous targets.
 
-#. Make it easier for external users to write Scikit-learn-compatible
+#. Make it easier for external users to write Jax-learn-compatible
    components
 
    * More flexible estimator checks that do not select by estimator name
      |ss| :issue:`6599` |se| :issue:`6715`
    * Example of how to develop an estimator or a meta-estimator,
      |ss| :issue:`14582` |se|
-   * More self-sufficient running of scikit-learn-contrib or a similar resource
+   * More self-sufficient running of jax-learn-contrib or a similar resource
 
 #. Support resampling and sample reduction
 
@@ -193,12 +193,12 @@ the document up to date as we work on these issues.
 #. Documentation and tooling for model lifecycle management
 
    * Document good practices for model deployments and lifecycle: before
-     deploying a model: snapshot the code versions (numpy, scipy, scikit-learn,
+     deploying a model: snapshot the code versions (numpy, scipy, jax-learn,
      custom code repo), the training script and an alias on how to retrieve
      historical training data + snapshot a copy of a small validation set +
      snapshot of the predictions (predicted probabilities for classifiers)
      on that validation set.
-   * Document and tools to make it easy to manage upgrade of scikit-learn
+   * Document and tools to make it easy to manage upgrade of jax-learn
      versions:
 
      * Try to load the old pickle, if it works, use the validation set
@@ -208,9 +208,9 @@ the document up to date as we work on these issues.
        training script + historical training set to retrain the model and use
        the validation set prediction snapshot to assert that it is possible to
        recover the previous predictive performance: if this is not the case
-       there is probably a bug in scikit-learn that needs to be reported.
+       there is probably a bug in jax-learn that needs to be reported.
 
-#. Everything in Scikit-learn should probably conform to our API contract.
+#. Everything in Jax-learn should probably conform to our API contract.
    We are still in the process of making decisions on some of these related
    issues.
 
@@ -219,14 +219,14 @@ the document up to date as we work on these issues.
      grasp of their use cases to make sure all current functionality is
      maintained. :issue:`8157` :issue:`7382`
 
-#. (Optional) Improve scikit-learn common tests suite to make sure that (at
+#. (Optional) Improve jax-learn common tests suite to make sure that (at
    least for frequently used) models have stable predictions across-versions
    (to be discussed);
 
    * Extend documentation to mention how to deploy models in Python-free
-     environments for instance `ONNX <https://github.com/onnx/sklearn-onnx>`_.
+     environments for instance `ONNX <https://github.com/onnx/xlearn-onnx>`_.
      and use the above best practices to assess predictive consistency between
-     scikit-learn and ONNX prediction functions on validation set.
+     jax-learn and ONNX prediction functions on validation set.
    * Document good practices to detect temporal distribution drift for deployed
      model and good practices for re-training on fresh data without causing
      catastrophic predictive performance regressions.
@@ -235,22 +235,22 @@ the document up to date as we work on these issues.
 Subpackage-specific goals
 -------------------------
 
-:mod:`sklearn.ensemble`
+:mod:`xlearn.ensemble`
 
 * |ss| a stacking implementation, :issue:`11047` |se|
 
-:mod:`sklearn.cluster`
+:mod:`xlearn.cluster`
 
 * kmeans variants for non-Euclidean distances, if we can show these have
   benefits beyond hierarchical clustering.
 
-:mod:`sklearn.model_selection`
+:mod:`xlearn.model_selection`
 
 * |ss| multi-metric scoring is slow :issue:`9326` |se|
 * perhaps we want to be able to get back more than multiple metrics
 * the handling of random states in CV splitters is a poor design and
   contradicts the validation of similar parameters in estimators,
-  `SLEP011 <https://github.com/scikit-learn/enhancement_proposals/pull/24>`_
+  `SLEP011 <https://github.com/jax-learn/enhancement_proposals/pull/24>`_
 * exploit warm-starting and path algorithms so the benefits of `EstimatorCV`
   objects can be accessed via `GridSearchCV` and used in Pipelines.
   :issue:`1626`
@@ -260,13 +260,13 @@ Subpackage-specific goals
   above) cf `dask-ml
   <https://ml.dask.org/hyper-parameter-search.html#avoid-repeated-work>`_
 
-:mod:`sklearn.neighbors`
+:mod:`xlearn.neighbors`
 
 * |ss| Ability to substitute a custom/approximate/precomputed nearest neighbors
   implementation for ours in all/most contexts that nearest neighbors are used
   for learning. :issue:`10463` |se|
 
-:mod:`sklearn.pipeline`
+:mod:`xlearn.pipeline`
 
 * Performance issues with `Pipeline.memory`
-* see "Everything in Scikit-learn should conform to our API contract" above
+* see "Everything in Jax-learn should conform to our API contract" above

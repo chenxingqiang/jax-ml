@@ -3,9 +3,9 @@
 Cython Best Practices, Conventions and Knowledge
 ================================================
 
-This documents tips to develop Cython code in scikit-learn.
+This documents tips to develop Cython code in jax-learn.
 
-Tips for developing with Cython in scikit-learn
+Tips for developing with Cython in jax-learn
 -----------------------------------------------
 
 Tips to ease development
@@ -16,11 +16,11 @@ Tips to ease development
 * If you intend to use OpenMP: On MacOS, system's distribution of ``clang`` does not implement OpenMP.
   You can install the ``compilers`` package available on ``conda-forge`` which comes with an implementation of OpenMP.
 
-* Activating `checks <https://github.com/scikit-learn/scikit-learn/blob/62a017efa047e9581ae7df8bbaa62cf4c0544ee4/sklearn/_build_utils/__init__.py#L68-L87>`_ might help. E.g. for activating boundscheck use:
+* Activating `checks <https://github.com/jax-learn/jax-learn/blob/62a017efa047e9581ae7df8bbaa62cf4c0544ee4/xlearn/_build_utils/__init__.py#L68-L87>`_ might help. E.g. for activating boundscheck use:
 
   .. code-block:: bash
 
-         export SKLEARN_ENABLE_DEBUG_CYTHON_DIRECTIVES=1
+         export XLEARN_ENABLE_DEBUG_CYTHON_DIRECTIVES=1
 
 * `Start from scratch in a notebook <https://cython.readthedocs.io/en/latest/src/quickstart/build.html#using-the-jupyter-notebook>`_ to understand how to use Cython and to get feedback on your work quickly.
   If you plan to use OpenMP for your implementations in your Jupyter Notebook, do add extra compiler and linkers arguments in the Cython magic.
@@ -51,9 +51,9 @@ Tips to ease development
 
          print(f"{test_val=}")
 
-* scikit-learn codebase has a lot of non-unified (fused) types (re)definitions.
+* jax-learn codebase has a lot of non-unified (fused) types (re)definitions.
   There currently is `ongoing work to simplify and unify that across the codebase
-  <https://github.com/scikit-learn/scikit-learn/issues/25572>`_.
+  <https://github.com/jax-learn/jax-learn/issues/25572>`_.
   For now, make sure you understand which concrete types are used ultimately.
 
 * You might find this alias to compile individual Cython extension handy:
@@ -63,7 +63,7 @@ Tips to ease development
          # You might want to add this alias to your shell script config.
          alias cythonX="cython -X language_level=3 -X boundscheck=False -X wraparound=False -X initializedcheck=False -X nonecheck=False -X cdivision=True"
 
-         # This generates `source.c` as as if you had recompiled scikit-learn entirely.
+         # This generates `source.c` as as if you had recompiled jax-learn entirely.
          cythonX --annotate source.pyx
 
 * Using the ``--annotate`` option with this flag allows generating a HTML report of code annotation.
@@ -86,7 +86,7 @@ Tips for performance
   objects, which include functions). In this regard, `PEP073 <https://peps.python.org/pep-0703/>`_
   provides a good overview and context and pathways for removal.
 
-* Make sure you have deactivated `checks <https://github.com/scikit-learn/scikit-learn/blob/62a017efa047e9581ae7df8bbaa62cf4c0544ee4/sklearn/_build_utils/__init__.py#L68-L87>`_.
+* Make sure you have deactivated `checks <https://github.com/jax-learn/jax-learn/blob/62a017efa047e9581ae7df8bbaa62cf4c0544ee4/xlearn/_build_utils/__init__.py#L68-L87>`_.
 
 * Always prefer memoryviews instead over ``cnp.ndarray`` when possible: memoryviews are lightweight.
 
@@ -97,7 +97,7 @@ Tips for performance
 
 * Inline methods and function when it makes sense
 
-* Make sure your Cython compilation units `use NumPy recent C API <https://github.com/scikit-learn/scikit-learn/blob/62a017efa047e9581ae7df8bbaa62cf4c0544ee4/setup.py#L64-L70>`_.
+* Make sure your Cython compilation units `use NumPy recent C API <https://github.com/jax-learn/jax-learn/blob/62a017efa047e9581ae7df8bbaa62cf4c0544ee4/setup.py#L64-L70>`_.
 
 * In doubt, read the generated C or C++ code if you can: "The fewer C instructions and indirections
   for a line of Cython code, the better" is a good rule of thumb.
@@ -120,22 +120,22 @@ Tips for performance
 
   This item is based on `this comment from Stéfan's Benhel <https://github.com/cython/cython/issues/2798#issuecomment-459971828>`_
 
-* Direct calls to BLAS routines are possible via interfaces defined in ``sklearn.utils._cython_blas``.
+* Direct calls to BLAS routines are possible via interfaces defined in ``xlearn.utils._cython_blas``.
 
 Using OpenMP
 ^^^^^^^^^^^^
 
-Since scikit-learn can be built without OpenMP, it's necessary to protect each
+Since jax-learn can be built without OpenMP, it's necessary to protect each
 direct call to OpenMP.
 
 The `_openmp_helpers` module, available in
-`sklearn/utils/_openmp_helpers.pyx <https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/utils/_openmp_helpers.pyx>`_
+`xlearn/utils/_openmp_helpers.pyx <https://github.com/jax-learn/jax-learn/blob/main/xlearn/utils/_openmp_helpers.pyx>`_
 provides protected versions of the OpenMP routines. To use OpenMP routines, they
 must be ``cimported`` from this module and not from the OpenMP library directly:
 
 .. code-block:: cython
 
-   from sklearn.utils._openmp_helpers cimport omp_get_max_threads
+   from xlearn.utils._openmp_helpers cimport omp_get_max_threads
    max_threads = omp_get_max_threads()
 
 

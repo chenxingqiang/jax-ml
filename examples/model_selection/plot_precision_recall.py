@@ -72,7 +72,7 @@ nth threshold. A pair :math:`(R_k, P_k)` is referred to as an
 *operating point*.
 
 AP and the trapezoidal area under the operating points
-(:func:`sklearn.metrics.auc`) are common ways to summarize a precision-recall
+(:func:`xlearn.metrics.auc`) are common ways to summarize a precision-recall
 curve that lead to different results. Read more in the
 :ref:`User Guide <precision_recall_f_measure_metrics>`.
 
@@ -85,10 +85,10 @@ matrix as a binary prediction (micro-averaging).
 
 .. note::
 
-    See also :func:`sklearn.metrics.average_precision_score`,
-             :func:`sklearn.metrics.recall_score`,
-             :func:`sklearn.metrics.precision_score`,
-             :func:`sklearn.metrics.f1_score`
+    See also :func:`xlearn.metrics.average_precision_score`,
+             :func:`xlearn.metrics.recall_score`,
+             :func:`xlearn.metrics.precision_score`,
+             :func:`xlearn.metrics.f1_score`
 """
 
 # %%
@@ -99,17 +99,28 @@ matrix as a binary prediction (micro-averaging).
 # .................
 #
 # We will use a Linear SVC classifier to differentiate two types of irises.
-import numpy as np
+import matplotlib.pyplot as plt
+from itertools import cycle
+from collections import Counter
+from xlearn.metrics import average_precision_score, precision_recall_curve
+from xlearn.multiclass import OneVsRestClassifier
+from xlearn.preprocessing import label_binarize
+from xlearn.metrics import PrecisionRecallDisplay
+from xlearn.svm import LinearSVC
+from xlearn.preprocessing import StandardScaler
+from xlearn.pipeline import make_pipeline
+import jax.numpy as jnp
 
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
+from xlearn.datasets import load_iris
+from xlearn.model_selection import train_test_split
 
 X, y = load_iris(return_X_y=True)
 
 # Add noisy features
 random_state = np.random.RandomState(0)
 n_samples, n_features = X.shape
-X = np.concatenate([X, random_state.randn(n_samples, 200 * n_features)], axis=1)
+X = jnp.concatenate([X, random_state.randn(
+    n_samples, 200 * n_features)], axis=1)
 
 # Limit to the two first classes, and split into training and test
 X_train, X_test, y_train, y_test = train_test_split(
@@ -119,10 +130,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 # %%
 # Linear SVC will expect each feature to have a similar range of values. Thus,
 # we will first scale the data using a
-# :class:`~sklearn.preprocessing.StandardScaler`.
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import LinearSVC
+# :class:`~xlearn.preprocessing.StandardScaler`.
 
 classifier = make_pipeline(
     StandardScaler(), LinearSVC(random_state=random_state, dual="auto")
@@ -134,15 +142,14 @@ classifier.fit(X_train, y_train)
 # ...............................
 #
 # To plot the precision-recall curve, you should use
-# :class:`~sklearn.metrics.PrecisionRecallDisplay`. Indeed, there is two
+# :class:`~xlearn.metrics.PrecisionRecallDisplay`. Indeed, there is two
 # methods available depending if you already computed the predictions of the
 # classifier or not.
 #
 # Let's first plot the precision-recall curve without the classifier
 # predictions. We use
-# :func:`~sklearn.metrics.PrecisionRecallDisplay.from_estimator` that
+# :func:`~xlearn.metrics.PrecisionRecallDisplay.from_estimator` that
 # computes the predictions for us before plotting the curve.
-from sklearn.metrics import PrecisionRecallDisplay
 
 display = PrecisionRecallDisplay.from_estimator(
     classifier, X_test, y_test, name="LinearSVC", plot_chance_level=True
@@ -152,7 +159,7 @@ _ = display.ax_.set_title("2-class Precision-Recall curve")
 # %%
 # If we already got the estimated probabilities or scores for
 # our model, then we can use
-# :func:`~sklearn.metrics.PrecisionRecallDisplay.from_predictions`.
+# :func:`~xlearn.metrics.PrecisionRecallDisplay.from_predictions`.
 y_score = classifier.decision_function(X_test)
 
 display = PrecisionRecallDisplay.from_predictions(
@@ -173,7 +180,6 @@ _ = display.ax_.set_title("2-class Precision-Recall curve")
 # We create a multi-label dataset, to illustrate the precision-recall in
 # multi-label settings.
 
-from sklearn.preprocessing import label_binarize
 
 # Use label_binarize to be multi-label like settings
 Y = label_binarize(y, classes=[0, 1, 2])
@@ -185,12 +191,12 @@ X_train, X_test, Y_train, Y_test = train_test_split(
 )
 
 # %%
-# We use :class:`~sklearn.multiclass.OneVsRestClassifier` for multi-label
+# We use :class:`~xlearn.multiclass.OneVsRestClassifier` for multi-label
 # prediction.
-from sklearn.multiclass import OneVsRestClassifier
 
 classifier = OneVsRestClassifier(
-    make_pipeline(StandardScaler(), LinearSVC(random_state=random_state, dual="auto"))
+    make_pipeline(StandardScaler(), LinearSVC(
+        random_state=random_state, dual="auto"))
 )
 classifier.fit(X_train, Y_train)
 y_score = classifier.decision_function(X_test)
@@ -199,26 +205,26 @@ y_score = classifier.decision_function(X_test)
 # %%
 # The average precision score in multi-label settings
 # ...................................................
-from sklearn.metrics import average_precision_score, precision_recall_curve
 
 # For each class
 precision = dict()
 recall = dict()
 average_precision = dict()
 for i in range(n_classes):
-    precision[i], recall[i], _ = precision_recall_curve(Y_test[:, i], y_score[:, i])
+    precision[i], recall[i], _ = precision_recall_curve(
+        Y_test[:, i], y_score[:, i])
     average_precision[i] = average_precision_score(Y_test[:, i], y_score[:, i])
 
 # A "micro-average": quantifying score on all classes jointly
 precision["micro"], recall["micro"], _ = precision_recall_curve(
     Y_test.ravel(), y_score.ravel()
 )
-average_precision["micro"] = average_precision_score(Y_test, y_score, average="micro")
+average_precision["micro"] = average_precision_score(
+    Y_test, y_score, average="micro")
 
 # %%
 # Plot the micro-averaged Precision-Recall curve
 # ..............................................
-from collections import Counter
 
 display = PrecisionRecallDisplay(
     recall=recall["micro"],
@@ -232,19 +238,17 @@ _ = display.ax_.set_title("Micro-averaged over all classes")
 # %%
 # Plot Precision-Recall curve for each class and iso-f1 curves
 # ............................................................
-from itertools import cycle
 
-import matplotlib.pyplot as plt
 
 # setup plot details
 colors = cycle(["navy", "turquoise", "darkorange", "cornflowerblue", "teal"])
 
 _, ax = plt.subplots(figsize=(7, 8))
 
-f_scores = np.linspace(0.2, 0.8, num=4)
+f_scores = jnp.linspace(0.2, 0.8, num=4)
 lines, labels = [], []
 for f_score in f_scores:
-    x = np.linspace(0.01, 1)
+    x = jnp.linspace(0.01, 1)
     y = f_score * x / (2 * x - f_score)
     (l,) = plt.plot(x[y >= 0], y[y >= 0], color="gray", alpha=0.2)
     plt.annotate("f1={0:0.1f}".format(f_score), xy=(0.9, y[45] + 0.02))

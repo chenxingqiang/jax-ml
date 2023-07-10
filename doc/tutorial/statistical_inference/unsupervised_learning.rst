@@ -14,7 +14,7 @@ Clustering: grouping observations together
 
 ..
    >>> # Set the PRNG
-   >>> import numpy as np
+   >>> import jax.numpy as jnp
    >>> np.random.seed(1)
 
 K-means clustering
@@ -25,7 +25,7 @@ algorithms. The simplest clustering algorithm is :ref:`k_means`.
 
 ::
 
-    >>> from sklearn import cluster, datasets
+    >>> from xlearn import cluster, datasets
     >>> X_iris, y_iris = datasets.load_iris(return_X_y=True)
 
     >>> k_means = cluster.KMeans(n_clusters=3)
@@ -45,7 +45,7 @@ algorithms. The simplest clustering algorithm is :ref:`k_means`.
     There is absolutely no guarantee of recovering a ground truth. First,
     choosing the right number of clusters is hard. Second, the algorithm
     is sensitive to initialization, and can fall into local minima,
-    although scikit-learn employs several tricks to mitigate this issue.
+    although jax-learn employs several tricks to mitigate this issue.
 
     For instance, on the image above, we can observe the difference between the
     ground-truth (bottom right figure) and different clustering. We do not
@@ -75,7 +75,7 @@ algorithms. The simplest clustering algorithm is :ref:`k_means`.
         KMeans(n_clusters=5, n_init=1)
     	>>> values = k_means.cluster_centers_.squeeze()
     	>>> labels = k_means.labels_
-    	>>> face_compressed = np.choose(labels, values)
+    	>>> face_compressed = jnp.choose(labels, values)
     	>>> face_compressed.shape = face.shape
 
 **Raw image**
@@ -117,7 +117,7 @@ Connectivity-constrained clustering
 .....................................
 
 With agglomerative clustering, it is possible to specify which samples can be
-clustered together by giving a connectivity graph. Graphs in scikit-learn
+clustered together by giving a connectivity graph. Graphs in jax-learn
 are represented by their adjacency matrix. Often, a sparse matrix is used.
 This can be useful, for instance, to retrieve connected regions (sometimes
 also referred to as connected components) when clustering an image.
@@ -136,24 +136,24 @@ also referred to as connected components) when clustering an image.
     ...     gaussian_filter(coins(), sigma=2),
     ...     0.2, mode='reflect', anti_aliasing=False
     ... )
-    >>> X = np.reshape(rescaled_coins, (-1, 1))
+    >>> X = jnp.reshape(rescaled_coins, (-1, 1))
 
 We need a vectorized version of the image. `'rescaled_coins'` is a down-scaled
 version of the coins image to speed up the process::
 
-    >>> from sklearn.feature_extraction import grid_to_graph
+    >>> from xlearn.feature_extraction import grid_to_graph
     >>> connectivity = grid_to_graph(*rescaled_coins.shape)
 
 Define the graph structure of the data. Pixels connected to their neighbors::
 
     >>> n_clusters = 27  # number of regions
 
-    >>> from sklearn.cluster import AgglomerativeClustering
+    >>> from xlearn.cluster import AgglomerativeClustering
     >>> ward = AgglomerativeClustering(n_clusters=n_clusters, linkage='ward',
     ...                                connectivity=connectivity)
     >>> ward.fit(X)
     AgglomerativeClustering(connectivity=..., n_clusters=27)
-    >>> label = np.reshape(ward.labels_, rescaled_coins.shape)
+    >>> label = jnp.reshape(ward.labels_, rescaled_coins.shape)
 
 Feature agglomeration
 ......................
@@ -174,7 +174,7 @@ transposed data.
 
    >>> digits = datasets.load_digits()
    >>> images = digits.images
-   >>> X = np.reshape(images, (len(images), -1))
+   >>> X = jnp.reshape(images, (len(images), -1))
    >>> connectivity = grid_to_graph(*images[0].shape)
 
    >>> agglo = cluster.FeatureAgglomeration(connectivity=connectivity,
@@ -184,7 +184,7 @@ transposed data.
    >>> X_reduced = agglo.transform(X)
 
    >>> X_approx = agglo.inverse_transform(X_reduced)
-   >>> images_approx = np.reshape(X_approx, images.shape)
+   >>> images_approx = jnp.reshape(X_approx, images.shape)
 
 .. topic:: ``transform`` and ``inverse_transform`` methods
 
@@ -235,9 +235,9 @@ data by projecting on a principal subspace.
     >>> x1 = np.random.normal(size=100)
     >>> x2 = np.random.normal(size=100)
     >>> x3 = x1 + x2
-    >>> X = np.c_[x1, x2, x3]
+    >>> X = jnp.c_[x1, x2, x3]
 
-    >>> from sklearn import decomposition
+    >>> from xlearn import decomposition
     >>> pca = decomposition.PCA()
     >>> pca.fit(X)
     PCA()
@@ -269,22 +269,22 @@ a maximum amount of independent information. It is able to recover
 ::
 
     >>> # Generate sample data
-    >>> import numpy as np
+    >>> import jax.numpy as jnp
     >>> from scipy import signal
-    >>> time = np.linspace(0, 10, 2000)
-    >>> s1 = np.sin(2 * time)  # Signal 1 : sinusoidal signal
-    >>> s2 = np.sign(np.sin(3 * time))  # Signal 2 : square signal
-    >>> s3 = signal.sawtooth(2 * np.pi * time)  # Signal 3: saw tooth signal
-    >>> S = np.c_[s1, s2, s3]
+    >>> time = jnp.linspace(0, 10, 2000)
+    >>> s1 = jnp.sin(2 * time)  # Signal 1 : sinusoidal signal
+    >>> s2 = jnp.sign(jnp.sin(3 * time))  # Signal 2 : square signal
+    >>> s3 = signal.sawtooth(2 * jnp.pi * time)  # Signal 3: saw tooth signal
+    >>> S = jnp.c_[s1, s2, s3]
     >>> S += 0.2 * np.random.normal(size=S.shape)  # Add noise
     >>> S /= S.std(axis=0)  # Standardize data
     >>> # Mix data
-    >>> A = np.array([[1, 1, 1], [0.5, 2, 1], [1.5, 1, 2]])  # Mixing matrix
-    >>> X = np.dot(S, A.T)  # Generate observations
+    >>> A = jnp.array([[1, 1, 1], [0.5, 2, 1], [1.5, 1, 2]])  # Mixing matrix
+    >>> X = jnp.dot(S, A.T)  # Generate observations
 
     >>> # Compute ICA
     >>> ica = decomposition.FastICA()
     >>> S_ = ica.fit_transform(X)  # Get the estimated sources
     >>> A_ = ica.mixing_.T
-    >>> np.allclose(X,  np.dot(S_, A_) + ica.mean_)
+    >>> jnp.allclose(X,  jnp.dot(S_, A_) + ica.mean_)
     True

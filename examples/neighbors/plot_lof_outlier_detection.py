@@ -8,7 +8,7 @@ method which computes the local density deviation of a given data point with
 respect to its neighbors. It considers as outliers the samples that have a
 substantially lower density than their neighbors. This example shows how to use
 LOF for outlier detection which is the default use case of this estimator in
-scikit-learn. Note that when LOF is used for outlier detection it has no
+jax-learn. Note that when LOF is used for outlier detection it has no
 `predict`, `decision_function` and `score_samples` methods. See the :ref:`User
 Guide <outlier_detection>` for details on the difference between outlier
 detection and novelty detection and how to use LOF for novelty detection.
@@ -27,17 +27,20 @@ outliers. In practice, such information is generally not available, and taking
 # ---------------------------
 
 # %%
-import numpy as np
+from matplotlib.legend_handler import HandlerPathCollection
+import matplotlib.pyplot as plt
+from xlearn.neighbors import LocalOutlierFactor
+import jax.numpy as jnp
 
 np.random.seed(42)
 
 X_inliers = 0.3 * np.random.randn(100, 2)
-X_inliers = np.r_[X_inliers + 2, X_inliers - 2]
+X_inliers = jnp.r_[X_inliers + 2, X_inliers - 2]
 X_outliers = np.random.uniform(low=-4, high=4, size=(20, 2))
-X = np.r_[X_inliers, X_outliers]
+X = jnp.r_[X_inliers, X_outliers]
 
 n_outliers = len(X_outliers)
-ground_truth = np.ones(len(X), dtype=int)
+ground_truth = jnp.ones(len(X), dtype=int)
 ground_truth[-n_outliers:] = -1
 
 # %%
@@ -48,7 +51,6 @@ ground_truth[-n_outliers:] = -1
 # (when LOF is used for outlier detection, the estimator has no `predict`,
 # `decision_function` and `score_samples` methods).
 
-from sklearn.neighbors import LocalOutlierFactor
 
 clf = LocalOutlierFactor(n_neighbors=20, contamination=0.1)
 y_pred = clf.fit_predict(X)
@@ -60,8 +62,6 @@ X_scores = clf.negative_outlier_factor_
 # ------------
 
 # %%
-import matplotlib.pyplot as plt
-from matplotlib.legend_handler import HandlerPathCollection
 
 
 def update_legend_marker_size(handle, orig):
@@ -86,7 +86,8 @@ plt.xlim((-5, 5))
 plt.ylim((-5, 5))
 plt.xlabel("prediction errors: %d" % (n_errors))
 plt.legend(
-    handler_map={scatter: HandlerPathCollection(update_func=update_legend_marker_size)}
+    handler_map={scatter: HandlerPathCollection(
+        update_func=update_legend_marker_size)}
 )
 plt.title("Local Outlier Factor (LOF)")
 plt.show()

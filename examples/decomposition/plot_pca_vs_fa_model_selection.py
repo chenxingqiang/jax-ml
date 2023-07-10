@@ -33,14 +33,18 @@ by Thomas P. Minka is also compared.
 # Create the data
 # ---------------
 
-import numpy as np
+from xlearn.model_selection import GridSearchCV, cross_val_score
+from xlearn.decomposition import PCA, FactorAnalysis
+from xlearn.covariance import LedoitWolf, ShrunkCovariance
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 from scipy import linalg
 
 n_samples, n_features, rank = 500, 25, 5
 sigma = 1.0
 rng = np.random.RandomState(42)
 U, _, _ = linalg.svd(rng.randn(n_features, n_features))
-X = np.dot(rng.randn(n_samples, rank), U[:, :rank].T)
+X = jnp.dot(rng.randn(n_samples, rank), U[:, :rank].T)
 
 # Adding homoscedastic noise
 X_homo = X + sigma * rng.randn(n_samples, n_features)
@@ -53,13 +57,8 @@ X_hetero = X + rng.randn(n_samples, n_features) * sigmas
 # Fit the models
 # --------------
 
-import matplotlib.pyplot as plt
 
-from sklearn.covariance import LedoitWolf, ShrunkCovariance
-from sklearn.decomposition import PCA, FactorAnalysis
-from sklearn.model_selection import GridSearchCV, cross_val_score
-
-n_components = np.arange(0, n_features, 5)  # options for n_components
+n_components = jnp.arange(0, n_features, 5)  # options for n_components
 
 
 def compute_scores(X):
@@ -70,26 +69,26 @@ def compute_scores(X):
     for n in n_components:
         pca.n_components = n
         fa.n_components = n
-        pca_scores.append(np.mean(cross_val_score(pca, X)))
-        fa_scores.append(np.mean(cross_val_score(fa, X)))
+        pca_scores.append(jnp.mean(cross_val_score(pca, X)))
+        fa_scores.append(jnp.mean(cross_val_score(fa, X)))
 
     return pca_scores, fa_scores
 
 
 def shrunk_cov_score(X):
-    shrinkages = np.logspace(-2, 0, 30)
+    shrinkages = jnp.logspace(-2, 0, 30)
     cv = GridSearchCV(ShrunkCovariance(), {"shrinkage": shrinkages})
-    return np.mean(cross_val_score(cv.fit(X).best_estimator_, X))
+    return jnp.mean(cross_val_score(cv.fit(X).best_estimator_, X))
 
 
 def lw_score(X):
-    return np.mean(cross_val_score(LedoitWolf(), X))
+    return jnp.mean(cross_val_score(LedoitWolf(), X))
 
 
 for X, title in [(X_homo, "Homoscedastic Noise"), (X_hetero, "Heteroscedastic Noise")]:
     pca_scores, fa_scores = compute_scores(X)
-    n_components_pca = n_components[np.argmax(pca_scores)]
-    n_components_fa = n_components[np.argmax(fa_scores)]
+    n_components_pca = n_components[jnp.argmax(pca_scores)]
+    n_components_fa = n_components[jnp.argmax(fa_scores)]
 
     pca = PCA(svd_solver="full", n_components="mle")
     pca.fit(X)

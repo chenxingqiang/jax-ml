@@ -18,11 +18,11 @@ the size of the dataset and the stability of the model. See Cawley and Talbot
 
 To avoid this problem, nested CV effectively uses a series of
 train/validation/test set splits. In the inner loop (here executed by
-:class:`GridSearchCV <sklearn.model_selection.GridSearchCV>`), the score is
+:class:`GridSearchCV <xlearn.model_selection.GridSearchCV>`), the score is
 approximately maximized by fitting a model to each training set, and then
 directly maximized in selecting (hyper)parameters over the validation set. In
 the outer loop (here in :func:`cross_val_score
-<sklearn.model_selection.cross_val_score>`), generalization error is estimated
+<xlearn.model_selection.cross_val_score>`), generalization error is estimated
 by averaging test set scores over several dataset splits.
 
 The example below uses a support vector classifier with a non-linear kernel to
@@ -44,12 +44,12 @@ between their scores.
 
 """
 
-import numpy as np
+import jax.numpy as jnp
 from matplotlib import pyplot as plt
 
-from sklearn.datasets import load_iris
-from sklearn.model_selection import GridSearchCV, KFold, cross_val_score
-from sklearn.svm import SVC
+from xlearn.datasets import load_iris
+from xlearn.model_selection import GridSearchCV, KFold, cross_val_score
+from xlearn.svm import SVC
 
 # Number of random trials
 NUM_TRIALS = 30
@@ -66,8 +66,8 @@ p_grid = {"C": [1, 10, 100], "gamma": [0.01, 0.1]}
 svm = SVC(kernel="rbf")
 
 # Arrays to store scores
-non_nested_scores = np.zeros(NUM_TRIALS)
-nested_scores = np.zeros(NUM_TRIALS)
+non_nested_scores = jnp.zeros(NUM_TRIALS)
+nested_scores = jnp.zeros(NUM_TRIALS)
 
 # Loop for each trial
 for i in range(NUM_TRIALS):

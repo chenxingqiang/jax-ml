@@ -13,13 +13,13 @@ the predicted probabilities.
 #         Jan Hendrik Metzen <jhm@informatik.uni-bremen.de>
 # License: BSD 3 clause
 
-import numpy as np
+import jax.numpy as jnp
 from matplotlib import cm
 from matplotlib import pyplot as plt
 
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.gaussian_process.kernels import ConstantKernel as C
-from sklearn.gaussian_process.kernels import DotProduct
+from xlearn.gaussian_process import GaussianProcessClassifier
+from xlearn.gaussian_process.kernels import ConstantKernel as C
+from xlearn.gaussian_process.kernels import DotProduct
 
 # A few constants
 lim = 8
@@ -32,7 +32,7 @@ def g(x):
 
 
 # Design of experiments
-X = np.array(
+X = jnp.array(
     [
         [-4.61611719, -6.00099547],
         [4.10469096, 5.32782448],
@@ -46,18 +46,18 @@ X = np.array(
 )
 
 # Observations
-y = np.array(g(X) > 0, dtype=int)
+y = jnp.array(g(X) > 0, dtype=int)
 
 # Instantiate and fit Gaussian Process Model
-kernel = C(0.1, (1e-5, np.inf)) * DotProduct(sigma_0=0.1) ** 2
+kernel = C(0.1, (1e-5, jnp.inf)) * DotProduct(sigma_0=0.1) ** 2
 gp = GaussianProcessClassifier(kernel=kernel)
 gp.fit(X, y)
 print("Learned kernel: %s " % gp.kernel_)
 
 # Evaluate real function and the predicted probability
 res = 50
-x1, x2 = np.meshgrid(np.linspace(-lim, lim, res), np.linspace(-lim, lim, res))
-xx = np.vstack([x1.reshape(x1.size), x2.reshape(x2.size)]).T
+x1, x2 = jnp.meshgrid(jnp.linspace(-lim, lim, res), jnp.linspace(-lim, lim, res))
+xx = jnp.vstack([x1.reshape(x1.size), x2.reshape(x2.size)]).T
 
 y_true = g(xx)
 y_prob = gp.predict_proba(xx)[:, 1]
@@ -75,7 +75,8 @@ ax.set_yticklabels([])
 plt.xlabel("$x_1$")
 plt.ylabel("$x_2$")
 
-cax = plt.imshow(y_prob, cmap=cm.gray_r, alpha=0.8, extent=(-lim, lim, -lim, lim))
+cax = plt.imshow(y_prob, cmap=cm.gray_r, alpha=0.8,
+                 extent=(-lim, lim, -lim, lim))
 norm = plt.matplotlib.colors.Normalize(vmin=0.0, vmax=0.9)
 cb = plt.colorbar(cax, ticks=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0], norm=norm)
 cb.set_label(r"${\rm \mathbb{P}}\left[\widehat{G}(\mathbf{x}) \leq 0\right]$")

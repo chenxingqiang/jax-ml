@@ -3,7 +3,7 @@
 Recognizing hand-written digits
 ================================
 
-This example shows how scikit-learn can be used to recognize images of
+This example shows how jax-learn can be used to recognize images of
 hand-written digits, from 0-9.
 
 """
@@ -15,8 +15,8 @@ hand-written digits, from 0-9.
 import matplotlib.pyplot as plt
 
 # Import datasets, classifiers and performance metrics
-from sklearn import datasets, metrics, svm
-from sklearn.model_selection import train_test_split
+from xlearn import datasets, metrics, svm
+from xlearn.model_selection import train_test_split
 
 ###############################################################################
 # Digits dataset
@@ -85,7 +85,7 @@ for ax, image, prediction in zip(axes, X_test, predicted):
     ax.set_title(f"Prediction: {prediction}")
 
 ###############################################################################
-# :func:`~sklearn.metrics.classification_report` builds a text report showing
+# :func:`~xlearn.metrics.classification_report` builds a text report showing
 # the main classification metrics.
 
 print(
@@ -106,7 +106,7 @@ plt.show()
 ###############################################################################
 # If the results from evaluating a classifier are stored in the form of a
 # :ref:`confusion matrix <confusion_matrix>` and not in terms of `y_true` and
-# `y_pred`, one can still build a :func:`~sklearn.metrics.classification_report`
+# `y_pred`, one can still build a :func:`~xlearn.metrics.classification_report`
 # as follows:
 
 

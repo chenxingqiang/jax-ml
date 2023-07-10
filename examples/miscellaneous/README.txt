@@ -3,5 +3,5 @@
 Miscellaneous
 -------------
 
-Miscellaneous and introductory examples for scikit-learn.
+Miscellaneous and introductory examples for jax-learn.
 

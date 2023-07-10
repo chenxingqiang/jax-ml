@@ -20,6 +20,12 @@ Please note that we do the same in the proposed `nmslib` wrapper.
 # %%
 # First we try to import the packages and warn the user in case they are
 # missing.
+from matplotlib.ticker import NullFormatter
+import matplotlib.pyplot as plt
+from xlearn.pipeline import make_pipeline
+from xlearn.neighbors import KNeighborsTransformer
+from xlearn.manifold import TSNE
+import time
 import sys
 
 try:
@@ -35,19 +41,19 @@ except ImportError:
     sys.exit()
 
 # %%
-# We define a wrapper class for implementing the scikit-learn API to the
+# We define a wrapper class for implementing the jax-learn API to the
 # `nmslib`, as well as a loading function.
 import joblib
-import numpy as np
+import jax.numpy as jnp
 from scipy.sparse import csr_matrix
 
-from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.datasets import fetch_openml
-from sklearn.utils import shuffle
+from xlearn.base import BaseEstimator, TransformerMixin
+from xlearn.datasets import fetch_openml
+from xlearn.utils import shuffle
 
 
 class NMSlibTransformer(TransformerMixin, BaseEstimator):
-    """Wrapper for using nmslib as sklearn's KNeighborsTransformer"""
+    """Wrapper for using nmslib as xlearn's KNeighborsTransformer"""
 
     def __init__(self, n_neighbors=5, metric="euclidean", method="sw-graph", n_jobs=-1):
         self.n_neighbors = n_neighbors
@@ -90,9 +96,10 @@ class NMSlibTransformer(TransformerMixin, BaseEstimator):
             X.copy(), k=n_neighbors, num_threads=num_threads
         )
         indices, distances = zip(*results)
-        indices, distances = np.vstack(indices), np.vstack(distances)
+        indices, distances = jnp.vstack(indices), jnp.vstack(distances)
 
-        indptr = np.arange(0, n_samples_transform * n_neighbors + 1, n_neighbors)
+        indptr = jnp.arange(0, n_samples_transform *
+                           n_neighbors + 1, n_neighbors)
         kneighbors_graph = csr_matrix(
             (distances.ravel(), indices.ravel(), indptr),
             shape=(n_samples_transform, self.n_samples_fit_),
@@ -110,11 +117,7 @@ def load_mnist(n_samples):
 
 # %%
 # We benchmark the different exact/approximate nearest neighbors transformers.
-import time
 
-from sklearn.manifold import TSNE
-from sklearn.neighbors import KNeighborsTransformer
-from sklearn.pipeline import make_pipeline
 
 datasets = [
     ("MNIST_10000", load_mnist(n_samples=10_000)),
@@ -141,7 +144,8 @@ tsne_params = dict(
 transformers = [
     (
         "KNeighborsTransformer",
-        KNeighborsTransformer(n_neighbors=n_neighbors, mode="distance", metric=metric),
+        KNeighborsTransformer(n_neighbors=n_neighbors,
+                              mode="distance", metric=metric),
     ),
     (
         "NMSlibTransformer",
@@ -160,7 +164,7 @@ for dataset_name, (X, y) in datasets:
     print(f"\n{msg}\n" + str("-" * len(msg)))
 
     for transformer_name, transformer in transformers:
-        longest = np.max([len(name) for name, model in transformers])
+        longest = jnp.max([len(name) for name, model in transformers])
         start = time.time()
         transformer.fit(X)
         fit_duration = time.time() - start
@@ -205,13 +209,11 @@ for dataset_name, (X, y) in datasets:
 # `fit` and the first `transform` due to the overhead of the numba just in time
 # compiler. But after the first call, the compiled Python code is kept in a
 # cache by numba and subsequent calls do not suffer from this initial overhead.
-# Both :class:`~sklearn.neighbors.KNeighborsTransformer` and `NMSlibTransformer`
+# Both :class:`~xlearn.neighbors.KNeighborsTransformer` and `NMSlibTransformer`
 # are only run once here as they would show more stable `fit` and `transform`
 # times (they don't have the cold start problem of PyNNDescentTransformer).
 
 # %%
-import matplotlib.pyplot as plt
-from matplotlib.ticker import NullFormatter
 
 transformers = [
     ("TSNE with internal NearestNeighbors", TSNE(metric=metric, **tsne_params)),
@@ -235,7 +237,7 @@ transformers = [
 
 # init the plot
 nrows = len(datasets)
-ncols = np.sum([1 for name, model in transformers if "TSNE" in name])
+ncols = jnp.sum([1 for name, model in transformers if "TSNE" in name])
 fig, axes = plt.subplots(
     nrows=nrows, ncols=ncols, squeeze=False, figsize=(5 * ncols, 4 * nrows)
 )
@@ -247,7 +249,7 @@ for dataset_name, (X, y) in datasets:
     print(f"\n{msg}\n" + str("-" * len(msg)))
 
     for transformer_name, transformer in transformers:
-        longest = np.max([len(name) for name, model in transformers])
+        longest = jnp.max([len(name) for name, model in transformers])
         start = time.time()
         Xt = transformer.fit_transform(X)
         transform_duration = time.time() - start
@@ -261,7 +263,7 @@ for dataset_name, (X, y) in datasets:
         axes[i_ax].scatter(
             Xt[:, 0],
             Xt[:, 1],
-            c=y.astype(np.int32),
+            c=y.astype(jnp.int32),
             alpha=0.2,
             cmap=plt.cm.viridis,
         )
@@ -288,12 +290,12 @@ plt.show()
 #     TSNE with KNeighborsTransformer     50.994 sec (fit_transform)
 #     TSNE with NMSlibTransformer         43.536 sec (fit_transform)
 #
-# We can observe that the default :class:`~sklearn.manifold.TSNE` estimator with
-# its internal :class:`~sklearn.neighbors.NearestNeighbors` implementation is
-# roughly equivalent to the pipeline with :class:`~sklearn.manifold.TSNE` and
-# :class:`~sklearn.neighbors.KNeighborsTransformer` in terms of performance.
+# We can observe that the default :class:`~xlearn.manifold.TSNE` estimator with
+# its internal :class:`~xlearn.neighbors.NearestNeighbors` implementation is
+# roughly equivalent to the pipeline with :class:`~xlearn.manifold.TSNE` and
+# :class:`~xlearn.neighbors.KNeighborsTransformer` in terms of performance.
 # This is expected because both pipelines rely internally on the same
-# :class:`~sklearn.neighbors.NearestNeighbors` implementation that performs
+# :class:`~xlearn.neighbors.NearestNeighbors` implementation that performs
 # exacts neighbors search. The approximate `NMSlibTransformer` is already
 # slightly faster than the exact search on the smallest dataset but this speed
 # difference is expected to become more significant on datasets with a larger
@@ -301,10 +303,10 @@ plt.show()
 #
 # Notice however that not all approximate search methods are guaranteed to
 # improve the speed of the default exact search method: indeed the exact search
-# implementation significantly improved since scikit-learn 1.1. Furthermore, the
+# implementation significantly improved since jax-learn 1.1. Furthermore, the
 # brute-force exact search method does not require building an index at `fit`
 # time. So, to get an overall performance improvement in the context of the
-# :class:`~sklearn.manifold.TSNE` pipeline, the gains of the approximate search
+# :class:`~xlearn.manifold.TSNE` pipeline, the gains of the approximate search
 # at `transform` need to be larger than the extra time spent to build the
 # approximate search index at `fit` time.
 #

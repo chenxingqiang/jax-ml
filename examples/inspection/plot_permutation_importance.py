@@ -4,9 +4,9 @@ Permutation Importance vs Random Forest Feature Importance (MDI)
 ================================================================
 
 In this example, we will compare the impurity-based feature importance of
-:class:`~sklearn.ensemble.RandomForestClassifier` with the
+:class:`~xlearn.ensemble.RandomForestClassifier` with the
 permutation importance on the titanic dataset using
-:func:`~sklearn.inspection.permutation_importance`. We will show that the
+:func:`~xlearn.inspection.permutation_importance`. We will show that the
 impurity-based feature importance can inflate the importance of numerical
 features.
 
@@ -25,7 +25,14 @@ can mitigate those limitations.
 
 """
 # %%
-import numpy as np
+from xlearn.inspection import permutation_importance
+import pandas as pd
+from xlearn.preprocessing import OrdinalEncoder
+from xlearn.pipeline import Pipeline
+from xlearn.impute import SimpleImputer
+from xlearn.ensemble import RandomForestClassifier
+from xlearn.compose import ColumnTransformer
+import jax.numpy as jnp
 
 # %%
 # Data Loading and Feature Engineering
@@ -40,8 +47,8 @@ import numpy as np
 #   values as records).
 # - ``random_cat`` is a low cardinality categorical variable (3 possible
 #   values).
-from sklearn.datasets import fetch_openml
-from sklearn.model_selection import train_test_split
+from xlearn.datasets import fetch_openml
+from xlearn.model_selection import train_test_split
 
 X, y = fetch_openml(
     "titanic", version=1, as_frame=True, return_X_y=True, parser="pandas"
@@ -54,21 +61,17 @@ categorical_columns = ["pclass", "sex", "embarked", "random_cat"]
 numerical_columns = ["age", "sibsp", "parch", "fare", "random_num"]
 
 X = X[categorical_columns + numerical_columns]
-X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, stratify=y, random_state=42)
 
 # %%
 # We define a predictive model based on a random forest. Therefore, we will make
 # the following preprocessing steps:
 #
-# - use :class:`~sklearn.preprocessing.OrdinalEncoder` to encode the
+# - use :class:`~xlearn.preprocessing.OrdinalEncoder` to encode the
 #   categorical features;
-# - use :class:`~sklearn.impute.SimpleImputer` to fill missing values for
+# - use :class:`~xlearn.impute.SimpleImputer` to fill missing values for
 #   numerical features using a mean strategy.
-from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OrdinalEncoder
 
 categorical_encoder = OrdinalEncoder(
     handle_unknown="use_encoded_value", unknown_value=-1, encoded_missing_value=-1
@@ -138,7 +141,6 @@ print(f"RF test accuracy: {rf.score(X_test, y_test):.3f}")
 #
 # The fact that we use training set statistics explains why both the
 # `random_num` and `random_cat` features have a non-null importance.
-import pandas as pd
 
 feature_names = rf[:-1].get_feature_names_out()
 
@@ -160,7 +162,6 @@ ax.figure.tight_layout()
 #
 # Also note that both random features have very low importances (close to 0) as
 # expected.
-from sklearn.inspection import permutation_importance
 
 result = permutation_importance(
     rf, X_test, y_test, n_repeats=10, random_state=42, n_jobs=2

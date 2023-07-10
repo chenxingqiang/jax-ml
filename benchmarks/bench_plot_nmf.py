@@ -12,18 +12,18 @@ import warnings
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 import pandas
 from joblib import Memory
 
-from sklearn.decomposition import NMF
-from sklearn.decomposition._nmf import _beta_divergence, _check_init, _initialize_nmf
-from sklearn.exceptions import ConvergenceWarning
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.utils import check_array
-from sklearn.utils._testing import ignore_warnings
-from sklearn.utils.extmath import safe_sparse_dot, squared_norm
-from sklearn.utils.validation import check_is_fitted, check_non_negative
+from xlearn.decomposition import NMF
+from xlearn.decomposition._nmf import _beta_divergence, _check_init, _initialize_nmf
+from xlearn.exceptions import ConvergenceWarning
+from xlearn.feature_extraction.text import TfidfVectorizer
+from xlearn.utils import check_array
+from xlearn.utils._testing import ignore_warnings
+from xlearn.utils.extmath import safe_sparse_dot, squared_norm
+from xlearn.utils.validation import check_is_fitted, check_non_negative
 
 mem = Memory(cachedir=".", verbose=0)
 
@@ -31,7 +31,7 @@ mem = Memory(cachedir=".", verbose=0)
 # Start of _PGNMF #
 ###################
 # This class implements a projected gradient solver for the NMF.
-# The projected gradient solver was removed from scikit-learn in version 0.19,
+# The projected gradient solver was removed from jax-learn in version 0.19,
 # and a simplified copy is used here for comparison purpose only.
 # It is not tested, and it may change or disappear without notice.
 
@@ -40,7 +40,7 @@ def _norm(x):
     """Dot product-based Euclidean norm implementation
     See: http://fseoane.net/blog/2011/computing-the-vector-norm/
     """
-    return np.sqrt(squared_norm(x))
+    return jnp.sqrt(squared_norm(x))
 
 
 def _nls_subproblem(
@@ -96,12 +96,12 @@ def _nls_subproblem(
     https://www.csie.ntu.edu.tw/~cjlin/nmf/
     """
     WtX = safe_sparse_dot(W.T, X)
-    WtW = np.dot(W.T, W)
+    WtW = jnp.dot(W.T, W)
 
     # values justified in the paper (alpha is renamed gamma)
     gamma = 1
     for n_iter in range(1, max_iter + 1):
-        grad = np.dot(WtW, H) - WtX
+        grad = jnp.dot(WtW, H) - WtX
         if alpha > 0 and l1_ratio == 1.0:
             grad += alpha
         elif alpha > 0:
@@ -109,7 +109,7 @@ def _nls_subproblem(
 
         # The following multiplication with a boolean array is more than twice
         # as fast as indexing into grad.
-        if _norm(grad * np.logical_or(grad < 0, H > 0)) < tol:
+        if _norm(grad * jnp.logical_or(grad < 0, H > 0)) < tol:
             break
 
         Hp = H
@@ -120,8 +120,8 @@ def _nls_subproblem(
             # Projection step.
             Hn *= Hn > 0
             d = Hn - H
-            gradd = np.dot(grad.ravel(), d.ravel())
-            dQd = np.dot(np.dot(WtW, d).ravel(), d.ravel())
+            gradd = jnp.dot(grad.ravel(), d.ravel())
+            dQd = jnp.dot(jnp.dot(WtW, d).ravel(), d.ravel())
             suff_decr = (1 - sigma) * gradd + 0.5 * dQd < 0
             if inner_iter == 0:
                 decr_gamma = not suff_decr
@@ -140,24 +140,27 @@ def _nls_subproblem(
                 Hp = Hn
 
     if n_iter == max_iter:
-        warnings.warn("Iteration limit reached in nls subproblem.", ConvergenceWarning)
+        warnings.warn("Iteration limit reached in nls subproblem.",
+                      ConvergenceWarning)
 
     return H, grad, n_iter
 
 
 def _fit_projected_gradient(X, W, H, tol, max_iter, nls_max_iter, alpha, l1_ratio):
-    gradW = np.dot(W, np.dot(H, H.T)) - safe_sparse_dot(X, H.T, dense_output=True)
-    gradH = np.dot(np.dot(W.T, W), H) - safe_sparse_dot(W.T, X, dense_output=True)
+    gradW = jnp.dot(W, jnp.dot(H, H.T)) - \
+        safe_sparse_dot(X, H.T, dense_output=True)
+    gradH = jnp.dot(jnp.dot(W.T, W), H) - \
+        safe_sparse_dot(W.T, X, dense_output=True)
 
     init_grad = squared_norm(gradW) + squared_norm(gradH.T)
     # max(0.001, tol) to force alternating minimizations of W and H
-    tolW = max(0.001, tol) * np.sqrt(init_grad)
+    tolW = max(0.001, tol) * jnp.sqrt(init_grad)
     tolH = tolW
 
     for n_iter in range(1, max_iter + 1):
         # stopping condition as discussed in paper
-        proj_grad_W = squared_norm(gradW * np.logical_or(gradW < 0, W > 0))
-        proj_grad_H = squared_norm(gradH * np.logical_or(gradH < 0, H > 0))
+        proj_grad_W = squared_norm(gradW * jnp.logical_or(gradW < 0, W > 0))
+        proj_grad_H = squared_norm(gradH * jnp.logical_or(gradH < 0, H > 0))
 
         if (proj_grad_W + proj_grad_H) / init_grad < tol**2:
             break
@@ -234,7 +237,7 @@ class _PGNMF(NMF):
 
     def inverse_transform(self, W):
         check_is_fitted(self)
-        return np.dot(W, self.components_)
+        return jnp.dot(W, self.components_)
 
     def fit_transform(self, X, y=None, W=None, H=None):
         W, H, self.n_iter = self._fit_transform(X, W=W, H=H, update_H=True)
@@ -273,7 +276,7 @@ class _PGNMF(NMF):
             _check_init(W, (n_samples, n_components), "NMF (input W)")
         elif not update_H:
             _check_init(H, (n_components, n_features), "NMF (input H)")
-            W = np.zeros((n_samples, n_components))
+            W = jnp.zeros((n_samples, n_components))
         else:
             W, H = _initialize_nmf(
                 X, n_components, init=self.init, random_state=self.random_state
@@ -326,10 +329,10 @@ def plot_results(results_df, plot_name):
     colors = "bgr"
     markers = "ovs"
     ax = plt.subplot(1, 3, 1)
-    for i, init in enumerate(np.unique(results_df["init"])):
+    for i, init in enumerate(jnp.unique(results_df["init"])):
         plt.subplot(1, 3, i + 1, sharex=ax, sharey=ax)
-        for j, method in enumerate(np.unique(results_df["method"])):
-            mask = np.logical_and(
+        for j, method in enumerate(jnp.unique(results_df["method"])):
+            mask = jnp.logical_and(
                 results_df["init"] == init, results_df["method"] == method
             )
             selected_items = results_df[mask]
@@ -401,7 +404,8 @@ def run_bench(X, clfs, plot_name, n_components, tol, alpha, l1_ratio):
             print(" ")
 
     # Use a panda dataframe to organize the results
-    results_df = pandas.DataFrame(results, columns="method loss time init".split())
+    results_df = pandas.DataFrame(
+        results, columns="method loss time init".split())
     print("Total time = %0.3f sec\n" % (time() - start))
 
     # plot the results
@@ -412,7 +416,7 @@ def run_bench(X, clfs, plot_name, n_components, tol, alpha, l1_ratio):
 def load_20news():
     print("Loading 20 newsgroups dataset")
     print("-----------------------------")
-    from sklearn.datasets import fetch_20newsgroups
+    from xlearn.datasets import fetch_20newsgroups
 
     dataset = fetch_20newsgroups(
         shuffle=True, random_state=1, remove=("headers", "footers", "quotes")
@@ -425,7 +429,7 @@ def load_20news():
 def load_faces():
     print("Loading Olivetti face dataset")
     print("-----------------------------")
-    from sklearn.datasets import fetch_olivetti_faces
+    from xlearn.datasets import fetch_olivetti_faces
 
     faces = fetch_olivetti_faces(shuffle=True)
     return faces.data
@@ -448,18 +452,18 @@ if __name__ == "__main__":
 
     # first benchmark on 20 newsgroup dataset: sparse, shape(11314, 39116)
     plot_name = "20 Newsgroups sparse dataset"
-    cd_iters = np.arange(1, 30)
-    pg_iters = np.arange(1, 6)
-    mu_iters = np.arange(1, 30)
+    cd_iters = jnp.arange(1, 30)
+    pg_iters = jnp.arange(1, 6)
+    mu_iters = jnp.arange(1, 30)
     clfs = build_clfs(cd_iters, pg_iters, mu_iters)
     X_20news = load_20news()
     run_bench(X_20news, clfs, plot_name, n_components, tol, alpha, l1_ratio)
 
     # second benchmark on Olivetti faces dataset: dense, shape(400, 4096)
     plot_name = "Olivetti Faces dense dataset"
-    cd_iters = np.arange(1, 30)
-    pg_iters = np.arange(1, 12)
-    mu_iters = np.arange(1, 30)
+    cd_iters = jnp.arange(1, 30)
+    pg_iters = jnp.arange(1, 12)
+    mu_iters = jnp.arange(1, 30)
     clfs = build_clfs(cd_iters, pg_iters, mu_iters)
     X_faces = load_faces()
     run_bench(

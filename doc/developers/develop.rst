@@ -1,20 +1,20 @@
 .. _develop:
 
 ==================================
-Developing scikit-learn estimators
+Developing jax-learn estimators
 ==================================
 
-Whether you are proposing an estimator for inclusion in scikit-learn,
-developing a separate package compatible with scikit-learn, or
+Whether you are proposing an estimator for inclusion in jax-learn,
+developing a separate package compatible with jax-learn, or
 implementing custom components for your own projects, this chapter
-details how to develop objects that safely interact with scikit-learn
+details how to develop objects that safely interact with jax-learn
 Pipelines and model selection tools.
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 .. _api_overview:
 
-APIs of scikit-learn objects
+APIs of jax-learn objects
 ============================
 
 To have a uniform API, we try to have a common basic API for all the
@@ -22,13 +22,13 @@ objects. In addition, to avoid the proliferation of framework code, we
 try to adopt simple conventions and limit to a minimum the number of
 methods an object must implement.
 
-Elements of the scikit-learn API are described more definitively in the
+Elements of the jax-learn API are described more definitively in the
 :ref:`glossary`.
 
 Different objects
 -----------------
 
-The main objects in scikit-learn are (one class can implement
+The main objects in jax-learn are (one class can implement
 multiple interfaces):
 
 :Estimator:
@@ -85,8 +85,8 @@ All built-in estimators also have a ``set_params`` method, which sets
 data-independent parameters (overriding previous parameter values passed
 to ``__init__``).
 
-All estimators in the main scikit-learn codebase should inherit from
-``sklearn.base.BaseEstimator``.
+All estimators in the main jax-learn codebase should inherit from
+``xlearn.base.BaseEstimator``.
 
 Instantiation
 ^^^^^^^^^^^^^
@@ -110,7 +110,7 @@ Also note that they should not be documented under the "Attributes" section,
 but rather under the "Parameters" section for that estimator.
 
 In addition, **every keyword argument accepted by** ``__init__`` **should
-correspond to an attribute on the instance**. Scikit-learn relies on this to
+correspond to an attribute on the instance**. Jax-learn relies on this to
 find the relevant attributes to set on an estimator when doing model selection.
 
 To summarize, an ``__init__`` should look like::
@@ -225,28 +225,28 @@ attribute at `fit` time to indicate the number of features that the estimator
 expects for subsequent calls to `predict` or `transform`.
 See
 `SLEP010
-<https://scikit-learn-enhancement-proposals.readthedocs.io/en/latest/slep010/proposal.html>`_
+<https://jax-learn-enhancement-proposals.readthedocs.io/en/latest/slep010/proposal.html>`_
 for details.
 
 .. _rolling_your_own_estimator:
 
 Rolling your own estimator
 ==========================
-If you want to implement a new estimator that is scikit-learn-compatible,
-whether it is just for you or for contributing it to scikit-learn, there are
-several internals of scikit-learn that you should be aware of in addition to
-the scikit-learn API outlined above. You can check whether your estimator
-adheres to the scikit-learn interface and standards by running
-:func:`~sklearn.utils.estimator_checks.check_estimator` on an instance. The
-:func:`~sklearn.utils.estimator_checks.parametrize_with_checks` pytest
+If you want to implement a new estimator that is jax-learn-compatible,
+whether it is just for you or for contributing it to jax-learn, there are
+several internals of jax-learn that you should be aware of in addition to
+the jax-learn API outlined above. You can check whether your estimator
+adheres to the jax-learn interface and standards by running
+:func:`~xlearn.utils.estimator_checks.check_estimator` on an instance. The
+:func:`~xlearn.utils.estimator_checks.parametrize_with_checks` pytest
 decorator can also be used (see its docstring for details and possible
 interactions with `pytest`)::
 
-  >>> from sklearn.utils.estimator_checks import check_estimator
-  >>> from sklearn.svm import LinearSVC
+  >>> from xlearn.utils.estimator_checks import check_estimator
+  >>> from xlearn.svm import LinearSVC
   >>> check_estimator(LinearSVC())  # passes
 
-The main motivation to make a class compatible to the scikit-learn estimator
+The main motivation to make a class compatible to the jax-learn estimator
 interface might be that you want to use it together with model evaluation and
 selection tools such as :class:`model_selection.GridSearchCV` and
 :class:`pipeline.Pipeline`.
@@ -256,12 +256,12 @@ the correct interface more easily.
 
 .. topic:: Project template:
 
-    We provide a `project template <https://github.com/scikit-learn-contrib/project-template/>`_
-    which helps in the creation of Python packages containing scikit-learn compatible estimators.
+    We provide a `project template <https://github.com/jax-learn-contrib/project-template/>`_
+    which helps in the creation of Python packages containing jax-learn compatible estimators.
     It provides:
 
     * an initial git repository with Python package directory structure
-    * a template of a scikit-learn estimator
+    * a template of a jax-learn estimator
     * an initial test suite including use of ``check_estimator``
     * directory structures and scripts to compile documentation and example
       galleries
@@ -272,21 +272,21 @@ the correct interface more easily.
 
     We tend to use "duck typing", so building an estimator which follows
     the API suffices for compatibility, without needing to inherit from or
-    even import any scikit-learn classes.
+    even import any jax-learn classes.
 
-    However, if a dependency on scikit-learn is acceptable in your code,
+    However, if a dependency on jax-learn is acceptable in your code,
     you can prevent a lot of boilerplate code
     by deriving a class from ``BaseEstimator``
-    and optionally the mixin classes in ``sklearn.base``.
+    and optionally the mixin classes in ``xlearn.base``.
     For example, below is a custom classifier, with more examples included
-    in the scikit-learn-contrib
-    `project template <https://github.com/scikit-learn-contrib/project-template/blob/master/skltemplate/_template.py>`__.
+    in the jax-learn-contrib
+    `project template <https://github.com/jax-learn-contrib/project-template/blob/master/skltemplate/_template.py>`__.
 
-      >>> import numpy as np
-      >>> from sklearn.base import BaseEstimator, ClassifierMixin
-      >>> from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
-      >>> from sklearn.utils.multiclass import unique_labels
-      >>> from sklearn.metrics import euclidean_distances
+      >>> import jax.numpy as jnp
+      >>> from xlearn.base import BaseEstimator, ClassifierMixin
+      >>> from xlearn.utils.validation import check_X_y, check_array, check_is_fitted
+      >>> from xlearn.utils.multiclass import unique_labels
+      >>> from xlearn.metrics import euclidean_distances
       >>> class TemplateClassifier(BaseEstimator, ClassifierMixin):
       ...
       ...     def __init__(self, demo_param='demo'):
@@ -312,13 +312,13 @@ the correct interface more easily.
       ...         # Input validation
       ...         X = check_array(X)
       ...
-      ...         closest = np.argmin(euclidean_distances(X, self.X_), axis=1)
+      ...         closest = jnp.argmin(euclidean_distances(X, self.X_), axis=1)
       ...         return self.y_[closest]
 
 
 get_params and set_params
 -------------------------
-All scikit-learn estimators have ``get_params`` and ``set_params`` functions.
+All jax-learn estimators have ``get_params`` and ``set_params`` functions.
 The ``get_params`` function takes no arguments and returns a dict of the
 ``__init__`` parameters of the estimator, together with their values.
 
@@ -328,8 +328,8 @@ sub-estimators (for most estimators, this can be ignored). The default value
 for ``deep`` should be `True`. For instance considering the following
 estimator::
 
-    >>> from sklearn.base import BaseEstimator
-    >>> from sklearn.linear_model import LogisticRegression
+    >>> from xlearn.base import BaseEstimator
+    >>> from xlearn.linear_model import LogisticRegression
     >>> class MyEstimator(BaseEstimator):
     ...     def __init__(self, subestimator=None, my_extra_param="random"):
     ...         self.subestimator = subestimator
@@ -360,7 +360,7 @@ The parameter `deep` will control whether or not the parameters of the
     subestimator -> LogisticRegression()
 
 Often, the `subestimator` has a name (as e.g. named steps in a
-:class:`~sklearn.pipeline.Pipeline` object), in which case the key should
+:class:`~xlearn.pipeline.Pipeline` object), in which case the key should
 become `<name>__C`, `<name>__class_weight`, etc.
 
 While when `deep=False`, the output will be::
@@ -380,8 +380,8 @@ the ``set_params`` function is necessary as it is used to set parameters during
 grid searches.
 
 The easiest way to implement these functions, and to get a sensible
-``__repr__`` method, is to inherit from ``sklearn.base.BaseEstimator``. If you
-do not want to make your code dependent on scikit-learn, the easiest way to
+``__repr__`` method, is to inherit from ``xlearn.base.BaseEstimator``. If you
+do not want to make your code dependent on jax-learn, the easiest way to
 implement the interface is::
 
     def get_params(self, deep=True):
@@ -426,8 +426,8 @@ Objects that do not provide this method will be deep-copied
 if ``safe=False`` is passed to ``clone``.
 
 Estimators can customize the behavior of :func:`base.clone` by defining a
-`__sklearn_clone__` method. `__sklearn_clone__` must return an instance of the
-estimator. `__sklearn_clone__` is useful when an estimator needs to hold on to
+`__xlearn_clone__` method. `__xlearn_clone__` must return an instance of the
+estimator. `__xlearn_clone__` is useful when an estimator needs to hold on to
 some state when :func:`base.clone` is called on the estimator. For example, a
 frozen meta-estimator for transformers can be defined as follows::
 
@@ -439,7 +439,7 @@ frozen meta-estimator for transformers can be defined as follows::
             # `fitted_transformer`'s attributes are now accessible
             return getattr(self.fitted_transformer, name)
 
-        def __sklearn_clone__(self):
+        def __xlearn_clone__(self):
             return self
 
         def fit(self, X, y):
@@ -489,7 +489,7 @@ order of class labels in this attribute should match the order in which
 ``predict_proba``, ``predict_log_proba`` and ``decision_function`` return their
 values.  The easiest way to achieve this is to put::
 
-    self.classes_, y = np.unique(y, return_inverse=True)
+    self.classes_, y = jnp.unique(y, return_inverse=True)
 
 in ``fit``.  This returns a new ``y`` that contains class indexes, rather than
 labels, in the range [0, ``n_classes``).
@@ -501,14 +501,14 @@ this can be achieved with::
 
     def predict(self, X):
         D = self.decision_function(X)
-        return self.classes_[np.argmax(D, axis=1)]
+        return self.classes_[jnp.argmax(D, axis=1)]
 
 In linear models, coefficients are stored in an array called ``coef_``, and the
-independent term is stored in ``intercept_``.  ``sklearn.linear_model._base``
+independent term is stored in ``intercept_``.  ``xlearn.linear_model._base``
 contains a few base classes and mixins that implement common linear model
 patterns.
 
-The :mod:`sklearn.utils.multiclass` module contains useful functions
+The :mod:`xlearn.utils.multiclass` module contains useful functions
 for working with multiclass and multilabel problems.
 
 .. _estimator_tags:
@@ -519,13 +519,13 @@ Estimator Tags
 
     The estimator tags are experimental and the API is subject to change.
 
-Scikit-learn introduced estimator tags in version 0.21. These are annotations
+Jax-learn introduced estimator tags in version 0.21. These are annotations
 of estimators that allow programmatic inspection of their capabilities, such as
 sparse matrix support, supported output types and supported methods. The
 estimator tags are a dictionary returned by the method ``_get_tags()``. These
 tags are used in the common checks run by the
-:func:`~sklearn.utils.estimator_checks.check_estimator` function and the
-:func:`~sklearn.utils.estimator_checks.parametrize_with_checks` decorator.
+:func:`~xlearn.utils.estimator_checks.check_estimator` function and the
+:func:`~xlearn.utils.estimator_checks.parametrize_with_checks` decorator.
 Tags determine which checks to run and what input data is appropriate. Tags
 can depend on estimator parameters or even system architecture and can in
 general only be determined at runtime.
@@ -533,7 +533,7 @@ general only be determined at runtime.
 The current set of estimator tags are:
 
 allow_nan (default=False)
-    whether the estimator supports data with missing values encoded as np.nan
+    whether the estimator supports data with missing values encoded as jnp.nan
 
 array_api_support (default=False)
     whether the estimator supports Array API compatible inputs.
@@ -568,10 +568,10 @@ pairwise (default=False)
     or a cross validation procedure that extracts a sub-sample of data intended
     for a pairwise estimator, where the data needs to be indexed on both axes.
     Specifically, this tag is used by
-    :func:`~sklearn.utils.metaestimators._safe_split` to slice rows and
+    :func:`~xlearn.utils.metaestimators._safe_split` to slice rows and
     columns.
 
-preserves_dtype (default=``[np.float64]``)
+preserves_dtype (default=``[jnp.float64]``)
     applies only on transformers. It corresponds to the data types which will
     be preserved such that `X_trans.dtype` is the same as `X.dtype` after
     calling `transformer.transform(X)`. If this list is empty, then the
@@ -585,7 +585,7 @@ poor_score (default=False)
     n_features=10, n_informative=1, bias=5.0, noise=20, random_state=42)``, and
     for classification an accuracy of 0.83 on
     ``make_blobs(n_samples=300, random_state=0)``. These datasets and values
-    are based on current estimators in sklearn and might be replaced by
+    are based on current estimators in xlearn and might be replaced by
     something more systematic.
 
 requires_fit (default=True)
@@ -598,7 +598,7 @@ requires_positive_X (default=False)
 requires_y (default=False)
     whether the estimator requires y to be passed to `fit`, `fit_predict` or
     `fit_transform` methods. The tag is True for estimators inheriting from
-    `~sklearn.base.RegressorMixin` and `~sklearn.base.ClassifierMixin`.
+    `~xlearn.base.RegressorMixin` and `~xlearn.base.ClassifierMixin`.
 
 requires_positive_y (default=False)
     whether the estimator requires a positive y (only applicable for regression).
@@ -610,9 +610,9 @@ _skip_test (default=False)
 _xfail_checks (default=False)
     dictionary ``{check_name: reason}`` of common checks that will be marked
     as `XFAIL` for pytest, when using
-    :func:`~sklearn.utils.estimator_checks.parametrize_with_checks`. These
+    :func:`~xlearn.utils.estimator_checks.parametrize_with_checks`. These
     checks will be simply ignored and not run by
-    :func:`~sklearn.utils.estimator_checks.check_estimator`, but a
+    :func:`~xlearn.utils.estimator_checks.check_estimator`, but a
     `SkipTestWarning` will be raised.
     Don't use this unless there is a *very good* reason for your estimator
     not to pass the check.
@@ -670,8 +670,8 @@ Developer API for `set_output`
 ==============================
 
 With
-`SLEP018 <https://scikit-learn-enhancement-proposals.readthedocs.io/en/latest/slep018/proposal.html>`__,
-scikit-learn introduces the `set_output` API for configuring transformers to
+`SLEP018 <https://jax-learn-enhancement-proposals.readthedocs.io/en/latest/slep018/proposal.html>`__,
+jax-learn introduces the `set_output` API for configuring transformers to
 output pandas DataFrames. The `set_output` API is automatically defined if the
 transformer defines :term:`get_feature_names_out` and subclasses
 :class:`base.TransformerMixin`. :term:`get_feature_names_out` is used to get the
@@ -715,13 +715,13 @@ Coding guidelines
 =================
 
 The following are some guidelines on how new code should be written for
-inclusion in scikit-learn, and which may be appropriate to adopt in external
+inclusion in jax-learn, and which may be appropriate to adopt in external
 projects. Of course, there are special cases and there will be exceptions to
 these rules. However, following these rules when submitting new code makes
 the review easier so new code can be integrated in less time.
 
 Uniformly formatted code makes it easier to share code ownership. The
-scikit-learn project tries to closely follow the official Python guidelines
+jax-learn project tries to closely follow the official Python guidelines
 detailed in `PEP8 <https://www.python.org/dev/peps/pep-0008>`_ that
 detail how code should be formatted and indented. Please read it and
 follow it.
@@ -734,13 +734,13 @@ In addition, we add the following guidelines:
 * Avoid multiple statements on one line. Prefer a line return after
   a control flow statement (``if``/``for``).
 
-* Use relative imports for references inside scikit-learn.
+* Use relative imports for references inside jax-learn.
 
 * Unit tests are an exception to the previous rule;
   they should use absolute imports, exactly as client code would.
-  A corollary is that, if ``sklearn.foo`` exports a class or function
-  that is implemented in ``sklearn.foo.bar.baz``,
-  the test should import it from ``sklearn.foo``.
+  A corollary is that, if ``xlearn.foo`` exports a class or function
+  that is implemented in ``xlearn.foo.bar.baz``,
+  the test should import it from ``xlearn.foo``.
 
 * **Please don't use** ``import *`` **in any case**. It is considered harmful
   by the `official Python recommendations
@@ -749,7 +749,7 @@ In addition, we add the following guidelines:
   longer explicitly referenced, but most important, it prevents
   using a static analysis tool like `pyflakes
   <https://divmod.readthedocs.io/en/latest/products/pyflakes.html>`_ to automatically
-  find bugs in scikit-learn.
+  find bugs in jax-learn.
 
 * Use the `numpy docstring standard
   <https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard>`_
@@ -762,17 +762,17 @@ A good example of code that we like can be found `here
 Input validation
 ----------------
 
-.. currentmodule:: sklearn.utils
+.. currentmodule:: xlearn.utils
 
-The module :mod:`sklearn.utils` contains various functions for doing input
-validation and conversion. Sometimes, ``np.asarray`` suffices for validation;
-do *not* use ``np.asanyarray`` or ``np.atleast_2d``, since those let NumPy's
-``np.matrix`` through, which has a different API
-(e.g., ``*`` means dot product on ``np.matrix``,
-but Hadamard product on ``np.ndarray``).
+The module :mod:`xlearn.utils` contains various functions for doing input
+validation and conversion. Sometimes, ``jnp.asarray`` suffices for validation;
+do *not* use ``jnp.asanyarray`` or ``jnp.atleast_2d``, since those let NumPy's
+``jnp.matrix`` through, which has a different API
+(e.g., ``*`` means dot product on ``jnp.matrix``,
+but Hadamard product on ``jnp.ndarray``).
 
 In other cases, be sure to call :func:`check_array` on any array-like argument
-passed to a scikit-learn API function. The exact parameters to use depends
+passed to a jax-learn API function. The exact parameters to use depends
 mainly on whether and which ``scipy.sparse`` matrices must be accepted.
 
 For more information, refer to the :ref:`developers-utils` page.
@@ -785,11 +785,11 @@ If your code depends on a random number generator, do not use
 repeatability in error checking, the routine should accept a keyword
 ``random_state`` and use this to construct a
 ``numpy.random.RandomState`` object.
-See :func:`sklearn.utils.check_random_state` in :ref:`developers-utils`.
+See :func:`xlearn.utils.check_random_state` in :ref:`developers-utils`.
 
 Here's a simple example of code using some of the above guidelines::
 
-    from sklearn.utils import check_array, check_random_state
+    from xlearn.utils import check_array, check_random_state
 
     def choose_random_sample(X, random_state=0):
         """Choose a random point from X.
@@ -830,7 +830,7 @@ The following example should make this clear::
     class GaussianNoise(BaseEstimator, TransformerMixin):
         """This estimator ignores its input and returns random Gaussian noise.
 
-        It also does not adhere to all scikit-learn conventions,
+        It also does not adhere to all jax-learn conventions,
         but showcases how to handle randomness.
         """
 
@@ -855,7 +855,7 @@ Numerical assertions in tests
 -----------------------------
 
 When asserting the quasi-equality of arrays of continuous values,
-do use :func:`sklearn.utils._testing.assert_allclose`.
+do use :func:`xlearn.utils._testing.assert_allclose`.
 
 The relative tolerance is automatically inferred from the provided arrays
 dtypes (for float32 and float64 dtypes in particular) but you can override
@@ -865,4 +865,4 @@ When comparing arrays of zero-elements, please do provide a non-zero value for
 the absolute tolerance via ``atol``.
 
 For more information, please refer to the docstring of
-:func:`sklearn.utils._testing.assert_allclose`.
+:func:`xlearn.utils._testing.assert_allclose`.

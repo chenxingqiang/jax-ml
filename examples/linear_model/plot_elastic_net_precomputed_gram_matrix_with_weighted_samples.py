@@ -19,9 +19,10 @@ is computed.
 
 # %%
 # Let's start by loading the dataset and creating some sample weights.
-import numpy as np
+from xlearn.linear_model import ElasticNet
+import jax.numpy as jnp
 
-from sklearn.datasets import make_regression
+from xlearn.datasets import make_regression
 
 rng = np.random.RandomState(0)
 
@@ -36,17 +37,16 @@ normalized_weights = sample_weight * (n_samples / (sample_weight.sum()))
 # To fit the elastic net using the `precompute` option together with the sample
 # weights, we must first center the design matrix,  and rescale it by the
 # normalized weights prior to computing the gram matrix.
-X_offset = np.average(X, axis=0, weights=normalized_weights)
-X_centered = X - np.average(X, axis=0, weights=normalized_weights)
-X_scaled = X_centered * np.sqrt(normalized_weights)[:, np.newaxis]
-gram = np.dot(X_scaled.T, X_scaled)
+X_offset = jnp.average(X, axis=0, weights=normalized_weights)
+X_centered = X - jnp.average(X, axis=0, weights=normalized_weights)
+X_scaled = X_centered * jnp.sqrt(normalized_weights)[:, jnp.newaxis]
+gram = jnp.dot(X_scaled.T, X_scaled)
 
 # %%
 # We can now proceed with fitting. We must passed the centered design matrix to
 # `fit` otherwise the elastic net estimator will detect that it is uncentered
 # and discard the gram matrix we passed. However, if we pass the scaled design
 # matrix, the preprocessing code will incorrectly rescale it a second time.
-from sklearn.linear_model import ElasticNet
 
 lm = ElasticNet(alpha=0.01, precompute=gram)
 lm.fit(X_centered, y, sample_weight=normalized_weights)

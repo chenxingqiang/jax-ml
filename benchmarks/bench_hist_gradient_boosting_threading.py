@@ -3,17 +3,17 @@ import os
 from pprint import pprint
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 from threadpoolctl import threadpool_limits
 
-import sklearn
-from sklearn.datasets import make_classification, make_regression
-from sklearn.ensemble import (
+import xlearn
+from xlearn.datasets import make_classification, make_regression
+from xlearn.ensemble import (
     HistGradientBoostingClassifier,
     HistGradientBoostingRegressor,
 )
-from sklearn.ensemble._hist_gradient_boosting.utils import get_equivalent_estimator
-from sklearn.model_selection import train_test_split
+from xlearn.ensemble._hist_gradient_boosting.utils import get_equivalent_estimator
+from xlearn.model_selection import train_test_split
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--n-leaf-nodes", type=int, default=31)
@@ -87,8 +87,9 @@ def get_estimator_and_data():
 
 X, y, Estimator = get_estimator_and_data()
 if args.missing_fraction:
-    mask = np.random.binomial(1, args.missing_fraction, size=X.shape).astype(bool)
-    X[mask] = np.nan
+    mask = np.random.binomial(1, args.missing_fraction,
+                              size=X.shape).astype(bool)
+    X[mask] = jnp.nan
 
 if args.random_sample_weights:
     sample_weight = np.random.rand(len(X)) * 10
@@ -106,7 +107,7 @@ else:
     sample_weight_train_ = None
 
 
-sklearn_est = Estimator(
+xlearn_est = Estimator(
     learning_rate=lr,
     max_iter=n_trees,
     max_bins=max_bins,
@@ -124,18 +125,18 @@ else:
     # regression
     if loss == "default":
         loss = "squared_error"
-sklearn_est.set_params(loss=loss)
+xlearn_est.set_params(loss=loss)
 
 
 if args.print_params:
-    print("scikit-learn")
-    pprint(sklearn_est.get_params())
+    print("jax-learn")
+    pprint(xlearn_est.get_params())
 
     for libname in ["lightgbm", "xgboost", "catboost"]:
         if getattr(args, libname):
             print(libname)
             est = get_equivalent_estimator(
-                sklearn_est, lib=libname, n_classes=args.n_classes
+                xlearn_est, lib=libname, n_classes=args.n_classes
             )
             pprint(est.get_params())
 
@@ -151,19 +152,19 @@ def one_run(n_threads, n_samples):
         sample_weight_train = None
     assert X_train.shape[0] == n_samples
     assert X_test.shape[0] == n_samples
-    print("Fitting a sklearn model...")
+    print("Fitting a xlearn model...")
     tic = time()
-    est = sklearn.base.clone(sklearn_est)
+    est = xlearn.base.clone(xlearn_est)
 
     with threadpool_limits(n_threads, user_api="openmp"):
         est.fit(X_train, y_train, sample_weight=sample_weight_train)
-        sklearn_fit_duration = time() - tic
+        xlearn_fit_duration = time() - tic
         tic = time()
-        sklearn_score = est.score(X_test, y_test)
-        sklearn_score_duration = time() - tic
-    print("score: {:.4f}".format(sklearn_score))
-    print("fit duration: {:.3f}s,".format(sklearn_fit_duration))
-    print("score duration: {:.3f}s,".format(sklearn_score_duration))
+        xlearn_score = est.score(X_test, y_test)
+        xlearn_score_duration = time() - tic
+    print("score: {:.4f}".format(xlearn_score))
+    print("fit duration: {:.3f}s,".format(xlearn_fit_duration))
+    print("score duration: {:.3f}s,".format(xlearn_score_duration))
 
     lightgbm_score = None
     lightgbm_fit_duration = None
@@ -190,7 +191,8 @@ def one_run(n_threads, n_samples):
     xgb_score_duration = None
     if args.xgboost:
         print("Fitting an XGBoost model...")
-        xgb_est = get_equivalent_estimator(est, lib="xgboost", n_classes=args.n_classes)
+        xgb_est = get_equivalent_estimator(
+            est, lib="xgboost", n_classes=args.n_classes)
         xgb_est.set_params(nthread=n_threads)
 
         tic = time()
@@ -224,9 +226,9 @@ def one_run(n_threads, n_samples):
         print("score duration: {:.3f}s,".format(cat_score_duration))
 
     return (
-        sklearn_score,
-        sklearn_fit_duration,
-        sklearn_score_duration,
+        xlearn_score,
+        xlearn_fit_duration,
+        xlearn_score_duration,
         lightgbm_score,
         lightgbm_fit_duration,
         lightgbm_score_duration,
@@ -243,9 +245,9 @@ max_threads = os.cpu_count()
 n_threads_list = [2**i for i in range(8) if (2**i) < max_threads]
 n_threads_list.append(max_threads)
 
-sklearn_scores = []
-sklearn_fit_durations = []
-sklearn_score_durations = []
+xlearn_scores = []
+xlearn_fit_durations = []
+xlearn_score_durations = []
 lightgbm_scores = []
 lightgbm_fit_durations = []
 lightgbm_score_durations = []
@@ -259,9 +261,9 @@ cat_score_durations = []
 for n_threads in n_threads_list:
     print(f"n_threads: {n_threads}")
     (
-        sklearn_score,
-        sklearn_fit_duration,
-        sklearn_score_duration,
+        xlearn_score,
+        xlearn_fit_duration,
+        xlearn_score_duration,
         lightgbm_score,
         lightgbm_fit_duration,
         lightgbm_score_duration,
@@ -274,9 +276,9 @@ for n_threads in n_threads_list:
     ) = one_run(n_threads, n_samples)
 
     for scores, score in (
-        (sklearn_scores, sklearn_score),
-        (sklearn_fit_durations, sklearn_fit_duration),
-        (sklearn_score_durations, sklearn_score_duration),
+        (xlearn_scores, xlearn_score),
+        (xlearn_fit_durations, xlearn_fit_duration),
+        (xlearn_score_durations, xlearn_score_duration),
         (lightgbm_scores, lightgbm_score),
         (lightgbm_fit_durations, lightgbm_fit_duration),
         (lightgbm_score_durations, lightgbm_score_duration),
@@ -296,9 +298,9 @@ if args.plot or args.plot_filename:
 
     fig, axs = plt.subplots(2, figsize=(12, 12))
 
-    label = f"sklearn {sklearn.__version__}"
-    axs[0].plot(n_threads_list, sklearn_fit_durations, label=label)
-    axs[1].plot(n_threads_list, sklearn_score_durations, label=label)
+    label = f"xlearn {xlearn.__version__}"
+    axs[0].plot(n_threads_list, xlearn_fit_durations, label=label)
+    axs[1].plot(n_threads_list, xlearn_score_durations, label=label)
 
     if args.lightgbm:
         import lightgbm

@@ -4,14 +4,14 @@ from gzip import GzipFile
 from time import time
 from urllib.request import urlretrieve
 
-import numpy as np
+import jax.numpy as jnp
 import pandas as pd
 from joblib import Memory
 
-from sklearn.ensemble import HistGradientBoostingClassifier
-from sklearn.ensemble._hist_gradient_boosting.utils import get_equivalent_estimator
-from sklearn.metrics import accuracy_score, roc_auc_score
-from sklearn.model_selection import train_test_split
+from xlearn.ensemble import HistGradientBoostingClassifier
+from xlearn.ensemble._hist_gradient_boosting.utils import get_equivalent_estimator
+from xlearn.metrics import accuracy_score, roc_auc_score
+from xlearn.model_selection import train_test_split
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--n-leaf-nodes", type=int, default=31)
@@ -49,7 +49,7 @@ def load_data():
     print(f"Parsing {filename}...")
     tic = time()
     with GzipFile(filename) as f:
-        df = pd.read_csv(f, header=None, dtype=np.float32)
+        df = pd.read_csv(f, header=None, dtype=jnp.float32)
     toc = time()
     print(f"Loaded {df.values.nbytes / 1e9:0.3f} GB in {toc - tic:0.3f}s")
     return df
@@ -72,16 +72,17 @@ def predict(est, data_test, target_test):
     toc = time()
     roc_auc = roc_auc_score(target_test, predicted_proba_test[:, 1])
     acc = accuracy_score(target_test, predicted_test)
-    print(f"predicted in {toc - tic:.3f}s, ROC AUC: {roc_auc:.4f}, ACC: {acc :.4f}")
+    print(
+        f"predicted in {toc - tic:.3f}s, ROC AUC: {roc_auc:.4f}, ACC: {acc :.4f}")
 
 
 df = load_data()
 target = df.values[:, 0]
-data = np.ascontiguousarray(df.values[:, 1:])
+data = jnp.ascontiguousarray(df.values[:, 1:])
 data_train, data_test, target_train, target_test = train_test_split(
     data, target, test_size=0.2, random_state=0
 )
-n_classes = len(np.unique(target))
+n_classes = len(jnp.unique(target))
 
 if subsample is not None:
     data_train, target_train = data_train[:subsample], target_train[:subsample]
@@ -105,7 +106,7 @@ est = HistGradientBoostingClassifier(
     verbose=1,
     interaction_cst=interaction_cst,
 )
-fit(est, data_train, target_train, "sklearn")
+fit(est, data_train, target_train, "xlearn")
 predict(est, data_test, target_test)
 
 if args.lightgbm:

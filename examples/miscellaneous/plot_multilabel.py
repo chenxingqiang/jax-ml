@@ -18,7 +18,7 @@ classes are plotted surrounded by two colored circles.
 
 The classification is performed by projecting to the first two principal
 components found by PCA and CCA for visualisation purposes, followed by using
-the :class:`~sklearn.multiclass.OneVsRestClassifier` metaclassifier using two
+the :class:`~xlearn.multiclass.OneVsRestClassifier` metaclassifier using two
 SVCs with linear kernels to learn a discriminative model for each class.
 Note that PCA is used to perform an unsupervised dimensionality reduction,
 while CCA is used to perform a supervised one.
@@ -33,20 +33,20 @@ have a label.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.cross_decomposition import CCA
-from sklearn.datasets import make_multilabel_classification
-from sklearn.decomposition import PCA
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.svm import SVC
+from xlearn.cross_decomposition import CCA
+from xlearn.datasets import make_multilabel_classification
+from xlearn.decomposition import PCA
+from xlearn.multiclass import OneVsRestClassifier
+from xlearn.svm import SVC
 
 
 def plot_hyperplane(clf, min_x, max_x, linestyle, label):
     # get the separating hyperplane
     w = clf.coef_[0]
     a = -w[0] / w[1]
-    xx = np.linspace(min_x - 5, max_x + 5)  # make sure the line is long enough
+    xx = jnp.linspace(min_x - 5, max_x + 5)  # make sure the line is long enough
     yy = a * xx - (clf.intercept_[0]) / w[1]
     plt.plot(xx, yy, linestyle, label=label)
 
@@ -59,11 +59,11 @@ def plot_subfigure(X, Y, subplot, title, transform):
     else:
         raise ValueError
 
-    min_x = np.min(X[:, 0])
-    max_x = np.max(X[:, 0])
+    min_x = jnp.min(X[:, 0])
+    max_x = jnp.max(X[:, 0])
 
-    min_y = np.min(X[:, 1])
-    max_y = np.max(X[:, 1])
+    min_y = jnp.min(X[:, 1])
+    max_y = jnp.max(X[:, 1])
 
     classif = OneVsRestClassifier(SVC(kernel="linear"))
     classif.fit(X, Y)
@@ -71,8 +71,8 @@ def plot_subfigure(X, Y, subplot, title, transform):
     plt.subplot(2, 2, subplot)
     plt.title(title)
 
-    zero_class = np.where(Y[:, 0])
-    one_class = np.where(Y[:, 1])
+    zero_class = jnp.where(Y[:, 0])
+    one_class = jnp.where(Y[:, 1])
     plt.scatter(X[:, 0], X[:, 1], s=40, c="gray", edgecolors=(0, 0, 0))
     plt.scatter(
         X[zero_class, 0],

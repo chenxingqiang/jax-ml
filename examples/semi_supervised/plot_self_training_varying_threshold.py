@@ -33,14 +33,14 @@ around 0.7.
 # License: BSD
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import StratifiedKFold
-from sklearn.semi_supervised import SelfTrainingClassifier
-from sklearn.svm import SVC
-from sklearn.utils import shuffle
+from xlearn import datasets
+from xlearn.metrics import accuracy_score
+from xlearn.model_selection import StratifiedKFold
+from xlearn.semi_supervised import SelfTrainingClassifier
+from xlearn.svm import SVC
+from xlearn.utils import shuffle
 
 n_splits = 3
 
@@ -52,14 +52,15 @@ total_samples = y.shape[0]
 
 base_classifier = SVC(probability=True, gamma=0.001, random_state=42)
 
-x_values = np.arange(0.4, 1.05, 0.05)
-x_values = np.append(x_values, 0.99999)
-scores = np.empty((x_values.shape[0], n_splits))
-amount_labeled = np.empty((x_values.shape[0], n_splits))
-amount_iterations = np.empty((x_values.shape[0], n_splits))
+x_values = jnp.arange(0.4, 1.05, 0.05)
+x_values = jnp.append(x_values, 0.99999)
+scores = jnp.empty((x_values.shape[0], n_splits))
+amount_labeled = jnp.empty((x_values.shape[0], n_splits))
+amount_iterations = jnp.empty((x_values.shape[0], n_splits))
 
 for i, threshold in enumerate(x_values):
-    self_training_clf = SelfTrainingClassifier(base_classifier, threshold=threshold)
+    self_training_clf = SelfTrainingClassifier(
+        base_classifier, threshold=threshold)
 
     # We need manual cross validation so that we don't treat -1 as a separate
     # class when computing accuracy
@@ -76,10 +77,11 @@ for i, threshold in enumerate(x_values):
         # The amount of labeled samples that at the end of fitting
         amount_labeled[i, fold] = (
             total_samples
-            - np.unique(self_training_clf.labeled_iter_, return_counts=True)[1][0]
+            - jnp.unique(self_training_clf.labeled_iter_,
+                        return_counts=True)[1][0]
         )
         # The last iteration the classifier labeled a sample in
-        amount_iterations[i, fold] = np.max(self_training_clf.labeled_iter_)
+        amount_iterations[i, fold] = jnp.max(self_training_clf.labeled_iter_)
 
         y_pred = self_training_clf.predict(X_test)
         scores[i, fold] = accuracy_score(y_test_true, y_pred)

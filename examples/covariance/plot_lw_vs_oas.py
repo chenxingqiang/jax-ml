@@ -22,28 +22,29 @@ Chen et al., IEEE Trans. on Sign. Proc., Volume 58, Issue 10, October 2010.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from scipy.linalg import cholesky, toeplitz
 
-from sklearn.covariance import OAS, LedoitWolf
+from xlearn.covariance import OAS, LedoitWolf
 
 np.random.seed(0)
 # %%
 n_features = 100
 # simulation covariance matrix (AR(1) process)
 r = 0.1
-real_cov = toeplitz(r ** np.arange(n_features))
+real_cov = toeplitz(r ** jnp.arange(n_features))
 coloring_matrix = cholesky(real_cov)
 
-n_samples_range = np.arange(6, 31, 1)
+n_samples_range = jnp.arange(6, 31, 1)
 repeat = 100
-lw_mse = np.zeros((n_samples_range.size, repeat))
-oa_mse = np.zeros((n_samples_range.size, repeat))
-lw_shrinkage = np.zeros((n_samples_range.size, repeat))
-oa_shrinkage = np.zeros((n_samples_range.size, repeat))
+lw_mse = jnp.zeros((n_samples_range.size, repeat))
+oa_mse = jnp.zeros((n_samples_range.size, repeat))
+lw_shrinkage = jnp.zeros((n_samples_range.size, repeat))
+oa_shrinkage = jnp.zeros((n_samples_range.size, repeat))
 for i, n_samples in enumerate(n_samples_range):
     for j in range(repeat):
-        X = np.dot(np.random.normal(size=(n_samples, n_features)), coloring_matrix.T)
+        X = jnp.dot(np.random.normal(
+            size=(n_samples, n_features)), coloring_matrix.T)
 
         lw = LedoitWolf(store_precision=False, assume_centered=True)
         lw.fit(X)

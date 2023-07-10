@@ -1,7 +1,7 @@
 
 .. _metadata_routing:
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 .. TODO: update doc/conftest.py once document is updated and examples run.
 
@@ -14,8 +14,8 @@ Metadata Routing
   this feature is not enabled. You can enable this feature  by setting the
   ``enable_metadata_routing`` flag to ``True``:
 
-    >>> import sklearn
-    >>> sklearn.set_config(enable_metadata_routing=True)
+    >>> import xlearn
+    >>> xlearn.set_config(enable_metadata_routing=True)
 
 This guide demonstrates how metadata such as ``sample_weight`` can be routed
 and passed along to estimators, scorers, and CV splitters through
@@ -28,7 +28,7 @@ e.g. ``set_fit_request(...)``, and for scorers this is done via the
 :class:`~model_selection.GroupKFold`, a ``groups`` parameter is requested by
 default. This is best demonstrated by the following examples.
 
-If you are developing a scikit-learn compatible estimator or meta-estimator,
+If you are developing a jax-learn compatible estimator or meta-estimator,
 you can check our related developer guide:
 :ref:`sphx_glr_auto_examples_miscellaneous_plot_metadata_routing.py`.
 
@@ -44,12 +44,12 @@ Usage Examples
 Here we present a few examples to show different common use-cases. The examples
 in this section require the following imports and data::
 
-  >>> import numpy as np
-  >>> from sklearn.metrics import make_scorer, accuracy_score
-  >>> from sklearn.linear_model import LogisticRegressionCV, LogisticRegression
-  >>> from sklearn.model_selection import cross_validate, GridSearchCV, GroupKFold
-  >>> from sklearn.feature_selection import SelectKBest
-  >>> from sklearn.pipeline import make_pipeline
+  >>> import jax.numpy as jnp
+  >>> from xlearn.metrics import make_scorer, accuracy_score
+  >>> from xlearn.linear_model import LogisticRegressionCV, LogisticRegression
+  >>> from xlearn.model_selection import cross_validate, GridSearchCV, GroupKFold
+  >>> from xlearn.feature_selection import SelectKBest
+  >>> from xlearn.pipeline import make_pipeline
   >>> n_samples, n_features = 100, 4
   >>> rng = np.random.RandomState(42)
   >>> X = rng.rand(n_samples, n_features)

@@ -20,6 +20,16 @@ for years after 2001.
        <http://www.gaussianprocess.org/gpml/chapters/RW.pdf>`_.
 """
 
+import jax.numpy as jnp
+import datetime
+from xlearn.gaussian_process import GaussianProcessRegressor
+from xlearn.gaussian_process.kernels import WhiteKernel
+from xlearn.gaussian_process.kernels import RationalQuadratic
+from xlearn.gaussian_process.kernels import ExpSineSquared
+from xlearn.gaussian_process.kernels import RBF
+import matplotlib.pyplot as plt
+import pandas as pd
+from xlearn.datasets import fetch_openml
 print(__doc__)
 
 # Authors: Jan Hendrik Metzen <jhm@informatik.uni-bremen.de>
@@ -34,7 +44,6 @@ print(__doc__)
 # samples. We are interested in estimating the concentration of CO2 and
 # extrapolate it for further year. First, we load the original dataset available
 # in OpenML.
-from sklearn.datasets import fetch_openml
 
 co2 = fetch_openml(data_id=41187, as_frame=True, parser="pandas")
 co2.frame.head()
@@ -42,7 +51,6 @@ co2.frame.head()
 # %%
 # First, we process the original dataframe to create a date index and select
 # only the CO2 column.
-import pandas as pd
 
 co2_data = co2.frame
 co2_data["date"] = pd.to_datetime(co2_data[["year", "month", "day"]])
@@ -56,7 +64,6 @@ co2_data.index.min(), co2_data.index.max()
 # We see that we get CO2 concentration for some days from March, 1958 to
 # December, 2001. We can plot these raw information to have a better
 # understanding.
-import matplotlib.pyplot as plt
 
 co2_data.plot()
 plt.ylabel("CO$_2$ concentration (ppm)")
@@ -98,7 +105,6 @@ y = co2_data["co2"].to_numpy()
 # with a large length-scale enforces this component to be smooth. An trending
 # increase is not enforced as to give a degree of freedom to our model. The
 # specific length-scale and the amplitude are free hyperparameters.
-from sklearn.gaussian_process.kernels import RBF
 
 long_term_trend_kernel = 50.0**2 * RBF(length_scale=50.0)
 
@@ -110,7 +116,6 @@ long_term_trend_kernel = 50.0**2 * RBF(length_scale=50.0)
 # taken. The length-scale of this RBF component controls the decay time and is
 # a further free parameter. This type of kernel is also known as locally
 # periodic kernel.
-from sklearn.gaussian_process.kernels import ExpSineSquared
 
 seasonal_kernel = (
     2.0**2
@@ -124,7 +129,6 @@ seasonal_kernel = (
 # diffuseness of the length-scales, are to be determined. A rational quadratic
 # kernel is equivalent to an RBF kernel with several length-scale and will
 # better accommodate the different irregularities.
-from sklearn.gaussian_process.kernels import RationalQuadratic
 
 irregularities_kernel = 0.5**2 * RationalQuadratic(length_scale=1.0, alpha=1.0)
 
@@ -134,7 +138,6 @@ irregularities_kernel = 0.5**2 * RationalQuadratic(length_scale=1.0, alpha=1.0)
 # components such as local weather phenomena, and a white kernel contribution
 # for the white noise. The relative amplitudes and the RBF's length scale are
 # further free parameters.
-from sklearn.gaussian_process.kernels import WhiteKernel
 
 noise_kernel = 0.1**2 * RBF(length_scale=0.1) + WhiteKernel(
     noise_level=0.1**2, noise_level_bounds=(1e-5, 1e5)
@@ -157,10 +160,10 @@ co2_kernel
 # would have also scaled the target (dividing `y` by its standard deviation).
 # Thus, the hyperparameters of the different kernel would have had different
 # meaning since they would not have been expressed in ppm.
-from sklearn.gaussian_process import GaussianProcessRegressor
 
 y_mean = y.mean()
-gaussian_process = GaussianProcessRegressor(kernel=co2_kernel, normalize_y=False)
+gaussian_process = GaussianProcessRegressor(
+    kernel=co2_kernel, normalize_y=False)
 gaussian_process.fit(X, y - y_mean)
 
 # %%
@@ -171,19 +174,18 @@ gaussian_process.fit(X, y - y_mean)
 #
 # Thus, we create synthetic data from 1958 to the current month. In addition,
 # we need to add the subtracted mean computed during training.
-import datetime
 
-import numpy as np
 
 today = datetime.datetime.now()
 current_month = today.year + today.month / 12
-X_test = np.linspace(start=1958, stop=current_month, num=1_000).reshape(-1, 1)
+X_test = jnp.linspace(start=1958, stop=current_month, num=1_000).reshape(-1, 1)
 mean_y_pred, std_y_pred = gaussian_process.predict(X_test, return_std=True)
 mean_y_pred += y_mean
 
 # %%
 plt.plot(X, y, color="black", linestyle="dashed", label="Measurements")
-plt.plot(X_test, mean_y_pred, color="tab:blue", alpha=0.4, label="Gaussian process")
+plt.plot(X_test, mean_y_pred, color="tab:blue",
+         alpha=0.4, label="Gaussian process")
 plt.fill_between(
     X_test.ravel(),
     mean_y_pred - std_y_pred,

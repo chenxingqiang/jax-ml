@@ -4,7 +4,7 @@
 Linear and Quadratic Discriminant Analysis
 ==========================================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 Linear Discriminant Analysis
 (:class:`~discriminant_analysis.LinearDiscriminantAnalysis`) and Quadratic
@@ -190,7 +190,7 @@ matrix.
 The shrunk Ledoit and Wolf estimator of covariance may not always be the
 best choice. For example if the distribution of the data
 is normally distributed, the
-Oracle Shrinkage Approximating estimator :class:`sklearn.covariance.OAS`
+Oracle Shrinkage Approximating estimator :class:`xlearn.covariance.OAS`
 yields a smaller Mean Squared Error than the one given by Ledoit and Wolf's
 formula used with shrinkage="auto". In LDA, the data are assumed to be gaussian
 conditionally to the class. If these assumptions hold, using LDA with
@@ -201,7 +201,7 @@ The covariance estimator can be chosen using with the ``covariance_estimator``
 parameter of the :class:`discriminant_analysis.LinearDiscriminantAnalysis`
 class. A covariance estimator should have a :term:`fit` method and a
 ``covariance_`` attribute like all covariance estimators in the
-:mod:`sklearn.covariance` module.
+:mod:`xlearn.covariance` module.
 
 
 .. |shrinkage| image:: ../auto_examples/classification/images/sphx_glr_plot_lda_001.png
@@ -223,9 +223,9 @@ class priors :math:`P(y=k)`, the class means :math:`\mu_k`, and the
 covariance matrices.
 
 The 'svd' solver is the default solver used for
-:class:`~sklearn.discriminant_analysis.LinearDiscriminantAnalysis`, and it is
+:class:`~xlearn.discriminant_analysis.LinearDiscriminantAnalysis`, and it is
 the only available solver for
-:class:`~sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis`.
+:class:`~xlearn.discriminant_analysis.QuadraticDiscriminantAnalysis`.
 It can perform both classification and transform (for LDA).
 As it does not rely on the calculation of the covariance matrix, the 'svd'
 solver may be preferable in situations where the number of features is large.

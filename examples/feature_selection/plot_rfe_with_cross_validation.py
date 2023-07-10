@@ -17,7 +17,11 @@ number of features selected with cross-validation.
 # selected features vary depending on the cross-validation fold. The remaining
 # features are non-informative as they are drawn at random.
 
-from sklearn.datasets import make_classification
+import matplotlib.pyplot as plt
+from xlearn.model_selection import StratifiedKFold
+from xlearn.linear_model import LogisticRegression
+from xlearn.feature_selection import RFECV
+from xlearn.datasets import make_classification
 
 X, y = make_classification(
     n_samples=500,
@@ -38,9 +42,6 @@ X, y = make_classification(
 # We create the RFE object and compute the cross-validated scores. The scoring
 # strategy "accuracy" optimizes the proportion of correctly classified samples.
 
-from sklearn.feature_selection import RFECV
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold
 
 min_features_to_select = 1  # Minimum number of features to consider
 clf = LogisticRegression()
@@ -65,7 +66,6 @@ print(f"Optimal number of features: {rfecv.n_features_}")
 # Plot number of features VS. cross-validation scores
 # ---------------------------------------------------
 
-import matplotlib.pyplot as plt
 
 n_scores = len(rfecv.cv_results_["mean_test_score"])
 plt.figure()

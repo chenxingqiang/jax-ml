@@ -3,4 +3,4 @@
 Gaussian Mixture Models
 -----------------------
 
-Examples concerning the :mod:`sklearn.mixture` module.
+Examples concerning the :mod:`xlearn.mixture` module.

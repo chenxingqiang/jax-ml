@@ -16,10 +16,14 @@ for a demo of different clustering algorithms on 2D datasets.
 # Data generation
 # ---------------
 #
-# We use :class:`~sklearn.datasets.make_blobs` to create 3 synthetic clusters.
+# We use :class:`~xlearn.datasets.make_blobs` to create 3 synthetic clusters.
 
-from sklearn.datasets import make_blobs
-from sklearn.preprocessing import StandardScaler
+from xlearn.cluster import DBSCAN
+from xlearn import metrics
+import jax.numpy as jnp
+import matplotlib.pyplot as plt
+from xlearn.datasets import make_blobs
+from xlearn.preprocessing import StandardScaler
 
 centers = [[1, 1], [-1, -1], [1, -1]]
 X, labels_true = make_blobs(
@@ -31,7 +35,6 @@ X = StandardScaler().fit_transform(X)
 # %%
 # We can visualize the resulting data:
 
-import matplotlib.pyplot as plt
 
 plt.scatter(X[:, 0], X[:, 1])
 plt.show()
@@ -40,13 +43,9 @@ plt.show()
 # Compute DBSCAN
 # --------------
 #
-# One can access the labels assigned by :class:`~sklearn.cluster.DBSCAN` using
+# One can access the labels assigned by :class:`~xlearn.cluster.DBSCAN` using
 # the `labels_` attribute. Noisy samples are given the label math:`-1`.
 
-import numpy as np
-
-from sklearn import metrics
-from sklearn.cluster import DBSCAN
 
 db = DBSCAN(eps=0.3, min_samples=10).fit(X)
 labels = db.labels_
@@ -60,7 +59,7 @@ print("Estimated number of noise points: %d" % n_noise_)
 
 # %%
 # Clustering algorithms are fundamentally unsupervised learning methods.
-# However, since :class:`~sklearn.datasets.make_blobs` gives access to the true
+# However, since :class:`~xlearn.datasets.make_blobs` gives access to the true
 # labels of the synthetic clusters, it is possible to use evaluation metrics
 # that leverage this "supervised" ground truth information to quantify the
 # quality of the resulting clusters. Examples of such metrics are the
@@ -78,7 +77,8 @@ print("Estimated number of noise points: %d" % n_noise_)
 print(f"Homogeneity: {metrics.homogeneity_score(labels_true, labels):.3f}")
 print(f"Completeness: {metrics.completeness_score(labels_true, labels):.3f}")
 print(f"V-measure: {metrics.v_measure_score(labels_true, labels):.3f}")
-print(f"Adjusted Rand Index: {metrics.adjusted_rand_score(labels_true, labels):.3f}")
+print(
+    f"Adjusted Rand Index: {metrics.adjusted_rand_score(labels_true, labels):.3f}")
 print(
     "Adjusted Mutual Information:"
     f" {metrics.adjusted_mutual_info_score(labels_true, labels):.3f}"
@@ -94,10 +94,11 @@ print(f"Silhouette Coefficient: {metrics.silhouette_score(X, labels):.3f}")
 # black.
 
 unique_labels = set(labels)
-core_samples_mask = np.zeros_like(labels, dtype=bool)
+core_samples_mask = jnp.zeros_like(labels, dtype=bool)
 core_samples_mask[db.core_sample_indices_] = True
 
-colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, len(unique_labels))]
+colors = [plt.cm.Spectral(each)
+          for each in jnp.linspace(0, 1, len(unique_labels))]
 for k, col in zip(unique_labels, colors):
     if k == -1:
         # Black used for noise.

@@ -67,10 +67,10 @@ References
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.ensemble import BaggingRegressor
-from sklearn.tree import DecisionTreeRegressor
+from xlearn.ensemble import BaggingRegressor
+from xlearn.tree import DecisionTreeRegressor
 
 # Settings
 n_repeat = 50  # Number of iterations for computing expectations
@@ -95,17 +95,17 @@ n_estimators = len(estimators)
 def f(x):
     x = x.ravel()
 
-    return np.exp(-(x**2)) + 1.5 * np.exp(-((x - 2) ** 2))
+    return jnp.exp(-(x**2)) + 1.5 * jnp.exp(-((x - 2) ** 2))
 
 
 def generate(n_samples, noise, n_repeat=1):
     X = np.random.rand(n_samples) * 10 - 5
-    X = np.sort(X)
+    X = jnp.sort(X)
 
     if n_repeat == 1:
         y = f(X) + np.random.normal(0.0, noise, n_samples)
     else:
-        y = np.zeros((n_samples, n_repeat))
+        y = jnp.zeros((n_samples, n_repeat))
 
         for i in range(n_repeat):
             y[:, i] = f(X) + np.random.normal(0.0, noise, n_samples)
@@ -130,14 +130,14 @@ plt.figure(figsize=(10, 8))
 # Loop over estimators to compare
 for n, (name, estimator) in enumerate(estimators):
     # Compute predictions
-    y_predict = np.zeros((n_test, n_repeat))
+    y_predict = jnp.zeros((n_test, n_repeat))
 
     for i in range(n_repeat):
         estimator.fit(X_train[i], y_train[i])
         y_predict[:, i] = estimator.predict(X_test)
 
     # Bias^2 + Variance + Noise decomposition of the mean squared error
-    y_error = np.zeros(n_test)
+    y_error = jnp.zeros(n_test)
 
     for i in range(n_repeat):
         for j in range(n_repeat):
@@ -145,14 +145,15 @@ for n, (name, estimator) in enumerate(estimators):
 
     y_error /= n_repeat * n_repeat
 
-    y_noise = np.var(y_test, axis=1)
-    y_bias = (f(X_test) - np.mean(y_predict, axis=1)) ** 2
-    y_var = np.var(y_predict, axis=1)
+    y_noise = jnp.var(y_test, axis=1)
+    y_bias = (f(X_test) - jnp.mean(y_predict, axis=1)) ** 2
+    y_var = jnp.var(y_predict, axis=1)
 
     print(
         "{0}: {1:.4f} (error) = {2:.4f} (bias^2) "
         " + {3:.4f} (var) + {4:.4f} (noise)".format(
-            name, np.mean(y_error), np.mean(y_bias), np.mean(y_var), np.mean(y_noise)
+            name, jnp.mean(y_error), jnp.mean(
+                y_bias), jnp.mean(y_var), jnp.mean(y_noise)
         )
     )
 
@@ -167,7 +168,8 @@ for n, (name, estimator) in enumerate(estimators):
         else:
             plt.plot(X_test, y_predict[:, i], "r", alpha=0.05)
 
-    plt.plot(X_test, np.mean(y_predict, axis=1), "c", label=r"$\mathbb{E}_{LS} \^y(x)$")
+    plt.plot(X_test, jnp.mean(y_predict, axis=1),
+             "c", label=r"$\mathbb{E}_{LS} \^y(x)$")
 
     plt.xlim([-5, 5])
     plt.title(name)

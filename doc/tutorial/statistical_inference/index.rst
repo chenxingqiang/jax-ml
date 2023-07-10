@@ -18,7 +18,7 @@ A tutorial on statistical-learning for scientific data processing
     <https://en.wikipedia.org/wiki/Statistical_inference>`_:
     drawing conclusions on the data at hand.
 
-    Scikit-learn is a Python module integrating classic machine
+    Jax-learn is a Python module integrating classic machine
     learning algorithms in the tightly-knit world of scientific Python
     packages (`NumPy <https://www.numpy.org/>`_, `SciPy
     <https://scipy.org/>`_, `matplotlib

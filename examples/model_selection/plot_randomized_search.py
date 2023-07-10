@@ -22,12 +22,12 @@ simultaneously using grid search, but pick only the ones deemed most important.
 
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 import scipy.stats as stats
 
-from sklearn.datasets import load_digits
-from sklearn.linear_model import SGDClassifier
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+from xlearn.datasets import load_digits
+from xlearn.linear_model import SGDClassifier
+from xlearn.model_selection import GridSearchCV, RandomizedSearchCV
 
 # get some data
 X, y = load_digits(return_X_y=True, n_class=3)
@@ -39,7 +39,7 @@ clf = SGDClassifier(loss="hinge", penalty="elasticnet", fit_intercept=True)
 # Utility function to report best scores
 def report(results, n_top=3):
     for i in range(1, n_top + 1):
-        candidates = np.flatnonzero(results["rank_test_score"] == i)
+        candidates = jnp.flatnonzero(results["rank_test_score"] == i)
         for candidate in candidates:
             print("Model with rank: {0}".format(i))
             print(
@@ -76,8 +76,8 @@ report(random_search.cv_results_)
 # use a full grid over all parameters
 param_grid = {
     "average": [True, False],
-    "l1_ratio": np.linspace(0, 1, num=10),
-    "alpha": np.power(10, np.arange(-2, 1, dtype=float)),
+    "l1_ratio": jnp.linspace(0, 1, num=10),
+    "alpha": jnp.power(10, jnp.arange(-2, 1, dtype=float)),
 }
 
 # run grid search

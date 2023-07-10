@@ -8,7 +8,7 @@ automatically downloaded, cached and reused for the document classification
 example.
 
 In this example, we tune the hyperparameters of a particular classifier using a
-:class:`~sklearn.model_selection.RandomizedSearchCV`. For a demo on the
+:class:`~xlearn.model_selection.RandomizedSearchCV`. For a demo on the
 performance of some other classifiers, see the
 :ref:`sphx_glr_auto_examples_text_plot_document_classification_20newsgroups.py`
 notebook.
@@ -25,10 +25,20 @@ notebook.
 # ------------
 # We load two categories from the training set. You can adjust the number of
 # categories by adding their names to the list or setting `categories=None` when
-# calling the dataset loader :func:`~sklearn.datasets.fetch20newsgroups` to get
+# calling the dataset loader :func:`~xlearn.datasets.fetch20newsgroups` to get
 # the 20 of them.
 
-from sklearn.datasets import fetch_20newsgroups
+import math
+import plotly.express as px
+import pandas as pd
+from time import time
+from xlearn.model_selection import RandomizedSearchCV
+from pprint import pprint
+import jax.numpy as jnp
+from xlearn.pipeline import Pipeline
+from xlearn.naive_bayes import ComplementNB
+from xlearn.feature_extraction.text import TfidfVectorizer
+from xlearn.datasets import fetch_20newsgroups
 
 categories = [
     "alt.atheism",
@@ -51,7 +61,8 @@ data_test = fetch_20newsgroups(
     remove=("headers", "footers", "quotes"),
 )
 
-print(f"Loading 20 newsgroups dataset for {len(data_train.target_names)} categories:")
+print(
+    f"Loading 20 newsgroups dataset for {len(data_train.target_names)} categories:")
 print(data_train.target_names)
 print(f"{len(data_train.data)} documents")
 
@@ -62,9 +73,6 @@ print(f"{len(data_train.data)} documents")
 # We define a pipeline combining a text feature vectorizer with a simple
 # classifier yet effective for text classification.
 
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import ComplementNB
-from sklearn.pipeline import Pipeline
 
 pipeline = Pipeline(
     [
@@ -76,24 +84,23 @@ pipeline
 
 # %%
 # We define a grid of hyperparameters to be explored by the
-# :class:`~sklearn.model_selection.RandomizedSearchCV`. Using a
-# :class:`~sklearn.model_selection.GridSearchCV` instead would explore all the
+# :class:`~xlearn.model_selection.RandomizedSearchCV`. Using a
+# :class:`~xlearn.model_selection.GridSearchCV` instead would explore all the
 # possible combinations on the grid, which can be costly to compute, whereas the
-# parameter `n_iter` of the :class:`~sklearn.model_selection.RandomizedSearchCV`
+# parameter `n_iter` of the :class:`~xlearn.model_selection.RandomizedSearchCV`
 # controls the number of different random combination that are evaluated. Notice
 # that setting `n_iter` larger than the number of possible combinations in a
 # grid would lead to repeating already-explored combinations. We search for the
 # best parameter combination for both the feature extraction (`vect__`) and the
 # classifier (`clf__`).
 
-import numpy as np
 
 parameter_grid = {
     "vect__max_df": (0.2, 0.4, 0.6, 0.8, 1.0),
     "vect__min_df": (1, 3, 5, 10),
     "vect__ngram_range": ((1, 1), (1, 2)),  # unigrams or bigrams
     "vect__norm": ("l1", "l2"),
-    "clf__alpha": np.logspace(-6, 6, 13),
+    "clf__alpha": jnp.logspace(-6, 6, 13),
 }
 
 # %%
@@ -104,9 +111,6 @@ parameter_grid = {
 # the parameter combinations evaluation by increasing the number of CPUs used
 # via the parameter `n_jobs`.
 
-from pprint import pprint
-
-from sklearn.model_selection import RandomizedSearchCV
 
 random_search = RandomizedSearchCV(
     estimator=pipeline,
@@ -122,7 +126,6 @@ print("Hyperparameters to be evaluated:")
 pprint(parameter_grid)
 
 # %%
-from time import time
 
 t0 = time()
 random_search.fit(data_train.data, data_train.target)
@@ -148,8 +151,6 @@ print(f"Accuracy on test set: {test_accuracy:.3f}")
 # this, we define a function that will rename the tuned hyperparameters and
 # improve the readability.
 
-import pandas as pd
-
 
 def shorten_param(param_name):
     """Remove components' prefixes in param_name."""
@@ -169,7 +170,6 @@ cv_results = cv_results.rename(shorten_param, axis=1)
 # parameters. Error bars correspond to one standard deviation as computed in the
 # different folds of the cross-validation.
 
-import plotly.express as px
 
 param_names = [shorten_param(name) for name in parameter_grid.keys()]
 labels = {
@@ -217,7 +217,6 @@ fig
 # active range and improve the readability of the plot. A value :math:`x` on
 # said axis is to be understood as :math:`10^x`.
 
-import math
 
 column_results = param_names + ["mean_test_score", "mean_score_time"]
 

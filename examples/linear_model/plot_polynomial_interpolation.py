@@ -7,7 +7,7 @@ This example demonstrates how to approximate a function with polynomials up to
 degree ``degree`` by using ridge regression. We show two different ways given
 ``n_samples`` of 1d points ``x_i``:
 
-- :class:`~sklearn.preprocessing.PolynomialFeatures` generates all monomials
+- :class:`~xlearn.preprocessing.PolynomialFeatures` generates all monomials
   up to ``degree``. This gives us the so called Vandermonde matrix with
   ``n_samples`` rows and ``degree + 1`` columns::
 
@@ -19,7 +19,7 @@ degree ``degree`` by using ridge regression. We show two different ways given
   (the points raised to some power). The matrix is akin to (but different from)
   the matrix induced by a polynomial kernel.
 
-- :class:`~sklearn.preprocessing.SplineTransformer` generates B-spline basis
+- :class:`~xlearn.preprocessing.SplineTransformer` generates B-spline basis
   functions. A basis function of a B-spline is a piece-wise polynomial function
   of degree ``degree`` that is non-zero only between ``degree+1`` consecutive
   knots. Given ``n_knots`` number of knots, this results in matrix of
@@ -43,11 +43,11 @@ infinite) dimensional feature spaces.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.linear_model import Ridge
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import PolynomialFeatures, SplineTransformer
+from xlearn.linear_model import Ridge
+from xlearn.pipeline import make_pipeline
+from xlearn.preprocessing import PolynomialFeatures, SplineTransformer
 
 # %%
 # We start by defining a function that we intend to approximate and prepare
@@ -56,23 +56,23 @@ from sklearn.preprocessing import PolynomialFeatures, SplineTransformer
 
 def f(x):
     """Function to be approximated by polynomial interpolation."""
-    return x * np.sin(x)
+    return x * jnp.sin(x)
 
 
 # whole range we want to plot
-x_plot = np.linspace(-1, 11, 100)
+x_plot = jnp.linspace(-1, 11, 100)
 
 # %%
 # To make it interesting, we only give a small subset of points to train on.
 
-x_train = np.linspace(0, 10, 100)
+x_train = jnp.linspace(0, 10, 100)
 rng = np.random.RandomState(0)
-x_train = np.sort(rng.choice(x_train, size=20, replace=False))
+x_train = jnp.sort(rng.choice(x_train, size=20, replace=False))
 y_train = f(x_train)
 
 # create 2D-array versions of these arrays to feed to transformers
-X_train = x_train[:, np.newaxis]
-X_plot = x_plot[:, np.newaxis]
+X_train = x_train[:, jnp.newaxis]
+X_plot = x_plot[:, jnp.newaxis]
 
 # %%
 # Now we are ready to create polynomial features and splines, fit on the
@@ -97,7 +97,8 @@ for degree in [3, 4, 5]:
     ax.plot(x_plot, y_plot, label=f"degree {degree}")
 
 # B-spline with 4 + 3 - 1 = 6 basis functions
-model = make_pipeline(SplineTransformer(n_knots=4, degree=3), Ridge(alpha=1e-3))
+model = make_pipeline(SplineTransformer(
+    n_knots=4, degree=3), Ridge(alpha=1e-3))
 model.fit(X_train, y_train)
 
 y_plot = model.predict(X_plot)
@@ -170,14 +171,14 @@ plt.show()
 # %%
 def g(x):
     """Function to be approximated by periodic spline interpolation."""
-    return np.sin(x) - 0.7 * np.cos(x * 3)
+    return jnp.sin(x) - 0.7 * jnp.cos(x * 3)
 
 
 y_train = g(x_train)
 
 # Extend the test data into the future:
-x_plot_ext = np.linspace(-1, 21, 200)
-X_plot_ext = x_plot_ext[:, np.newaxis]
+x_plot_ext = jnp.linspace(-1, 21, 200)
+X_plot_ext = x_plot_ext[:, jnp.newaxis]
 
 lw = 2
 fig, ax = plt.subplots()
@@ -190,7 +191,7 @@ for transformer, label in [
     (
         SplineTransformer(
             degree=3,
-            knots=np.linspace(0, 2 * np.pi, 10)[:, None],
+            knots=jnp.linspace(0, 2 * jnp.pi, 10)[:, None],
             extrapolation="periodic",
         ),
         "periodic spline",
@@ -206,7 +207,7 @@ fig.show()
 
 # %% We again plot the underlying splines.
 fig, ax = plt.subplots()
-knots = np.linspace(0, 2 * np.pi, 4)
+knots = jnp.linspace(0, 2 * jnp.pi, 4)
 splt = SplineTransformer(knots=knots[:, None], degree=3, extrapolation="periodic").fit(
     X_train
 )

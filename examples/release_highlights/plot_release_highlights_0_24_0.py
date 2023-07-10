@@ -1,23 +1,23 @@
 # flake8: noqa
 """
 ========================================
-Release Highlights for scikit-learn 0.24
+Release Highlights for jax-learn 0.24
 ========================================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
-We are pleased to announce the release of scikit-learn 0.24! Many bug fixes
+We are pleased to announce the release of jax-learn 0.24! Many bug fixes
 and improvements were added, as well as some new key features. We detail
 below a few of the major features of this release. **For an exhaustive list of
 all the changes**, please refer to the :ref:`release notes <changes_0_24>`.
 
 To install the latest version (with pip)::
 
-    pip install --upgrade scikit-learn
+    pip install --upgrade jax-learn
 
 or with conda::
 
-    conda install -c conda-forge scikit-learn
+    conda install -c conda-forge jax-learn
 
 """
 
@@ -26,11 +26,11 @@ or with conda::
 # ---------------------------------------------------------
 # Successive Halving, a state of the art method, is now available to
 # explore the space of the parameters and identify their best combination.
-# :class:`~sklearn.model_selection.HalvingGridSearchCV` and
-# :class:`~sklearn.model_selection.HalvingRandomSearchCV` can be
+# :class:`~xlearn.model_selection.HalvingGridSearchCV` and
+# :class:`~xlearn.model_selection.HalvingRandomSearchCV` can be
 # used as drop-in replacement for
-# :class:`~sklearn.model_selection.GridSearchCV` and
-# :class:`~sklearn.model_selection.RandomizedSearchCV`.
+# :class:`~xlearn.model_selection.GridSearchCV` and
+# :class:`~xlearn.model_selection.RandomizedSearchCV`.
 # Successive Halving is an iterative selection process illustrated in the
 # figure below. The first iteration is run with a small amount of resources,
 # where the resource typically corresponds to the number of training samples,
@@ -49,12 +49,28 @@ or with conda::
 #   :target: ../model_selection/plot_successive_halving_iterations.html
 #   :align: center
 
-import numpy as np
+from xlearn.tree import DecisionTreeRegressor
+from xlearn.inspection import PartialDependenceDisplay
+from xlearn.datasets import fetch_california_housing
+from xlearn.ensemble import RandomForestRegressor
+from xlearn.linear_model import LogisticRegression
+from xlearn.kernel_approximation import PolynomialCountSketch
+from xlearn.preprocessing import MinMaxScaler
+from xlearn.model_selection import train_test_split
+from xlearn.pipeline import make_pipeline
+from xlearn.datasets import fetch_covtype
+from xlearn.datasets import load_iris
+from xlearn.neighbors import KNeighborsClassifier
+from xlearn.feature_selection import SequentialFeatureSelector
+from xlearn.svm import SVC
+from xlearn.semi_supervised import SelfTrainingClassifier
+from xlearn import datasets
+import jax.numpy as jnp
 from scipy.stats import randint
-from sklearn.experimental import enable_halving_search_cv  # noqa
-from sklearn.model_selection import HalvingRandomSearchCV
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.datasets import make_classification
+from xlearn.experimental import enable_halving_search_cv  # noqa
+from xlearn.model_selection import HalvingRandomSearchCV
+from xlearn.ensemble import RandomForestClassifier
+from xlearn.datasets import make_classification
 
 rng = np.random.RandomState(0)
 
@@ -79,8 +95,8 @@ rsh.best_params_
 ##############################################################################
 # Native support for categorical features in HistGradientBoosting estimators
 # --------------------------------------------------------------------------
-# :class:`~sklearn.ensemble.HistGradientBoostingClassifier` and
-# :class:`~sklearn.ensemble.HistGradientBoostingRegressor` now have native
+# :class:`~xlearn.ensemble.HistGradientBoostingClassifier` and
+# :class:`~xlearn.ensemble.HistGradientBoostingRegressor` now have native
 # support for categorical features: they can consider splits on non-ordered,
 # categorical data. Read more in the :ref:`User Guide
 # <categorical_support_gbdt>`.
@@ -105,7 +121,7 @@ rsh.best_params_
 # improved during calls to `fit`. In addition, histogram initialization is now
 # done in parallel which results in slight speed improvements.
 # See more in the `Benchmark page
-# <https://scikit-learn.org/scikit-learn-benchmarks/>`_.
+# <https://jax-learn.cc/jax-learn-benchmarks/>`_.
 
 ##############################################################################
 # New self-training meta-estimator
@@ -117,10 +133,6 @@ rsh.best_params_
 # semi-supervised classifier, allowing it to learn from unlabeled data.
 # Read more in the :ref:`User guide <self_training>`.
 
-import numpy as np
-from sklearn import datasets
-from sklearn.semi_supervised import SelfTrainingClassifier
-from sklearn.svm import SVC
 
 rng = np.random.RandomState(42)
 iris = datasets.load_iris()
@@ -134,15 +146,12 @@ self_training_model.fit(iris.data, iris.target)
 # New SequentialFeatureSelector transformer
 # -----------------------------------------
 # A new iterative transformer to select features is available:
-# :class:`~sklearn.feature_selection.SequentialFeatureSelector`.
+# :class:`~xlearn.feature_selection.SequentialFeatureSelector`.
 # Sequential Feature Selection can add features one at a time (forward
 # selection) or remove features from the list of the available features
 # (backward selection), based on a cross-validated score maximization.
 # See the :ref:`User Guide <sequential_feature_selection>`.
 
-from sklearn.feature_selection import SequentialFeatureSelector
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.datasets import load_iris
 
 X, y = load_iris(return_X_y=True, as_frame=True)
 feature_names = X.columns
@@ -157,17 +166,11 @@ print(
 ##############################################################################
 # New PolynomialCountSketch kernel approximation function
 # -------------------------------------------------------
-# The new :class:`~sklearn.kernel_approximation.PolynomialCountSketch`
+# The new :class:`~xlearn.kernel_approximation.PolynomialCountSketch`
 # approximates a polynomial expansion of a feature space when used with linear
 # models, but uses much less memory than
-# :class:`~sklearn.preprocessing.PolynomialFeatures`.
+# :class:`~xlearn.preprocessing.PolynomialFeatures`.
 
-from sklearn.datasets import fetch_covtype
-from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.kernel_approximation import PolynomialCountSketch
-from sklearn.linear_model import LogisticRegression
 
 X, y = fetch_covtype(return_X_y=True)
 pipe = make_pipeline(
@@ -183,7 +186,8 @@ pipe.fit(X_train, y_train).score(X_test, y_test)
 ##############################################################################
 # For comparison, here is the score of a linear baseline for the same data:
 
-linear_baseline = make_pipeline(MinMaxScaler(), LogisticRegression(max_iter=1000))
+linear_baseline = make_pipeline(
+    MinMaxScaler(), LogisticRegression(max_iter=1000))
 linear_baseline.fit(X_train, y_train).score(X_test, y_test)
 
 ##############################################################################
@@ -194,11 +198,8 @@ linear_baseline.fit(X_train, y_train).score(X_test, y_test)
 # prediction on a feature for each sample separately, with one line per sample.
 # See the :ref:`User Guide <individual_conditional>`
 
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.datasets import fetch_california_housing
 
-# from sklearn.inspection import plot_partial_dependence
-from sklearn.inspection import PartialDependenceDisplay
+# from xlearn.inspection import plot_partial_dependence
 
 X, y = fetch_california_housing(return_X_y=True, as_frame=True)
 features = ["MedInc", "AveOccup", "HouseAge", "AveRooms"]
@@ -228,19 +229,16 @@ display.figure_.subplots_adjust(hspace=0.3)
 # New Poisson splitting criterion for DecisionTreeRegressor
 # ---------------------------------------------------------
 # The integration of Poisson regression estimation continues from version 0.23.
-# :class:`~sklearn.tree.DecisionTreeRegressor` now supports a new `'poisson'`
+# :class:`~xlearn.tree.DecisionTreeRegressor` now supports a new `'poisson'`
 # splitting criterion. Setting `criterion="poisson"` might be a good choice
 # if your target is a count or a frequency.
 
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.model_selection import train_test_split
-import numpy as np
 
 n_samples, n_features = 1000, 20
 rng = np.random.RandomState(0)
 X = rng.randn(n_samples, n_features)
 # positive integer target correlated with X[:, 5] with many zeros:
-y = rng.poisson(lam=np.exp(X[:, 5]) / 2)
+y = rng.poisson(lam=jnp.exp(X[:, 5]) / 2)
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=rng)
 regressor = DecisionTreeRegressor(criterion="poisson", random_state=0)
 regressor.fit(X_train, y_train)
@@ -256,7 +254,7 @@ regressor.fit(X_train, y_train)
 #   practices <common_pitfalls>`,
 # - an example illustrating how to :ref:`statistically compare the performance of
 #   models <sphx_glr_auto_examples_model_selection_plot_grid_search_stats.py>`
-#   evaluated using :class:`~sklearn.model_selection.GridSearchCV`,
+#   evaluated using :class:`~xlearn.model_selection.GridSearchCV`,
 # - an example on how to :ref:`interpret coefficients of linear models
 #   <sphx_glr_auto_examples_inspection_plot_linear_model_coefficient_interpretation.py>`,
 # - an :ref:`example

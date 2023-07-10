@@ -22,16 +22,16 @@ training data.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import cross_val_score
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import PolynomialFeatures
+from xlearn.linear_model import LinearRegression
+from xlearn.model_selection import cross_val_score
+from xlearn.pipeline import Pipeline
+from xlearn.preprocessing import PolynomialFeatures
 
 
 def true_fun(X):
-    return np.cos(1.5 * np.pi * X)
+    return jnp.cos(1.5 * jnp.pi * X)
 
 
 np.random.seed(0)
@@ -39,7 +39,7 @@ np.random.seed(0)
 n_samples = 30
 degrees = [1, 4, 15]
 
-X = np.sort(np.random.rand(n_samples))
+X = jnp.sort(np.random.rand(n_samples))
 y = true_fun(X) + np.random.randn(n_samples) * 0.1
 
 plt.figure(figsize=(14, 5))
@@ -47,7 +47,8 @@ for i in range(len(degrees)):
     ax = plt.subplot(1, len(degrees), i + 1)
     plt.setp(ax, xticks=(), yticks=())
 
-    polynomial_features = PolynomialFeatures(degree=degrees[i], include_bias=False)
+    polynomial_features = PolynomialFeatures(
+        degree=degrees[i], include_bias=False)
     linear_regression = LinearRegression()
     pipeline = Pipeline(
         [
@@ -55,15 +56,15 @@ for i in range(len(degrees)):
             ("linear_regression", linear_regression),
         ]
     )
-    pipeline.fit(X[:, np.newaxis], y)
+    pipeline.fit(X[:, jnp.newaxis], y)
 
     # Evaluate the models using crossvalidation
     scores = cross_val_score(
-        pipeline, X[:, np.newaxis], y, scoring="neg_mean_squared_error", cv=10
+        pipeline, X[:, jnp.newaxis], y, scoring="neg_mean_squared_error", cv=10
     )
 
-    X_test = np.linspace(0, 1, 100)
-    plt.plot(X_test, pipeline.predict(X_test[:, np.newaxis]), label="Model")
+    X_test = jnp.linspace(0, 1, 100)
+    plt.plot(X_test, pipeline.predict(X_test[:, jnp.newaxis]), label="Model")
     plt.plot(X_test, true_fun(X_test), label="True function")
     plt.scatter(X, y, edgecolor="b", s=20, label="Samples")
     plt.xlabel("x")

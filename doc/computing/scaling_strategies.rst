@@ -9,7 +9,7 @@ Strategies to scale computationally: bigger data
 
 For some applications the amount of examples, features (or both) and/or the
 speed at which they need to be processed are challenging for traditional
-approaches. In these cases scikit-learn has a number of options you can
+approaches. In these cases jax-learn has a number of options you can
 consider to make your system scale.
 
 Scaling with instances using out-of-core learning
@@ -36,7 +36,7 @@ Extracting features
 
 \2. could be any relevant way to extract features among the
 different :ref:`feature extraction <feature_extraction>` methods supported by
-scikit-learn. However, when working with data that needs vectorization and
+jax-learn. However, when working with data that needs vectorization and
 where the set of features or values is not known in advance one should take
 explicit care. A good example is text classification where unknown terms are
 likely to be found during training. It is possible to use a stateful
@@ -44,14 +44,14 @@ vectorizer if making multiple passes over the data is reasonable from an
 application point of view. Otherwise, one can turn up the difficulty by using
 a stateless feature extractor. Currently the preferred way to do this is to
 use the so-called :ref:`hashing trick<feature_hashing>` as implemented by
-:class:`sklearn.feature_extraction.FeatureHasher` for datasets with categorical
+:class:`xlearn.feature_extraction.FeatureHasher` for datasets with categorical
 variables represented as list of Python dicts or
-:class:`sklearn.feature_extraction.text.HashingVectorizer` for text documents.
+:class:`xlearn.feature_extraction.text.HashingVectorizer` for text documents.
 
 Incremental learning
 .....................
 
-Finally, for 3. we have a number of options inside scikit-learn. Although not
+Finally, for 3. we have a number of options inside jax-learn. Although not
 all algorithms can learn incrementally (i.e. without seeing all the instances
 at once), all estimators implementing the ``partial_fit`` API are candidates.
 Actually, the ability to learn incrementally from a mini-batch of instances
@@ -63,28 +63,28 @@ balances relevancy and memory footprint could involve some tuning [1]_.
 Here is a list of incremental estimators for different tasks:
 
   - Classification
-      + :class:`sklearn.naive_bayes.MultinomialNB`
-      + :class:`sklearn.naive_bayes.BernoulliNB`
-      + :class:`sklearn.linear_model.Perceptron`
-      + :class:`sklearn.linear_model.SGDClassifier`
-      + :class:`sklearn.linear_model.PassiveAggressiveClassifier`
-      + :class:`sklearn.neural_network.MLPClassifier`
+      + :class:`xlearn.naive_bayes.MultinomialNB`
+      + :class:`xlearn.naive_bayes.BernoulliNB`
+      + :class:`xlearn.linear_model.Perceptron`
+      + :class:`xlearn.linear_model.SGDClassifier`
+      + :class:`xlearn.linear_model.PassiveAggressiveClassifier`
+      + :class:`xlearn.neural_network.MLPClassifier`
   - Regression
-      + :class:`sklearn.linear_model.SGDRegressor`
-      + :class:`sklearn.linear_model.PassiveAggressiveRegressor`
-      + :class:`sklearn.neural_network.MLPRegressor`
+      + :class:`xlearn.linear_model.SGDRegressor`
+      + :class:`xlearn.linear_model.PassiveAggressiveRegressor`
+      + :class:`xlearn.neural_network.MLPRegressor`
   - Clustering
-      + :class:`sklearn.cluster.MiniBatchKMeans`
-      + :class:`sklearn.cluster.Birch`
+      + :class:`xlearn.cluster.MiniBatchKMeans`
+      + :class:`xlearn.cluster.Birch`
   - Decomposition / feature Extraction
-      + :class:`sklearn.decomposition.MiniBatchDictionaryLearning`
-      + :class:`sklearn.decomposition.IncrementalPCA`
-      + :class:`sklearn.decomposition.LatentDirichletAllocation`
-      + :class:`sklearn.decomposition.MiniBatchNMF`
+      + :class:`xlearn.decomposition.MiniBatchDictionaryLearning`
+      + :class:`xlearn.decomposition.IncrementalPCA`
+      + :class:`xlearn.decomposition.LatentDirichletAllocation`
+      + :class:`xlearn.decomposition.MiniBatchNMF`
   - Preprocessing
-      + :class:`sklearn.preprocessing.StandardScaler`
-      + :class:`sklearn.preprocessing.MinMaxScaler`
-      + :class:`sklearn.preprocessing.MaxAbsScaler`
+      + :class:`xlearn.preprocessing.StandardScaler`
+      + :class:`xlearn.preprocessing.MinMaxScaler`
+      + :class:`xlearn.preprocessing.MaxAbsScaler`
 
 For classification, a somewhat important thing to note is that although a
 stateless feature extraction routine may be able to cope with new/unseen

@@ -33,12 +33,19 @@ silhouette   silhouette coefficient
 # handwritten digits from 0 to 9. In the context of clustering, one would like
 # to group images such that the handwritten digits on the image are the same.
 
-import numpy as np
+import matplotlib.pyplot as plt
+from xlearn.decomposition import PCA
+from xlearn.cluster import KMeans
+from xlearn.preprocessing import StandardScaler
+from xlearn.pipeline import make_pipeline
+from xlearn import metrics
+from time import time
+import jax.numpy as jnp
 
-from sklearn.datasets import load_digits
+from xlearn.datasets import load_digits
 
 data, labels = load_digits(return_X_y=True)
-(n_samples, n_features), n_digits = data.shape, np.unique(labels).size
+(n_samples, n_features), n_digits = data.shape, jnp.unique(labels).size
 
 print(f"# digits: {n_digits}; # samples: {n_samples}; # features {n_features}")
 
@@ -50,14 +57,9 @@ print(f"# digits: {n_digits}; # samples: {n_samples}; # features {n_features}")
 # compare different initialization methods for KMeans. Our benchmark will:
 #
 # * create a pipeline which will scale the data using a
-#   :class:`~sklearn.preprocessing.StandardScaler`;
+#   :class:`~xlearn.preprocessing.StandardScaler`;
 # * train and time the pipeline fitting;
 # * measure the performance of the clustering obtained via different metrics.
-from time import time
-
-from sklearn import metrics
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 
 
 def bench_k_means(kmeans, name, data, labels):
@@ -66,7 +68,7 @@ def bench_k_means(kmeans, name, data, labels):
     Parameters
     ----------
     kmeans : KMeans instance
-        A :class:`~sklearn.cluster.KMeans` instance with the initialization
+        A :class:`~xlearn.cluster.KMeans` instance with the initialization
         already set.
     name : str
         Name given to the strategy. It will be used to show the results in a
@@ -120,17 +122,16 @@ def bench_k_means(kmeans, name, data, labels):
 #   run the initialization 4 times;
 # * a random initialization. This method is stochastic as well and we will run
 #   the initialization 4 times;
-# * an initialization based on a :class:`~sklearn.decomposition.PCA`
+# * an initialization based on a :class:`~xlearn.decomposition.PCA`
 #   projection. Indeed, we will use the components of the
-#   :class:`~sklearn.decomposition.PCA` to initialize KMeans. This method is
+#   :class:`~xlearn.decomposition.PCA` to initialize KMeans. This method is
 #   deterministic and a single initialization suffice.
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
 
 print(82 * "_")
 print("init\t\ttime\tinertia\thomo\tcompl\tv-meas\tARI\tAMI\tsilhouette")
 
-kmeans = KMeans(init="k-means++", n_clusters=n_digits, n_init=4, random_state=0)
+kmeans = KMeans(init="k-means++", n_clusters=n_digits,
+                n_init=4, random_state=0)
 bench_k_means(kmeans=kmeans, name="k-means++", data=data, labels=labels)
 
 kmeans = KMeans(init="random", n_clusters=n_digits, n_init=4, random_state=0)
@@ -146,11 +147,10 @@ print(82 * "_")
 # Visualize the results on PCA-reduced data
 # -----------------------------------------
 #
-# :class:`~sklearn.decomposition.PCA` allows to project the data from the
+# :class:`~xlearn.decomposition.PCA` allows to project the data from the
 # original 64-dimensional space into a lower dimensional space. Subsequently,
-# we can use :class:`~sklearn.decomposition.PCA` to project into a
+# we can use :class:`~xlearn.decomposition.PCA` to project into a
 # 2-dimensional space and plot the data and the clusters in this new space.
-import matplotlib.pyplot as plt
 
 reduced_data = PCA(n_components=2).fit_transform(data)
 kmeans = KMeans(init="k-means++", n_clusters=n_digits, n_init=4)
@@ -162,10 +162,10 @@ h = 0.02  # point in the mesh [x_min, x_max]x[y_min, y_max].
 # Plot the decision boundary. For that, we will assign a color to each
 x_min, x_max = reduced_data[:, 0].min() - 1, reduced_data[:, 0].max() + 1
 y_min, y_max = reduced_data[:, 1].min() - 1, reduced_data[:, 1].max() + 1
-xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+xx, yy = jnp.meshgrid(jnp.arange(x_min, x_max, h), jnp.arange(y_min, y_max, h))
 
 # Obtain labels for each point in mesh. Use last trained model.
-Z = kmeans.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = kmeans.predict(jnp.c_[xx.ravel(), yy.ravel()])
 
 # Put the result into a color plot
 Z = Z.reshape(xx.shape)

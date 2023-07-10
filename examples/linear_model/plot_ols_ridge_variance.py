@@ -25,13 +25,13 @@ of the standard linear regression
 
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import linear_model
+from xlearn import linear_model
 
-X_train = np.c_[0.5, 1].T
+X_train = jnp.c_[0.5, 1].T
 y_train = [0.5, 1]
-X_test = np.c_[0, 2].T
+X_test = jnp.c_[0, 2].T
 
 np.random.seed(0)
 

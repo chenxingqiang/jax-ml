@@ -6,7 +6,7 @@ Restricted Boltzmann Machine features for digit classification
 For greyscale image data where pixel values can be interpreted as degrees of
 blackness on a white background, like handwritten digit recognition, the
 Bernoulli Restricted Boltzmann machine model (:class:`BernoulliRBM
-<sklearn.neural_network.BernoulliRBM>`) can perform effective non-linear
+<xlearn.neural_network.BernoulliRBM>`) can perform effective non-linear
 feature extraction.
 
 """
@@ -22,12 +22,18 @@ feature extraction.
 # artificially generate more labeled data by perturbing the training data with
 # linear shifts of 1 pixel in each direction.
 
-import numpy as np
+import matplotlib.pyplot as plt
+from xlearn import metrics
+from xlearn.base import clone
+from xlearn.pipeline import Pipeline
+from xlearn.neural_network import BernoulliRBM
+from xlearn import linear_model
+import jax.numpy as jnp
 from scipy.ndimage import convolve
 
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import minmax_scale
+from xlearn import datasets
+from xlearn.model_selection import train_test_split
+from xlearn.preprocessing import minmax_scale
 
 
 def nudge_dataset(X, Y):
@@ -45,36 +51,36 @@ def nudge_dataset(X, Y):
     def shift(x, w):
         return convolve(x.reshape((8, 8)), mode="constant", weights=w).ravel()
 
-    X = np.concatenate(
-        [X] + [np.apply_along_axis(shift, 1, X, vector) for vector in direction_vectors]
+    X = jnp.concatenate(
+        [X] + [jnp.apply_along_axis(shift, 1, X, vector)
+               for vector in direction_vectors]
     )
-    Y = np.concatenate([Y for _ in range(5)], axis=0)
+    Y = jnp.concatenate([Y for _ in range(5)], axis=0)
     return X, Y
 
 
 X, y = datasets.load_digits(return_X_y=True)
-X = np.asarray(X, "float32")
+X = jnp.asarray(X, "float32")
 X, Y = nudge_dataset(X, y)
 X = minmax_scale(X, feature_range=(0, 1))  # 0-1 scaling
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
+X_train, X_test, Y_train, Y_test = train_test_split(
+    X, Y, test_size=0.2, random_state=0)
 
 # %%
 # Models definition
 # -----------------
 #
 # We build a classification pipeline with a BernoulliRBM feature extractor and
-# a :class:`LogisticRegression <sklearn.linear_model.LogisticRegression>`
+# a :class:`LogisticRegression <xlearn.linear_model.LogisticRegression>`
 # classifier.
 
-from sklearn import linear_model
-from sklearn.neural_network import BernoulliRBM
-from sklearn.pipeline import Pipeline
 
 logistic = linear_model.LogisticRegression(solver="newton-cg", tol=1)
 rbm = BernoulliRBM(random_state=0, verbose=True)
 
-rbm_features_classifier = Pipeline(steps=[("rbm", rbm), ("logistic", logistic)])
+rbm_features_classifier = Pipeline(
+    steps=[("rbm", rbm), ("logistic", logistic)])
 
 # %%
 # Training
@@ -84,7 +90,6 @@ rbm_features_classifier = Pipeline(steps=[("rbm", rbm), ("logistic", logistic)])
 # regularization) were optimized by grid search, but the search is not
 # reproduced here because of runtime constraints.
 
-from sklearn.base import clone
 
 # Hyper-parameters. These were set by cross-validation,
 # using a GridSearchCV. Here we are not performing cross-validation to
@@ -109,7 +114,6 @@ raw_pixel_classifier.fit(X_train, Y_train)
 # Evaluation
 # ----------
 
-from sklearn import metrics
 
 Y_pred = rbm_features_classifier.predict(X_test)
 print(
@@ -132,12 +136,12 @@ print(
 # Plotting
 # --------
 
-import matplotlib.pyplot as plt
 
 plt.figure(figsize=(4.2, 4))
 for i, comp in enumerate(rbm.components_):
     plt.subplot(10, 10, i + 1)
-    plt.imshow(comp.reshape((8, 8)), cmap=plt.cm.gray_r, interpolation="nearest")
+    plt.imshow(comp.reshape((8, 8)), cmap=plt.cm.gray_r,
+               interpolation="nearest")
     plt.xticks(())
     plt.yticks(())
 plt.suptitle("100 components extracted by RBM", fontsize=16)

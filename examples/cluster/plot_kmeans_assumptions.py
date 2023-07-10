@@ -16,24 +16,27 @@ unintuitive and possibly undesirable clusters.
 # Data generation
 # ---------------
 #
-# The function :func:`~sklearn.datasets.make_blobs` generates isotropic
+# The function :func:`~xlearn.datasets.make_blobs` generates isotropic
 # (spherical) gaussian blobs. To obtain anisotropic (elliptical) gaussian blobs
 # one has to define a linear `transformation`.
 
-import numpy as np
+from xlearn.mixture import GaussianMixture
+from xlearn.cluster import KMeans
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 
-from sklearn.datasets import make_blobs
+from xlearn.datasets import make_blobs
 
 n_samples = 1500
 random_state = 170
 transformation = [[0.60834549, -0.63667341], [-0.40887718, 0.85253229]]
 
 X, y = make_blobs(n_samples=n_samples, random_state=random_state)
-X_aniso = np.dot(X, transformation)  # Anisotropic blobs
+X_aniso = jnp.dot(X, transformation)  # Anisotropic blobs
 X_varied, y_varied = make_blobs(
     n_samples=n_samples, cluster_std=[1.0, 2.5, 0.5], random_state=random_state
 )  # Unequal variance
-X_filtered = np.vstack(
+X_filtered = jnp.vstack(
     (X[y == 0][:500], X[y == 1][:100], X[y == 2][:10])
 )  # Unevenly sized blobs
 y_filtered = [0] * 500 + [1] * 100 + [2] * 10
@@ -41,7 +44,6 @@ y_filtered = [0] * 500 + [1] * 100 + [2] * 10
 # %%
 # We can visualize the resulting data:
 
-import matplotlib.pyplot as plt
 
 fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(12, 12))
 
@@ -65,7 +67,7 @@ plt.show()
 # ---------------------------
 #
 # The previously generated data is now used to show how
-# :class:`~sklearn.cluster.KMeans` behaves in the following scenarios:
+# :class:`~xlearn.cluster.KMeans` behaves in the following scenarios:
 #
 # - Non-optimal number of clusters: in a real setting there is no uniquely
 #   defined **true** number of clusters. An appropriate number of clusters has
@@ -83,7 +85,6 @@ plt.show()
 #   high-dimensional the problem is, the higher is the need to run the algorithm
 #   with different centroid seeds to ensure a global minimal inertia.
 
-from sklearn.cluster import KMeans
 
 common_params = {
     "n_init": "auto",
@@ -139,7 +140,7 @@ plt.show()
 # %%
 # As anisotropic and unequal variances are real limitations of the k-means
 # algorithm, here we propose instead the use of
-# :class:`~sklearn.mixture.GaussianMixture`, which also assumes gaussian
+# :class:`~xlearn.mixture.GaussianMixture`, which also assumes gaussian
 # clusters but does not impose any constraints on their variances. Notice that
 # one still has to find the correct number of blobs (see
 # :ref:`sphx_glr_auto_examples_mixture_plot_gmm_selection.py`).
@@ -148,7 +149,6 @@ plt.show()
 # unequal variance blobs, see the example
 # :ref:`sphx_glr_auto_examples_cluster_plot_cluster_comparison.py`.
 
-from sklearn.mixture import GaussianMixture
 
 fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(12, 6))
 

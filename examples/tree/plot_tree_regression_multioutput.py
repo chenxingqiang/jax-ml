@@ -16,14 +16,14 @@ details of the training data and learn from the noise, i.e. they overfit.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.tree import DecisionTreeRegressor
+from xlearn.tree import DecisionTreeRegressor
 
 # Create a random dataset
 rng = np.random.RandomState(1)
-X = np.sort(200 * rng.rand(100, 1) - 100, axis=0)
-y = np.array([np.pi * np.sin(X).ravel(), np.pi * np.cos(X).ravel()]).T
+X = jnp.sort(200 * rng.rand(100, 1) - 100, axis=0)
+y = jnp.array([jnp.pi * jnp.sin(X).ravel(), jnp.pi * jnp.cos(X).ravel()]).T
 y[::5, :] += 0.5 - rng.rand(20, 2)
 
 # Fit regression model
@@ -35,7 +35,7 @@ regr_2.fit(X, y)
 regr_3.fit(X, y)
 
 # Predict
-X_test = np.arange(-100.0, 100.0, 0.01)[:, np.newaxis]
+X_test = jnp.arange(-100.0, 100.0, 0.01)[:, jnp.newaxis]
 y_1 = regr_1.predict(X_test)
 y_2 = regr_2.predict(X_test)
 y_3 = regr_3.predict(X_test)
@@ -52,7 +52,8 @@ plt.scatter(
     edgecolor="black",
     label="max_depth=2",
 )
-plt.scatter(y_2[:, 0], y_2[:, 1], c="red", s=s, edgecolor="black", label="max_depth=5")
+plt.scatter(y_2[:, 0], y_2[:, 1], c="red", s=s,
+            edgecolor="black", label="max_depth=5")
 plt.scatter(
     y_3[:, 0], y_3[:, 1], c="orange", s=s, edgecolor="black", label="max_depth=8"
 )

@@ -3,7 +3,7 @@
 IsolationForest example
 =======================
 
-An example using :class:`~sklearn.ensemble.IsolationForest` for anomaly
+An example using :class:`~xlearn.ensemble.IsolationForest` for anomaly
 detection.
 
 The :ref:`isolation_forest` is an ensemble of "Isolation Trees" that "isolate"
@@ -25,33 +25,37 @@ Isolation Forest trained on a toy dataset.
 # :func:`numpy.random.randn`. One of them is spherical and the other one is
 # slightly deformed.
 #
-# For consistency with the :class:`~sklearn.ensemble.IsolationForest` notation,
+# For consistency with the :class:`~xlearn.ensemble.IsolationForest` notation,
 # the inliers (i.e. the gaussian clusters) are assigned a ground truth label `1`
 # whereas the outliers (created with :func:`numpy.random.uniform`) are assigned
 # the label `-1`.
 
-import numpy as np
+from xlearn.inspection import DecisionBoundaryDisplay
+from xlearn.ensemble import IsolationForest
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 
-from sklearn.model_selection import train_test_split
+from xlearn.model_selection import train_test_split
 
 n_samples, n_outliers = 120, 40
 rng = np.random.RandomState(0)
-covariance = np.array([[0.5, -0.1], [0.7, 0.4]])
-cluster_1 = 0.4 * rng.randn(n_samples, 2) @ covariance + np.array([2, 2])  # general
-cluster_2 = 0.3 * rng.randn(n_samples, 2) + np.array([-2, -2])  # spherical
+covariance = jnp.array([[0.5, -0.1], [0.7, 0.4]])
+cluster_1 = 0.4 * rng.randn(n_samples, 2) @ covariance + \
+    jnp.array([2, 2])  # general
+cluster_2 = 0.3 * rng.randn(n_samples, 2) + jnp.array([-2, -2])  # spherical
 outliers = rng.uniform(low=-4, high=4, size=(n_outliers, 2))
 
-X = np.concatenate([cluster_1, cluster_2, outliers])
-y = np.concatenate(
-    [np.ones((2 * n_samples), dtype=int), -np.ones((n_outliers), dtype=int)]
+X = jnp.concatenate([cluster_1, cluster_2, outliers])
+y = jnp.concatenate(
+    [jnp.ones((2 * n_samples), dtype=int), -jnp.ones((n_outliers), dtype=int)]
 )
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, stratify=y, random_state=42)
 
 # %%
 # We can visualize the resulting clusters:
 
-import matplotlib.pyplot as plt
 
 scatter = plt.scatter(X[:, 0], X[:, 1], c=y, s=20, edgecolor="k")
 handles, labels = scatter.legend_elements()
@@ -64,7 +68,6 @@ plt.show()
 # Training of the model
 # ---------------------
 
-from sklearn.ensemble import IsolationForest
 
 clf = IsolationForest(max_samples=100, random_state=0)
 clf.fit(X_train)
@@ -73,14 +76,11 @@ clf.fit(X_train)
 # Plot discrete decision boundary
 # -------------------------------
 #
-# We use the class :class:`~sklearn.inspection.DecisionBoundaryDisplay` to
+# We use the class :class:`~xlearn.inspection.DecisionBoundaryDisplay` to
 # visualize a discrete decision boundary. The background color represents
 # whether a sample in that given area is predicted to be an outlier
 # or not. The scatter plot displays the true labels.
 
-import matplotlib.pyplot as plt
-
-from sklearn.inspection import DecisionBoundaryDisplay
 
 disp = DecisionBoundaryDisplay.from_estimator(
     clf,
@@ -99,7 +99,7 @@ plt.show()
 # ----------------------------------
 #
 # By setting the `response_method="decision_function"`, the background of the
-# :class:`~sklearn.inspection.DecisionBoundaryDisplay` represents the measure of
+# :class:`~xlearn.inspection.DecisionBoundaryDisplay` represents the measure of
 # normality of an observation. Such score is given by the path length averaged
 # over a forest of random trees, which itself is given by the depth of the leaf
 # (or equivalently the number of splits) required to isolate a given sample.

@@ -26,21 +26,22 @@ hyperparameters used in the first figure by black dots.
 #
 # License: BSD 3 clause
 
-import numpy as np
+import jax.numpy as jnp
 from matplotlib import pyplot as plt
 
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.gaussian_process.kernels import RBF
-from sklearn.metrics import accuracy_score, log_loss
+from xlearn.gaussian_process import GaussianProcessClassifier
+from xlearn.gaussian_process.kernels import RBF
+from xlearn.metrics import accuracy_score, log_loss
 
 # Generate data
 train_size = 50
 rng = np.random.RandomState(0)
-X = rng.uniform(0, 5, 100)[:, np.newaxis]
-y = np.array(X[:, 0] > 2.5, dtype=int)
+X = rng.uniform(0, 5, 100)[:, jnp.newaxis]
+y = jnp.array(X[:, 0] > 2.5, dtype=int)
 
 # Specify Gaussian Processes with fixed and optimized hyperparameters
-gp_fix = GaussianProcessClassifier(kernel=1.0 * RBF(length_scale=1.0), optimizer=None)
+gp_fix = GaussianProcessClassifier(
+    kernel=1.0 * RBF(length_scale=1.0), optimizer=None)
 gp_fix.fit(X[:train_size], y[:train_size])
 
 gp_opt = GaussianProcessClassifier(kernel=1.0 * RBF(length_scale=1.0))
@@ -79,16 +80,16 @@ plt.scatter(
 plt.scatter(
     X[train_size:, 0], y[train_size:], c="g", label="Test data", edgecolors=(0, 0, 0)
 )
-X_ = np.linspace(0, 5, 100)
+X_ = jnp.linspace(0, 5, 100)
 plt.plot(
     X_,
-    gp_fix.predict_proba(X_[:, np.newaxis])[:, 1],
+    gp_fix.predict_proba(X_[:, jnp.newaxis])[:, 1],
     "r",
     label="Initial kernel: %s" % gp_fix.kernel_,
 )
 plt.plot(
     X_,
-    gp_opt.predict_proba(X_[:, np.newaxis])[:, 1],
+    gp_opt.predict_proba(X_[:, jnp.newaxis])[:, 1],
     "b",
     label="Optimized kernel: %s" % gp_opt.kernel_,
 )
@@ -100,22 +101,22 @@ plt.legend(loc="best")
 
 # Plot LML landscape
 plt.figure()
-theta0 = np.logspace(0, 8, 30)
-theta1 = np.logspace(-1, 1, 29)
-Theta0, Theta1 = np.meshgrid(theta0, theta1)
+theta0 = jnp.logspace(0, 8, 30)
+theta1 = jnp.logspace(-1, 1, 29)
+Theta0, Theta1 = jnp.meshgrid(theta0, theta1)
 LML = [
     [
-        gp_opt.log_marginal_likelihood(np.log([Theta0[i, j], Theta1[i, j]]))
+        gp_opt.log_marginal_likelihood(jnp.log([Theta0[i, j], Theta1[i, j]]))
         for i in range(Theta0.shape[0])
     ]
     for j in range(Theta0.shape[1])
 ]
-LML = np.array(LML).T
+LML = jnp.array(LML).T
 plt.plot(
-    np.exp(gp_fix.kernel_.theta)[0], np.exp(gp_fix.kernel_.theta)[1], "ko", zorder=10
+    jnp.exp(gp_fix.kernel_.theta)[0], jnp.exp(gp_fix.kernel_.theta)[1], "ko", zorder=10
 )
 plt.plot(
-    np.exp(gp_opt.kernel_.theta)[0], np.exp(gp_opt.kernel_.theta)[1], "ko", zorder=10
+    jnp.exp(gp_opt.kernel_.theta)[0], jnp.exp(gp_opt.kernel_.theta)[1], "ko", zorder=10
 )
 plt.pcolor(Theta0, Theta1, LML)
 plt.xscale("log")

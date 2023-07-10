@@ -27,11 +27,17 @@ namely the Pareto distribution.
 # synthetic datasets. The true generative random processes for both datasets
 # will be composed by the same expected value with a linear relationship with a
 # single feature `x`.
-import numpy as np
+from xlearn.model_selection import cross_validate
+from xlearn.metrics import mean_absolute_error, mean_squared_error
+from xlearn.linear_model import LinearRegression
+from xlearn.linear_model import QuantileRegressor
+from xlearn.utils.fixes import parse_version, sp_version
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 
 rng = np.random.RandomState(42)
-x = np.linspace(start=0, stop=10, num=100)
-X = x[:, np.newaxis]
+x = jnp.linspace(start=0, stop=10, num=100)
+X = x[:, jnp.newaxis]
 y_true_mean = 10 + 0.5 * x
 
 # %%
@@ -40,16 +46,17 @@ y_true_mean = 10 + 0.5 * x
 #
 # - in the first case, a heteroscedastic Normal noise is added;
 # - in the second case, an asymmetric Pareto noise is added.
-y_normal = y_true_mean + rng.normal(loc=0, scale=0.5 + 0.5 * x, size=x.shape[0])
+y_normal = y_true_mean + \
+    rng.normal(loc=0, scale=0.5 + 0.5 * x, size=x.shape[0])
 a = 5
 y_pareto = y_true_mean + 10 * (rng.pareto(a, size=x.shape[0]) - 1 / (a - 1))
 
 # %%
 # Let's first visualize the datasets as well as the distribution of the
 # residuals `y - mean(y)`.
-import matplotlib.pyplot as plt
 
-_, axs = plt.subplots(nrows=2, ncols=2, figsize=(15, 11), sharex="row", sharey="row")
+_, axs = plt.subplots(nrows=2, ncols=2, figsize=(15, 11),
+                      sharex="row", sharey="row")
 
 axs[0, 0].plot(x, y_true_mean, label="True mean")
 axs[0, 0].scatter(x, y_normal, color="black", alpha=0.5, label="Observations")
@@ -65,7 +72,8 @@ axs[0, 1].set_title("Dataset with asymmetric Pareto distributed target")
 axs[1, 0].set_title(
     "Residuals distribution for heteroscedastic Normal distributed targets"
 )
-axs[1, 1].set_title("Residuals distribution for asymmetric Pareto distributed target")
+axs[1, 1].set_title(
+    "Residuals distribution for asymmetric Pareto distributed target")
 axs[0, 0].legend()
 axs[0, 1].legend()
 axs[0, 0].set_ylabel("y")
@@ -84,7 +92,7 @@ _ = axs[1, 1].set_xlabel("Residuals")
 # residuals are bounded.
 #
 # These types of noisy targets make the estimation via
-# :class:`~sklearn.linear_model.LinearRegression` less efficient, i.e. we need
+# :class:`~xlearn.linear_model.LinearRegression` less efficient, i.e. we need
 # more data to get stable results and, in addition, large outliers can have a
 # huge impact on the fitted coefficients. (Stated otherwise: in a setting with
 # constant variance, ordinary least squares estimators converge much faster to
@@ -97,10 +105,10 @@ _ = axs[1, 1].set_xlabel("Residuals")
 # largest values and thus also a bit sensitive outliers.
 #
 # In the remainder of this tutorial, we will show how
-# :class:`~sklearn.linear_model.QuantileRegressor` can be used in practice and
+# :class:`~xlearn.linear_model.QuantileRegressor` can be used in practice and
 # give the intuition into the properties of the fitted models. Finally,
-# we will compare the both :class:`~sklearn.linear_model.QuantileRegressor`
-# and :class:`~sklearn.linear_model.LinearRegression`.
+# we will compare the both :class:`~xlearn.linear_model.QuantileRegressor`
+# and :class:`~xlearn.linear_model.LinearRegression`.
 #
 # Fitting a `QuantileRegressor`
 # -----------------------------
@@ -111,29 +119,27 @@ _ = axs[1, 1].set_xlabel("Residuals")
 #
 # We will use the quantiles at 5% and 95% to find the outliers in the training
 # sample beyond the central 90% interval.
-from sklearn.utils.fixes import parse_version, sp_version
 
 # This is line is to avoid incompatibility if older SciPy version.
 # You should use `solver="highs"` with recent version of SciPy.
 solver = "highs" if sp_version >= parse_version("1.6.0") else "interior-point"
 
 # %%
-from sklearn.linear_model import QuantileRegressor
 
 quantiles = [0.05, 0.5, 0.95]
 predictions = {}
-out_bounds_predictions = np.zeros_like(y_true_mean, dtype=np.bool_)
+out_bounds_predictions = jnp.zeros_like(y_true_mean, dtype=jnp.bool_)
 for quantile in quantiles:
     qr = QuantileRegressor(quantile=quantile, alpha=0, solver=solver)
     y_pred = qr.fit(X, y_normal).predict(X)
     predictions[quantile] = y_pred
 
     if quantile == min(quantiles):
-        out_bounds_predictions = np.logical_or(
+        out_bounds_predictions = jnp.logical_or(
             out_bounds_predictions, y_pred >= y_normal
         )
     elif quantile == max(quantiles):
-        out_bounds_predictions = np.logical_or(
+        out_bounds_predictions = jnp.logical_or(
             out_bounds_predictions, y_pred <= y_normal
         )
 
@@ -184,18 +190,18 @@ _ = plt.title("Quantiles of heteroscedastic Normal distributed target")
 # target.
 quantiles = [0.05, 0.5, 0.95]
 predictions = {}
-out_bounds_predictions = np.zeros_like(y_true_mean, dtype=np.bool_)
+out_bounds_predictions = jnp.zeros_like(y_true_mean, dtype=jnp.bool_)
 for quantile in quantiles:
     qr = QuantileRegressor(quantile=quantile, alpha=0, solver=solver)
     y_pred = qr.fit(X, y_pareto).predict(X)
     predictions[quantile] = y_pred
 
     if quantile == min(quantiles):
-        out_bounds_predictions = np.logical_or(
+        out_bounds_predictions = jnp.logical_or(
             out_bounds_predictions, y_pred >= y_pareto
         )
     elif quantile == max(quantiles):
-        out_bounds_predictions = np.logical_or(
+        out_bounds_predictions = jnp.logical_or(
             out_bounds_predictions, y_pred <= y_pareto
         )
 
@@ -239,21 +245,19 @@ _ = plt.title("Quantiles of asymmetric Pareto distributed target")
 # ----------------------------------------------------
 #
 # In this section, we will linger on the difference regarding the error that
-# :class:`~sklearn.linear_model.QuantileRegressor` and
-# :class:`~sklearn.linear_model.LinearRegression` are minimizing.
+# :class:`~xlearn.linear_model.QuantileRegressor` and
+# :class:`~xlearn.linear_model.LinearRegression` are minimizing.
 #
-# Indeed, :class:`~sklearn.linear_model.LinearRegression` is a least squares
+# Indeed, :class:`~xlearn.linear_model.LinearRegression` is a least squares
 # approach minimizing the mean squared error (MSE) between the training and
 # predicted targets. In contrast,
-# :class:`~sklearn.linear_model.QuantileRegressor` with `quantile=0.5`
+# :class:`~xlearn.linear_model.QuantileRegressor` with `quantile=0.5`
 # minimizes the mean absolute error (MAE) instead.
 #
 # Let's first compute the training errors of such models in terms of mean
 # squared error and mean absolute error. We will use the asymmetric Pareto
 # distributed target to make it more interesting as mean and median are not
 # equal.
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 linear_regression = LinearRegression()
 quantile_regression = QuantileRegressor(quantile=0.5, alpha=0, solver=solver)
@@ -272,17 +276,16 @@ print(f"""Training error (in-sample performance)
 
 # %%
 # On the training set, we see that MAE is lower for
-# :class:`~sklearn.linear_model.QuantileRegressor` than
-# :class:`~sklearn.linear_model.LinearRegression`. In contrast to that, MSE is
-# lower for :class:`~sklearn.linear_model.LinearRegression` than
-# :class:`~sklearn.linear_model.QuantileRegressor`. These results confirms that
-# MAE is the loss minimized by :class:`~sklearn.linear_model.QuantileRegressor`
+# :class:`~xlearn.linear_model.QuantileRegressor` than
+# :class:`~xlearn.linear_model.LinearRegression`. In contrast to that, MSE is
+# lower for :class:`~xlearn.linear_model.LinearRegression` than
+# :class:`~xlearn.linear_model.QuantileRegressor`. These results confirms that
+# MAE is the loss minimized by :class:`~xlearn.linear_model.QuantileRegressor`
 # while MSE is the loss minimized
-# :class:`~sklearn.linear_model.LinearRegression`.
+# :class:`~xlearn.linear_model.LinearRegression`.
 #
 # We can make a similar evaluation by looking at the test error obtained by
 # cross-validation.
-from sklearn.model_selection import cross_validate
 
 cv_results_lr = cross_validate(
     linear_regression,

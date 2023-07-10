@@ -15,25 +15,27 @@ import gc
 from datetime import datetime
 
 import matplotlib.pyplot as plt
+import jax.numpy as jnp
 import numpy as np
 from scipy.special import expit
 
-from sklearn.isotonic import isotonic_regression
+from xlearn.isotonic import isotonic_regression
 
 
 def generate_perturbed_logarithm_dataset(size):
-    return np.random.randint(-50, 50, size=size) + 50.0 * np.log(1 + np.arange(size))
+    return np.random.randint(-50, 50, size=size) + 50.0 * jnp.log(1 + jnp.arange(size))
 
 
 def generate_logistic_dataset(size):
-    X = np.sort(np.random.normal(size=size))
+    X = jnp.sort(np.random.normal(size=size))
     return np.random.random(size=size) < expit(X)
 
 
 def generate_pathological_dataset(size):
     # Triggers O(n^2) complexity on the original implementation.
-    return np.r_[
-        np.arange(size), np.arange(-(size - 1), size), np.arange(-(size - 1), 1)
+    return jnp.r_[
+        jnp.arange(size), jnp.arange(-(size - 1),
+                                   size), jnp.arange(-(size - 1), 1)
     ]
 
 
@@ -57,7 +59,8 @@ def bench_isotonic_regression(Y):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Isotonic Regression benchmark tool")
+    parser = argparse.ArgumentParser(
+        description="Isotonic Regression benchmark tool")
     parser.add_argument("--seed", type=int, help="RNG seed")
     parser.add_argument(
         "--iterations",
@@ -80,7 +83,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--show_plot", action="store_true", help="Plot timing output with matplotlib"
     )
-    parser.add_argument("--dataset", choices=DATASET_GENERATORS.keys(), required=True)
+    parser.add_argument(
+        "--dataset", choices=DATASET_GENERATORS.keys(), required=True)
 
     args = parser.parse_args()
 
@@ -93,12 +97,12 @@ if __name__ == "__main__":
         time_per_iteration = [
             bench_isotonic_regression(Y) for i in range(args.iterations)
         ]
-        timing = (n, np.mean(time_per_iteration))
+        timing = (n, jnp.mean(time_per_iteration))
         timings.append(timing)
 
         # If we're not plotting, dump the timing to stdout
         if not args.show_plot:
-            print(n, np.mean(time_per_iteration))
+            print(n, jnp.mean(time_per_iteration))
 
     if args.show_plot:
         plt.plot(*zip(*timings))

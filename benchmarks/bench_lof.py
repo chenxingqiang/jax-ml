@@ -20,12 +20,12 @@ is only caused by the random selection of anomalies in the SA dataset.
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import fetch_covtype, fetch_kddcup99, fetch_openml
-from sklearn.metrics import auc, roc_curve
-from sklearn.neighbors import LocalOutlierFactor
-from sklearn.preprocessing import LabelBinarizer
+from xlearn.datasets import fetch_covtype, fetch_kddcup99, fetch_openml
+from xlearn.metrics import auc, roc_curve
+from xlearn.neighbors import LocalOutlierFactor
+from xlearn.preprocessing import LabelBinarizer
 
 print(__doc__)
 
@@ -48,7 +48,7 @@ for dataset_name in datasets:
     if dataset_name == "shuttle":
         dataset = fetch_openml("shuttle", as_frame=False, parser="pandas")
         X = dataset.data
-        y = dataset.target.astype(np.int64)
+        y = dataset.target.astype(jnp.int64)
         # we remove data with label 4
         # normal data are then those of class 1
         s = y != 4
@@ -72,7 +72,7 @@ for dataset_name in datasets:
     if dataset_name == "SF":
         lb = LabelBinarizer()
         x1 = lb.fit_transform(X[:, 1].astype(str))
-        X = np.c_[X[:, :1], x1, X[:, 2:]]
+        X = jnp.c_[X[:, :1], x1, X[:, 2:]]
         y = (y != b"normal.").astype(int)
 
     if dataset_name == "SA":
@@ -80,7 +80,7 @@ for dataset_name in datasets:
         x1 = lb.fit_transform(X[:, 1].astype(str))
         x2 = lb.fit_transform(X[:, 2].astype(str))
         x3 = lb.fit_transform(X[:, 3].astype(str))
-        X = np.c_[X[:, :1], x1, x2, x3, X[:, 4:]]
+        X = jnp.c_[X[:, :1], x1, x2, x3, X[:, 4:]]
         y = (y != b"normal.").astype(int)
 
     if dataset_name == "http" or dataset_name == "smtp":

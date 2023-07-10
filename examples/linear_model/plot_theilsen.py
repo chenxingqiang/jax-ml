@@ -41,9 +41,9 @@ it then works on a random subset.
 import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.linear_model import LinearRegression, RANSACRegressor, TheilSenRegressor
+from xlearn.linear_model import LinearRegression, RANSACRegressor, TheilSenRegressor
 
 estimators = [
     ("OLS", LinearRegression()),
@@ -67,10 +67,10 @@ noise = 0.1 * np.random.randn(n_samples)
 y = w * x + c + noise
 # 10% outliers
 y[-20:] += -20 * x[-20:]
-X = x[:, np.newaxis]
+X = x[:, jnp.newaxis]
 
 plt.scatter(x, y, color="indigo", marker="x", s=40)
-line_x = np.array([-3, 3])
+line_x = jnp.array([-3, 3])
 for name, estimator in estimators:
     t0 = time.time()
     estimator.fit(X, y)
@@ -100,12 +100,12 @@ y = 3 * x + 2 + noise
 # 10% outliers
 x[-20:] = 9.9
 y[-20:] += 22
-X = x[:, np.newaxis]
+X = x[:, jnp.newaxis]
 
 plt.figure()
 plt.scatter(x, y, color="indigo", marker="x", s=40)
 
-line_x = np.array([-3, 10])
+line_x = jnp.array([-3, 10])
 for name, estimator in estimators:
     t0 = time.time()
     estimator.fit(X, y)

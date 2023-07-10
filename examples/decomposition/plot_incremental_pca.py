@@ -23,10 +23,10 @@ incremental approaches.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import load_iris
-from sklearn.decomposition import PCA, IncrementalPCA
+from xlearn.datasets import load_iris
+from xlearn.decomposition import PCA, IncrementalPCA
 
 iris = load_iris()
 X = iris.data
@@ -53,8 +53,9 @@ for X_transformed, title in [(X_ipca, "Incremental PCA"), (X_pca, "PCA")]:
         )
 
     if "Incremental" in title:
-        err = np.abs(np.abs(X_pca) - np.abs(X_ipca)).mean()
-        plt.title(title + " of iris dataset\nMean absolute unsigned error %.6f" % err)
+        err = jnp.abs(jnp.abs(X_pca) - jnp.abs(X_ipca)).mean()
+        plt.title(
+            title + " of iris dataset\nMean absolute unsigned error %.6f" % err)
     else:
         plt.title(title + " of iris dataset")
     plt.legend(loc="best", shadow=False, scatterpoints=1)

@@ -27,10 +27,10 @@ import matplotlib.pyplot as plt
 # Though the following import is not directly being used, it is required
 # for 3D projection to work with matplotlib < 3.2
 import mpl_toolkits.mplot3d  # noqa: F401
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets
-from sklearn.cluster import KMeans
+from xlearn import datasets
+from xlearn.cluster import KMeans
 
 np.random.seed(5)
 
@@ -51,7 +51,8 @@ for idx, ((name, est), title) in enumerate(zip(estimators, titles)):
     est.fit(X)
     labels = est.labels_
 
-    ax.scatter(X[:, 3], X[:, 0], X[:, 2], c=labels.astype(float), edgecolor="k")
+    ax.scatter(X[:, 3], X[:, 0], X[:, 2],
+               c=labels.astype(float), edgecolor="k")
 
     ax.xaxis.set_ticklabels([])
     ax.yaxis.set_ticklabels([])
@@ -74,7 +75,7 @@ for name, label in [("Setosa", 0), ("Versicolour", 1), ("Virginica", 2)]:
         bbox=dict(alpha=0.2, edgecolor="w", facecolor="w"),
     )
 # Reorder the labels to have colors matching the cluster results
-y = np.choose(y, [1, 2, 0]).astype(float)
+y = jnp.choose(y, [1, 2, 0]).astype(float)
 ax.scatter(X[:, 3], X[:, 0], X[:, 2], c=y, edgecolor="k")
 
 ax.xaxis.set_ticklabels([])

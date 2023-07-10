@@ -12,10 +12,10 @@ from collections import defaultdict
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import fetch_lfw_people
-from sklearn.decomposition import PCA, IncrementalPCA
+from xlearn.datasets import fetch_lfw_people
+from xlearn.decomposition import PCA, IncrementalPCA
 
 
 def plot_results(X, y, label):
@@ -30,7 +30,7 @@ def benchmark(estimator, data):
     training_time = time() - t0
     data_t = estimator.transform(data)
     data_r = estimator.inverse_transform(data_t)
-    reconstruction_error = np.mean(np.abs(data - data_r))
+    reconstruction_error = jnp.mean(jnp.abs(data - data_r))
     return {"time": training_time, "error": reconstruction_error}
 
 
@@ -58,7 +58,8 @@ def plot_feature_errors(all_errors, batch_size, all_components, data):
         label="IncrementalPCA, bsize=%i" % batch_size,
     )
     plt.legend(loc="lower left")
-    plt.suptitle("Algorithm error vs. n_components\nLFW, size %i x %i" % data.shape)
+    plt.suptitle(
+        "Algorithm error vs. n_components\nLFW, size %i x %i" % data.shape)
     plt.xlabel("Number of components (out of max %i)" % data.shape[1])
     plt.ylabel("Mean absolute error")
 
@@ -91,7 +92,7 @@ def plot_batch_errors(all_errors, n_features, all_batch_sizes, data):
 
 def fixed_batch_size_comparison(data):
     all_features = [
-        i.astype(int) for i in np.linspace(data.shape[1] // 10, data.shape[1], num=5)
+        i.astype(int) for i in jnp.linspace(data.shape[1] // 10, data.shape[1], num=5)
     ]
     batch_size = 1000
     # Compare runtimes and error for fixed batch size
@@ -114,11 +115,11 @@ def fixed_batch_size_comparison(data):
 
 def variable_batch_size_comparison(data):
     batch_sizes = [
-        i.astype(int) for i in np.linspace(data.shape[0] // 10, data.shape[0], num=10)
+        i.astype(int) for i in jnp.linspace(data.shape[0] // 10, data.shape[0], num=10)
     ]
 
     for n_components in [
-        i.astype(int) for i in np.linspace(data.shape[1] // 10, data.shape[1], num=4)
+        i.astype(int) for i in jnp.linspace(data.shape[1] // 10, data.shape[1], num=4)
     ]:
         all_times = defaultdict(list)
         all_errors = defaultdict(list)
@@ -131,13 +132,19 @@ def variable_batch_size_comparison(data):
         }
 
         # Create flat baselines to compare the variation over batch size
-        all_times["pca"].extend([results_dict["pca"]["time"]] * len(batch_sizes))
-        all_errors["pca"].extend([results_dict["pca"]["error"]] * len(batch_sizes))
-        all_times["rpca"].extend([results_dict["rpca"]["time"]] * len(batch_sizes))
-        all_errors["rpca"].extend([results_dict["rpca"]["error"]] * len(batch_sizes))
+        all_times["pca"].extend(
+            [results_dict["pca"]["time"]] * len(batch_sizes))
+        all_errors["pca"].extend(
+            [results_dict["pca"]["error"]] * len(batch_sizes))
+        all_times["rpca"].extend(
+            [results_dict["rpca"]["time"]] * len(batch_sizes))
+        all_errors["rpca"].extend(
+            [results_dict["rpca"]["error"]] * len(batch_sizes))
         for batch_size in batch_sizes:
-            ipca = IncrementalPCA(n_components=n_components, batch_size=batch_size)
-            results_dict = {k: benchmark(est, data) for k, est in [("ipca", ipca)]}
+            ipca = IncrementalPCA(
+                n_components=n_components, batch_size=batch_size)
+            results_dict = {k: benchmark(est, data)
+                            for k, est in [("ipca", ipca)]}
             all_times["ipca"].append(results_dict["ipca"]["time"])
             all_errors["ipca"].append(results_dict["ipca"]["error"])
 

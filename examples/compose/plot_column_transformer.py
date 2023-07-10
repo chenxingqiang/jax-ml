@@ -12,7 +12,7 @@ extraction and processing pipelines. This scenario might occur when:
    require different processing pipelines.
 
 This example demonstrates how to use
-:class:`~sklearn.compose.ColumnTransformer` on a dataset containing
+:class:`~xlearn.compose.ColumnTransformer` on a dataset containing
 different types of features. The choice of features is not particularly
 helpful, but serves to illustrate the technique.
 
@@ -22,17 +22,17 @@ helpful, but serves to illustrate the technique.
 #
 # License: BSD 3 clause
 
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.compose import ColumnTransformer
-from sklearn.datasets import fetch_20newsgroups
-from sklearn.decomposition import TruncatedSVD
-from sklearn.feature_extraction import DictVectorizer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import classification_report
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import FunctionTransformer
-from sklearn.svm import LinearSVC
+from xlearn.compose import ColumnTransformer
+from xlearn.datasets import fetch_20newsgroups
+from xlearn.decomposition import TruncatedSVD
+from xlearn.feature_extraction import DictVectorizer
+from xlearn.feature_extraction.text import TfidfVectorizer
+from xlearn.metrics import classification_report
+from xlearn.pipeline import Pipeline
+from xlearn.preprocessing import FunctionTransformer
+from xlearn.svm import LinearSVC
 
 ##############################################################################
 # 20 newsgroups dataset
@@ -74,14 +74,14 @@ print(X_train[0])
 # body of each post. Since this is a stateless transformation (does not
 # require state information from training data), we can define a function that
 # performs the data transformation then use
-# :class:`~sklearn.preprocessing.FunctionTransformer` to create a scikit-learn
+# :class:`~xlearn.preprocessing.FunctionTransformer` to create a jax-learn
 # transformer.
 
 
 def subject_body_extractor(posts):
     # construct object dtype array with two columns
     # first column = 'subject' and second column = 'body'
-    features = np.empty(shape=(len(posts), 2), dtype=object)
+    features = jnp.empty(shape=(len(posts), 2), dtype=object)
     for i, text in enumerate(posts):
         # temporary variable `_` stores '\n\n'
         headers, _, body = text.partition("\n\n")
@@ -93,7 +93,7 @@ def subject_body_extractor(posts):
         # save text after 'Subject:' in first column
         for line in headers.split("\n"):
             if line.startswith(prefix):
-                sub = line[len(prefix) :]
+                sub = line[len(prefix):]
                 break
         features[i, 0] = sub
 
@@ -184,4 +184,5 @@ pipeline = Pipeline(
 
 pipeline.fit(X_train, y_train)
 y_pred = pipeline.predict(X_test)
-print("Classification report:\n\n{}".format(classification_report(y_test, y_pred)))
+print("Classification report:\n\n{}".format(
+    classification_report(y_test, y_pred)))

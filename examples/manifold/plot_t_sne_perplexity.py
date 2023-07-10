@@ -30,10 +30,10 @@ those effects.
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from matplotlib.ticker import NullFormatter
 
-from sklearn import datasets, manifold
+from xlearn import datasets, manifold
 
 n_samples = 150
 n_components = 2
@@ -107,9 +107,9 @@ for i, perplexity in enumerate(perplexities):
 
 
 # Another example using a 2D uniform grid
-x = np.linspace(0, 1, int(np.sqrt(n_samples)))
-xx, yy = np.meshgrid(x, x)
-X = np.hstack(
+x = jnp.linspace(0, 1, int(jnp.sqrt(n_samples)))
+xx, yy = jnp.meshgrid(x, x)
+X = jnp.hstack(
     [
         xx.ravel().reshape(-1, 1),
         yy.ravel().reshape(-1, 1),

@@ -11,12 +11,12 @@ sequences as 'fingerprints'.
 
 import sys
 
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import Perceptron
-from sklearn.pipeline import Pipeline
-from sklearn.datasets import load_files
-from sklearn.model_selection import train_test_split
-from sklearn import metrics
+from xlearn.feature_extraction.text import TfidfVectorizer
+from xlearn.linear_model import Perceptron
+from xlearn.pipeline import Pipeline
+from xlearn.datasets import load_files
+from xlearn.model_selection import train_test_split
+from xlearn import metrics
 
 
 # The training data folder must be passed as first argument
@@ -46,9 +46,9 @@ print(metrics.classification_report(y_test, y_predicted,
 cm = metrics.confusion_matrix(y_test, y_predicted)
 print(cm)
 
-#import matplotlib.pyplot as plt
-#plt.matshow(cm, cmap=plt.cm.jet)
-#plt.show()
+# import matplotlib.pyplot as plt
+# plt.matshow(cm, cmap=plt.cm.jet)
+# plt.show()
 
 # Predict the result on some short new sentences:
 sentences = [

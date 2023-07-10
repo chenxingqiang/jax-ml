@@ -5,11 +5,11 @@ import gc
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import make_regression
-from sklearn.linear_model import ElasticNet, Ridge, SGDRegressor
-from sklearn.metrics import mean_squared_error
+from xlearn.datasets import make_regression
+from xlearn.linear_model import ElasticNet, Ridge, SGDRegressor
+from xlearn.metrics import mean_squared_error
 
 """
 Benchmark for SGD regression
@@ -21,16 +21,16 @@ on synthetic data.
 print(__doc__)
 
 if __name__ == "__main__":
-    list_n_samples = np.linspace(100, 10000, 5).astype(int)
+    list_n_samples = jnp.linspace(100, 10000, 5).astype(int)
     list_n_features = [10, 100, 1000]
     n_test = 1000
     max_iter = 1000
     noise = 0.1
     alpha = 0.01
-    sgd_results = np.zeros((len(list_n_samples), len(list_n_features), 2))
-    elnet_results = np.zeros((len(list_n_samples), len(list_n_features), 2))
-    ridge_results = np.zeros((len(list_n_samples), len(list_n_features), 2))
-    asgd_results = np.zeros((len(list_n_samples), len(list_n_features), 2))
+    sgd_results = jnp.zeros((len(list_n_samples), len(list_n_features), 2))
+    elnet_results = jnp.zeros((len(list_n_samples), len(list_n_features), 2))
+    ridge_results = jnp.zeros((len(list_n_samples), len(list_n_features), 2))
+    asgd_results = jnp.zeros((len(list_n_samples), len(list_n_features), 2))
     for i, n_train in enumerate(list_n_samples):
         for j, n_features in enumerate(list_n_features):
             X, y, coef = make_regression(
@@ -51,7 +51,7 @@ if __name__ == "__main__":
             print("n_samples:", n_train)
 
             # Shuffle data
-            idx = np.arange(n_train)
+            idx = jnp.arange(n_train)
             np.random.seed(13)
             np.random.shuffle(idx)
             X_train = X_train[idx]
@@ -72,7 +72,8 @@ if __name__ == "__main__":
             clf = ElasticNet(alpha=alpha, l1_ratio=0.5, fit_intercept=False)
             tstart = time()
             clf.fit(X_train, y_train)
-            elnet_results[i, j, 0] = mean_squared_error(clf.predict(X_test), y_test)
+            elnet_results[i, j, 0] = mean_squared_error(
+                clf.predict(X_test), y_test)
             elnet_results[i, j, 1] = time() - tstart
 
             gc.collect()
@@ -89,7 +90,8 @@ if __name__ == "__main__":
 
             tstart = time()
             clf.fit(X_train, y_train)
-            sgd_results[i, j, 0] = mean_squared_error(clf.predict(X_test), y_test)
+            sgd_results[i, j, 0] = mean_squared_error(
+                clf.predict(X_test), y_test)
             sgd_results[i, j, 1] = time() - tstart
 
             gc.collect()
@@ -108,7 +110,8 @@ if __name__ == "__main__":
 
             tstart = time()
             clf.fit(X_train, y_train)
-            asgd_results[i, j, 0] = mean_squared_error(clf.predict(X_test), y_test)
+            asgd_results[i, j, 0] = mean_squared_error(
+                clf.predict(X_test), y_test)
             asgd_results[i, j, 1] = time() - tstart
 
             gc.collect()
@@ -116,19 +119,25 @@ if __name__ == "__main__":
             clf = Ridge(alpha=alpha, fit_intercept=False)
             tstart = time()
             clf.fit(X_train, y_train)
-            ridge_results[i, j, 0] = mean_squared_error(clf.predict(X_test), y_test)
+            ridge_results[i, j, 0] = mean_squared_error(
+                clf.predict(X_test), y_test)
             ridge_results[i, j, 1] = time() - tstart
 
     # Plot results
     i = 0
     m = len(list_n_features)
-    plt.figure("scikit-learn SGD regression benchmark results", figsize=(5 * 2, 4 * m))
+    plt.figure("jax-learn SGD regression benchmark results",
+               figsize=(5 * 2, 4 * m))
     for j in range(m):
         plt.subplot(m, 2, i + 1)
-        plt.plot(list_n_samples, np.sqrt(elnet_results[:, j, 0]), label="ElasticNet")
-        plt.plot(list_n_samples, np.sqrt(sgd_results[:, j, 0]), label="SGDRegressor")
-        plt.plot(list_n_samples, np.sqrt(asgd_results[:, j, 0]), label="A-SGDRegressor")
-        plt.plot(list_n_samples, np.sqrt(ridge_results[:, j, 0]), label="Ridge")
+        plt.plot(list_n_samples, jnp.sqrt(
+            elnet_results[:, j, 0]), label="ElasticNet")
+        plt.plot(list_n_samples, jnp.sqrt(
+            sgd_results[:, j, 0]), label="SGDRegressor")
+        plt.plot(list_n_samples, jnp.sqrt(
+            asgd_results[:, j, 0]), label="A-SGDRegressor")
+        plt.plot(list_n_samples, jnp.sqrt(
+            ridge_results[:, j, 0]), label="Ridge")
         plt.legend(prop={"size": 10})
         plt.xlabel("n_train")
         plt.ylabel("RMSE")
@@ -136,10 +145,14 @@ if __name__ == "__main__":
         i += 1
 
         plt.subplot(m, 2, i + 1)
-        plt.plot(list_n_samples, np.sqrt(elnet_results[:, j, 1]), label="ElasticNet")
-        plt.plot(list_n_samples, np.sqrt(sgd_results[:, j, 1]), label="SGDRegressor")
-        plt.plot(list_n_samples, np.sqrt(asgd_results[:, j, 1]), label="A-SGDRegressor")
-        plt.plot(list_n_samples, np.sqrt(ridge_results[:, j, 1]), label="Ridge")
+        plt.plot(list_n_samples, jnp.sqrt(
+            elnet_results[:, j, 1]), label="ElasticNet")
+        plt.plot(list_n_samples, jnp.sqrt(
+            sgd_results[:, j, 1]), label="SGDRegressor")
+        plt.plot(list_n_samples, jnp.sqrt(
+            asgd_results[:, j, 1]), label="A-SGDRegressor")
+        plt.plot(list_n_samples, jnp.sqrt(
+            ridge_results[:, j, 1]), label="Ridge")
         plt.legend(prop={"size": 10})
         plt.xlabel("n_train")
         plt.ylabel("Time [sec]")

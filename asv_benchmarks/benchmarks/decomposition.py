@@ -1,4 +1,4 @@
-from sklearn.decomposition import PCA, DictionaryLearning, MiniBatchDictionaryLearning
+from xlearn.decomposition import PCA, DictionaryLearning, MiniBatchDictionaryLearning
 
 from .common import Benchmark, Estimator, Transformer
 from .datasets import _mnist_dataset, _olivetti_faces_dataset

@@ -29,11 +29,11 @@ import warnings
 from itertools import cycle, islice
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import cluster, datasets, mixture
-from sklearn.neighbors import kneighbors_graph
-from sklearn.preprocessing import StandardScaler
+from xlearn import cluster, datasets, mixture
+from xlearn.neighbors import kneighbors_graph
+from xlearn.preprocessing import StandardScaler
 
 np.random.seed(0)
 
@@ -42,7 +42,8 @@ np.random.seed(0)
 # of the algorithms, but not too big to avoid too long running times
 # ============
 n_samples = 500
-noisy_circles = datasets.make_circles(n_samples=n_samples, factor=0.5, noise=0.05)
+noisy_circles = datasets.make_circles(
+    n_samples=n_samples, factor=0.5, noise=0.05)
 noisy_moons = datasets.make_moons(n_samples=n_samples, noise=0.05)
 blobs = datasets.make_blobs(n_samples=n_samples, random_state=8)
 no_structure = np.random.rand(n_samples, 2), None
@@ -51,7 +52,7 @@ no_structure = np.random.rand(n_samples, 2), None
 random_state = 170
 X, y = datasets.make_blobs(n_samples=n_samples, random_state=random_state)
 transformation = [[0.6, -0.6], [-0.4, 0.8]]
-X_aniso = np.dot(X, transformation)
+X_aniso = jnp.dot(X, transformation)
 aniso = (X_aniso, y)
 
 # blobs with varied variances
@@ -154,7 +155,8 @@ for i_dataset, (dataset, algo_params) in enumerate(datasets):
     # Create cluster objects
     # ============
     ms = cluster.MeanShift(bandwidth=bandwidth, bin_seeding=True)
-    two_means = cluster.MiniBatchKMeans(n_clusters=params["n_clusters"], n_init="auto")
+    two_means = cluster.MiniBatchKMeans(
+        n_clusters=params["n_clusters"], n_init="auto")
     ward = cluster.AgglomerativeClustering(
         n_clusters=params["n_clusters"], linkage="ward", connectivity=connectivity
     )
@@ -232,7 +234,7 @@ for i_dataset, (dataset, algo_params) in enumerate(datasets):
         if i_dataset == 0:
             plt.title(name, size=18)
 
-        colors = np.array(
+        colors = jnp.array(
             list(
                 islice(
                     cycle(
@@ -253,7 +255,7 @@ for i_dataset, (dataset, algo_params) in enumerate(datasets):
             )
         )
         # add black color for outliers (if any)
-        colors = np.append(colors, ["#000000"])
+        colors = jnp.append(colors, ["#000000"])
         plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[y_pred])
 
         plt.xlim(-2.5, 2.5)

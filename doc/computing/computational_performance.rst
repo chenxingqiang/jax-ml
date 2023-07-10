@@ -4,7 +4,7 @@
 
 .. _computational_performance:
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 Computational Performance
 =========================
@@ -15,7 +15,7 @@ consider the training throughput but this is often less important in a
 production setup (where it often takes place offline).
 
 We will review here the orders of magnitude you can expect from a number of
-scikit-learn estimators in different contexts and provide some tips and
+jax-learn estimators in different contexts and provide some tips and
 tricks for overcoming performance bottlenecks.
 
 Prediction latency is measured as the elapsed time necessary to make a
@@ -73,21 +73,21 @@ To benchmark different estimators for your case you can simply change the
 :ref:`sphx_glr_auto_examples_applications_plot_prediction_latency.py`. This should give
 you an estimate of the order of magnitude of the prediction latency.
 
-Configuring Scikit-learn for reduced validation overhead
+Configuring Jax-learn for reduced validation overhead
 .........................................................
 
-Scikit-learn does some validation on data that increases the overhead per
+Jax-learn does some validation on data that increases the overhead per
 call to ``predict`` and similar functions. In particular, checking that
 features are finite (not NaN or infinite) involves a full pass over the
 data. If you ensure that your data is acceptable, you may suppress
 checking for finiteness by setting the environment variable
-``SKLEARN_ASSUME_FINITE`` to a non-empty string before importing
-scikit-learn, or configure it in Python with :func:`set_config`.
+``XLEARN_ASSUME_FINITE`` to a non-empty string before importing
+jax-learn, or configure it in Python with :func:`set_config`.
 For more control than these global settings, a :func:`config_context`
 allows you to set this configuration within a specified context::
 
-  >>> import sklearn
-  >>> with sklearn.config_context(assume_finite=True):
+  >>> import xlearn
+  >>> with xlearn.config_context(assume_finite=True):
   ...     pass  # do learning/prediction here with reduced validation
 
 Note that this will affect all uses of
@@ -138,7 +138,7 @@ with many CPUs and an optimized BLAS implementation.
 Here is sample code to test the sparsity of your input::
 
     def sparsity_ratio(X):
-        return 1.0 - np.count_nonzero(X) / float(X.shape[0] * X.shape[1])
+        return 1.0 - jnp.count_nonzero(X) / float(X.shape[0] * X.shape[1])
     print("input sparsity ratio:", sparsity_ratio(X))
 
 As a rule of thumb you can consider that if the sparsity ratio is greater
@@ -156,7 +156,7 @@ interesting, but for many applications we would better not increase
 prediction latency too much. We will now review this idea for different
 families of supervised models.
 
-For :mod:`sklearn.linear_model` (e.g. Lasso, ElasticNet,
+For :mod:`xlearn.linear_model` (e.g. Lasso, ElasticNet,
 SGDClassifier/Regressor, Ridge & RidgeClassifier,
 PassiveAggressiveClassifier/Regressor, LinearSVC, LogisticRegression...) the
 decision function that is applied at prediction time is the same (a dot product)
@@ -179,7 +179,7 @@ non-zero coefficients.
 
 .. centered:: |en_model_complexity|
 
-For the :mod:`sklearn.svm` family of algorithms with a non-linear kernel,
+For the :mod:`xlearn.svm` family of algorithms with a non-linear kernel,
 the latency is tied to the number of support vectors (the fewer the faster).
 Latency and throughput should (asymptotically) grow linearly with the number
 of support vectors in a SVC or SVR model. The kernel will also influence the
@@ -194,7 +194,7 @@ support vectors.
 
 .. centered:: |nusvr_model_complexity|
 
-For :mod:`sklearn.ensemble` of trees (e.g. RandomForest, GBT,
+For :mod:`xlearn.ensemble` of trees (e.g. RandomForest, GBT,
 ExtraTrees, etc.) the number of trees and their depth play the most
 important role. Latency and throughput should scale linearly with the number
 of trees. In this case we used directly the ``n_estimators`` parameter of
@@ -214,7 +214,7 @@ the process.
 Feature Extraction Latency
 ..........................
 
-Most scikit-learn models are usually pretty fast as they are implemented
+Most jax-learn models are usually pretty fast as they are implemented
 either with compiled Cython extensions or optimized computing libraries.
 On the other hand, in many real world applications the feature extraction
 process (i.e. turning raw data like database rows or network packets into
@@ -263,7 +263,7 @@ Tips and Tricks
 Linear algebra libraries
 .........................
 
-As scikit-learn relies heavily on Numpy/Scipy and linear algebra in general it
+As jax-learn relies heavily on Numpy/Scipy and linear algebra in general it
 makes sense to take explicit care of the versions of these libraries.
 Basically, you ought to make sure that Numpy is built using an optimized `BLAS
 <https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms>`_ /
@@ -278,9 +278,9 @@ BLAS implementation and lead to orders of magnitude speedup over a
 non-optimized BLAS.
 
 You can display the BLAS / LAPACK implementation used by your NumPy / SciPy /
-scikit-learn install with the following command::
+jax-learn install with the following command::
 
-    python -c "import sklearn; sklearn.show_versions()"
+    python -c "import xlearn; xlearn.show_versions()"
 
 Optimized BLAS / LAPACK implementations include:
  - Atlas (need hardware specific tuning by rebuilding on the target machine)
@@ -307,8 +307,8 @@ working memory (defaulting to 1GB) using :func:`set_config` or
 :func:`config_context`.  The following suggests to limit temporary working
 memory to 128 MiB::
 
-  >>> import sklearn
-  >>> with sklearn.config_context(working_memory=128):
+  >>> import xlearn
+  >>> with xlearn.config_context(working_memory=128):
   ...     pass  # do chunked work here
 
 An example of a chunked operation adhering to this setting is
@@ -318,7 +318,7 @@ row-wise reductions of a pairwise distance matrix.
 Model Compression
 ..................
 
-Model compression in scikit-learn only concerns linear models for the moment.
+Model compression in jax-learn only concerns linear models for the moment.
 In this context it means that we want to control the model sparsity (i.e. the
 number of non-zero coordinates in the model vectors). It is generally a good
 idea to combine model sparsity with sparse input data representation.
@@ -334,7 +334,7 @@ compromise between model compactness and prediction power. One can also
 further tune the ``l1_ratio`` parameter (in combination with the
 regularization strength ``alpha``) to control this tradeoff.
 
-A typical `benchmark <https://github.com/scikit-learn/scikit-learn/blob/main/benchmarks/bench_sparsify.py>`_
+A typical `benchmark <https://github.com/jax-learn/jax-learn/blob/main/benchmarks/bench_sparsify.py>`_
 on synthetic data yields a >30% decrease in latency when both the model and
 input are sparse (with 0.000024 and 0.027400 non-zero coefficients ratio
 respectively). Your mileage may vary depending on the sparsity and size of
@@ -357,12 +357,12 @@ collecting and building features that are discarded by the model. For instance
 if the raw data come from a database, it can make it possible to write simpler
 and faster queries or reduce I/O usage by making the queries return lighter
 records.
-At the moment, reshaping needs to be performed manually in scikit-learn.
+At the moment, reshaping needs to be performed manually in jax-learn.
 In the case of sparse input (particularly in ``CSR`` format), it is generally
 sufficient to not generate the relevant features, leaving their columns empty.
 
 Links
 ......
 
-  - :ref:`scikit-learn developer performance documentation <performance-howto>`
+  - :ref:`jax-learn developer performance documentation <performance-howto>`
   - `Scipy sparse matrix formats documentation <https://docs.scipy.org/doc/scipy/reference/sparse.html>`_

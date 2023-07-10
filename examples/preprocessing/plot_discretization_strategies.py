@@ -20,16 +20,16 @@ The plot shows the regions where the discretized encoding is constant.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import make_blobs
-from sklearn.preprocessing import KBinsDiscretizer
+from xlearn.datasets import make_blobs
+from xlearn.preprocessing import KBinsDiscretizer
 
 strategies = ["uniform", "quantile", "kmeans"]
 
 n_samples = 200
-centers_0 = np.array([[0, 0], [0, 5], [2, 4], [8, 8]])
-centers_1 = np.array([[0, 0], [3, 1]])
+centers_0 = jnp.array([[0, 0], [0, 5], [2, 4], [8, 8]])
+centers_1 = jnp.array([[0, 0], [3, 1]])
 
 # construct the datasets
 random_state = 42
@@ -62,11 +62,11 @@ for ds_cnt, X in enumerate(X_list):
     if ds_cnt == 0:
         ax.set_title("Input data", size=14)
 
-    xx, yy = np.meshgrid(
-        np.linspace(X[:, 0].min(), X[:, 0].max(), 300),
-        np.linspace(X[:, 1].min(), X[:, 1].max(), 300),
+    xx, yy = jnp.meshgrid(
+        jnp.linspace(X[:, 0].min(), X[:, 0].max(), 300),
+        jnp.linspace(X[:, 1].min(), X[:, 1].max(), 300),
     )
-    grid = np.c_[xx.ravel(), yy.ravel()]
+    grid = jnp.c_[xx.ravel(), yy.ravel()]
 
     ax.set_xlim(xx.min(), xx.max())
     ax.set_ylim(yy.min(), yy.max())

@@ -20,10 +20,15 @@ weights.
 # Generate sample data
 # --------------------
 #
-import numpy as np
+from xlearn.svm import LinearSVC
+from xlearn.preprocessing import MinMaxScaler
+from xlearn.pipeline import make_pipeline
+import matplotlib.pyplot as plt
+from xlearn.feature_selection import SelectKBest, f_classif
+import jax.numpy as jnp
 
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
+from xlearn.datasets import load_iris
+from xlearn.model_selection import train_test_split
 
 # The iris dataset
 X, y = load_iris(return_X_y=True)
@@ -32,10 +37,11 @@ X, y = load_iris(return_X_y=True)
 E = np.random.RandomState(42).uniform(0, 0.1, size=(X.shape[0], 20))
 
 # Add the noisy data to the informative features
-X = np.hstack((X, E))
+X = jnp.hstack((X, E))
 
 # Split dataset to select feature and evaluate the classifier
-X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, stratify=y, random_state=0)
 
 # %%
 # Univariate feature selection
@@ -44,17 +50,15 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_sta
 # Univariate feature selection with F-test for feature scoring.
 # We use the default selection function to select
 # the four most significant features.
-from sklearn.feature_selection import SelectKBest, f_classif
 
 selector = SelectKBest(f_classif, k=4)
 selector.fit(X_train, y_train)
-scores = -np.log10(selector.pvalues_)
+scores = -jnp.log10(selector.pvalues_)
 scores /= scores.max()
 
 # %%
-import matplotlib.pyplot as plt
 
-X_indices = np.arange(X.shape[-1])
+X_indices = jnp.arange(X.shape[-1])
 plt.figure(1)
 plt.clf()
 plt.bar(X_indices - 0.05, scores, width=0.2)
@@ -73,9 +77,6 @@ plt.show()
 # -----------------
 #
 # Without univariate feature selection
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.svm import LinearSVC
 
 clf = make_pipeline(MinMaxScaler(), LinearSVC(dual="auto"))
 clf.fit(X_train, y_train)
@@ -85,7 +86,7 @@ print(
     )
 )
 
-svm_weights = np.abs(clf[-1].coef_).sum(axis=0)
+svm_weights = jnp.abs(clf[-1].coef_).sum(axis=0)
 svm_weights /= svm_weights.sum()
 
 # %%
@@ -100,7 +101,7 @@ print(
     )
 )
 
-svm_weights_selected = np.abs(clf_selected[-1].coef_).sum(axis=0)
+svm_weights_selected = jnp.abs(clf_selected[-1].coef_).sum(axis=0)
 svm_weights_selected /= svm_weights_selected.sum()
 
 # %%

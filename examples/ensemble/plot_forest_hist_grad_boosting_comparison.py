@@ -32,7 +32,14 @@ For more information on ensemble models, see the :ref:`User Guide <ensemble>`.
 # Load dataset
 # ------------
 
-from sklearn.datasets import fetch_california_housing
+from plotly.subplots import make_subplots
+import plotly.express as px
+import plotly.colors as colors
+from xlearn.model_selection import GridSearchCV, KFold
+from xlearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
+import pandas as pd
+import joblib
+from xlearn.datasets import fetch_california_housing
 
 X, y = fetch_california_housing(return_X_y=True, as_frame=True)
 n_samples, n_features = X.shape
@@ -40,7 +47,7 @@ n_samples, n_features = X.shape
 # %%
 # HGBT uses a histogram-based algorithm on binned feature values that can
 # efficiently handle large datasets (tens of thousands of samples or more) with
-# a high number of features (see :ref:`Why_it's_faster`). The scikit-learn
+# a high number of features (see :ref:`Why_it's_faster`). The jax-learn
 # implementation of RF does not use binning and relies on exact splitting, which
 # can be computationally expensive.
 
@@ -51,17 +58,16 @@ print(f"The dataset consists of {n_samples} samples and {n_features} features")
 # -----------------------------------
 #
 # Notice that many parts of the implementation of
-# :class:`~sklearn.ensemble.HistGradientBoostingClassifier` and
-# :class:`~sklearn.ensemble.HistGradientBoostingRegressor` are parallelized by
+# :class:`~xlearn.ensemble.HistGradientBoostingClassifier` and
+# :class:`~xlearn.ensemble.HistGradientBoostingRegressor` are parallelized by
 # default.
 #
-# The implementation of :class:`~sklearn.ensemble.RandomForestRegressor` and
-# :class:`~sklearn.ensemble.RandomForestClassifier` can also be run on multiple
+# The implementation of :class:`~xlearn.ensemble.RandomForestRegressor` and
+# :class:`~xlearn.ensemble.RandomForestClassifier` can also be run on multiple
 # cores by using the `n_jobs` parameter, here set to match the number of
 # physical cores on the host machine. See :ref:`parallelism` for more
 # information.
 
-import joblib
 
 N_CORES = joblib.cpu_count(only_physical_cores=True)
 print(f"Number of physical cores: {N_CORES}")
@@ -77,10 +83,6 @@ print(f"Number of physical cores: {N_CORES}")
 # The other parameters of both models were tuned but the procedure is not shown
 # here to keep the example simple.
 
-import pandas as pd
-
-from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
-from sklearn.model_selection import GridSearchCV, KFold
 
 models = {
     "Random Forest": RandomForestRegressor(
@@ -104,7 +106,8 @@ for name, model in models.items():
         return_train_score=True,
         cv=cv,
     ).fit(X, y)
-    result = {"model": name, "cv_results": pd.DataFrame(grid_search.cv_results_)}
+    result = {"model": name, "cv_results": pd.DataFrame(
+        grid_search.cv_results_)}
     results.append(result)
 
 # %%
@@ -123,9 +126,6 @@ for name, model in models.items():
 # Error bars correspond to one standard deviation as computed in the different
 # folds of the cross-validation.
 
-import plotly.colors as colors
-import plotly.express as px
-from plotly.subplots import make_subplots
 
 fig = make_subplots(
     rows=1,

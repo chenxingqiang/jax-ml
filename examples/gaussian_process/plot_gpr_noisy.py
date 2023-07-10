@@ -4,7 +4,7 @@ Gaussian process regression (GPR) with noise-level estimation
 =============================================================
 
 This example shows the ability of the
-:class:`~sklearn.gaussian_process.kernels.WhiteKernel` to estimate the noise
+:class:`~xlearn.gaussian_process.kernels.WhiteKernel` to estimate the noise
 level in the data. Moreover, we show the importance of kernel hyperparameters
 initialization.
 """
@@ -20,11 +20,15 @@ initialization.
 # We will work in a setting where `X` will contain a single feature. We create a
 # function that will generate the target to be predicted. We will add an
 # option to add some noise to the generated target.
-import numpy as np
+from matplotlib.colors import LogNorm
+from xlearn.gaussian_process.kernels import RBF, WhiteKernel
+from xlearn.gaussian_process import GaussianProcessRegressor
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 
 
 def target_generator(X, add_noise=False):
-    target = 0.5 + np.sin(3 * X)
+    target = 0.5 + jnp.sin(3 * X)
     if add_noise:
         rng = np.random.RandomState(1)
         target += rng.normal(0, 0.3, size=target.shape)
@@ -34,11 +38,10 @@ def target_generator(X, add_noise=False):
 # %%
 # Let's have a look to the target generator where we will not add any noise to
 # observe the signal that we would like to predict.
-X = np.linspace(0, 5, num=30).reshape(-1, 1)
+X = jnp.linspace(0, 5, num=30).reshape(-1, 1)
 y = target_generator(X, add_noise=False)
 
 # %%
-import matplotlib.pyplot as plt
 
 plt.plot(X, y, label="Expected signal")
 plt.legend()
@@ -71,13 +74,13 @@ _ = plt.ylabel("y")
 # ---------------------------------------------
 #
 # Now, we will create a
-# :class:`~sklearn.gaussian_process.GaussianProcessRegressor`
+# :class:`~xlearn.gaussian_process.GaussianProcessRegressor`
 # using an additive kernel adding a
-# :class:`~sklearn.gaussian_process.kernels.RBF` and
-# :class:`~sklearn.gaussian_process.kernels.WhiteKernel` kernels.
-# The :class:`~sklearn.gaussian_process.kernels.WhiteKernel` is a kernel that
+# :class:`~xlearn.gaussian_process.kernels.RBF` and
+# :class:`~xlearn.gaussian_process.kernels.WhiteKernel` kernels.
+# The :class:`~xlearn.gaussian_process.kernels.WhiteKernel` is a kernel that
 # will able to estimate the amount of noise present in the data while the
-# :class:`~sklearn.gaussian_process.kernels.RBF` will serve at fitting the
+# :class:`~xlearn.gaussian_process.kernels.RBF` will serve at fitting the
 # non-linearity between the data and the target.
 #
 # However, we will show that the hyperparameter space contains several local
@@ -85,8 +88,6 @@ _ = plt.ylabel("y")
 #
 # We will create a model using a kernel with a high noise level and a large
 # length scale, which will explain all variations in the data by noise.
-from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, WhiteKernel
 
 kernel = 1.0 * RBF(length_scale=1e1, length_scale_bounds=(1e-2, 1e3)) + WhiteKernel(
     noise_level=1, noise_level_bounds=(1e-5, 1e1)
@@ -97,7 +98,8 @@ y_mean, y_std = gpr.predict(X, return_std=True)
 
 # %%
 plt.plot(X, y, label="Expected signal")
-plt.scatter(x=X_train[:, 0], y=y_train, color="black", alpha=0.4, label="Observations")
+plt.scatter(x=X_train[:, 0], y=y_train, color="black",
+            alpha=0.4, label="Observations")
 plt.errorbar(X, y_mean, y_std)
 plt.legend()
 plt.xlabel("X")
@@ -115,9 +117,9 @@ _ = plt.title(
 # model does not provide faithful predictions.
 #
 # Now, we will initialize the
-# :class:`~sklearn.gaussian_process.kernels.RBF` with a
+# :class:`~xlearn.gaussian_process.kernels.RBF` with a
 # larger `length_scale` and the
-# :class:`~sklearn.gaussian_process.kernels.WhiteKernel`
+# :class:`~xlearn.gaussian_process.kernels.WhiteKernel`
 # with a smaller noise level lower bound.
 kernel = 1.0 * RBF(length_scale=1e-1, length_scale_bounds=(1e-2, 1e3)) + WhiteKernel(
     noise_level=1e-2, noise_level_bounds=(1e-10, 1e1)
@@ -128,7 +130,8 @@ y_mean, y_std = gpr.predict(X, return_std=True)
 
 # %%
 plt.plot(X, y, label="Expected signal")
-plt.scatter(x=X_train[:, 0], y=y_train, color="black", alpha=0.4, label="Observations")
+plt.scatter(x=X_train[:, 0], y=y_train, color="black",
+            alpha=0.4, label="Observations")
 plt.errorbar(X, y_mean, y_std)
 plt.legend()
 plt.xlabel("X")
@@ -150,25 +153,25 @@ _ = plt.title(
 # has a smaller noise level and shorter length scale than the first model.
 #
 # We can inspect the Log-Marginal-Likelihood (LML) of
-# :class:`~sklearn.gaussian_process.GaussianProcessRegressor`
+# :class:`~xlearn.gaussian_process.GaussianProcessRegressor`
 # for different hyperparameters to get a sense of the local minima.
-from matplotlib.colors import LogNorm
 
-length_scale = np.logspace(-2, 4, num=50)
-noise_level = np.logspace(-2, 1, num=50)
-length_scale_grid, noise_level_grid = np.meshgrid(length_scale, noise_level)
+length_scale = jnp.logspace(-2, 4, num=50)
+noise_level = jnp.logspace(-2, 1, num=50)
+length_scale_grid, noise_level_grid = jnp.meshgrid(length_scale, noise_level)
 
 log_marginal_likelihood = [
-    gpr.log_marginal_likelihood(theta=np.log([0.36, scale, noise]))
+    gpr.log_marginal_likelihood(theta=jnp.log([0.36, scale, noise]))
     for scale, noise in zip(length_scale_grid.ravel(), noise_level_grid.ravel())
 ]
-log_marginal_likelihood = np.reshape(
+log_marginal_likelihood = jnp.reshape(
     log_marginal_likelihood, newshape=noise_level_grid.shape
 )
 
 # %%
 vmin, vmax = (-log_marginal_likelihood).min(), 50
-level = np.around(np.logspace(np.log10(vmin), np.log10(vmax), num=50), decimals=1)
+level = jnp.around(jnp.logspace(
+    jnp.log10(vmin), jnp.log10(vmax), num=50), decimals=1)
 plt.contour(
     length_scale_grid,
     noise_level_grid,

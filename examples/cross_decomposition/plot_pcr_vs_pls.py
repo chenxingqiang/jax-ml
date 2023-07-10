@@ -12,10 +12,10 @@ target is strongly correlated with some directions in the data that have a
 low variance.
 
 PCR is a regressor composed of two steps: first,
-:class:`~sklearn.decomposition.PCA` is applied to the training data, possibly
+:class:`~xlearn.decomposition.PCA` is applied to the training data, possibly
 performing dimensionality reduction; then, a regressor (e.g. a linear
 regressor) is trained on the transformed samples. In
-:class:`~sklearn.decomposition.PCA`, the transformation is purely
+:class:`~xlearn.decomposition.PCA`, the transformation is purely
 unsupervised, meaning that no information about the targets is used. As a
 result, PCR may perform poorly in some datasets where the target is strongly
 correlated with *directions* that have low variance. Indeed, the
@@ -41,10 +41,15 @@ example, it does not suffer from the issue we just mentioned.
 # into PCR and PLS, we fit a PCA estimator to display the two principal
 # components of this dataset, i.e. the two directions that explain the most
 # variance in the data.
+from xlearn.preprocessing import StandardScaler
+from xlearn.pipeline import make_pipeline
+from xlearn.model_selection import train_test_split
+from xlearn.linear_model import LinearRegression
+from xlearn.cross_decomposition import PLSRegression
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.decomposition import PCA
+from xlearn.decomposition import PCA
 
 rng = np.random.RandomState(0)
 n_samples = 500
@@ -100,12 +105,6 @@ plt.show()
 # For both models, we plot the projected data onto the first component against
 # the target. In both cases, this projected data is what the regressors will
 # use as training data.
-from sklearn.cross_decomposition import PLSRegression
-from sklearn.decomposition import PCA
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=rng)
 
@@ -129,7 +128,8 @@ axes[1].scatter(pls.transform(X_test), y_test, alpha=0.3, label="ground truth")
 axes[1].scatter(
     pls.transform(X_test), pls.predict(X_test), alpha=0.3, label="predictions"
 )
-axes[1].set(xlabel="Projected data onto first PLS component", ylabel="y", title="PLS")
+axes[1].set(xlabel="Projected data onto first PLS component",
+            ylabel="y", title="PLS")
 axes[1].legend()
 plt.tight_layout()
 plt.show()

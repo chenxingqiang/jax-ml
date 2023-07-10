@@ -17,10 +17,10 @@ function approaches that of the ridge.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import make_regression
-from sklearn.linear_model import HuberRegressor, Ridge
+from xlearn.datasets import make_regression
+from xlearn.linear_model import HuberRegressor, Ridge
 
 # Generate toy data.
 rng = np.random.RandomState(0)
@@ -35,14 +35,14 @@ X_outliers[:2, :] += X.max() + X.mean() / 4.0
 X_outliers[2:, :] += X.min() - X.mean() / 4.0
 y_outliers[:2] += y.min() - y.mean() / 4.0
 y_outliers[2:] += y.max() + y.mean() / 4.0
-X = np.vstack((X, X_outliers))
-y = np.concatenate((y, y_outliers))
+X = jnp.vstack((X, X_outliers))
+y = jnp.concatenate((y, y_outliers))
 plt.plot(X, y, "b.")
 
 # Fit the huber regressor over a series of epsilon values.
 colors = ["r-", "b-", "y-", "m-"]
 
-x = np.linspace(X.min(), X.max(), 7)
+x = jnp.linspace(X.min(), X.max(), 7)
 epsilon_values = [1, 1.5, 1.75, 1.9]
 for k, epsilon in enumerate(epsilon_values):
     huber = HuberRegressor(alpha=0.0, epsilon=epsilon)

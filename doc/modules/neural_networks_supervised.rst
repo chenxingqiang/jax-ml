@@ -4,13 +4,13 @@
 Neural network models (supervised)
 ==================================
 
-.. currentmodule:: sklearn.neural_network
+.. currentmodule:: xlearn.neural_network
 
 
 .. warning::
 
     This implementation is not intended for large-scale applications. In particular,
-    scikit-learn offers no GPU support. For much faster, GPU-based implementations,
+    jax-learn offers no GPU support. For much faster, GPU-based implementations,
     as well as frameworks offering much more flexibility to build deep learning
     architectures, see  :ref:`related_projects`.
 
@@ -83,7 +83,7 @@ the training samples represented as floating point feature vectors; and array
 y of size (n_samples,), which holds the target values (class labels) for the
 training samples::
 
-    >>> from sklearn.neural_network import MLPClassifier
+    >>> from xlearn.neural_network import MLPClassifier
     >>> X = [[0., 0.], [1., 1.]]
     >>> y = [0, 1]
     >>> clf = MLPClassifier(solver='lbfgs', alpha=1e-5,
@@ -199,7 +199,7 @@ the parameter space search.  :math:`Loss` is the loss function used
 for the network.
 
 More details can be found in the documentation of
-`SGD <https://scikit-learn.org/stable/modules/sgd.html>`_
+`SGD <https://jax-learn.cc/stable/modules/sgd.html>`_
 
 Adam is similar to SGD in a sense that it is a stochastic optimizer, but it can
 automatically adjust the amount to update parameters based on adaptive estimates
@@ -318,7 +318,7 @@ Tips on Practical Use
     scaling to the test set for meaningful results.
     You can use :class:`StandardScaler` for standardization.
 
-      >>> from sklearn.preprocessing import StandardScaler  # doctest: +SKIP
+      >>> from xlearn.preprocessing import StandardScaler  # doctest: +SKIP
       >>> scaler = StandardScaler()  # doctest: +SKIP
       >>> # Don't cheat - fit only on training data
       >>> scaler.fit(X_train)  # doctest: +SKIP

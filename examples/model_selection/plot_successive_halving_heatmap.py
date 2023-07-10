@@ -3,27 +3,27 @@ Comparison between grid search and successive halving
 =====================================================
 
 This example compares the parameter search performed by
-:class:`~sklearn.model_selection.HalvingGridSearchCV` and
-:class:`~sklearn.model_selection.GridSearchCV`.
+:class:`~xlearn.model_selection.HalvingGridSearchCV` and
+:class:`~xlearn.model_selection.GridSearchCV`.
 
 """
 
 from time import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 import pandas as pd
 
-from sklearn import datasets
-from sklearn.experimental import enable_halving_search_cv  # noqa
-from sklearn.model_selection import GridSearchCV, HalvingGridSearchCV
-from sklearn.svm import SVC
+from xlearn import datasets
+from xlearn.experimental import enable_halving_search_cv  # noqa
+from xlearn.model_selection import GridSearchCV, HalvingGridSearchCV
+from xlearn.svm import SVC
 
 # %%
-# We first define the parameter space for an :class:`~sklearn.svm.SVC`
+# We first define the parameter space for an :class:`~xlearn.svm.SVC`
 # estimator, and compute the time required to train a
-# :class:`~sklearn.model_selection.HalvingGridSearchCV` instance, as well as a
-# :class:`~sklearn.model_selection.GridSearchCV` instance.
+# :class:`~xlearn.model_selection.HalvingGridSearchCV` instance, as well as a
+# :class:`~xlearn.model_selection.GridSearchCV` instance.
 
 rng = np.random.RandomState(0)
 X, y = datasets.make_classification(n_samples=1000, random_state=rng)
@@ -54,7 +54,7 @@ def make_heatmap(ax, gs, is_sh=False, make_cbar=False):
     """Helper to make a heatmap."""
     results = pd.DataFrame(gs.cv_results_)
     results[["param_C", "param_gamma"]] = results[["param_C", "param_gamma"]].astype(
-        np.float64
+        jnp.float64
     )
     if is_sh:
         # SH dataframe: get mean_test_score values for the highest iter
@@ -71,16 +71,17 @@ def make_heatmap(ax, gs, is_sh=False, make_cbar=False):
 
     im = ax.imshow(scores_matrix)
 
-    ax.set_xticks(np.arange(len(Cs)))
+    ax.set_xticks(jnp.arange(len(Cs)))
     ax.set_xticklabels(["{:.0E}".format(x) for x in Cs])
     ax.set_xlabel("C", fontsize=15)
 
-    ax.set_yticks(np.arange(len(gammas)))
+    ax.set_yticks(jnp.arange(len(gammas)))
     ax.set_yticklabels(["{:.0E}".format(x) for x in gammas])
     ax.set_ylabel("gamma", fontsize=15)
 
     # Rotate the tick labels and set their alignment.
-    plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+    plt.setp(ax.get_xticklabels(), rotation=45,
+             ha="right", rotation_mode="anchor")
 
     if is_sh:
         iterations = results.pivot_table(
@@ -102,7 +103,8 @@ def make_heatmap(ax, gs, is_sh=False, make_cbar=False):
         fig.subplots_adjust(right=0.8)
         cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
         fig.colorbar(im, cax=cbar_ax)
-        cbar_ax.set_ylabel("mean_test_score", rotation=-90, va="bottom", fontsize=15)
+        cbar_ax.set_ylabel("mean_test_score", rotation=-
+                           90, va="bottom", fontsize=15)
 
 
 fig, axes = plt.subplots(ncols=2, sharey=True)
@@ -111,19 +113,20 @@ ax1, ax2 = axes
 make_heatmap(ax1, gsh, is_sh=True)
 make_heatmap(ax2, gs, make_cbar=True)
 
-ax1.set_title("Successive Halving\ntime = {:.3f}s".format(gsh_time), fontsize=15)
+ax1.set_title("Successive Halving\ntime = {:.3f}s".format(
+    gsh_time), fontsize=15)
 ax2.set_title("GridSearch\ntime = {:.3f}s".format(gs_time), fontsize=15)
 
 plt.show()
 
 # %%
 # The heatmaps show the mean test score of the parameter combinations for an
-# :class:`~sklearn.svm.SVC` instance. The
-# :class:`~sklearn.model_selection.HalvingGridSearchCV` also shows the
+# :class:`~xlearn.svm.SVC` instance. The
+# :class:`~xlearn.model_selection.HalvingGridSearchCV` also shows the
 # iteration at which the combinations where last used. The combinations marked
 # as ``0`` were only evaluated at the first iteration, while the ones with
 # ``5`` are the parameter combinations that are considered the best ones.
 #
-# We can see that the :class:`~sklearn.model_selection.HalvingGridSearchCV`
+# We can see that the :class:`~xlearn.model_selection.HalvingGridSearchCV`
 # class is able to find parameter combinations that are just as accurate as
-# :class:`~sklearn.model_selection.GridSearchCV`, in much less time.
+# :class:`~xlearn.model_selection.GridSearchCV`, in much less time.

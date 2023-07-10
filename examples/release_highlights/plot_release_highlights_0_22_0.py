@@ -1,22 +1,22 @@
 """
 ========================================
-Release Highlights for scikit-learn 0.22
+Release Highlights for jax-learn 0.22
 ========================================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
-We are pleased to announce the release of scikit-learn 0.22, which comes
+We are pleased to announce the release of jax-learn 0.22, which comes
 with many bug fixes and new features! We detail below a few of the major
 features of this release. For an exhaustive list of all the changes, please
 refer to the :ref:`release notes <changes_0_22>`.
 
 To install the latest version (with pip)::
 
-    pip install --upgrade scikit-learn
+    pip install --upgrade jax-learn
 
 or with conda::
 
-    conda install -c conda-forge scikit-learn
+    conda install -c conda-forge jax-learn
 
 """
 
@@ -34,15 +34,32 @@ or with conda::
 # :class:`~metrics.plot_confusion_matrix`. Read more about this new API in the
 # :ref:`User Guide <visualizations>`.
 
+from xlearn.metrics import roc_auc_score
+from xlearn.utils.estimator_checks import parametrize_with_checks
+from xlearn.tree import DecisionTreeRegressor
+from xlearn.datasets import fetch_openml
+from xlearn.impute import KNNImputer
+from xlearn.neighbors import KNeighborsTransformer
+from xlearn.manifold import Isomap
+from tempfile import TemporaryDirectory
+from xlearn.ensemble import HistGradientBoostingClassifier
+from xlearn.inspection import permutation_importance
+import jax.numpy as jnp
+from xlearn.svm import LinearSVC
+from xlearn.preprocessing import StandardScaler
+from xlearn.pipeline import make_pipeline
+from xlearn.linear_model import LogisticRegression
+from xlearn.ensemble import StackingClassifier
+from xlearn.datasets import load_iris
 import matplotlib.pyplot as plt
 
-from sklearn.datasets import make_classification
-from sklearn.ensemble import RandomForestClassifier
+from xlearn.datasets import make_classification
+from xlearn.ensemble import RandomForestClassifier
 
-# from sklearn.metrics import plot_roc_curve
-from sklearn.metrics import RocCurveDisplay
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
+# from xlearn.metrics import plot_roc_curve
+from xlearn.metrics import RocCurveDisplay
+from xlearn.model_selection import train_test_split
+from xlearn.svm import SVC
 
 X, y = make_classification(random_state=0)
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
@@ -78,21 +95,16 @@ plt.show()
 #
 # Read more in the :ref:`User Guide <stacking>`.
 
-from sklearn.datasets import load_iris
-from sklearn.ensemble import StackingClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import LinearSVC
 
 X, y = load_iris(return_X_y=True)
 estimators = [
     ("rf", RandomForestClassifier(n_estimators=10, random_state=42)),
     ("svr", make_pipeline(StandardScaler(), LinearSVC(random_state=42))),
 ]
-clf = StackingClassifier(estimators=estimators, final_estimator=LogisticRegression())
-X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
+clf = StackingClassifier(estimators=estimators,
+                         final_estimator=LogisticRegression())
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, stratify=y, random_state=42)
 clf.fit(X_train, y_train).score(X_test, y_test)
 
 # %%
@@ -102,18 +114,13 @@ clf.fit(X_train, y_train).score(X_test, y_test)
 # The :func:`inspection.permutation_importance` can be used to get an
 # estimate of the importance of each feature, for any fitted estimator:
 
-import matplotlib.pyplot as plt
-import numpy as np
-
-from sklearn.datasets import make_classification
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.inspection import permutation_importance
 
 X, y = make_classification(random_state=0, n_features=5, n_informative=3)
-feature_names = np.array([f"x_{i}" for i in range(X.shape[1])])
+feature_names = jnp.array([f"x_{i}" for i in range(X.shape[1])])
 
 rf = RandomForestClassifier(random_state=0).fit(X, y)
-result = permutation_importance(rf, X, y, n_repeats=10, random_state=0, n_jobs=2)
+result = permutation_importance(
+    rf, X, y, n_repeats=10, random_state=0, n_jobs=2)
 
 fig, ax = plt.subplots()
 sorted_idx = result.importances_mean.argsort()
@@ -134,9 +141,8 @@ plt.show()
 # support for missing values (NaNs). This means that there is no need for
 # imputing data when training or predicting.
 
-from sklearn.ensemble import HistGradientBoostingClassifier
 
-X = np.array([0, 1, 2, np.nan]).reshape(-1, 1)
+X = jnp.array([0, 1, 2, jnp.nan]).reshape(-1, 1)
 y = [0, 0, 1, 1]
 
 gbdt = HistGradientBoostingClassifier(min_samples_leaf=1).fit(X, y)
@@ -155,15 +161,10 @@ print(gbdt.predict(X))
 # implementations, such as approximate nearest neighbors methods.
 # See more details in the :ref:`User Guide <neighbors_transformer>`.
 
-from tempfile import TemporaryDirectory
-
-from sklearn.manifold import Isomap
-from sklearn.neighbors import KNeighborsTransformer
-from sklearn.pipeline import make_pipeline
 
 X, y = make_classification(random_state=0)
 
-with TemporaryDirectory(prefix="sklearn_cache_") as tmpdir:
+with TemporaryDirectory(prefix="xlearn_cache_") as tmpdir:
     estimator = make_pipeline(
         KNeighborsTransformer(n_neighbors=10, mode="distance"),
         Isomap(n_neighbors=10, metric="precomputed"),
@@ -192,9 +193,8 @@ with TemporaryDirectory(prefix="sklearn_cache_") as tmpdir:
 #
 # Read more in the :ref:`User Guide <knnimpute>`.
 
-from sklearn.impute import KNNImputer
 
-X = [[1, 2, np.nan], [3, 4, 3], [np.nan, 6, 5], [8, 8, 7]]
+X = [[1, 2, jnp.nan], [3, 4, 3], [jnp.nan, 6, 5], [8, 8, 7]]
 imputer = KNNImputer(n_neighbors=2)
 print(imputer.fit_transform(X))
 
@@ -211,14 +211,14 @@ X, y = make_classification(random_state=0)
 rf = RandomForestClassifier(random_state=0, ccp_alpha=0).fit(X, y)
 print(
     "Average number of nodes without pruning {:.1f}".format(
-        np.mean([e.tree_.node_count for e in rf.estimators_])
+        jnp.mean([e.tree_.node_count for e in rf.estimators_])
     )
 )
 
 rf = RandomForestClassifier(random_state=0, ccp_alpha=0.05).fit(X, y)
 print(
     "Average number of nodes with pruning {:.1f}".format(
-        np.mean([e.tree_.node_count for e in rf.estimators_])
+        jnp.mean([e.tree_.node_count for e in rf.estimators_])
     )
 )
 
@@ -228,15 +228,14 @@ print(
 # :func:`datasets.fetch_openml` can now return pandas dataframe and thus
 # properly handle datasets with heterogeneous data:
 
-from sklearn.datasets import fetch_openml
 
 titanic = fetch_openml("titanic", version=1, as_frame=True, parser="pandas")
 print(titanic.data.head()[["pclass", "embarked"]])
 
 # %%
-# Checking scikit-learn compatibility of an estimator
+# Checking jax-learn compatibility of an estimator
 # ---------------------------------------------------
-# Developers can check the compatibility of their scikit-learn compatible
+# Developers can check the compatibility of their jax-learn compatible
 # estimators using :func:`~utils.estimator_checks.check_estimator`. For
 # instance, the ``check_estimator(LinearSVC())`` passes.
 #
@@ -247,13 +246,9 @@ print(titanic.data.head()[["pclass", "embarked"]])
 #   This entry was slightly updated in version 0.24, where passing classes
 #   isn't supported anymore: pass instances instead.
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.utils.estimator_checks import parametrize_with_checks
-
 
 @parametrize_with_checks([LogisticRegression(), DecisionTreeRegressor()])
-def test_sklearn_compatible_estimator(estimator, check):
+def test_xlearn_compatible_estimator(estimator, check):
     check(estimator)
 
 
@@ -272,10 +267,6 @@ def test_sklearn_compatible_estimator(estimator, check):
 #
 # Read more in the :ref:`User Guide <roc_metrics>`.
 
-
-from sklearn.datasets import make_classification
-from sklearn.metrics import roc_auc_score
-from sklearn.svm import SVC
 
 X, y = make_classification(n_classes=4, n_informative=16)
 clf = SVC(decision_function_shape="ovo", probability=True).fit(X, y)

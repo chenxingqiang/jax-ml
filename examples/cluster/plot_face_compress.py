@@ -3,7 +3,7 @@
 Vector Quantization Example
 ===========================
 
-This example shows how one can use :class:`~sklearn.preprocessing.KBinsDiscretizer`
+This example shows how one can use :class:`~xlearn.preprocessing.KBinsDiscretizer`
 to perform vector quantization on a set of toy image, the raccoon face.
 """
 
@@ -23,7 +23,9 @@ to perform vector quantization on a set of toy image, the raccoon face.
 # function returning the image is not located in the same module. Also, SciPy >= 1.10
 # requires the package `pooch` to be installed.
 try:  # Scipy >= 1.10
-    from scipy.datasets import face
+from xlearn.preprocessing import KBinsDiscretizer
+import matplotlib.pyplot as plt
+from scipy.datasets import face
 except ImportError:
     from scipy.misc import face
 
@@ -41,7 +43,6 @@ print(f"The number of bytes taken in RAM is {raccoon_face.nbytes}")
 #
 # Using 8-bit unsigned integer means that the image is encoded using 256 different
 # shades of gray, at most. We can check the distribution of these values.
-import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots(ncols=2, figsize=(12, 4))
 
@@ -68,12 +69,11 @@ _ = fig.suptitle("Original image of a raccoon face")
 # """""""""""""""""
 #
 # The compression can be done using a
-# :class:`~sklearn.preprocessing.KBinsDiscretizer`. We need to choose a strategy
+# :class:`~xlearn.preprocessing.KBinsDiscretizer`. We need to choose a strategy
 # to define the 8 gray values to sub-sample. The simplest strategy is to define
 # them equally spaced, which correspond to setting `strategy="uniform"`. From
 # the previous histogram, we know that this strategy is certainly not optimal.
 
-from sklearn.preprocessing import KBinsDiscretizer
 
 n_bins = 8
 encoder = KBinsDiscretizer(
@@ -112,7 +112,8 @@ ax.hist(raccoon_face.ravel(), bins=256)
 color = "tab:orange"
 for center in bin_center:
     ax.axvline(center, color=color)
-    ax.text(center - 10, ax.get_ybound()[1] + 100, f"{center:.1f}", color=color)
+    ax.text(center - 10, ax.get_ybound()
+            [1] + 100, f"{center:.1f}", color=color)
 
 # %%
 # As previously stated, the uniform sampling strategy is not optimal. Notice for
@@ -149,7 +150,8 @@ ax.hist(raccoon_face.ravel(), bins=256)
 color = "tab:orange"
 for center in bin_center:
     ax.axvline(center, color=color)
-    ax.text(center - 10, ax.get_ybound()[1] + 100, f"{center:.1f}", color=color)
+    ax.text(center - 10, ax.get_ybound()
+            [1] + 100, f"{center:.1f}", color=color)
 
 # %%
 # The counts in the bins are now more balanced and their centers are no longer
@@ -161,8 +163,10 @@ for center in bin_center:
 #
 # We previously stated that we should save 8 times less memory. Let's verify it.
 
-print(f"The number of bytes taken in RAM is {compressed_raccoon_kmeans.nbytes}")
-print(f"Compression ratio: {compressed_raccoon_kmeans.nbytes / raccoon_face.nbytes}")
+print(
+    f"The number of bytes taken in RAM is {compressed_raccoon_kmeans.nbytes}")
+print(
+    f"Compression ratio: {compressed_raccoon_kmeans.nbytes / raccoon_face.nbytes}")
 
 # %%
 # It is quite surprising to see that our compressed image is taking x8 more
@@ -173,7 +177,7 @@ print(f"Compression ratio: {compressed_raccoon_kmeans.nbytes / raccoon_face.nbyt
 print(f"Type of the compressed image: {compressed_raccoon_kmeans.dtype}")
 
 # %%
-# Indeed, the output of the :class:`~sklearn.preprocessing.KBinsDiscretizer` is
+# Indeed, the output of the :class:`~xlearn.preprocessing.KBinsDiscretizer` is
 # an array of 64-bit float. It means that it takes x8 more memory. However, we
 # use this 64-bit float representation to encode 8 values. Indeed, we will save
 # memory only if we cast the compressed image into an array of 3-bits integers. We

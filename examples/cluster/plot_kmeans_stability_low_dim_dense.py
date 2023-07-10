@@ -28,10 +28,10 @@ clusters widely spaced.
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.cluster import KMeans, MiniBatchKMeans
-from sklearn.utils import check_random_state, shuffle
+from xlearn.cluster import KMeans, MiniBatchKMeans
+from xlearn.utils import check_random_state, shuffle
 
 random_state = np.random.RandomState(0)
 
@@ -41,7 +41,7 @@ n_runs = 5
 
 # k-means models can do several random inits so as to be able to trade
 # CPU time for convergence robustness
-n_init_range = np.array([1, 5, 10, 15, 20])
+n_init_range = jnp.array([1, 5, 10, 15, 20])
 
 # Datasets generation parameters
 n_samples_per_center = 100
@@ -52,15 +52,17 @@ n_clusters = grid_size**2
 
 def make_data(random_state, n_samples_per_center, grid_size, scale):
     random_state = check_random_state(random_state)
-    centers = np.array([[i, j] for i in range(grid_size) for j in range(grid_size)])
+    centers = jnp.array([[i, j] for i in range(grid_size)
+                       for j in range(grid_size)])
     n_clusters_true, n_features = centers.shape
 
     noise = random_state.normal(
         scale=scale, size=(n_samples_per_center, centers.shape[1])
     )
 
-    X = np.concatenate([c + noise for c in centers])
-    y = np.concatenate([[i] * n_samples_per_center for i in range(n_clusters_true)])
+    X = jnp.concatenate([c + noise for c in centers])
+    y = jnp.concatenate(
+        [[i] * n_samples_per_center for i in range(n_clusters_true)])
     return shuffle(X, y, random_state=random_state)
 
 
@@ -75,12 +77,13 @@ cases = [
     (KMeans, "k-means++", {}, "^-"),
     (KMeans, "random", {}, "o-"),
     (MiniBatchKMeans, "k-means++", {"max_no_improvement": 3}, "x-"),
-    (MiniBatchKMeans, "random", {"max_no_improvement": 3, "init_size": 500}, "d-"),
+    (MiniBatchKMeans, "random", {
+     "max_no_improvement": 3, "init_size": 500}, "d-"),
 ]
 
 for factory, init, params, format in cases:
     print("Evaluation of %s with %s init" % (factory.__name__, init))
-    inertia = np.empty((len(n_init_range), n_runs))
+    inertia = jnp.empty((len(n_init_range), n_runs))
 
     for run_id in range(n_runs):
         X, y = make_data(run_id, n_samples_per_center, grid_size, scale)

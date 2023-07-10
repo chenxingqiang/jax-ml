@@ -1,1 +1,1 @@
-"""Benchmark suite for scikit-learn using ASV"""
+"""Benchmark suite for jax-learn using ASV"""

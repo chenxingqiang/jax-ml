@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.colors import ListedColormap
 
-from sklearn import datasets, neighbors
-from sklearn.inspection import DecisionBoundaryDisplay
+from xlearn import datasets, neighbors
+from xlearn.inspection import DecisionBoundaryDisplay
 
 n_neighbors = 15
 

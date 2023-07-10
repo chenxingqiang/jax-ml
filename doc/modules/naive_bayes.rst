@@ -4,7 +4,7 @@
 Naive Bayes
 ===========
 
-.. currentmodule:: sklearn.naive_bayes
+.. currentmodule:: xlearn.naive_bayes
 
 
 Naive Bayes methods are a set of supervised learning algorithms
@@ -90,9 +90,9 @@ classification. The likelihood of the features is assumed to be Gaussian:
 The parameters :math:`\sigma_y` and :math:`\mu_y`
 are estimated using maximum likelihood.
 
-   >>> from sklearn.datasets import load_iris
-   >>> from sklearn.model_selection import train_test_split
-   >>> from sklearn.naive_bayes import GaussianNB
+   >>> from xlearn.datasets import load_iris
+   >>> from xlearn.model_selection import train_test_split
+   >>> from xlearn.naive_bayes import GaussianNB
    >>> X, y = load_iris(return_X_y=True)
    >>> X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=0)
    >>> gnb = GaussianNB()
@@ -273,7 +273,7 @@ classifiers support sample weighting.
 Contrary to the ``fit`` method, the first call to ``partial_fit`` needs to be
 passed the list of all the expected class labels.
 
-For an overview of available strategies in scikit-learn, see also the
+For an overview of available strategies in jax-learn, see also the
 :ref:`out-of-core learning <scaling_strategies>` documentation.
 
 .. note::

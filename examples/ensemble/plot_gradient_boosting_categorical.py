@@ -3,7 +3,7 @@
 Categorical Feature Support in Gradient Boosting
 ================================================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 In this example, we will compare the training times and prediction
 performances of :class:`~ensemble.HistGradientBoostingRegressor` with
@@ -28,9 +28,18 @@ and categorical features, where the houses' sales prices is the target.
 # -------------------------
 # First, we load the Ames Housing data as a pandas dataframe. The features
 # are either categorical or numerical:
-from sklearn.datasets import fetch_openml
+from xlearn.model_selection import cross_validate
+import matplotlib.pyplot as plt
+from xlearn.preprocessing import OrdinalEncoder
+import jax.numpy as jnp
+from xlearn.preprocessing import OneHotEncoder
+from xlearn.pipeline import make_pipeline
+from xlearn.ensemble import HistGradientBoostingRegressor
+from xlearn.compose import make_column_selector, make_column_transformer
+from xlearn.datasets import fetch_openml
 
-X, y = fetch_openml(data_id=42165, as_frame=True, return_X_y=True, parser="pandas")
+X, y = fetch_openml(data_id=42165, as_frame=True,
+                    return_X_y=True, parser="pandas")
 
 # Select only a subset of features of X to make the example faster to run
 categorical_columns_subset = [
@@ -60,7 +69,8 @@ numerical_columns_subset = [
 ]
 
 X = X[categorical_columns_subset + numerical_columns_subset]
-X[categorical_columns_subset] = X[categorical_columns_subset].astype("category")
+X[categorical_columns_subset] = X[categorical_columns_subset].astype(
+    "category")
 
 categorical_columns = X.select_dtypes(include="category").columns
 n_categorical_features = len(categorical_columns)
@@ -77,14 +87,12 @@ print(f"Number of numerical features: {n_numerical_features}")
 # As a baseline, we create an estimator where the categorical features are
 # dropped:
 
-from sklearn.compose import make_column_selector, make_column_transformer
-from sklearn.ensemble import HistGradientBoostingRegressor
-from sklearn.pipeline import make_pipeline
 
 dropper = make_column_transformer(
     ("drop", make_column_selector(dtype_include="category")), remainder="passthrough"
 )
-hist_dropped = make_pipeline(dropper, HistGradientBoostingRegressor(random_state=42))
+hist_dropped = make_pipeline(
+    dropper, HistGradientBoostingRegressor(random_state=42))
 
 # %%
 # Gradient boosting estimator with one-hot encoding
@@ -92,7 +100,6 @@ hist_dropped = make_pipeline(dropper, HistGradientBoostingRegressor(random_state
 # Next, we create a pipeline that will one-hot encode the categorical features
 # and let the rest of the numerical data to passthrough:
 
-from sklearn.preprocessing import OneHotEncoder
 
 one_hot_encoder = make_column_transformer(
     (
@@ -113,13 +120,11 @@ hist_one_hot = make_pipeline(
 # were ordered quantities, i.e. the categories will be encoded as 0, 1, 2,
 # etc., and treated as continuous features.
 
-import numpy as np
-
-from sklearn.preprocessing import OrdinalEncoder
 
 ordinal_encoder = make_column_transformer(
     (
-        OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=np.nan),
+        OrdinalEncoder(handle_unknown="use_encoded_value",
+                       unknown_value=np.nan),
         make_column_selector(dtype_include="category"),
     ),
     remainder="passthrough",
@@ -166,17 +171,18 @@ hist_native = make_pipeline(
 # models performance in terms of
 # :func:`~metrics.mean_absolute_percentage_error` and fit times.
 
-import matplotlib.pyplot as plt
-
-from sklearn.model_selection import cross_validate
 
 scoring = "neg_mean_absolute_percentage_error"
 n_cv_folds = 3
 
-dropped_result = cross_validate(hist_dropped, X, y, cv=n_cv_folds, scoring=scoring)
-one_hot_result = cross_validate(hist_one_hot, X, y, cv=n_cv_folds, scoring=scoring)
-ordinal_result = cross_validate(hist_ordinal, X, y, cv=n_cv_folds, scoring=scoring)
-native_result = cross_validate(hist_native, X, y, cv=n_cv_folds, scoring=scoring)
+dropped_result = cross_validate(
+    hist_dropped, X, y, cv=n_cv_folds, scoring=scoring)
+one_hot_result = cross_validate(
+    hist_one_hot, X, y, cv=n_cv_folds, scoring=scoring)
+ordinal_result = cross_validate(
+    hist_ordinal, X, y, cv=n_cv_folds, scoring=scoring)
+native_result = cross_validate(
+    hist_native, X, y, cv=n_cv_folds, scoring=scoring)
 
 
 def plot_results(figure_title):
@@ -261,10 +267,14 @@ for pipe in (hist_dropped, hist_one_hot, hist_ordinal, hist_native):
         histgradientboostingregressor__max_iter=15,
     )
 
-dropped_result = cross_validate(hist_dropped, X, y, cv=n_cv_folds, scoring=scoring)
-one_hot_result = cross_validate(hist_one_hot, X, y, cv=n_cv_folds, scoring=scoring)
-ordinal_result = cross_validate(hist_ordinal, X, y, cv=n_cv_folds, scoring=scoring)
-native_result = cross_validate(hist_native, X, y, cv=n_cv_folds, scoring=scoring)
+dropped_result = cross_validate(
+    hist_dropped, X, y, cv=n_cv_folds, scoring=scoring)
+one_hot_result = cross_validate(
+    hist_one_hot, X, y, cv=n_cv_folds, scoring=scoring)
+ordinal_result = cross_validate(
+    hist_ordinal, X, y, cv=n_cv_folds, scoring=scoring)
+native_result = cross_validate(
+    hist_native, X, y, cv=n_cv_folds, scoring=scoring)
 
 plot_results("Gradient Boosting on Ames Housing (few and small trees)")
 

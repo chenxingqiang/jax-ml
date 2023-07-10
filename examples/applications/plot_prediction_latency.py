@@ -3,7 +3,7 @@
 Prediction Latency
 ==================
 
-This is an example showing the prediction latency of various scikit-learn
+This is an example showing the prediction latency of various jax-learn
 estimators.
 
 The goal is to measure the latency one can expect when doing predictions
@@ -21,15 +21,15 @@ import time
 from collections import defaultdict
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import make_regression
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import Ridge, SGDRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVR
-from sklearn.utils import shuffle
+from xlearn.datasets import make_regression
+from xlearn.ensemble import RandomForestRegressor
+from xlearn.linear_model import Ridge, SGDRegressor
+from xlearn.model_selection import train_test_split
+from xlearn.preprocessing import StandardScaler
+from xlearn.svm import SVR
+from xlearn.utils import shuffle
 
 
 def _not_in_sphinx():
@@ -45,7 +45,7 @@ def _not_in_sphinx():
 def atomic_benchmark_estimator(estimator, X_test, verbose=False):
     """Measure runtime prediction of each instance."""
     n_instances = X_test.shape[0]
-    runtimes = np.zeros(n_instances, dtype=float)
+    runtimes = jnp.zeros(n_instances, dtype=float)
     for i in range(n_instances):
         instance = X_test[[i], :]
         start = time.time()
@@ -55,7 +55,7 @@ def atomic_benchmark_estimator(estimator, X_test, verbose=False):
         print(
             "atomic_benchmark runtimes:",
             min(runtimes),
-            np.percentile(runtimes, 50),
+            jnp.percentile(runtimes, 50),
             max(runtimes),
         )
     return runtimes
@@ -64,17 +64,17 @@ def atomic_benchmark_estimator(estimator, X_test, verbose=False):
 def bulk_benchmark_estimator(estimator, X_test, n_bulk_repeats, verbose):
     """Measure runtime prediction of the whole input."""
     n_instances = X_test.shape[0]
-    runtimes = np.zeros(n_bulk_repeats, dtype=float)
+    runtimes = jnp.zeros(n_bulk_repeats, dtype=float)
     for i in range(n_bulk_repeats):
         start = time.time()
         estimator.predict(X_test)
         runtimes[i] = time.time() - start
-    runtimes = np.array(list(map(lambda x: x / float(n_instances), runtimes)))
+    runtimes = jnp.array(list(map(lambda x: x / float(n_instances), runtimes)))
     if verbose:
         print(
             "bulk_benchmark runtimes:",
             min(runtimes),
-            np.percentile(runtimes, 50),
+            jnp.percentile(runtimes, 50),
             max(runtimes),
         )
     return runtimes
@@ -92,12 +92,13 @@ def benchmark_estimator(estimator, X_test, n_bulk_repeats=30, verbose=False):
 
     Returns
     -------
-    atomic_runtimes, bulk_runtimes : a pair of `np.array` which contain the
+    atomic_runtimes, bulk_runtimes : a pair of `jnp.array` which contain the
     runtimes in seconds.
 
     """
     atomic_runtimes = atomic_benchmark_estimator(estimator, X_test, verbose)
-    bulk_runtimes = bulk_benchmark_estimator(estimator, X_test, n_bulk_repeats, verbose)
+    bulk_runtimes = bulk_benchmark_estimator(
+        estimator, X_test, n_bulk_repeats, verbose)
     return atomic_runtimes, bulk_runtimes
 
 
@@ -136,7 +137,7 @@ def boxplot_runtimes(runtimes, pred_type, configuration):
 
     Parameters
     ----------
-    runtimes : list of `np.array` of latencies in micro-seconds
+    runtimes : list of `jnp.array` of latencies in micro-seconds
     cls_names : list of estimator class names that generated the runtimes
     pred_type : 'bulk' or 'atomic'
 
@@ -161,7 +162,8 @@ def boxplot_runtimes(runtimes, pred_type, configuration):
     plt.setp(bp["whiskers"], color="black")
     plt.setp(bp["fliers"], color="red", marker="+")
 
-    ax1.yaxis.grid(True, linestyle="-", which="major", color="lightgrey", alpha=0.5)
+    ax1.yaxis.grid(True, linestyle="-", which="major",
+                   color="lightgrey", alpha=0.5)
 
     ax1.set_axisbelow(True)
     ax1.set_title(
@@ -193,7 +195,8 @@ def benchmark(configuration):
     runtimes = [1e6 * stats[clf_name]["atomic"] for clf_name in cls_names]
     boxplot_runtimes(runtimes, "atomic", configuration)
     runtimes = [1e6 * stats[clf_name]["bulk"] for clf_name in cls_names]
-    boxplot_runtimes(runtimes, "bulk (%d)" % configuration["n_test"], configuration)
+    boxplot_runtimes(runtimes, "bulk (%d)" %
+                     configuration["n_test"], configuration)
 
 
 def n_feature_influence(estimators, n_train, n_test, n_features, percentile):
@@ -224,7 +227,8 @@ def n_feature_influence(estimators, n_train, n_test, n_features, percentile):
             estimator.fit(X_train, y_train)
             gc.collect()
             runtimes = bulk_benchmark_estimator(estimator, X_test, 30, False)
-            percentiles[cls_name][n] = 1e6 * np.percentile(runtimes, percentile)
+            percentiles[cls_name][n] = 1e6 * \
+                jnp.percentile(runtimes, percentile)
     return percentiles
 
 
@@ -232,14 +236,15 @@ def plot_n_features_influence(percentiles, percentile):
     fig, ax1 = plt.subplots(figsize=(10, 6))
     colors = ["r", "g", "b"]
     for i, cls_name in enumerate(percentiles.keys()):
-        x = np.array(sorted([n for n in percentiles[cls_name].keys()]))
-        y = np.array([percentiles[cls_name][n] for n in x])
+        x = jnp.array(sorted([n for n in percentiles[cls_name].keys()]))
+        y = jnp.array([percentiles[cls_name][n] for n in x])
         plt.plot(
             x,
             y,
             color=colors[i],
         )
-    ax1.yaxis.grid(True, linestyle="-", which="major", color="lightgrey", alpha=0.5)
+    ax1.yaxis.grid(True, linestyle="-", which="major",
+                   color="lightgrey", alpha=0.5)
     ax1.set_axisbelow(True)
     ax1.set_title("Evolution of Prediction Time with #Features")
     ax1.set_xlabel("#Features")
@@ -281,7 +286,7 @@ def plot_benchmark_throughput(throughputs, configuration):
         for estimator_conf in configuration["estimators"]
     ]
     plt.bar(range(len(throughputs)), cls_values, width=0.5, color=colors)
-    ax.set_xticks(np.linspace(0.25, len(throughputs) - 0.75, len(throughputs)))
+    ax.set_xticks(jnp.linspace(0.25, len(throughputs) - 0.75, len(throughputs)))
     ax.set_xticklabels(cls_infos, fontsize=10)
     ymax = max(cls_values) * 1.2
     ax.set_ylim((0, ymax))
@@ -308,7 +313,7 @@ configuration = {
                 penalty="elasticnet", alpha=0.01, l1_ratio=0.25, tol=1e-4
             ),
             "complexity_label": "non-zero coefficients",
-            "complexity_computer": lambda clf: np.count_nonzero(clf.coef_),
+            "complexity_computer": lambda clf: jnp.count_nonzero(clf.coef_),
         },
         {
             "name": "RandomForest",

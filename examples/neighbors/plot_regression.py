@@ -19,14 +19,14 @@ target using both barycenter and constant weights.
 # Generate sample data
 # --------------------
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import neighbors
+from xlearn import neighbors
 
 np.random.seed(0)
-X = np.sort(5 * np.random.rand(40, 1), axis=0)
-T = np.linspace(0, 5, 500)[:, np.newaxis]
-y = np.sin(X).ravel()
+X = jnp.sort(5 * np.random.rand(40, 1), axis=0)
+T = jnp.linspace(0, 5, 500)[:, jnp.newaxis]
+y = jnp.sin(X).ravel()
 
 # Add noise to targets
 y[::5] += 1 * (0.5 - np.random.rand(8))
@@ -45,7 +45,8 @@ for i, weights in enumerate(["uniform", "distance"]):
     plt.plot(T, y_, color="navy", label="prediction")
     plt.axis("tight")
     plt.legend()
-    plt.title("KNeighborsRegressor (k = %i, weights = '%s')" % (n_neighbors, weights))
+    plt.title("KNeighborsRegressor (k = %i, weights = '%s')" %
+              (n_neighbors, weights))
 
 plt.tight_layout()
 plt.show()

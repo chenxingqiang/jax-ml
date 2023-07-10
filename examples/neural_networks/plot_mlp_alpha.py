@@ -20,19 +20,19 @@ decision boundary.
 # Author: Issam H. Laradji
 # License: BSD 3 clause
 
-import numpy as np
+import jax.numpy as jnp
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap
 
-from sklearn.datasets import make_circles, make_classification, make_moons
-from sklearn.model_selection import train_test_split
-from sklearn.neural_network import MLPClassifier
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
+from xlearn.datasets import make_circles, make_classification, make_moons
+from xlearn.model_selection import train_test_split
+from xlearn.neural_network import MLPClassifier
+from xlearn.pipeline import make_pipeline
+from xlearn.preprocessing import StandardScaler
 
 h = 0.02  # step size in the mesh
 
-alphas = np.logspace(-1, 1, 5)
+alphas = jnp.logspace(-1, 1, 5)
 
 classifiers = []
 names = []
@@ -76,7 +76,8 @@ for X, y in datasets:
 
     x_min, x_max = X[:, 0].min() - 0.5, X[:, 0].max() + 0.5
     y_min, y_max = X[:, 1].min() - 0.5, X[:, 1].max() + 0.5
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    xx, yy = jnp.meshgrid(jnp.arange(x_min, x_max, h),
+                         jnp.arange(y_min, y_max, h))
 
     # just plot the dataset first
     cm = plt.cm.RdBu
@@ -101,9 +102,11 @@ for X, y in datasets:
         # Plot the decision boundary. For that, we will assign a color to each
         # point in the mesh [x_min, x_max] x [y_min, y_max].
         if hasattr(clf, "decision_function"):
-            Z = clf.decision_function(np.column_stack([xx.ravel(), yy.ravel()]))
+            Z = clf.decision_function(
+                jnp.column_stack([xx.ravel(), yy.ravel()]))
         else:
-            Z = clf.predict_proba(np.column_stack([xx.ravel(), yy.ravel()]))[:, 1]
+            Z = clf.predict_proba(jnp.column_stack(
+                [xx.ravel(), yy.ravel()]))[:, 1]
 
         # Put the result into a color plot
         Z = Z.reshape(xx.shape)

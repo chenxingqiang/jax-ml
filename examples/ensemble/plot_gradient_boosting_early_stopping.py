@@ -25,7 +25,7 @@ The number of stages of the final model is available at the attribute
 ``n_estimators_``.
 
 This example illustrates how the early stopping can used in the
-:class:`~sklearn.ensemble.GradientBoostingClassifier` model to achieve
+:class:`~xlearn.ensemble.GradientBoostingClassifier` model to achieve
 almost the same accuracy as compared to a model built without early stopping
 using many fewer estimators. This can significantly reduce training time,
 memory usage and prediction latency.
@@ -39,10 +39,10 @@ memory usage and prediction latency.
 import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets, ensemble
-from sklearn.model_selection import train_test_split
+from xlearn import datasets, ensemble
+from xlearn.model_selection import train_test_split
 
 data_list = [
     datasets.load_iris(return_X_y=True),
@@ -74,7 +74,8 @@ for X, y in data_list:
         tol=0.01,
         random_state=0,
     )
-    gb = ensemble.GradientBoostingClassifier(n_estimators=n_estimators, random_state=0)
+    gb = ensemble.GradientBoostingClassifier(
+        n_estimators=n_estimators, random_state=0)
     start = time.time()
     gb.fit(X_train, y_train)
     time_gb.append(time.time() - start)
@@ -91,7 +92,7 @@ for X, y in data_list:
 
 bar_width = 0.2
 n = len(data_list)
-index = np.arange(0, n * bar_width, bar_width) * 2.5
+index = jnp.arange(0, n * bar_width, bar_width) * 2.5
 index = index[0:n]
 
 # %%
@@ -108,7 +109,7 @@ bar2 = plt.bar(
 )
 
 plt.xticks(index + bar_width, names)
-plt.yticks(np.arange(0, 1.3, 0.1))
+plt.yticks(jnp.arange(0, 1.3, 0.1))
 
 
 def autolabel(rects, n_estimators):
@@ -151,10 +152,10 @@ bar2 = plt.bar(
     index + bar_width, time_gbes, bar_width, label="With early stopping", color="coral"
 )
 
-max_y = np.amax(np.maximum(time_gb, time_gbes))
+max_y = jnp.amax(jnp.maximum(time_gb, time_gbes))
 
 plt.xticks(index + bar_width, names)
-plt.yticks(np.linspace(0, 1.3 * max_y, 13))
+plt.yticks(jnp.linspace(0, 1.3 * max_y, 13))
 
 autolabel(bar1, n_gb)
 autolabel(bar2, n_gbes)

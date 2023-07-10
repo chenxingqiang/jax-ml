@@ -34,11 +34,11 @@ import matplotlib.pyplot as plt
 
 # Unused but required import for doing 3d projections with matplotlib < 3.2
 import mpl_toolkits.mplot3d  # noqa: F401
-import numpy as np
+import jax.numpy as jnp
 from matplotlib.ticker import NullFormatter
 
-from sklearn import manifold
-from sklearn.utils import check_random_state
+from xlearn import manifold
+from xlearn.utils import check_random_state
 
 # Variables for manifold learning.
 n_neighbors = 10
@@ -46,16 +46,16 @@ n_samples = 1000
 
 # Create our sphere.
 random_state = check_random_state(0)
-p = random_state.rand(n_samples) * (2 * np.pi - 0.55)
-t = random_state.rand(n_samples) * np.pi
+p = random_state.rand(n_samples) * (2 * jnp.pi - 0.55)
+t = random_state.rand(n_samples) * jnp.pi
 
 # Sever the poles from the sphere.
-indices = (t < (np.pi - (np.pi / 8))) & (t > ((np.pi / 8)))
+indices = (t < (jnp.pi - (jnp.pi / 8))) & (t > ((jnp.pi / 8)))
 colors = p[indices]
 x, y, z = (
-    np.sin(t[indices]) * np.cos(p[indices]),
-    np.sin(t[indices]) * np.sin(p[indices]),
-    np.cos(t[indices]),
+    jnp.sin(t[indices]) * jnp.cos(p[indices]),
+    jnp.sin(t[indices]) * jnp.sin(p[indices]),
+    jnp.cos(t[indices]),
 )
 
 # Plot our dataset.
@@ -68,7 +68,7 @@ ax = fig.add_subplot(251, projection="3d")
 ax.scatter(x, y, z, c=p[indices], cmap=plt.cm.rainbow)
 ax.view_init(40, -10)
 
-sphere_data = np.array([x, y, z]).T
+sphere_data = jnp.array([x, y, z]).T
 
 # Perform Locally Linear Embedding Manifold learning
 methods = ["standard", "ltsa", "hessian", "modified"]

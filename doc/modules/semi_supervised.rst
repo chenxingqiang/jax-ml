@@ -4,12 +4,12 @@
 Semi-supervised learning
 ===================================================
 
-.. currentmodule:: sklearn.semi_supervised
+.. currentmodule:: xlearn.semi_supervised
 
 `Semi-supervised learning
 <https://en.wikipedia.org/wiki/Semi-supervised_learning>`_ is a situation
 in which in your training data some of the samples are not labeled. The
-semi-supervised estimators in :mod:`sklearn.semi_supervised` are able to
+semi-supervised estimators in :mod:`xlearn.semi_supervised` are able to
 make use of this additional unlabeled data to better capture the shape of
 the underlying data distribution and generalize better to new samples.
 These algorithms can perform well when we have a very small amount of
@@ -85,7 +85,7 @@ A few features available in this model:
   * Used for classification tasks
   * Kernel methods to project data into alternate dimensional spaces
 
-`scikit-learn` provides two label propagation models:
+`jax-learn` provides two label propagation models:
 :class:`LabelPropagation` and :class:`LabelSpreading`. Both work by
 constructing a similarity graph over all items in the input dataset.
 

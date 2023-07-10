@@ -15,8 +15,8 @@ present for regular K-Means.
 """
 import matplotlib.pyplot as plt
 
-from sklearn.cluster import BisectingKMeans, KMeans
-from sklearn.datasets import make_blobs
+from xlearn.cluster import BisectingKMeans, KMeans
+from xlearn.datasets import make_blobs
 
 print(__doc__)
 
@@ -45,7 +45,8 @@ axs = axs.T
 
 for i, (algorithm_name, Algorithm) in enumerate(clustering_algorithms.items()):
     for j, n_clusters in enumerate(n_clusters_list):
-        algo = Algorithm(n_clusters=n_clusters, random_state=random_state, n_init=3)
+        algo = Algorithm(n_clusters=n_clusters,
+                         random_state=random_state, n_init=3)
         algo.fit(X)
         centers = algo.cluster_centers_
 

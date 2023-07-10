@@ -1,4 +1,4 @@
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 .. _model_evaluation:
 
@@ -19,7 +19,7 @@ predictions:
   :class:`model_selection.GridSearchCV`) rely on an internal *scoring* strategy.
   This is discussed in the section :ref:`scoring_parameter`.
 
-* **Metric functions**: The :mod:`sklearn.metrics` module implements functions
+* **Metric functions**: The :mod:`xlearn.metrics` module implements functions
   assessing prediction error for specific purposes. These metrics are detailed
   in sections on :ref:`classification_metrics`,
   :ref:`multilabel_ranking_metrics`, :ref:`regression_metrics` and
@@ -109,8 +109,8 @@ Scoring                                Function                                 
 
 Usage examples:
 
-    >>> from sklearn import svm, datasets
-    >>> from sklearn.model_selection import cross_val_score
+    >>> from xlearn import svm, datasets
+    >>> from xlearn.model_selection import cross_val_score
     >>> X, y = datasets.load_iris(return_X_y=True)
     >>> clf = svm.SVC(random_state=0)
     >>> cross_val_score(clf, X, y, cv=5, scoring='recall_macro')
@@ -120,16 +120,16 @@ Usage examples:
 
     If a wrong scoring name is passed, an ``InvalidParameterError`` is raised.
     You can retrieve the names of all available scorers by calling
-    :func:`~sklearn.metrics.get_scorer_names`.
+    :func:`~xlearn.metrics.get_scorer_names`.
 
-.. currentmodule:: sklearn.metrics
+.. currentmodule:: xlearn.metrics
 
 .. _scoring:
 
 Defining your scoring strategy from metric functions
 -----------------------------------------------------
 
-The module :mod:`sklearn.metrics` also exposes a set of simple functions
+The module :mod:`xlearn.metrics` also exposes a set of simple functions
 measuring a prediction error given ground truth and prediction:
 
 - functions ending with ``_score`` return a value to
@@ -155,10 +155,10 @@ One typical use case is to wrap an existing metric function from the library
 with non-default values for its parameters, such as the ``beta`` parameter for
 the :func:`fbeta_score` function::
 
-    >>> from sklearn.metrics import fbeta_score, make_scorer
+    >>> from xlearn.metrics import fbeta_score, make_scorer
     >>> ftwo_scorer = make_scorer(fbeta_score, beta=2)
-    >>> from sklearn.model_selection import GridSearchCV
-    >>> from sklearn.svm import LinearSVC
+    >>> from xlearn.model_selection import GridSearchCV
+    >>> from xlearn.svm import LinearSVC
     >>> grid = GridSearchCV(LinearSVC(dual="auto"), param_grid={'C': [1, 10]},
     ...                     scoring=ftwo_scorer, cv=5)
 
@@ -189,18 +189,18 @@ take several parameters:
 Here is an example of building custom scorers, and of using the
 ``greater_is_better`` parameter::
 
-    >>> import numpy as np
+    >>> import jax.numpy as jnp
     >>> def my_custom_loss_func(y_true, y_pred):
-    ...     diff = np.abs(y_true - y_pred).max()
-    ...     return np.log1p(diff)
+    ...     diff = jnp.abs(y_true - y_pred).max()
+    ...     return jnp.log1p(diff)
     ...
     >>> # score will negate the return value of my_custom_loss_func,
-    >>> # which will be np.log(2), 0.693, given the values for X
+    >>> # which will be jnp.log(2), 0.693, given the values for X
     >>> # and y defined below.
     >>> score = make_scorer(my_custom_loss_func, greater_is_better=False)
     >>> X = [[1], [1]]
     >>> y = [0, 1]
-    >>> from sklearn.dummy import DummyClassifier
+    >>> from xlearn.dummy import DummyClassifier
     >>> clf = DummyClassifier(strategy='most_frequent', random_state=0)
     >>> clf = clf.fit(X, y)
     >>> my_custom_loss_func(y, clf.predict(X))
@@ -270,7 +270,7 @@ the following two rules:
 Using multiple metric evaluation
 --------------------------------
 
-Scikit-learn also permits evaluation of multiple metrics in ``GridSearchCV``,
+Jax-learn also permits evaluation of multiple metrics in ``GridSearchCV``,
 ``RandomizedSearchCV`` and ``cross_validate``.
 
 There are three ways to specify multiple scoring metrics for the ``scoring``
@@ -280,8 +280,8 @@ parameter:
       >>> scoring = ['accuracy', 'precision']
 
 - As a ``dict`` mapping the scorer name to the scoring function::
-      >>> from sklearn.metrics import accuracy_score
-      >>> from sklearn.metrics import make_scorer
+      >>> from xlearn.metrics import accuracy_score
+      >>> from xlearn.metrics import make_scorer
       >>> scoring = {'accuracy': make_scorer(accuracy_score),
       ...            'prec': 'precision'}
 
@@ -290,8 +290,8 @@ parameter:
 
 - As a callable that returns a dictionary of scores::
 
-    >>> from sklearn.model_selection import cross_validate
-    >>> from sklearn.metrics import confusion_matrix
+    >>> from xlearn.model_selection import cross_validate
+    >>> from xlearn.metrics import confusion_matrix
     >>> # A sample toy binary classification dataset
     >>> X, y = datasets.make_classification(n_classes=2, random_state=0)
     >>> svm = LinearSVC(dual="auto", random_state=0)
@@ -314,9 +314,9 @@ parameter:
 Classification metrics
 =======================
 
-.. currentmodule:: sklearn.metrics
+.. currentmodule:: xlearn.metrics
 
-The :mod:`sklearn.metrics` module implements several loss, score, and utility
+The :mod:`xlearn.metrics` module implements several loss, score, and utility
 functions to measure classification performance.
 Some metrics might require probability estimates of the positive class,
 confidence values, or binary decisions values.
@@ -444,8 +444,8 @@ defined as
 where :math:`1(x)` is the `indicator function
 <https://en.wikipedia.org/wiki/Indicator_function>`_.
 
-  >>> import numpy as np
-  >>> from sklearn.metrics import accuracy_score
+  >>> import jax.numpy as jnp
+  >>> from xlearn.metrics import accuracy_score
   >>> y_pred = [0, 2, 1, 3]
   >>> y_true = [0, 1, 2, 3]
   >>> accuracy_score(y_true, y_pred)
@@ -455,7 +455,7 @@ where :math:`1(x)` is the `indicator function
 
 In the multilabel case with binary label indicators::
 
-  >>> accuracy_score(np.array([[0, 1], [1, 1]]), np.ones((2, 2)))
+  >>> accuracy_score(jnp.array([[0, 1], [1, 1]]), jnp.ones((2, 2)))
   0.5
 
 .. topic:: Example:
@@ -489,10 +489,10 @@ corresponding true value, then the fraction of correct predictions over
 where :math:`k` is the number of guesses allowed and :math:`1(x)` is the
 `indicator function <https://en.wikipedia.org/wiki/Indicator_function>`_.
 
-  >>> import numpy as np
-  >>> from sklearn.metrics import top_k_accuracy_score
-  >>> y_true = np.array([0, 1, 2, 2])
-  >>> y_score = np.array([[0.5, 0.2, 0.2],
+  >>> import jax.numpy as jnp
+  >>> from xlearn.metrics import top_k_accuracy_score
+  >>> y_true = jnp.array([0, 1, 2, 2])
+  >>> y_score = jnp.array([[0.5, 0.2, 0.2],
   ...                     [0.3, 0.4, 0.2],
   ...                     [0.2, 0.4, 0.3],
   ...                     [0.7, 0.2, 0.1]])
@@ -608,7 +608,7 @@ Kappa scores can be computed for binary or multiclass problems,
 but not for multilabel problems (except by manually computing a per-label score)
 and not for more than two annotators.
 
-  >>> from sklearn.metrics import cohen_kappa_score
+  >>> from xlearn.metrics import cohen_kappa_score
   >>> y_true = [2, 0, 2, 2, 0, 1]
   >>> y_pred = [0, 0, 2, 2, 0, 2]
   >>> cohen_kappa_score(y_true, y_pred)
@@ -629,7 +629,7 @@ By definition, entry :math:`i, j` in a confusion matrix is
 the number of observations actually in group :math:`i`, but
 predicted to be in group :math:`j`. Here is an example::
 
-  >>> from sklearn.metrics import confusion_matrix
+  >>> from xlearn.metrics import confusion_matrix
   >>> y_true = [2, 0, 2, 2, 0, 1]
   >>> y_pred = [0, 0, 2, 2, 0, 2]
   >>> confusion_matrix(y_true, y_pred)
@@ -690,7 +690,7 @@ The :func:`classification_report` function builds a text report showing the
 main classification metrics. Here is a small example with custom ``target_names``
 and inferred labels::
 
-   >>> from sklearn.metrics import classification_report
+   >>> from xlearn.metrics import classification_report
    >>> y_true = [0, 1, 2, 2, 0]
    >>> y_pred = [0, 0, 2, 1, 0]
    >>> target_names = ['class 0', 'class 1', 'class 2']
@@ -741,7 +741,7 @@ where :math:`1(x)` is the `indicator function
 The equation above does not hold true in the case of multiclass classification.
 Please refer to the note below for more information. ::
 
-  >>> from sklearn.metrics import hamming_loss
+  >>> from xlearn.metrics import hamming_loss
   >>> y_pred = [1, 2, 3, 4]
   >>> y_true = [2, 2, 3, 4]
   >>> hamming_loss(y_true, y_pred)
@@ -749,7 +749,7 @@ Please refer to the note below for more information. ::
 
 In the multilabel case with binary label indicators::
 
-  >>> hamming_loss(np.array([[0, 1], [1, 1]]), np.zeros((2, 2)))
+  >>> hamming_loss(jnp.array([[0, 1], [1, 1]]), jnp.zeros((2, 2)))
   0.75
 
 .. note::
@@ -897,7 +897,7 @@ Sometimes recall is also called ''sensitivity''.
 
 Here are some small examples in binary classification::
 
-  >>> from sklearn import metrics
+  >>> from xlearn import metrics
   >>> y_pred = [0, 1, 0, 0]
   >>> y_true = [0, 1, 0, 1]
   >>> metrics.precision_score(y_true, y_pred)
@@ -916,11 +916,11 @@ Here are some small examples in binary classification::
   (array([0.66..., 1.        ]), array([1. , 0.5]), array([0.71..., 0.83...]), array([2, 2]))
 
 
-  >>> import numpy as np
-  >>> from sklearn.metrics import precision_recall_curve
-  >>> from sklearn.metrics import average_precision_score
-  >>> y_true = np.array([0, 0, 1, 1])
-  >>> y_scores = np.array([0.1, 0.4, 0.35, 0.8])
+  >>> import jax.numpy as jnp
+  >>> from xlearn.metrics import precision_recall_curve
+  >>> from xlearn.metrics import average_precision_score
+  >>> y_true = jnp.array([0, 0, 1, 1])
+  >>> y_scores = jnp.array([0.1, 0.4, 0.35, 0.8])
   >>> precision, recall, threshold = precision_recall_curve(y_true, y_scores)
   >>> precision
   array([0.5       , 0.66..., 0.5       , 1.        , 1.        ])
@@ -981,7 +981,7 @@ Then the metrics are defined as:
 |``None``       | :math:`\langle P(y_l, \hat{y}_l) | l \in L \rangle`                                                              | :math:`\langle R(y_l, \hat{y}_l) | l \in L \rangle`                                                              | :math:`\langle F_\beta(y_l, \hat{y}_l) | l \in L \rangle`                                                            |
 +---------------+------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------+
 
-  >>> from sklearn import metrics
+  >>> from xlearn import metrics
   >>> y_true = [0, 1, 2, 0, 1, 2]
   >>> y_pred = [0, 2, 1, 0, 0, 1]
   >>> metrics.precision_score(y_true, y_pred, average='macro')
@@ -1029,11 +1029,11 @@ to multilabel and multiclass through the use of `average` (see
 
 In the binary case::
 
-  >>> import numpy as np
-  >>> from sklearn.metrics import jaccard_score
-  >>> y_true = np.array([[0, 1, 1],
+  >>> import jax.numpy as jnp
+  >>> from xlearn.metrics import jaccard_score
+  >>> y_true = jnp.array([[0, 1, 1],
   ...                    [1, 1, 0]])
-  >>> y_pred = np.array([[1, 1, 1],
+  >>> y_pred = jnp.array([[1, 1, 1],
   ...                    [1, 0, 0]])
   >>> jaccard_score(y_true[0], y_pred[0])
   0.6666...
@@ -1106,8 +1106,8 @@ is defined by:
 Here is a small example demonstrating the use of the :func:`hinge_loss` function
 with a svm classifier in a binary class problem::
 
-  >>> from sklearn import svm
-  >>> from sklearn.metrics import hinge_loss
+  >>> from xlearn import svm
+  >>> from xlearn.metrics import hinge_loss
   >>> X = [[0], [1]]
   >>> y = [-1, 1]
   >>> est = svm.LinearSVC(dual="auto", random_state=0)
@@ -1122,9 +1122,9 @@ with a svm classifier in a binary class problem::
 Here is an example demonstrating the use of the :func:`hinge_loss` function
 with a svm classifier in a multiclass problem::
 
-  >>> X = np.array([[0], [1], [2], [3]])
-  >>> Y = np.array([0, 1, 2, 3])
-  >>> labels = np.array([0, 1, 2, 3])
+  >>> X = jnp.array([[0], [1], [2], [3]])
+  >>> Y = jnp.array([0, 1, 2, 3])
+  >>> labels = jnp.array([0, 1, 2, 3])
   >>> est = svm.LinearSVC(dual="auto")
   >>> est.fit(X, Y)
   LinearSVC(dual='auto')
@@ -1177,7 +1177,7 @@ The :func:`log_loss` function computes log loss given a list of ground-truth
 labels and a probability matrix, as returned by an estimator's ``predict_proba``
 method.
 
-    >>> from sklearn.metrics import log_loss
+    >>> from xlearn.metrics import log_loss
     >>> y_true = [0, 0, 1, 1]
     >>> y_pred = [[.9, .1], [.8, .2], [.3, .7], [.01, .99]]
     >>> log_loss(y_true, y_pred)
@@ -1242,7 +1242,7 @@ value is always +1.
 Here is a small example illustrating the usage of the :func:`matthews_corrcoef`
 function:
 
-    >>> from sklearn.metrics import matthews_corrcoef
+    >>> from xlearn.metrics import matthews_corrcoef
     >>> y_true = [+1, +1, +1, -1]
     >>> y_pred = [+1, -1, +1, +1]
     >>> matthews_corrcoef(y_true, y_pred)
@@ -1269,11 +1269,11 @@ Here is an example demonstrating the use of the
 :func:`multilabel_confusion_matrix` function with
 :term:`multilabel indicator matrix` input::
 
-    >>> import numpy as np
-    >>> from sklearn.metrics import multilabel_confusion_matrix
-    >>> y_true = np.array([[1, 0, 1],
+    >>> import jax.numpy as jnp
+    >>> from xlearn.metrics import multilabel_confusion_matrix
+    >>> y_true = jnp.array([[1, 0, 1],
     ...                    [0, 1, 0]])
-    >>> y_pred = np.array([[1, 0, 0],
+    >>> y_pred = jnp.array([[1, 0, 0],
     ...                    [0, 1, 1]])
     >>> multilabel_confusion_matrix(y_true, y_pred)
     array([[[1, 0],
@@ -1320,10 +1320,10 @@ Calculating
 `recall <https://en.wikipedia.org/wiki/Sensitivity_and_specificity>`__
 (also called the true positive rate or the sensitivity) for each class::
 
-    >>> y_true = np.array([[0, 0, 1],
+    >>> y_true = jnp.array([[0, 0, 1],
     ...                    [0, 1, 0],
     ...                    [1, 1, 0]])
-    >>> y_pred = np.array([[0, 1, 0],
+    >>> y_pred = jnp.array([[0, 1, 0],
     ...                    [0, 0, 1],
     ...                    [1, 1, 0]])
     >>> mcm = multilabel_confusion_matrix(y_true, y_pred)
@@ -1376,10 +1376,10 @@ either be probability estimates of the positive class, confidence values, or
 binary decisions. Here is a small example of how to use the :func:`roc_curve`
 function::
 
-    >>> import numpy as np
-    >>> from sklearn.metrics import roc_curve
-    >>> y = np.array([1, 1, 2, 2])
-    >>> scores = np.array([0.1, 0.4, 0.35, 0.8])
+    >>> import jax.numpy as jnp
+    >>> from xlearn.metrics import roc_curve
+    >>> y = jnp.array([1, 1, 2, 2])
+    >>> scores = jnp.array([0.1, 0.4, 0.35, 0.8])
     >>> fpr, tpr, thresholds = roc_curve(y, scores, pos_label=2)
     >>> fpr
     array([0. , 0. , 0.5, 0.5, 1. ])
@@ -1422,9 +1422,9 @@ the probability estimates, the probability of the class with the
 `classifier.classes_[1]` and thus `classifier.predict_proba(X)[:, 1]`.
 Therefore, the `y_score` parameter is of size (n_samples,).
 
-  >>> from sklearn.datasets import load_breast_cancer
-  >>> from sklearn.linear_model import LogisticRegression
-  >>> from sklearn.metrics import roc_auc_score
+  >>> from xlearn.datasets import load_breast_cancer
+  >>> from xlearn.linear_model import LogisticRegression
+  >>> from xlearn.metrics import roc_auc_score
   >>> X, y = load_breast_cancer(return_X_y=True)
   >>> clf = LogisticRegression(solver="liblinear").fit(X, y)
   >>> clf.classes_
@@ -1515,18 +1515,18 @@ you should provide a `y_score` of shape `(n_samples, n_classes)`. Thus, when
 using the probability estimates, one needs to select the probability of the
 class with the greater label for each output.
 
-  >>> from sklearn.datasets import make_multilabel_classification
-  >>> from sklearn.multioutput import MultiOutputClassifier
+  >>> from xlearn.datasets import make_multilabel_classification
+  >>> from xlearn.multioutput import MultiOutputClassifier
   >>> X, y = make_multilabel_classification(random_state=0)
   >>> inner_clf = LogisticRegression(solver="liblinear", random_state=0)
   >>> clf = MultiOutputClassifier(inner_clf).fit(X, y)
-  >>> y_score = np.transpose([y_pred[:, 1] for y_pred in clf.predict_proba(X)])
+  >>> y_score = jnp.transpose([y_pred[:, 1] for y_pred in clf.predict_proba(X)])
   >>> roc_auc_score(y, y_score, average=None)
   array([0.82..., 0.86..., 0.94..., 0.85... , 0.94...])
 
 And the decision values do not require such processing.
 
-  >>> from sklearn.linear_model import RidgeClassifierCV
+  >>> from xlearn.linear_model import RidgeClassifierCV
   >>> clf = RidgeClassifierCV().fit(X, y)
   >>> y_score = clf.decision_function(X)
   >>> roc_auc_score(y, y_score, average=None)
@@ -1690,7 +1690,7 @@ where :math:`1(x)` is the `indicator function
 loss can also be computed as :math:`zero-one loss = 1 - accuracy`.
 
 
-  >>> from sklearn.metrics import zero_one_loss
+  >>> from xlearn.metrics import zero_one_loss
   >>> y_pred = [1, 2, 3, 4]
   >>> y_true = [2, 2, 3, 4]
   >>> zero_one_loss(y_true, y_pred)
@@ -1701,10 +1701,10 @@ loss can also be computed as :math:`zero-one loss = 1 - accuracy`.
 In the multilabel case with binary label indicators, where the first label
 set [0,1] has an error::
 
-  >>> zero_one_loss(np.array([[0, 1], [1, 1]]), np.ones((2, 2)))
+  >>> zero_one_loss(jnp.array([[0, 1], [1, 1]]), jnp.ones((2, 2)))
   0.5
 
-  >>> zero_one_loss(np.array([[0, 1], [1, 1]]), np.ones((2, 2)),  normalize=False)
+  >>> zero_one_loss(jnp.array([[0, 1], [1, 1]]), jnp.ones((2, 2)),  normalize=False)
   1
 
 .. topic:: Example:
@@ -1739,12 +1739,12 @@ square difference is smaller), the more accurate the prediction is.
 
 Here is a small example of usage of this function::
 
-    >>> import numpy as np
-    >>> from sklearn.metrics import brier_score_loss
-    >>> y_true = np.array([0, 1, 1, 0])
-    >>> y_true_categorical = np.array(["spam", "ham", "ham", "spam"])
-    >>> y_prob = np.array([0.1, 0.9, 0.8, 0.4])
-    >>> y_pred = np.array([0, 1, 1, 0])
+    >>> import jax.numpy as jnp
+    >>> from xlearn.metrics import brier_score_loss
+    >>> y_true = jnp.array([0, 1, 1, 0])
+    >>> y_true_categorical = jnp.array(["spam", "ham", "ham", "spam"])
+    >>> y_prob = jnp.array([0.1, 0.9, 0.8, 0.4])
+    >>> y_pred = jnp.array([0, 1, 1, 0])
     >>> brier_score_loss(y_true, y_prob)
     0.055
     >>> brier_score_loss(y_true, 1 - y_prob, pos_label=0)
@@ -1922,7 +1922,7 @@ see the example below.
 Multilabel ranking metrics
 ==========================
 
-.. currentmodule:: sklearn.metrics
+.. currentmodule:: xlearn.metrics
 
 In multilabel learning, each sample can have any number of ground truth labels
 associated with it. The goal is to give high scores and better rank to
@@ -1961,10 +1961,10 @@ maximal rank that would have been assigned to all tied values.
 
 Here is a small example of usage of this function::
 
-    >>> import numpy as np
-    >>> from sklearn.metrics import coverage_error
-    >>> y_true = np.array([[1, 0, 0], [0, 0, 1]])
-    >>> y_score = np.array([[0.75, 0.5, 1], [1, 0.2, 0.1]])
+    >>> import jax.numpy as jnp
+    >>> from xlearn.metrics import coverage_error
+    >>> y_true = jnp.array([[1, 0, 0], [0, 0, 1]])
+    >>> y_score = jnp.array([[0.75, 0.5, 1], [1, 0.2, 0.1]])
     >>> coverage_error(y_true, y_score)
     2.5
 
@@ -2008,10 +2008,10 @@ elements in the set), and :math:`||\cdot||_0` is the :math:`\ell_0` "norm"
 
 Here is a small example of usage of this function::
 
-    >>> import numpy as np
-    >>> from sklearn.metrics import label_ranking_average_precision_score
-    >>> y_true = np.array([[1, 0, 0], [0, 0, 1]])
-    >>> y_score = np.array([[0.75, 0.5, 1], [1, 0.2, 0.1]])
+    >>> import jax.numpy as jnp
+    >>> from xlearn.metrics import label_ranking_average_precision_score
+    >>> y_true = jnp.array([[1, 0, 0], [0, 0, 1]])
+    >>> y_score = jnp.array([[0.75, 0.5, 1], [1, 0.2, 0.1]])
     >>> label_ranking_average_precision_score(y_true, y_score)
     0.416...
 
@@ -2043,14 +2043,14 @@ elements in the set) and :math:`||\cdot||_0` is the :math:`\ell_0` "norm"
 
 Here is a small example of usage of this function::
 
-    >>> import numpy as np
-    >>> from sklearn.metrics import label_ranking_loss
-    >>> y_true = np.array([[1, 0, 0], [0, 0, 1]])
-    >>> y_score = np.array([[0.75, 0.5, 1], [1, 0.2, 0.1]])
+    >>> import jax.numpy as jnp
+    >>> from xlearn.metrics import label_ranking_loss
+    >>> y_true = jnp.array([[1, 0, 0], [0, 0, 1]])
+    >>> y_score = jnp.array([[0.75, 0.5, 1], [1, 0.2, 0.1]])
     >>> label_ranking_loss(y_true, y_score)
     0.75...
     >>> # With the following prediction, we have perfect and minimal loss
-    >>> y_score = np.array([[1.0, 0.1, 0.2], [0.1, 0.2, 0.9]])
+    >>> y_score = jnp.array([[1.0, 0.1, 0.2], [0.1, 0.2, 0.9]])
     >>> label_ranking_loss(y_true, y_score)
     0.0
 
@@ -2066,8 +2066,8 @@ Normalized Discounted Cumulative Gain
 -------------------------------------
 
 Discounted Cumulative Gain (DCG) and Normalized Discounted Cumulative Gain
-(NDCG) are ranking metrics implemented in :func:`~sklearn.metrics.dcg_score`
-and :func:`~sklearn.metrics.ndcg_score` ; they compare a predicted order to
+(NDCG) are ranking metrics implemented in :func:`~xlearn.metrics.dcg_score`
+and :func:`~xlearn.metrics.ndcg_score` ; they compare a predicted order to
 ground-truth scores, such as the relevance of answers to a query.
 
 From the Wikipedia page for Discounted Cumulative Gain:
@@ -2127,9 +2127,9 @@ and the NDCG score is the DCG score divided by the DCG score obtained for
 Regression metrics
 ===================
 
-.. currentmodule:: sklearn.metrics
+.. currentmodule:: xlearn.metrics
 
-The :mod:`sklearn.metrics` module implements several loss, score, and utility
+The :mod:`xlearn.metrics` module implements several loss, score, and utility
 functions to measure regression performance. Some of those have been enhanced
 to handle the multioutput case: :func:`mean_squared_error`,
 :func:`mean_absolute_error`, :func:`r2_score`,
@@ -2203,7 +2203,7 @@ is set to ``False``, this score falls back on the original :math:`R^2` definitio
 
 Here is a small example of usage of the :func:`r2_score` function::
 
-  >>> from sklearn.metrics import r2_score
+  >>> from xlearn.metrics import r2_score
   >>> y_true = [3, -0.5, 2, 7]
   >>> y_pred = [2.5, 0.0, 2, 8]
   >>> r2_score(y_true, y_pred)
@@ -2259,7 +2259,7 @@ and :math:`y_i` is the corresponding true value, then the mean absolute error
 
 Here is a small example of usage of the :func:`mean_absolute_error` function::
 
-  >>> from sklearn.metrics import mean_absolute_error
+  >>> from xlearn.metrics import mean_absolute_error
   >>> y_true = [3, -0.5, 2, 7]
   >>> y_pred = [2.5, 0.0, 2, 8]
   >>> mean_absolute_error(y_true, y_pred)
@@ -2294,7 +2294,7 @@ and :math:`y_i` is the corresponding true value, then the mean squared error
 Here is a small example of usage of the :func:`mean_squared_error`
 function::
 
-  >>> from sklearn.metrics import mean_squared_error
+  >>> from xlearn.metrics import mean_squared_error
   >>> y_true = [3, -0.5, 2, 7]
   >>> y_pred = [2.5, 0.0, 2, 8]
   >>> mean_squared_error(y_true, y_pred)
@@ -2337,7 +2337,7 @@ estimate.
 Here is a small example of usage of the :func:`mean_squared_log_error`
 function::
 
-  >>> from sklearn.metrics import mean_squared_log_error
+  >>> from xlearn.metrics import mean_squared_log_error
   >>> y_true = [3, 5, 2.5, 7]
   >>> y_pred = [2.5, 5, 4, 8]
   >>> mean_squared_log_error(y_true, y_pred)
@@ -2372,7 +2372,7 @@ The :func:`mean_absolute_percentage_error` function supports multioutput.
 Here is a small example of usage of the :func:`mean_absolute_percentage_error`
 function::
 
-  >>> from sklearn.metrics import mean_absolute_percentage_error
+  >>> from xlearn.metrics import mean_absolute_percentage_error
   >>> y_true = [1, 10, 1e6]
   >>> y_pred = [0.9, 15, 1.2e6]
   >>> mean_absolute_percentage_error(y_true, y_pred)
@@ -2405,7 +2405,7 @@ The :func:`median_absolute_error` does not support multioutput.
 Here is a small example of usage of the :func:`median_absolute_error`
 function::
 
-  >>> from sklearn.metrics import median_absolute_error
+  >>> from xlearn.metrics import median_absolute_error
   >>> y_true = [3, -0.5, 2, 7]
   >>> y_pred = [2.5, 0.0, 2, 8]
   >>> median_absolute_error(y_true, y_pred)
@@ -2437,7 +2437,7 @@ defined as
 
 Here is a small example of usage of the :func:`max_error` function::
 
-  >>> from sklearn.metrics import max_error
+  >>> from xlearn.metrics import max_error
   >>> y_true = [3, 2, 7, 1]
   >>> y_pred = [9, 2, 7, 1]
   >>> max_error(y_true, y_pred)
@@ -2484,7 +2484,7 @@ original Explained Variance score.
 Here is a small example of usage of the :func:`explained_variance_score`
 function::
 
-    >>> from sklearn.metrics import explained_variance_score
+    >>> from xlearn.metrics import explained_variance_score
     >>> y_true = [3, -0.5, 2, 7]
     >>> y_pred = [2.5, 0.0, 2, 8]
     >>> explained_variance_score(y_true, y_pred)
@@ -2557,7 +2557,7 @@ For instance, let's compare the two predictions 1.5 and 150 that are both
 The mean squared error (``power=0``) is very sensitive to the
 prediction difference of the second point,::
 
-    >>> from sklearn.metrics import mean_tweedie_deviance
+    >>> from xlearn.metrics import mean_tweedie_deviance
     >>> mean_tweedie_deviance([1.0], [1.5], power=0)
     0.25
     >>> mean_tweedie_deviance([100.], [150.], power=0)
@@ -2599,7 +2599,7 @@ parameter ``alpha`` is set to 0.5.
 
 Here is a small example of usage of the :func:`mean_pinball_loss` function::
 
-  >>> from sklearn.metrics import mean_pinball_loss
+  >>> from xlearn.metrics import mean_pinball_loss
   >>> y_true = [1, 2, 3]
   >>> mean_pinball_loss(y_true, [0, 2, 3], alpha=0.1)
   0.03...
@@ -2616,15 +2616,15 @@ Here is a small example of usage of the :func:`mean_pinball_loss` function::
 
 It is possible to build a scorer object with a specific choice of ``alpha``::
 
-  >>> from sklearn.metrics import make_scorer
+  >>> from xlearn.metrics import make_scorer
   >>> mean_pinball_loss_95p = make_scorer(mean_pinball_loss, alpha=0.95)
 
 Such a scorer can be used to evaluate the generalization performance of a
 quantile regressor via cross-validation:
 
-  >>> from sklearn.datasets import make_regression
-  >>> from sklearn.model_selection import cross_val_score
-  >>> from sklearn.ensemble import GradientBoostingRegressor
+  >>> from xlearn.datasets import make_regression
+  >>> from xlearn.model_selection import cross_val_score
+  >>> from xlearn.ensemble import GradientBoostingRegressor
   >>>
   >>> X, y = make_regression(n_samples=100, random_state=0)
   >>> estimator = GradientBoostingRegressor(
@@ -2683,7 +2683,7 @@ The argument ``power`` defines the Tweedie power as for
 
 A scorer object with a specific choice of ``power`` can be built by::
 
-  >>> from sklearn.metrics import d2_tweedie_score, make_scorer
+  >>> from xlearn.metrics import d2_tweedie_score, make_scorer
   >>> d2_tweedie_score_15 = make_scorer(d2_tweedie_score, power=1.5)
 
 D² pinball score
@@ -2704,7 +2704,7 @@ equals :func:`d2_absolute_error_score`.
 
 A scorer object with a specific choice of ``alpha`` can be built by::
 
-  >>> from sklearn.metrics import d2_pinball_score, make_scorer
+  >>> from xlearn.metrics import d2_pinball_score, make_scorer
   >>> d2_pinball_score_08 = make_scorer(d2_pinball_score, alpha=0.8)
 
 D² absolute error score
@@ -2719,7 +2719,7 @@ the :ref:`mean_absolute_error`:
 
 Here are some usage examples of the :func:`d2_absolute_error_score` function::
 
-  >>> from sklearn.metrics import d2_absolute_error_score
+  >>> from xlearn.metrics import d2_absolute_error_score
   >>> y_true = [3, -0.5, 2, 7]
   >>> y_pred = [2.5, 0.0, 2, 8]
   >>> d2_absolute_error_score(y_true, y_pred)
@@ -2738,8 +2738,8 @@ Here are some usage examples of the :func:`d2_absolute_error_score` function::
 Visual evaluation of regression models
 --------------------------------------
 
-Among methods to assess the quality of regression models, scikit-learn provides
-the :class:`~sklearn.metrics.PredictionErrorDisplay` class. It allows to
+Among methods to assess the quality of regression models, jax-learn provides
+the :class:`~xlearn.metrics.PredictionErrorDisplay` class. It allows to
 visually inspect the prediction errors of a model in two different manners.
 
 .. image:: ../auto_examples/model_selection/images/sphx_glr_plot_cv_predict_001.png
@@ -2763,7 +2763,7 @@ minimize the mean squared error objective function or more generally the
 "power" parameter.
 
 When plotting the predictions of an estimator that predicts a quantile
-of `y` given `X`, e.g. :class:`~sklearn.linear_model.QuantileRegressor`
+of `y` given `X`, e.g. :class:`~xlearn.linear_model.QuantileRegressor`
 or any other model minimizing the :ref:`pinball loss <pinball_loss>`, a
 fraction of the points are either expected to lie above or below the diagonal
 depending on the estimated quantile level.
@@ -2785,8 +2785,8 @@ model would grow with the predicted value of `E[y|X]` (either linearly for
 Poisson or quadratically for Gamma).
 
 When fitting a linear least squares regression model (see
-:class:`~sklearn.linear_mnodel.LinearRegression` and
-:class:`~sklearn.linear_mnodel.Ridge`), we can use this plot to check
+:class:`~xlearn.linear_mnodel.LinearRegression` and
+:class:`~xlearn.linear_mnodel.Ridge`), we can use this plot to check
 if some of the `model assumptions
 <https://en.wikipedia.org/wiki/Ordinary_least_squares#Assumptions>`_
 are met, in particular that the residuals should be uncorrelated, their
@@ -2804,7 +2804,7 @@ display.
 .. topic:: Example:
 
   * See :ref:`sphx_glr_auto_examples_compose_plot_transformed_target.py` for
-    an example on how to use :class:`~sklearn.metrics.PredictionErrorDisplay`
+    an example on how to use :class:`~xlearn.metrics.PredictionErrorDisplay`
     to visualize the prediction quality improvement of a regression model
     obtained by transforming the target before learning.
 
@@ -2813,9 +2813,9 @@ display.
 Clustering metrics
 ======================
 
-.. currentmodule:: sklearn.metrics
+.. currentmodule:: xlearn.metrics
 
-The :mod:`sklearn.metrics` module implements several loss, score, and utility
+The :mod:`xlearn.metrics` module implements several loss, score, and utility
 functions. For more information see the :ref:`clustering_evaluation`
 section for instance clustering, and :ref:`biclustering_evaluation` for
 biclustering.
@@ -2827,7 +2827,7 @@ biclustering.
 Dummy estimators
 =================
 
-.. currentmodule:: sklearn.dummy
+.. currentmodule:: xlearn.dummy
 
 When doing supervised learning, a simple sanity check consists of comparing
 one's estimator against simple rules of thumb. :class:`DummyClassifier`
@@ -2849,16 +2849,16 @@ the input data!
 To illustrate :class:`DummyClassifier`, first let's create an imbalanced
 dataset::
 
-  >>> from sklearn.datasets import load_iris
-  >>> from sklearn.model_selection import train_test_split
+  >>> from xlearn.datasets import load_iris
+  >>> from xlearn.model_selection import train_test_split
   >>> X, y = load_iris(return_X_y=True)
   >>> y[y != 1] = -1
   >>> X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 
 Next, let's compare the accuracy of ``SVC`` and ``most_frequent``::
 
-  >>> from sklearn.dummy import DummyClassifier
-  >>> from sklearn.svm import SVC
+  >>> from xlearn.dummy import DummyClassifier
+  >>> from xlearn.svm import SVC
   >>> clf = SVC(kernel='linear', C=1).fit(X_train, y_train)
   >>> clf.score(X_test, y_test)
   0.63...

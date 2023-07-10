@@ -4,9 +4,9 @@
 Feature extraction
 ==================
 
-.. currentmodule:: sklearn.feature_extraction
+.. currentmodule:: xlearn.feature_extraction
 
-The :mod:`sklearn.feature_extraction` module can be used to extract
+The :mod:`xlearn.feature_extraction` module can be used to extract
 features in a format supported by machine learning algorithms from datasets
 consisting of formats such as text and image.
 
@@ -24,7 +24,7 @@ Loading features from dicts
 
 The class :class:`DictVectorizer` can be used to convert feature
 arrays represented as lists of standard Python ``dict`` objects to the
-NumPy/SciPy representation used by scikit-learn estimators.
+NumPy/SciPy representation used by jax-learn estimators.
 
 While not particularly fast to process, Python's ``dict`` has the
 advantages of being convenient to use, being sparse (absent features
@@ -45,7 +45,7 @@ is a traditional numerical feature::
   ...     {'city': 'San Francisco', 'temperature': 18.},
   ... ]
 
-  >>> from sklearn.feature_extraction import DictVectorizer
+  >>> from xlearn.feature_extraction import DictVectorizer
   >>> vec = DictVectorizer()
 
   >>> vec.fit_transform(measurements).toarray()
@@ -127,7 +127,7 @@ default instead of a ``numpy.ndarray``.
 Feature hashing
 ===============
 
-.. currentmodule:: sklearn.feature_extraction
+.. currentmodule:: xlearn.feature_extraction
 
 The class :class:`FeatureHasher` is a high-speed, low-memory vectorizer that
 uses a technique known as
@@ -150,8 +150,8 @@ and the expected mean of any output feature's value is zero. This mechanism
 is enabled by default with ``alternate_sign=True`` and is particularly useful
 for small hash table sizes (``n_features < 10000``). For large hash table
 sizes, it can be disabled, to allow the output to be passed to estimators like
-:class:`~sklearn.naive_bayes.MultinomialNB` or
-:class:`~sklearn.feature_selection.chi2`
+:class:`~xlearn.naive_bayes.MultinomialNB` or
+:class:`~xlearn.feature_selection.chi2`
 feature selectors that expect non-negative inputs.
 
 :class:`FeatureHasher` accepts either mappings
@@ -238,7 +238,7 @@ otherwise the features will not be mapped evenly to the columns.
 Text feature extraction
 =======================
 
-.. currentmodule:: sklearn.feature_extraction.text
+.. currentmodule:: xlearn.feature_extraction.text
 
 
 The Bag of Words representation
@@ -250,7 +250,7 @@ directly to the algorithms themselves as most of them expect numerical
 feature vectors with a fixed size rather than the raw text documents
 with variable length.
 
-In order to address this, scikit-learn provides utilities for the most
+In order to address this, jax-learn provides utilities for the most
 common ways to extract numerical features from text content, namely:
 
 - **tokenizing** strings and giving an integer id for each possible token,
@@ -303,7 +303,7 @@ Common Vectorizer usage
 :class:`CountVectorizer` implements both tokenization and occurrence
 counting in a single class::
 
-  >>> from sklearn.feature_extraction.text import CountVectorizer
+  >>> from xlearn.feature_extraction.text import CountVectorizer
 
 This model has many parameters, however the default values are quite
 reasonable (please see  the :ref:`reference documentation
@@ -466,7 +466,7 @@ use in document classification and clustering.
 
 The following sections contain further explanations and examples that
 illustrate how the tf-idfs are computed exactly and how the tf-idfs
-computed in scikit-learn's :class:`TfidfTransformer`
+computed in jax-learn's :class:`TfidfTransformer`
 and :class:`TfidfVectorizer` differ slightly from the standard textbook
 notation that defines the idf as
 
@@ -482,7 +482,7 @@ with ``smooth_idf=False``, the
 This normalization is implemented by the :class:`TfidfTransformer`
 class::
 
-  >>> from sklearn.feature_extraction.text import TfidfTransformer
+  >>> from xlearn.feature_extraction.text import TfidfTransformer
   >>> transformer = TfidfTransformer(smooth_idf=False)
   >>> transformer
   TfidfTransformer(smooth_idf=False)
@@ -589,7 +589,7 @@ As tf–idf is very often used for text features, there is also another
 class called :class:`TfidfVectorizer` that combines all the options of
 :class:`CountVectorizer` and :class:`TfidfTransformer` in a single model::
 
-  >>> from sklearn.feature_extraction.text import TfidfVectorizer
+  >>> from xlearn.feature_extraction.text import TfidfVectorizer
   >>> vectorizer = TfidfVectorizer()
   >>> vectorizer.fit_transform(corpus)
   <4x9 sparse matrix of type '<... 'numpy.float64'>'
@@ -623,7 +623,7 @@ and the universal encodings UTF-8 and UTF-16. Many others exist.
     but this term is less accurate: several encodings can exist
     for a single character set.
 
-The text feature extractors in scikit-learn know how to decode text files,
+The text feature extractors in jax-learn know how to decode text files,
 but only if you tell them what encoding the files are in.
 The :class:`CountVectorizer` takes an ``encoding`` parameter for this purpose.
 For modern text files, the correct encoding is probably UTF-8,
@@ -668,7 +668,7 @@ If you are having trouble decoding text, here are some things to try:
   the same feature.
 
 For example, the following snippet uses ``chardet``
-(not shipped with scikit-learn, must be installed separately)
+(not shipped with jax-learn, must be installed separately)
 to figure out the encoding of three texts.
 It then vectorizes the texts and prints the learned vocabulary.
 The output is not shown here.
@@ -782,7 +782,7 @@ the meaning carried by that internal structure.
 In order to address the wider task of Natural Language Understanding,
 the local structure of sentences and paragraphs should thus be taken
 into account. Many such models will thus be casted as "Structured output"
-problems which are currently outside of the scope of scikit-learn.
+problems which are currently outside of the scope of jax-learn.
 
 
 .. _hashing_vectorizer:
@@ -817,7 +817,7 @@ datasets**:
 
 It is possible to overcome those limitations by combining the "hashing trick"
 (:ref:`Feature_hashing`) implemented by the
-:class:`~sklearn.feature_extraction.FeatureHasher` class and the text
+:class:`~xlearn.feature_extraction.FeatureHasher` class and the text
 preprocessing and tokenization features of the :class:`CountVectorizer`.
 
 This combination is implementing in :class:`HashingVectorizer`,
@@ -825,7 +825,7 @@ a transformer class that is mostly API compatible with :class:`CountVectorizer`.
 :class:`HashingVectorizer` is stateless,
 meaning that you don't have to call ``fit`` on it::
 
-  >>> from sklearn.feature_extraction.text import HashingVectorizer
+  >>> from xlearn.feature_extraction.text import HashingVectorizer
   >>> hv = HashingVectorizer(n_features=10)
   >>> hv.transform(corpus)
   <4x10 sparse matrix of type '<... 'numpy.float64'>'
@@ -920,7 +920,7 @@ In particular we name:
     place at the analyzer level, so a custom analyzer may have to reproduce
     these steps.
 
-(Lucene users might recognize these names, but be aware that scikit-learn
+(Lucene users might recognize these names, but be aware that jax-learn
 concepts may not map one-to-one onto Lucene concepts.)
 
 To make the preprocessor, tokenizer and analyzers aware of the model
@@ -935,7 +935,7 @@ Some tips and tricks:
     ``analyzer=str.split``
   * Fancy token-level analysis such as stemming, lemmatizing, compound
     splitting, filtering based on part-of-speech, etc. are not included in the
-    scikit-learn codebase, but can be added by customizing either the
+    jax-learn codebase, but can be added by customizing either the
     tokenizer or the analyzer.
     Here's a ``CountVectorizer`` with a tokenizer and lemmatizer using
     `NLTK <https://www.nltk.org/>`_::
@@ -987,7 +987,7 @@ that do not use an explicit word separator such as whitespace.
 Image feature extraction
 ========================
 
-.. currentmodule:: sklearn.feature_extraction.image
+.. currentmodule:: xlearn.feature_extraction.image
 
 Patch extraction
 ----------------
@@ -998,10 +998,10 @@ the third axis. For rebuilding an image from all its patches, use
 :func:`reconstruct_from_patches_2d`. For example let us generate a 4x4 pixel
 picture with 3 color channels (e.g. in RGB format)::
 
-    >>> import numpy as np
-    >>> from sklearn.feature_extraction import image
+    >>> import jax.numpy as jnp
+    >>> from xlearn.feature_extraction import image
 
-    >>> one_image = np.arange(4 * 4 * 3).reshape((4, 4, 3))
+    >>> one_image = jnp.arange(4 * 4 * 3).reshape((4, 4, 3))
     >>> one_image[:, :, 0]  # R channel of a fake RGB picture
     array([[ 0,  3,  6,  9],
            [12, 15, 18, 21],
@@ -1029,13 +1029,13 @@ Let us now try to reconstruct the original image from the patches by averaging
 on overlapping areas::
 
     >>> reconstructed = image.reconstruct_from_patches_2d(patches, (4, 4, 3))
-    >>> np.testing.assert_array_equal(one_image, reconstructed)
+    >>> jnp.testing.assert_array_equal(one_image, reconstructed)
 
 The :class:`PatchExtractor` class works in the same way as
 :func:`extract_patches_2d`, only it supports multiple images as input. It is
-implemented as a scikit-learn transformer, so it can be used in pipelines. See::
+implemented as a jax-learn transformer, so it can be used in pipelines. See::
 
-    >>> five_images = np.arange(5 * 4 * 4 * 3).reshape(5, 4, 4, 3)
+    >>> five_images = jnp.arange(5 * 4 * 4 * 3).reshape(5, 4, 4, 3)
     >>> patches = image.PatchExtractor(patch_size=(2, 2)).transform(five_images)
     >>> patches.shape
     (45, 2, 2, 3)
@@ -1043,7 +1043,7 @@ implemented as a scikit-learn transformer, so it can be used in pipelines. See::
 Connectivity graph of an image
 -------------------------------
 
-Several estimators in the scikit-learn can use connectivity information between
+Several estimators in the jax-learn can use connectivity information between
 features or samples. For instance Ward clustering
 (:ref:`hierarchical_clustering`) can cluster together only neighboring pixels
 of an image, thus forming contiguous patches:

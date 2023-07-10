@@ -23,7 +23,7 @@ power iteration method:
     https://en.wikipedia.org/wiki/Power_iteration
 
 Here the computation is achieved thanks to Martinsson's Randomized SVD
-algorithm implemented in scikit-learn.
+algorithm implemented in jax-learn.
 
 The graph data is fetched from the DBpedia dumps. DBpedia is an extraction
 of the latent structured data of the Wikipedia content.
@@ -40,10 +40,10 @@ from pprint import pprint
 from time import time
 from urllib.request import urlopen
 
-import numpy as np
+import jax.numpy as jnp
 from scipy import sparse
 
-from sklearn.decomposition import randomized_svd
+from xlearn.decomposition import randomized_svd
 
 # %%
 # Download data, if not already on disk
@@ -152,7 +152,7 @@ def get_adjacency_matrix(redirects_filename, page_links_filename, limit=None):
             break
 
     print("Computing the adjacency matrix")
-    X = sparse.lil_matrix((len(index_map), len(index_map)), dtype=np.float32)
+    X = sparse.lil_matrix((len(index_map), len(index_map)), dtype=jnp.float32)
     for i, j in links:
         X[i, j] = 1.0
     del links
@@ -180,8 +180,8 @@ print("done in %0.3fs" % (time() - t0))
 # print the names of the wikipedia related strongest components of the
 # principal singular vector which should be similar to the highest eigenvector
 print("Top wikipedia pages according to principal singular vectors")
-pprint([names[i] for i in np.abs(U.T[0]).argsort()[-10:]])
-pprint([names[i] for i in np.abs(V[0]).argsort()[-10:]])
+pprint([names[i] for i in jnp.abs(U.T[0]).argsort()[-10:]])
+pprint([names[i] for i in jnp.abs(V[0]).argsort()[-10:]])
 
 
 # %%
@@ -200,26 +200,27 @@ def centrality_scores(X, alpha=0.85, max_iter=100, tol=1e-10):
     """
     n = X.shape[0]
     X = X.copy()
-    incoming_counts = np.asarray(X.sum(axis=1)).ravel()
+    incoming_counts = jnp.asarray(X.sum(axis=1)).ravel()
 
     print("Normalizing the graph")
     for i in incoming_counts.nonzero()[0]:
-        X.data[X.indptr[i] : X.indptr[i + 1]] *= 1.0 / incoming_counts[i]
-    dangle = np.asarray(np.where(np.isclose(X.sum(axis=1), 0), 1.0 / n, 0)).ravel()
+        X.data[X.indptr[i]: X.indptr[i + 1]] *= 1.0 / incoming_counts[i]
+    dangle = jnp.asarray(
+        jnp.where(jnp.isclose(X.sum(axis=1), 0), 1.0 / n, 0)).ravel()
 
-    scores = np.full(n, 1.0 / n, dtype=np.float32)  # initial guess
+    scores = jnp.full(n, 1.0 / n, dtype=jnp.float32)  # initial guess
     for i in range(max_iter):
         print("power iteration #%d" % i)
         prev_scores = scores
         scores = (
-            alpha * (scores * X + np.dot(dangle, prev_scores))
+            alpha * (scores * X + jnp.dot(dangle, prev_scores))
             + (1 - alpha) * prev_scores.sum() / n
         )
         # check convergence: normalized l_inf norm
-        scores_max = np.abs(scores).max()
+        scores_max = jnp.abs(scores).max()
         if scores_max == 0.0:
             scores_max = 1.0
-        err = np.abs(scores - prev_scores).max() / scores_max
+        err = jnp.abs(scores - prev_scores).max() / scores_max
         print("error: %0.6f" % err)
         if err < n * tol:
             return scores
@@ -231,4 +232,4 @@ print("Computing principal eigenvector score using a power iteration method")
 t0 = time()
 scores = centrality_scores(X, max_iter=100)
 print("done in %0.3fs" % (time() - t0))
-pprint([names[i] for i in np.abs(scores).argsort()[-10:]])
+pprint([names[i] for i in jnp.abs(scores).argsort()[-10:]])

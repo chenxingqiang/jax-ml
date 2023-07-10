@@ -5,7 +5,7 @@
 Partial Dependence and Individual Conditional Expectation plots
 ===============================================================
 
-.. currentmodule:: sklearn.inspection
+.. currentmodule:: xlearn.inspection
 
 Partial dependence plots (PDP) and individual conditional expectation (ICE)
 plots can be used to visualize and analyze interaction between the target
@@ -31,7 +31,7 @@ are usually chosen among the most important features.
 
 The figure below shows two one-way and one two-way partial dependence plots for
 the bike sharing dataset, with a
-:class:`~sklearn.ensemble.HistGradientBoostingRegressor`:
+:class:`~xlearn.ensemble.HistGradientBoostingRegressor`:
 
 .. figure:: ../auto_examples/inspection/images/sphx_glr_plot_partial_dependence_006.png
    :target: ../auto_examples/inspection/plot_partial_dependence.html
@@ -53,15 +53,15 @@ mainly the humidity has a strong impact on the number of bike rentals. For lower
 temperatures, both the temperature and the humidity have an impact on the number of bike
 rentals.
 
-The :mod:`sklearn.inspection` module provides a convenience function
+The :mod:`xlearn.inspection` module provides a convenience function
 :func:`~PartialDependenceDisplay.from_estimator` to create one-way and two-way partial
 dependence plots. In the below example we show how to create a grid of
 partial dependence plots: two one-way PDPs for the features ``0`` and ``1``
 and a two-way PDP between the two features::
 
-    >>> from sklearn.datasets import make_hastie_10_2
-    >>> from sklearn.ensemble import GradientBoostingClassifier
-    >>> from sklearn.inspection import PartialDependenceDisplay
+    >>> from xlearn.datasets import make_hastie_10_2
+    >>> from xlearn.ensemble import GradientBoostingClassifier
+    >>> from xlearn.inspection import PartialDependenceDisplay
 
     >>> X, y = make_hastie_10_2(random_state=0)
     >>> clf = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0,
@@ -82,7 +82,7 @@ a bar plot or a 2D heatmap.
 For multi-class classification, you need to set the class label for which
 the PDPs should be created via the ``target`` argument::
 
-    >>> from sklearn.datasets import load_iris
+    >>> from xlearn.datasets import load_iris
     >>> iris = load_iris()
     >>> mc_clf = GradientBoostingClassifier(n_estimators=10,
     ...     max_depth=1).fit(iris.data, iris.target)
@@ -95,9 +95,9 @@ regression settings.
 
 If you need the raw values of the partial dependence function rather than
 the plots, you can use the
-:func:`sklearn.inspection.partial_dependence` function::
+:func:`xlearn.inspection.partial_dependence` function::
 
-    >>> from sklearn.inspection import partial_dependence
+    >>> from xlearn.inspection import partial_dependence
 
     >>> results = partial_dependence(clf, X, [0])
     >>> results["average"]
@@ -108,7 +108,7 @@ the plots, you can use the
 The values at which the partial dependence should be evaluated are directly
 generated from ``X``. For 2-way partial dependence, a 2D-grid of values is
 generated. The ``values`` field returned by
-:func:`sklearn.inspection.partial_dependence` gives the actual values
+:func:`xlearn.inspection.partial_dependence` gives the actual values
 used in the grid for each input feature of interest. They also correspond to
 the axis of the plots.
 
@@ -126,7 +126,7 @@ Due to the limits of human perception, only one input feature of interest is
 supported for ICE plots.
 
 The figures below show two ICE plots for the bike sharing dataset,
-with a :class:`~sklearn.ensemble.HistGradientBoostingRegressor`:.
+with a :class:`~xlearn.ensemble.HistGradientBoostingRegressor`:.
 The figures plot the corresponding PD line overlaid on ICE lines.
 
 .. figure:: ../auto_examples/inspection/images/sphx_glr_plot_partial_dependence_004.png
@@ -143,14 +143,14 @@ shows a decrease of the dependence for temperature above 35 degrees Celsius.
 We observe a similar pattern for the humidity feature: some of the ICE
 lines show a sharp decrease when the humidity is above 80%.
 
-The :mod:`sklearn.inspection` module's :meth:`PartialDependenceDisplay.from_estimator`
+The :mod:`xlearn.inspection` module's :meth:`PartialDependenceDisplay.from_estimator`
 convenience function can be used to create ICE plots by setting
 ``kind='individual'``. In the example below, we show how to create a grid of
 ICE plots:
 
-    >>> from sklearn.datasets import make_hastie_10_2
-    >>> from sklearn.ensemble import GradientBoostingClassifier
-    >>> from sklearn.inspection import PartialDependenceDisplay
+    >>> from xlearn.datasets import make_hastie_10_2
+    >>> from xlearn.ensemble import GradientBoostingClassifier
+    >>> from xlearn.inspection import PartialDependenceDisplay
 
     >>> X, y = make_hastie_10_2(random_state=0)
     >>> clf = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0,

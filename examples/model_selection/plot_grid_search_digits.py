@@ -4,7 +4,7 @@ Custom refit strategy of a grid search with cross-validation
 ============================================================
 
 This examples shows how a classifier is optimized by cross-validation,
-which is done using the :class:`~sklearn.model_selection.GridSearchCV` object
+which is done using the :class:`~xlearn.model_selection.GridSearchCV` object
 on a development set that comprises only half of the available labeled data.
 
 The performance of the selected hyper-parameters and trained model is
@@ -23,7 +23,12 @@ sections on :ref:`cross_validation` and :ref:`grid_search`.
 # digits images.
 # We transform the problem into a binary classification for easier
 # understanding: the goal is to identify whether a digit is `8` or not.
-from sklearn import datasets
+from xlearn.metrics import classification_report
+from xlearn.svm import SVC
+from xlearn.model_selection import GridSearchCV
+import pandas as pd
+from xlearn.model_selection import train_test_split
+from xlearn import datasets
 
 digits = datasets.load_digits()
 
@@ -41,9 +46,9 @@ print(
 # %%
 # As presented in the introduction, the data will be split into a training
 # and a testing set of equal size.
-from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.5, random_state=0)
 
 # %%
 # Define our grid-search strategy
@@ -57,18 +62,16 @@ scores = ["precision", "recall"]
 
 # %%
 # We can also define a function to be passed to the `refit` parameter of the
-# :class:`~sklearn.model_selection.GridSearchCV` instance. It will implement the
+# :class:`~xlearn.model_selection.GridSearchCV` instance. It will implement the
 # custom strategy to select the best candidate from the `cv_results_` attribute
-# of the :class:`~sklearn.model_selection.GridSearchCV`. Once the candidate is
+# of the :class:`~xlearn.model_selection.GridSearchCV`. Once the candidate is
 # selected, it is automatically refitted by the
-# :class:`~sklearn.model_selection.GridSearchCV` instance.
+# :class:`~xlearn.model_selection.GridSearchCV` instance.
 #
 # Here, the strategy is to short-list the models which are the best in terms of
 # precision and recall. From the selected models, we finally select the fastest
 # model at predicting. Notice that these custom choices are completely
 # arbitrary.
-
-import pandas as pd
 
 
 def print_dataframe(filtered_cv_results):
@@ -171,8 +174,6 @@ def refit_strategy(cv_results):
 #
 # Once we defined our strategy to select the best model, we define the values
 # of the hyper-parameters and create the grid-search instance:
-from sklearn.model_selection import GridSearchCV
-from sklearn.svm import SVC
 
 tuned_parameters = [
     {"kernel": ["rbf"], "gamma": [1e-3, 1e-4], "C": [1, 10, 100, 1000]},
@@ -197,7 +198,6 @@ grid_search.best_params_
 #
 # We can use the classification report to compute standard classification
 # metrics on the left-out set:
-from sklearn.metrics import classification_report
 
 y_pred = grid_search.predict(X_test)
 print(classification_report(y_test, y_pred))

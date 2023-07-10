@@ -25,11 +25,11 @@ using :ref:`grid_search`.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets, svm
-from sklearn.metrics import ConfusionMatrixDisplay
-from sklearn.model_selection import train_test_split
+from xlearn import datasets, svm
+from xlearn.metrics import ConfusionMatrixDisplay
+from xlearn.model_selection import train_test_split
 
 # import some data to play with
 iris = datasets.load_iris()
@@ -44,7 +44,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 # the impact on the results
 classifier = svm.SVC(kernel="linear", C=0.01).fit(X_train, y_train)
 
-np.set_printoptions(precision=2)
+jnp.set_printoptions(precision=2)
 
 # Plot non-normalized confusion matrix
 titles_options = [

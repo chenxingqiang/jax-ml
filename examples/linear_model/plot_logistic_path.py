@@ -32,7 +32,11 @@ full-path.
 # Load data
 # ---------
 
-from sklearn import datasets
+import matplotlib.pyplot as plt
+from xlearn.svm import l1_min_c
+from xlearn import linear_model
+import jax.numpy as jnp
+from xlearn import datasets
 
 iris = datasets.load_iris()
 X = iris.data
@@ -47,12 +51,8 @@ X /= X.max()  # Normalize X to speed-up convergence
 # Compute regularization path
 # ---------------------------
 
-import numpy as np
 
-from sklearn import linear_model
-from sklearn.svm import l1_min_c
-
-cs = l1_min_c(X, y, loss="log") * np.logspace(0, 10, 16)
+cs = l1_min_c(X, y, loss="log") * jnp.logspace(0, 10, 16)
 
 clf = linear_model.LogisticRegression(
     penalty="l1",
@@ -68,15 +68,14 @@ for c in cs:
     clf.fit(X, y)
     coefs_.append(clf.coef_.ravel().copy())
 
-coefs_ = np.array(coefs_)
+coefs_ = jnp.array(coefs_)
 
 # %%
 # Plot regularization path
 # ------------------------
 
-import matplotlib.pyplot as plt
 
-plt.plot(np.log10(cs), coefs_, marker="o")
+plt.plot(jnp.log10(cs), coefs_, marker="o")
 ymin, ymax = plt.ylim()
 plt.xlabel("log(C)")
 plt.ylabel("Coefficients")

@@ -30,9 +30,13 @@ class of an instance (red: class 1, green: class 2, blue: class 3).
 # Author: Jan Hendrik Metzen <jhm@informatik.uni-bremen.de>
 # License: BSD Style.
 
-import numpy as np
+from xlearn.metrics import log_loss
+import matplotlib.pyplot as plt
+from xlearn.calibration import CalibratedClassifierCV
+from xlearn.ensemble import RandomForestClassifier
+import jax.numpy as jnp
 
-from sklearn.datasets import make_blobs
+from xlearn.datasets import make_blobs
 
 np.random.seed(0)
 
@@ -48,22 +52,20 @@ X_test, y_test = X[1000:], y[1000:]
 # Fitting and calibration
 # -----------------------
 #
-# First, we will train a :class:`~sklearn.ensemble.RandomForestClassifier`
+# First, we will train a :class:`~xlearn.ensemble.RandomForestClassifier`
 # with 25 base estimators (trees) on the concatenated train and validation
 # data (1000 samples). This is the uncalibrated classifier.
 
-from sklearn.ensemble import RandomForestClassifier
 
 clf = RandomForestClassifier(n_estimators=25)
 clf.fit(X_train_valid, y_train_valid)
 
 # %%
 # To train the calibrated classifier, we start with the same
-# :class:`~sklearn.ensemble.RandomForestClassifier` but train it using only
+# :class:`~xlearn.ensemble.RandomForestClassifier` but train it using only
 # the train data subset (600 samples) then calibrate, with `method='sigmoid'`,
 # using the valid data subset (400 samples) in a 2-stage process.
 
-from sklearn.calibration import CalibratedClassifierCV
 
 clf = RandomForestClassifier(n_estimators=25)
 clf.fit(X_train, y_train)
@@ -76,7 +78,6 @@ cal_clf.fit(X_valid, y_valid)
 # Below we plot a 2-simplex with arrows showing the change in predicted
 # probabilities of the test samples.
 
-import matplotlib.pyplot as plt
 
 plt.figure(figsize=(10, 10))
 colors = ["r", "g", "b"]
@@ -174,7 +175,8 @@ for x in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
     plt.plot([0, 0 + (1 - x) / 2], [x, x + (1 - x) / 2], "k", alpha=0.2)
     plt.plot([x, x + (1 - x) / 2], [0, 0 + (1 - x) / 2], "k", alpha=0.2)
 
-plt.title("Change of predicted probabilities on test samples after sigmoid calibration")
+plt.title(
+    "Change of predicted probabilities on test samples after sigmoid calibration")
 plt.xlabel("Probability class 1")
 plt.ylabel("Probability class 2")
 plt.xlim(-0.05, 1.05)
@@ -206,10 +208,9 @@ _ = plt.legend(loc="best")
 # the uncalibrated and calibrated classifiers on the predictions of the 1000
 # test samples. Note that an alternative would have been to increase the number
 # of base estimators (trees) of the
-# :class:`~sklearn.ensemble.RandomForestClassifier` which would have resulted
+# :class:`~xlearn.ensemble.RandomForestClassifier` which would have resulted
 # in a similar decrease in :ref:`log loss <log_loss>`.
 
-from sklearn.metrics import log_loss
 
 score = log_loss(y_test, clf_probs)
 cal_score = log_loss(y_test, cal_clf_probs)
@@ -226,15 +227,15 @@ print(f" * calibrated classifier: {cal_score:.3f}")
 
 plt.figure(figsize=(10, 10))
 # Generate grid of probability values
-p1d = np.linspace(0, 1, 20)
-p0, p1 = np.meshgrid(p1d, p1d)
+p1d = jnp.linspace(0, 1, 20)
+p0, p1 = jnp.meshgrid(p1d, p1d)
 p2 = 1 - p0 - p1
-p = np.c_[p0.ravel(), p1.ravel(), p2.ravel()]
+p = jnp.c_[p0.ravel(), p1.ravel(), p2.ravel()]
 p = p[p[:, 2] >= 0]
 
 # Use the three class-wise calibrators to compute calibrated probabilities
 calibrated_classifier = cal_clf.calibrated_classifiers_[0]
-prediction = np.vstack(
+prediction = jnp.vstack(
     [
         calibrator.predict(this_p)
         for calibrator, this_p in zip(calibrated_classifier.calibrators, p.T)
@@ -254,7 +255,7 @@ for i in range(prediction.shape[0]):
         prediction[i, 0] - p[i, 0],
         prediction[i, 1] - p[i, 1],
         head_width=1e-2,
-        color=colors[np.argmax(p[i])],
+        color=colors[jnp.argmax(p[i])],
     )
 
 # Plot the boundaries of the unit simplex

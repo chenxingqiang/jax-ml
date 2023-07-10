@@ -4,7 +4,7 @@ Statistical comparison of models using grid search
 ==================================================
 
 This example illustrates how to statistically compare the performance of models
-trained and evaluated using :class:`~sklearn.model_selection.GridSearchCV`.
+trained and evaluated using :class:`~xlearn.model_selection.GridSearchCV`.
 
 """
 
@@ -14,10 +14,17 @@ trained and evaluated using :class:`~sklearn.model_selection.GridSearchCV`.
 # Datapoints will belong to one of two possible classes to be predicted by two
 # features. We will simulate 50 samples for each class:
 
+from math import factorial
+from itertools import combinations
+from scipy.stats import t
+import jax.numpy as jnp
+import pandas as pd
+from xlearn.svm import SVC
+from xlearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from sklearn.datasets import make_moons
+from xlearn.datasets import make_moons
 
 X, y = make_moons(noise=0.352, random_state=1, n_samples=100)
 
@@ -27,17 +34,15 @@ sns.scatterplot(
 plt.show()
 
 # %%
-# We will compare the performance of :class:`~sklearn.svm.SVC` estimators that
+# We will compare the performance of :class:`~xlearn.svm.SVC` estimators that
 # vary on their `kernel` parameter, to decide which choice of this
 # hyper-parameter predicts our simulated data best.
 # We will evaluate the performance of the models using
-# :class:`~sklearn.model_selection.RepeatedStratifiedKFold`, repeating 10 times
+# :class:`~xlearn.model_selection.RepeatedStratifiedKFold`, repeating 10 times
 # a 10-fold stratified cross validation using a different randomization of the
 # data in each repetition. The performance will be evaluated using
-# :class:`~sklearn.metrics.roc_auc_score`.
+# :class:`~xlearn.metrics.roc_auc_score`.
 
-from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
-from sklearn.svm import SVC
 
 param_grid = [
     {"kernel": ["linear"]},
@@ -49,19 +54,20 @@ svc = SVC(random_state=0)
 
 cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=10, random_state=0)
 
-search = GridSearchCV(estimator=svc, param_grid=param_grid, scoring="roc_auc", cv=cv)
+search = GridSearchCV(estimator=svc, param_grid=param_grid,
+                      scoring="roc_auc", cv=cv)
 search.fit(X, y)
 
 # %%
 # We can now inspect the results of our search, sorted by their
 # `mean_test_score`:
 
-import pandas as pd
 
 results_df = pd.DataFrame(search.cv_results_)
 results_df = results_df.sort_values(by=["rank_test_score"])
 results_df = results_df.set_index(
-    results_df["params"].apply(lambda x: "_".join(str(val) for val in x.values()))
+    results_df["params"].apply(lambda x: "_".join(str(val)
+                               for val in x.values()))
 ).rename_axis("kernel")
 results_df[["params", "rank_test_score", "mean_test_score", "std_test_score"]]
 
@@ -72,7 +78,7 @@ results_df[["params", "rank_test_score", "mean_test_score", "std_test_score"]]
 # lower performance than all other models.
 #
 # Usually, the analysis just ends here, but half the story is missing. The
-# output of :class:`~sklearn.model_selection.GridSearchCV` does not provide
+# output of :class:`~xlearn.model_selection.GridSearchCV` does not provide
 # information on the certainty of the differences between the models.
 # We don't know if these are **statistically** significant.
 # To evaluate this, we need to conduct a statistical test.
@@ -162,9 +168,6 @@ print(f"Correlation of models:\n {model_scores.transpose().corr()}")
 # second model. Our null hypothesis is that the second model performs at least
 # as good as the first model.
 
-import numpy as np
-from scipy.stats import t
-
 
 def corrected_std(differences, n_train, n_test):
     """Corrects standard deviation using Nadeau and Bengio's approach.
@@ -186,8 +189,8 @@ def corrected_std(differences, n_train, n_test):
     # kr = k times r, r times repeated k-fold crossvalidation,
     # kr equals the number of times the model was evaluated
     kr = len(differences)
-    corrected_var = np.var(differences, ddof=1) * (1 / kr + n_test / n_train)
-    corrected_std = np.sqrt(corrected_var)
+    corrected_var = jnp.var(differences, ddof=1) * (1 / kr + n_test / n_train)
+    corrected_std = jnp.sqrt(corrected_var)
     return corrected_std
 
 
@@ -212,10 +215,10 @@ def compute_corrected_ttest(differences, df, n_train, n_test):
     p_val : float
         Variance-corrected p-value.
     """
-    mean = np.mean(differences)
+    mean = jnp.mean(differences)
     std = corrected_std(differences, n_train, n_test)
     t_stat = mean / std
-    p_val = t.sf(np.abs(t_stat), df)  # right-tailed t-test
+    p_val = t.sf(jnp.abs(t_stat), df)  # right-tailed t-test
     return t_stat, p_val
 
 
@@ -236,8 +239,9 @@ print(f"Corrected t-value: {t_stat:.3f}\nCorrected p-value: {p_val:.3f}")
 # %%
 # We can compare the corrected t- and p-values with the uncorrected ones:
 
-t_stat_uncorrected = np.mean(differences) / np.sqrt(np.var(differences, ddof=1) / n)
-p_val_uncorrected = t.sf(np.abs(t_stat_uncorrected), df)
+t_stat_uncorrected = jnp.mean(differences) / \
+    jnp.sqrt(jnp.var(differences, ddof=1) / n)
+p_val_uncorrected = t.sf(jnp.abs(t_stat_uncorrected), df)
 
 print(
     f"Uncorrected t-value: {t_stat_uncorrected:.3f}\n"
@@ -300,16 +304,16 @@ print(
 
 # initialize random variable
 t_post = t(
-    df, loc=np.mean(differences), scale=corrected_std(differences, n_train, n_test)
+    df, loc=jnp.mean(differences), scale=corrected_std(differences, n_train, n_test)
 )
 
 # %%
 # Let's plot the posterior distribution:
 
-x = np.linspace(t_post.ppf(0.001), t_post.ppf(0.999), 100)
+x = jnp.linspace(t_post.ppf(0.001), t_post.ppf(0.999), 100)
 
 plt.plot(x, t_post.pdf(x))
-plt.xticks(np.arange(-0.04, 0.06, 0.01))
+plt.xticks(jnp.arange(-0.04, 0.06, 0.01))
 plt.fill_between(x, t_post.pdf(x), 0, facecolor="blue", alpha=0.2)
 plt.ylabel("Probability density")
 plt.xlabel(r"Mean difference ($\mu$)")
@@ -374,11 +378,11 @@ print(
 # %%
 # We can plot how the posterior is distributed over the ROPE interval:
 
-x_rope = np.linspace(rope_interval[0], rope_interval[1], 100)
+x_rope = jnp.linspace(rope_interval[0], rope_interval[1], 100)
 
 plt.plot(x, t_post.pdf(x))
-plt.xticks(np.arange(-0.04, 0.06, 0.01))
-plt.vlines([-0.01, 0.01], ymin=0, ymax=(np.max(t_post.pdf(x)) + 1))
+plt.xticks(jnp.arange(-0.04, 0.06, 0.01))
+plt.vlines([-0.01, 0.01], ymin=0, ymax=(jnp.max(t_post.pdf(x)) + 1))
 plt.fill_between(x_rope, t_post.pdf(x_rope), 0, facecolor="blue", alpha=0.2)
 plt.ylabel("Probability density")
 plt.xlabel(r"Mean difference ($\mu$)")
@@ -426,7 +430,7 @@ cred_int_df
 # -------------------------------------------------------
 #
 # We could also be interested in comparing the performance of all our models
-# evaluated with :class:`~sklearn.model_selection.GridSearchCV`. In this case
+# evaluated with :class:`~xlearn.model_selection.GridSearchCV`. In this case
 # we would be running our statistical test multiple times, which leads us to
 # the `multiple comparisons problem
 # <https://en.wikipedia.org/wiki/Multiple_comparisons_problem>`_.
@@ -439,8 +443,6 @@ cred_int_df
 #
 # Let's compare the performance of the models using the corrected t-test:
 
-from itertools import combinations
-from math import factorial
 
 n_comparisons = factorial(len(model_scores)) / (
     factorial(2) * factorial(len(model_scores) - 2)
@@ -468,7 +470,7 @@ pairwise_comp_df
 # We observe that after correcting for multiple comparisons, the only model
 # that significantly differs from the others is `'2_poly'`.
 # `'rbf'`, the model ranked first by
-# :class:`~sklearn.model_selection.GridSearchCV`, does not significantly
+# :class:`~xlearn.model_selection.GridSearchCV`, does not significantly
 # differ from `'linear'` or `'3_poly'`.
 
 # %%
@@ -488,7 +490,7 @@ for model_i, model_k in combinations(range(len(model_scores)), 2):
     model_k_scores = model_scores.iloc[model_k].values
     differences = model_i_scores - model_k_scores
     t_post = t(
-        df, loc=np.mean(differences), scale=corrected_std(differences, n_train, n_test)
+        df, loc=jnp.mean(differences), scale=corrected_std(differences, n_train, n_test)
     )
     worse_prob = t_post.cdf(rope_interval[0])
     better_prob = 1 - t_post.cdf(rope_interval[1])
@@ -508,7 +510,7 @@ pairwise_comp_df
 # performs better, worse or practically equivalent to another.
 #
 # Results show that the model ranked first by
-# :class:`~sklearn.model_selection.GridSearchCV` `'rbf'`, has approximately a
+# :class:`~xlearn.model_selection.GridSearchCV` `'rbf'`, has approximately a
 # 6.8% chance of being worse than `'linear'`, and a 1.8% chance of being worse
 # than `'3_poly'`.
 # `'rbf'` and `'linear'` have a 43% probability of being practically

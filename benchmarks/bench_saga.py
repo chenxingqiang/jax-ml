@@ -1,6 +1,6 @@
 """Author: Arthur Mensch, Nelle Varoquaux
 
-Benchmarks of sklearn SAGA vs lightning SAGA vs Liblinear. Shows the gain
+Benchmarks of xlearn SAGA vs lightning SAGA vs Liblinear. Shows the gain
 in using multinomial logistic regression in term of learning time.
 """
 import json
@@ -8,20 +8,20 @@ import os
 import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import (
+from xlearn.datasets import (
     fetch_20newsgroups_vectorized,
     fetch_rcv1,
     load_digits,
     load_iris,
 )
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import log_loss
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelBinarizer, LabelEncoder
-from sklearn.utils.extmath import safe_sparse_dot, softmax
-from sklearn.utils.parallel import Parallel, delayed
+from xlearn.linear_model import LogisticRegression
+from xlearn.metrics import log_loss
+from xlearn.model_selection import train_test_split
+from xlearn.preprocessing import LabelBinarizer, LabelEncoder
+from xlearn.utils.extmath import safe_sparse_dot, softmax
+from xlearn.utils.parallel import Parallel, delayed
 
 
 def fit_single(
@@ -33,7 +33,7 @@ def fit_single(
     C=1,
     max_iter=10,
     skip_slow=False,
-    dtype=np.float64,
+    dtype=jnp.float64,
 ):
     if skip_slow and solver == "lightning" and penalty == "l1":
         print("skip_slowping l1 logistic regression with solver lightning.")
@@ -57,7 +57,7 @@ def fit_single(
         X, y, random_state=42, stratify=y
     )
     n_samples = X_train.shape[0]
-    n_classes = np.unique(y_train).shape[0]
+    n_classes = jnp.unique(y_train).shape[0]
     test_scores = [1]
     train_scores = [1]
     accuracies = [1 / n_classes]
@@ -118,14 +118,14 @@ def fit_single(
                 # Lightning predict_proba is not implemented for n_classes > 2
                 y_pred = _predict_proba(lr, X)
             score = log_loss(y, y_pred, normalize=False) / n_samples
-            score += 0.5 * alpha * np.sum(lr.coef_**2) + beta * np.sum(
-                np.abs(lr.coef_)
+            score += 0.5 * alpha * jnp.sum(lr.coef_**2) + beta * jnp.sum(
+                jnp.abs(lr.coef_)
             )
             scores.append(score)
         train_score, test_score = tuple(scores)
 
         y_pred = lr.predict(X_test)
-        accuracy = np.sum(y_pred == y_test) / y_test.shape[0]
+        accuracy = jnp.sum(y_pred == y_test) / y_test.shape[0]
         test_scores.append(test_score)
         train_scores.append(train_score)
         accuracies.append(accuracy)
@@ -151,8 +151,8 @@ def exp(
     skip_slow=False,
 ):
     dtypes_mapping = {
-        "float64": np.float64,
-        "float32": np.float32,
+        "float64": jnp.float64,
+        "float32": jnp.float32,
     }
 
     if dataset == "rcv1":
@@ -336,7 +336,7 @@ def plot(outname=None):
             group["train_scores"], group["times"], group["solver"], group["dtype"]
         ):
             ax.plot(
-                np.arange(len(scores)),
+                jnp.arange(len(scores)),
                 scores,
                 label="%s - %s" % (solver, dtype),
                 marker=".",

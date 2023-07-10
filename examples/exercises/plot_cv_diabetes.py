@@ -13,19 +13,21 @@ This exercise is used in the :ref:`cv_estimators_tut` part of the
 # %%
 # Load dataset and apply GridSearchCV
 # -----------------------------------
+from xlearn.model_selection import KFold
+from xlearn.linear_model import LassoCV
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets
-from sklearn.linear_model import Lasso
-from sklearn.model_selection import GridSearchCV
+from xlearn import datasets
+from xlearn.linear_model import Lasso
+from xlearn.model_selection import GridSearchCV
 
 X, y = datasets.load_diabetes(return_X_y=True)
 X = X[:150]
 y = y[:150]
 
 lasso = Lasso(random_state=0, max_iter=10000)
-alphas = np.logspace(-4, -0.5, 30)
+alphas = jnp.logspace(-4, -0.5, 30)
 
 tuned_parameters = [{"alpha": alphas}]
 n_folds = 5
@@ -42,7 +44,7 @@ scores_std = clf.cv_results_["std_test_score"]
 plt.figure().set_size_inches(8, 6)
 plt.semilogx(alphas, scores)
 
-std_error = scores_std / np.sqrt(n_folds)
+std_error = scores_std / jnp.sqrt(n_folds)
 
 plt.semilogx(alphas, scores + std_error, "b--")
 plt.semilogx(alphas, scores - std_error, "b--")
@@ -52,7 +54,7 @@ plt.fill_between(alphas, scores + std_error, scores - std_error, alpha=0.2)
 
 plt.ylabel("CV score +/- std error")
 plt.xlabel("alpha")
-plt.axhline(np.max(scores), linestyle="--", color=".5")
+plt.axhline(jnp.max(scores), linestyle="--", color=".5")
 plt.xlim([alphas[0], alphas[-1]])
 
 # %%
@@ -65,13 +67,12 @@ plt.xlim([alphas[0], alphas[-1]])
 # We use external cross-validation to see how much the automatically obtained
 # alphas differ across different cross-validation folds.
 
-from sklearn.linear_model import LassoCV
-from sklearn.model_selection import KFold
 
 lasso_cv = LassoCV(alphas=alphas, random_state=0, max_iter=10000)
 k_fold = KFold(3)
 
-print("Answer to the bonus question:", "how much can you trust the selection of alpha?")
+print("Answer to the bonus question:",
+      "how much can you trust the selection of alpha?")
 print()
 print("Alpha parameters maximising the generalization score on different")
 print("subsets of the data:")

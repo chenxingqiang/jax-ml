@@ -3,12 +3,12 @@
 Image denoising using kernel PCA
 ================================
 
-This example shows how to use :class:`~sklearn.decomposition.KernelPCA` to
+This example shows how to use :class:`~xlearn.decomposition.KernelPCA` to
 denoise images. In short, we take advantage of the approximation function
 learned during `fit` to reconstruct the original image.
 
 We will compare the results with an exact reconstruction using
-:class:`~sklearn.decomposition.PCA`.
+:class:`~xlearn.decomposition.PCA`.
 
 We will use USPS digits dataset to reproduce presented in Sect. 4 of [1]_.
 
@@ -29,15 +29,18 @@ We will use USPS digits dataset to reproduce presented in Sect. 4 of [1]_.
 # ---------------------------
 #
 # The USPS digits datasets is available in OpenML. We use
-# :func:`~sklearn.datasets.fetch_openml` to get this dataset. In addition, we
+# :func:`~xlearn.datasets.fetch_openml` to get this dataset. In addition, we
 # normalize the dataset such that all pixel values are in the range (0, 1).
-import numpy as np
+from xlearn.decomposition import PCA, KernelPCA
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 
-from sklearn.datasets import fetch_openml
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from xlearn.datasets import fetch_openml
+from xlearn.model_selection import train_test_split
+from xlearn.preprocessing import MinMaxScaler
 
-X, y = fetch_openml(data_id=41082, as_frame=False, return_X_y=True, parser="pandas")
+X, y = fetch_openml(data_id=41082, as_frame=False,
+                    return_X_y=True, parser="pandas")
 X = MinMaxScaler().fit_transform(X)
 
 # %%
@@ -68,7 +71,6 @@ X_train_noisy = X_train + noise
 # %%
 # In addition, we will create a helper function to qualitatively assess the
 # image reconstruction by plotting the test images.
-import matplotlib.pyplot as plt
 
 
 def plot_digits(X, title):
@@ -88,7 +90,7 @@ def plot_digits(X, title):
 # images. We will check the test set in this regard.
 plot_digits(X_test, "Uncorrupted test images")
 plot_digits(
-    X_test_noisy, f"Noisy test images\nMSE: {np.mean((X_test - X_test_noisy) ** 2):.2f}"
+    X_test_noisy, f"Noisy test images\nMSE: {jnp.mean((X_test - X_test_noisy) ** 2):.2f}"
 )
 
 # %%
@@ -97,7 +99,6 @@ plot_digits(
 #
 # We can now learn our PCA basis using both a linear PCA and a kernel PCA that
 # uses a radial basis function (RBF) kernel.
-from sklearn.decomposition import PCA, KernelPCA
 
 pca = PCA(n_components=32, random_state=42)
 kernel_pca = KernelPCA(
@@ -132,13 +133,13 @@ X_reconstructed_pca = pca.inverse_transform(pca.transform(X_test_noisy))
 plot_digits(X_test, "Uncorrupted test images")
 plot_digits(
     X_reconstructed_pca,
-    f"PCA reconstruction\nMSE: {np.mean((X_test - X_reconstructed_pca) ** 2):.2f}",
+    f"PCA reconstruction\nMSE: {jnp.mean((X_test - X_reconstructed_pca) ** 2):.2f}",
 )
 plot_digits(
     X_reconstructed_kernel_pca,
     (
         "Kernel PCA reconstruction\n"
-        f"MSE: {np.mean((X_test - X_reconstructed_kernel_pca) ** 2):.2f}"
+        f"MSE: {jnp.mean((X_test - X_reconstructed_kernel_pca) ** 2):.2f}"
     ),
 )
 

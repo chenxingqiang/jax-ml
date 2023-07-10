@@ -1,10 +1,10 @@
 from collections import defaultdict
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 from numpy import random as nr
 
-from sklearn.cluster import AgglomerativeClustering
+from xlearn.cluster import AgglomerativeClustering
 
 
 def compute_bench(samples_range, features_range):
@@ -25,7 +25,8 @@ def compute_bench(samples_range, features_range):
             for linkage in ("single", "average", "complete", "ward"):
                 print(linkage.capitalize())
                 tstart = time()
-                AgglomerativeClustering(linkage=linkage, n_clusters=10).fit(data)
+                AgglomerativeClustering(
+                    linkage=linkage, n_clusters=10).fit(data)
 
                 delta = time() - tstart
                 print("Speed: %0.3fs" % delta)
@@ -39,19 +40,20 @@ def compute_bench(samples_range, features_range):
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
-    samples_range = np.linspace(1000, 15000, 8).astype(int)
-    features_range = np.array([2, 10, 20, 50])
+    samples_range = jnp.linspace(1000, 15000, 8).astype(int)
+    features_range = jnp.array([2, 10, 20, 50])
 
     results = compute_bench(samples_range, features_range)
 
     max_time = max([max(i) for i in [t for (label, t) in results.items()]])
 
-    colors = plt.get_cmap("tab10")(np.linspace(0, 1, 10))[:4]
+    colors = plt.get_cmap("tab10")(jnp.linspace(0, 1, 10))[:4]
     lines = {linkage: None for linkage in results.keys()}
     fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
-    fig.suptitle("Scikit-learn agglomerative clustering benchmark results", fontsize=16)
+    fig.suptitle(
+        "Jax-learn agglomerative clustering benchmark results", fontsize=16)
     for c, (label, timings) in zip(colors, sorted(results.items())):
-        timing_by_samples = np.asarray(timings).reshape(
+        timing_by_samples = jnp.asarray(timings).reshape(
             samples_range.shape[0], features_range.shape[0]
         )
 

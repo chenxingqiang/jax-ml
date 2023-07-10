@@ -40,21 +40,31 @@ compared with the ground-truth.
 # in a high dimensional sparse feature space, where some degree of
 # l1-penalization is necessary.
 
-import numpy as np
+from matplotlib.colors import SymLogNorm
+import seaborn as sns
+import pandas as pd
+from xlearn.linear_model import ElasticNet
+from xlearn.linear_model import ARDRegression
+from xlearn.metrics import r2_score
+from xlearn.linear_model import Lasso
+from time import time
+from xlearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 
 rng = np.random.RandomState(0)
 n_samples, n_features, n_informative = 50, 100, 10
-time_step = np.linspace(-2, 2, n_samples)
-freqs = 2 * np.pi * np.sort(rng.rand(n_features)) / 0.01
-X = np.zeros((n_samples, n_features))
+time_step = jnp.linspace(-2, 2, n_samples)
+freqs = 2 * jnp.pi * jnp.sort(rng.rand(n_features)) / 0.01
+X = jnp.zeros((n_samples, n_features))
 
 for i in range(n_features):
-    X[:, i] = np.sin(freqs[i] * time_step)
+    X[:, i] = jnp.sin(freqs[i] * time_step)
 
-idx = np.arange(n_features)
-true_coef = (-1) ** idx * np.exp(-idx / 10)
+idx = jnp.arange(n_features)
+true_coef = (-1) ** idx * jnp.exp(-idx / 10)
 true_coef[n_informative:] = 0  # sparsify coef
-y = np.dot(X, true_coef)
+y = jnp.dot(X, true_coef)
 
 # %%
 # Some of the informative features have close frequencies to induce
@@ -68,7 +78,7 @@ freqs[:n_informative]
 # is added to both the features and the target.
 
 for i in range(n_features):
-    X[:, i] = np.sin(freqs[i] * time_step + 2 * (rng.random_sample() - 0.5))
+    X[:, i] = jnp.sin(freqs[i] * time_step + 2 * (rng.random_sample() - 0.5))
     X[:, i] += 0.2 * rng.normal(0, 1, n_samples)
 
 y += 0.2 * rng.normal(0, 1, n_samples)
@@ -79,7 +89,6 @@ y += 0.2 * rng.normal(0, 1, n_samples)
 # similar values depending on their positions (spatial correlations).
 # We can visualize the target.
 
-import matplotlib.pyplot as plt
 
 plt.plot(time_step, y)
 plt.ylabel("target signal")
@@ -88,14 +97,14 @@ _ = plt.title("Superposition of sinusoidal signals")
 
 # %%
 # We split the data into train and test sets for simplicity. In practice one
-# should use a :class:`~sklearn.model_selection.TimeSeriesSplit`
+# should use a :class:`~xlearn.model_selection.TimeSeriesSplit`
 # cross-validation to estimate the variance of the test score. Here we set
 # `shuffle="False"` as we must not use training data that succeed the testing
 # data when dealing with data that have a temporal relationship.
 
-from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, shuffle=False)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.5, shuffle=False)
 
 # %%
 # In the following, we compute the performance of three l1-based models in terms
@@ -106,16 +115,13 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, shuffle
 # Lasso
 # -----
 #
-# In this example, we demo a :class:`~sklearn.linear_model.Lasso` with a fixed
+# In this example, we demo a :class:`~xlearn.linear_model.Lasso` with a fixed
 # value of the regularization parameter `alpha`. In practice, the optimal
 # parameter `alpha` should be selected by passing a
-# :class:`~sklearn.model_selection.TimeSeriesSplit` cross-validation strategy to a
-# :class:`~sklearn.linear_model.LassoCV`. To keep the example simple and fast to
+# :class:`~xlearn.model_selection.TimeSeriesSplit` cross-validation strategy to a
+# :class:`~xlearn.linear_model.LassoCV`. To keep the example simple and fast to
 # execute, we directly set the optimal value for alpha here.
-from time import time
 
-from sklearn.linear_model import Lasso
-from sklearn.metrics import r2_score
 
 t0 = time()
 lasso = Lasso(alpha=0.14).fit(X_train, y_train)
@@ -133,10 +139,9 @@ print(f"Lasso r^2 on test data : {r2_score_lasso:.3f}")
 # interval estimates for all of the parameters, including the error variance, if
 # required. It is a suitable option when the signals have gaussian noise. See
 # the example :ref:`sphx_glr_auto_examples_linear_model_plot_ard.py` for a
-# comparison of :class:`~sklearn.linear_model.ARDRegression` and
-# :class:`~sklearn.linear_model.BayesianRidge` regressors.
+# comparison of :class:`~xlearn.linear_model.ARDRegression` and
+# :class:`~xlearn.linear_model.BayesianRidge` regressors.
 
-from sklearn.linear_model import ARDRegression
 
 t0 = time()
 ard = ARDRegression().fit(X_train, y_train)
@@ -150,21 +155,20 @@ print(f"ARD r^2 on test data : {r2_score_ard:.3f}")
 # ElasticNet
 # ----------
 #
-# :class:`~sklearn.linear_model.ElasticNet` is a middle ground between
-# :class:`~sklearn.linear_model.Lasso` and :class:`~sklearn.linear_model.Ridge`,
+# :class:`~xlearn.linear_model.ElasticNet` is a middle ground between
+# :class:`~xlearn.linear_model.Lasso` and :class:`~xlearn.linear_model.Ridge`,
 # as it combines a L1 and a L2-penalty. The amount of regularization is
 # controlled by the two hyperparameters `l1_ratio` and `alpha`. For `l1_ratio =
 # 0` the penalty is pure L2 and the model is equivalent to a
-# :class:`~sklearn.linear_model.Ridge`. Similarly, `l1_ratio = 1` is a pure L1
-# penalty and the model is equivalent to a :class:`~sklearn.linear_model.Lasso`.
+# :class:`~xlearn.linear_model.Ridge`. Similarly, `l1_ratio = 1` is a pure L1
+# penalty and the model is equivalent to a :class:`~xlearn.linear_model.Lasso`.
 # For `0 < l1_ratio < 1`, the penalty is a combination of L1 and L2.
 #
 # As done before, we train the model with fix values for `alpha` and `l1_ratio`.
 # To select their optimal value we used an
-# :class:`~sklearn.linear_model.ElasticNetCV`, not shown here to keep the
+# :class:`~xlearn.linear_model.ElasticNetCV`, not shown here to keep the
 # example simple.
 
-from sklearn.linear_model import ElasticNet
 
 t0 = time()
 enet = ElasticNet(alpha=0.08, l1_ratio=0.5).fit(X_train, y_train)
@@ -181,10 +185,6 @@ print(f"ElasticNet r^2 on test data : {r2_score_enet:.3f}")
 # In this section, we use a heatmap to visualize the sparsity of the true
 # and estimated coefficients of the respective linear models.
 
-import matplotlib.pyplot as plt
-import pandas as pd
-import seaborn as sns
-from matplotlib.colors import SymLogNorm
 
 df = pd.DataFrame(
     {
@@ -212,31 +212,31 @@ plt.title(
 plt.tight_layout()
 
 # %%
-# In the present example :class:`~sklearn.linear_model.ElasticNet` yields the
+# In the present example :class:`~xlearn.linear_model.ElasticNet` yields the
 # best score and captures the most of the predictive features, yet still fails
 # at finding all the true components. Notice that both
-# :class:`~sklearn.linear_model.ElasticNet` and
-# :class:`~sklearn.linear_model.ARDRegression` result in a less sparse model
-# than a :class:`~sklearn.linear_model.Lasso`.
+# :class:`~xlearn.linear_model.ElasticNet` and
+# :class:`~xlearn.linear_model.ARDRegression` result in a less sparse model
+# than a :class:`~xlearn.linear_model.Lasso`.
 #
 # Conclusions
 # -----------
 #
-# :class:`~sklearn.linear_model.Lasso` is known to recover sparse data
+# :class:`~xlearn.linear_model.Lasso` is known to recover sparse data
 # effectively but does not perform well with highly correlated features. Indeed,
 # if several correlated features contribute to the target,
-# :class:`~sklearn.linear_model.Lasso` would end up selecting a single one of
+# :class:`~xlearn.linear_model.Lasso` would end up selecting a single one of
 # them. In the case of sparse yet non-correlated features, a
-# :class:`~sklearn.linear_model.Lasso` model would be more suitable.
+# :class:`~xlearn.linear_model.Lasso` model would be more suitable.
 #
-# :class:`~sklearn.linear_model.ElasticNet` introduces some sparsity on the
+# :class:`~xlearn.linear_model.ElasticNet` introduces some sparsity on the
 # coefficients and shrinks their values to zero. Thus, in the presence of
 # correlated features that contribute to the target, the model is still able to
 # reduce their weights without setting them exactly to zero. This results in a
-# less sparse model than a pure :class:`~sklearn.linear_model.Lasso` and may
+# less sparse model than a pure :class:`~xlearn.linear_model.Lasso` and may
 # capture non-predictive features as well.
 #
-# :class:`~sklearn.linear_model.ARDRegression` is better when handling gaussian
+# :class:`~xlearn.linear_model.ARDRegression` is better when handling gaussian
 # noise, but is still unable to handle correlated features and requires a larger
 # amount of time due to fitting a prior.
 #

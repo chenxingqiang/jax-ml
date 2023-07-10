@@ -20,22 +20,24 @@ This example was inspired by the `XGBoost documentation
 
 """
 # %%
+import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.ensemble import HistGradientBoostingRegressor
-from sklearn.inspection import PartialDependenceDisplay
+from xlearn.ensemble import HistGradientBoostingRegressor
+from xlearn.inspection import PartialDependenceDisplay
 
 rng = np.random.RandomState(0)
 
 n_samples = 1000
 f_0 = rng.rand(n_samples)
 f_1 = rng.rand(n_samples)
-X = np.c_[f_0, f_1]
+X = jnp.c_[f_0, f_1]
 noise = rng.normal(loc=0.0, scale=0.01, size=n_samples)
 
 # y is positively correlated with f_0, and negatively correlated with f_1
-y = 5 * f_0 + np.sin(10 * np.pi * f_0) - 5 * f_1 - np.cos(10 * np.pi * f_1) + noise
+y = 5 * f_0 + jnp.sin(10 * jnp.pi * f_0) - 5 * f_1 - \
+    jnp.cos(10 * jnp.pi * f_1) + noise
 
 
 # %%
@@ -95,7 +97,6 @@ plt.show()
 #
 # Note that if the training data has feature names, it's possible to specify the
 # monotonic constraints by passing a dictionary:
-import pandas as pd
 
 X_df = pd.DataFrame(X, columns=["f_0", "f_1"])
 
@@ -103,6 +104,7 @@ gbdt_with_monotonic_cst_df = HistGradientBoostingRegressor(
     monotonic_cst={"f_0": 1, "f_1": -1}
 ).fit(X_df, y)
 
-np.allclose(
-    gbdt_with_monotonic_cst_df.predict(X_df), gbdt_with_monotonic_cst.predict(X)
+jnp.allclose(
+    gbdt_with_monotonic_cst_df.predict(
+        X_df), gbdt_with_monotonic_cst.predict(X)
 )

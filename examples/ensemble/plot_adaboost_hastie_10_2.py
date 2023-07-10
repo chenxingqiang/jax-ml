@@ -31,7 +31,14 @@ whereas real SAMME.R uses the predicted class probabilities.
 #
 # License: BSD 3 clause
 
-from sklearn import datasets
+import seaborn as sns
+import matplotlib.pyplot as plt
+from xlearn.metrics import zero_one_loss
+import jax.numpy as jnp
+from xlearn.ensemble import AdaBoostClassifier
+from xlearn.tree import DecisionTreeClassifier
+from xlearn.model_selection import train_test_split
+from xlearn import datasets
 
 X, y = datasets.make_hastie_10_2(n_samples=12_000, random_state=1)
 
@@ -47,8 +54,6 @@ learning_rate = 1.0
 # Then, we train our baseline classifiers, a `DecisionTreeClassifier` with `depth=9`
 # and a "stump" `DecisionTreeClassifier` with `depth=1` and compute the test error.
 
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=2_000, shuffle=False
@@ -68,7 +73,6 @@ dt_err = 1.0 - dt.score(X_test, y_test)
 # We now define the discrete and real AdaBoost classifiers
 # and fit them to the training set.
 
-from sklearn.ensemble import AdaBoostClassifier
 
 ada_discrete = AdaBoostClassifier(
     estimator=dt_stump,
@@ -93,23 +97,20 @@ ada_real.fit(X_train, y_train)
 # real AdaBoost classifiers for each new stump in `n_estimators`
 # added to the ensemble.
 
-import numpy as np
 
-from sklearn.metrics import zero_one_loss
-
-ada_discrete_err = np.zeros((n_estimators,))
+ada_discrete_err = jnp.zeros((n_estimators,))
 for i, y_pred in enumerate(ada_discrete.staged_predict(X_test)):
     ada_discrete_err[i] = zero_one_loss(y_pred, y_test)
 
-ada_discrete_err_train = np.zeros((n_estimators,))
+ada_discrete_err_train = jnp.zeros((n_estimators,))
 for i, y_pred in enumerate(ada_discrete.staged_predict(X_train)):
     ada_discrete_err_train[i] = zero_one_loss(y_pred, y_train)
 
-ada_real_err = np.zeros((n_estimators,))
+ada_real_err = jnp.zeros((n_estimators,))
 for i, y_pred in enumerate(ada_real.staged_predict(X_test)):
     ada_real_err[i] = zero_one_loss(y_pred, y_test)
 
-ada_real_err_train = np.zeros((n_estimators,))
+ada_real_err_train = jnp.zeros((n_estimators,))
 for i, y_pred in enumerate(ada_real.staged_predict(X_train)):
     ada_real_err_train[i] = zero_one_loss(y_pred, y_train)
 
@@ -119,37 +120,36 @@ for i, y_pred in enumerate(ada_real.staged_predict(X_train)):
 # Finally, we plot the train and test errors of our baselines
 # and of the discrete and real AdaBoost classifiers
 
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-ax.plot([1, n_estimators], [dt_stump_err] * 2, "k-", label="Decision Stump Error")
+ax.plot([1, n_estimators], [dt_stump_err] *
+        2, "k-", label="Decision Stump Error")
 ax.plot([1, n_estimators], [dt_err] * 2, "k--", label="Decision Tree Error")
 
 colors = sns.color_palette("colorblind")
 
 ax.plot(
-    np.arange(n_estimators) + 1,
+    jnp.arange(n_estimators) + 1,
     ada_discrete_err,
     label="Discrete AdaBoost Test Error",
     color=colors[0],
 )
 ax.plot(
-    np.arange(n_estimators) + 1,
+    jnp.arange(n_estimators) + 1,
     ada_discrete_err_train,
     label="Discrete AdaBoost Train Error",
     color=colors[1],
 )
 ax.plot(
-    np.arange(n_estimators) + 1,
+    jnp.arange(n_estimators) + 1,
     ada_real_err,
     label="Real AdaBoost Test Error",
     color=colors[2],
 )
 ax.plot(
-    np.arange(n_estimators) + 1,
+    jnp.arange(n_estimators) + 1,
     ada_real_err_train,
     label="Real AdaBoost Train Error",
     color=colors[4],

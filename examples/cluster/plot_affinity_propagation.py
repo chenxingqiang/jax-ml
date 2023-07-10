@@ -8,11 +8,12 @@ Brendan J. Frey and Delbert Dueck, "Clustering by Passing Messages
 Between Data Points", Science Feb. 2007
 
 """
-import numpy as np
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
 
-from sklearn import metrics
-from sklearn.cluster import AffinityPropagation
-from sklearn.datasets import make_blobs
+from xlearn import metrics
+from xlearn.cluster import AffinityPropagation
+from xlearn.datasets import make_blobs
 
 # %%
 # Generate sample data
@@ -35,7 +36,8 @@ print("Estimated number of clusters: %d" % n_clusters_)
 print("Homogeneity: %0.3f" % metrics.homogeneity_score(labels_true, labels))
 print("Completeness: %0.3f" % metrics.completeness_score(labels_true, labels))
 print("V-measure: %0.3f" % metrics.v_measure_score(labels_true, labels))
-print("Adjusted Rand Index: %0.3f" % metrics.adjusted_rand_score(labels_true, labels))
+print("Adjusted Rand Index: %0.3f" %
+      metrics.adjusted_rand_score(labels_true, labels))
 print(
     "Adjusted Mutual Information: %0.3f"
     % metrics.adjusted_mutual_info_score(labels_true, labels)
@@ -48,13 +50,12 @@ print(
 # %%
 # Plot result
 # -----------
-import matplotlib.pyplot as plt
 
 plt.close("all")
 plt.figure(1)
 plt.clf()
 
-colors = plt.cycler("color", plt.cm.viridis(np.linspace(0, 1, 4)))
+colors = plt.cycler("color", plt.cm.viridis(jnp.linspace(0, 1, 4)))
 
 for k, col in zip(range(n_clusters_), colors):
     class_members = labels == k
@@ -67,7 +68,8 @@ for k, col in zip(range(n_clusters_), colors):
     )
     for x in X[class_members]:
         plt.plot(
-            [cluster_center[0], x[0]], [cluster_center[1], x[1]], color=col["color"]
+            [cluster_center[0], x[0]], [
+                cluster_center[1], x[1]], color=col["color"]
         )
 
 plt.title("Estimated number of clusters: %d" % n_clusters_)

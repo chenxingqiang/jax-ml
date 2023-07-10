@@ -10,11 +10,11 @@ are represented by the dashed lines.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import datasets
-from sklearn.inspection import DecisionBoundaryDisplay
-from sklearn.linear_model import SGDClassifier
+from xlearn import datasets
+from xlearn.inspection import DecisionBoundaryDisplay
+from xlearn.linear_model import SGDClassifier
 
 # import some data to play with
 iris = datasets.load_iris()
@@ -26,7 +26,7 @@ y = iris.target
 colors = "bry"
 
 # shuffle
-idx = np.arange(X.shape[0])
+idx = jnp.arange(X.shape[0])
 np.random.seed(13)
 np.random.shuffle(idx)
 X = X[idx]
@@ -52,7 +52,7 @@ plt.axis("tight")
 
 # Plot also the training points
 for i, color in zip(clf.classes_, colors):
-    idx = np.where(y == i)
+    idx = jnp.where(y == i)
     plt.scatter(
         X[idx, 0],
         X[idx, 1],

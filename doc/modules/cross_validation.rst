@@ -5,7 +5,7 @@
 Cross-validation: evaluating estimator performance
 ===================================================
 
-.. currentmodule:: sklearn.model_selection
+.. currentmodule:: xlearn.model_selection
 
 Learning the parameters of a prediction function and testing it on the
 same data is a methodological mistake: a model that would just repeat
@@ -29,14 +29,14 @@ The best parameters can be determined by
    :alt: Grid Search Workflow
    :align: center
 
-In scikit-learn a random split into training and test sets
+In jax-learn a random split into training and test sets
 can be quickly computed with the :func:`train_test_split` helper function.
 Let's load the iris data set to fit a linear support vector machine on it::
 
-  >>> import numpy as np
-  >>> from sklearn.model_selection import train_test_split
-  >>> from sklearn import datasets
-  >>> from sklearn import svm
+  >>> import jax.numpy as jnp
+  >>> from xlearn.model_selection import train_test_split
+  >>> from xlearn import datasets
+  >>> from xlearn import svm
 
   >>> X, y = datasets.load_iris(return_X_y=True)
   >>> X.shape, y.shape
@@ -115,7 +115,7 @@ kernel support vector machine on the iris dataset by splitting the data, fitting
 a model and computing the score 5 consecutive times (with different splits each
 time)::
 
-  >>> from sklearn.model_selection import cross_val_score
+  >>> from xlearn.model_selection import cross_val_score
   >>> clf = svm.SVC(kernel='linear', C=1, random_state=42)
   >>> scores = cross_val_score(clf, X, y, cv=5)
   >>> scores
@@ -130,7 +130,7 @@ By default, the score computed at each CV iteration is the ``score``
 method of the estimator. It is possible to change this by using the
 scoring parameter::
 
-  >>> from sklearn import metrics
+  >>> from xlearn import metrics
   >>> scores = cross_val_score(
   ...     clf, X, y, cv=5, scoring='f1_macro')
   >>> scores
@@ -143,12 +143,12 @@ classes hence the accuracy and the F1-score are almost equal.
 When the ``cv`` argument is an integer, :func:`cross_val_score` uses the
 :class:`KFold` or :class:`StratifiedKFold` strategies by default, the latter
 being used if the estimator derives from :class:`ClassifierMixin
-<sklearn.base.ClassifierMixin>`.
+<xlearn.base.ClassifierMixin>`.
 
 It is also possible to use other cross validation strategies by passing a cross
 validation iterator instead, for instance::
 
-  >>> from sklearn.model_selection import ShuffleSplit
+  >>> from xlearn.model_selection import ShuffleSplit
   >>> n_samples = X.shape[0]
   >>> cv = ShuffleSplit(n_splits=5, test_size=0.3, random_state=0)
   >>> cross_val_score(clf, X, y, cv=cv)
@@ -161,7 +161,7 @@ indices, for example::
   ...     n = X.shape[0]
   ...     i = 1
   ...     while i <= 2:
-  ...         idx = np.arange(n * (i - 1) / 2, n * i / 2, dtype=int)
+  ...         idx = jnp.arange(n * (i - 1) / 2, n * i / 2, dtype=int)
   ...         yield idx, idx
   ...         i += 1
   ...
@@ -176,7 +176,7 @@ indices, for example::
     and similar :ref:`data transformations <data-transforms>` similarly should
     be learnt from a training set and applied to held-out data for prediction::
 
-      >>> from sklearn import preprocessing
+      >>> from xlearn import preprocessing
       >>> X_train, X_test, y_train, y_test = train_test_split(
       ...     X, y, test_size=0.4, random_state=0)
       >>> scaler = preprocessing.StandardScaler().fit(X_train)
@@ -186,10 +186,10 @@ indices, for example::
       >>> clf.score(X_test_transformed, y_test)
       0.9333...
 
-    A :class:`Pipeline <sklearn.pipeline.Pipeline>` makes it easier to compose
+    A :class:`Pipeline <xlearn.pipeline.Pipeline>` makes it easier to compose
     estimators, providing this behavior under cross-validation::
 
-      >>> from sklearn.pipeline import make_pipeline
+      >>> from xlearn.pipeline import make_pipeline
       >>> clf = make_pipeline(preprocessing.StandardScaler(), svm.SVC(C=1))
       >>> cross_val_score(clf, X, y, cv=cv)
       array([0.977..., 0.933..., 0.955..., 0.933..., 0.977...])
@@ -228,8 +228,8 @@ the dataset into train and test sets for each cv split.
 The multiple metrics can be specified either as a list, tuple or set of
 predefined scorer names::
 
-    >>> from sklearn.model_selection import cross_validate
-    >>> from sklearn.metrics import recall_score
+    >>> from xlearn.model_selection import cross_validate
+    >>> from xlearn.metrics import recall_score
     >>> scoring = ['precision_macro', 'recall_macro']
     >>> clf = svm.SVC(kernel='linear', C=1, random_state=0)
     >>> scores = cross_validate(clf, X, y, scoring=scoring)
@@ -240,7 +240,7 @@ predefined scorer names::
 
 Or as a dict mapping scorer name to a predefined or custom scoring function::
 
-    >>> from sklearn.metrics import make_scorer
+    >>> from xlearn.metrics import make_scorer
     >>> scoring = {'prec_macro': 'precision_macro',
     ...            'rec_macro': make_scorer(recall_score, average='macro')}
     >>> scores = cross_validate(clf, X, y, scoring=scoring,
@@ -340,8 +340,8 @@ learned using :math:`k - 1` folds, and the fold left out is used for test.
 
 Example of 2-fold cross-validation on a dataset with 4 samples::
 
-  >>> import numpy as np
-  >>> from sklearn.model_selection import KFold
+  >>> import jax.numpy as jnp
+  >>> from xlearn.model_selection import KFold
 
   >>> X = ["a", "b", "c", "d"]
   >>> kf = KFold(n_splits=2)
@@ -362,8 +362,8 @@ Each fold is constituted by two arrays: the first one is related to the
 *training set*, and the second one to the *test set*.
 Thus, one can create the training/test sets using numpy indexing::
 
-  >>> X = np.array([[0., 0.], [1., 1.], [-1., -1.], [2., 2.]])
-  >>> y = np.array([0, 1, 0, 1])
+  >>> X = jnp.array([[0., 0.], [1., 1.], [-1., -1.], [2., 2.]])
+  >>> y = jnp.array([0, 1, 0, 1])
   >>> X_train, X_test, y_train, y_test = X[train], X[test], y[train], y[test]
 
 .. _repeated_k_fold:
@@ -377,9 +377,9 @@ each repetition.
 
 Example of 2-fold K-Fold repeated 2 times::
 
-  >>> import numpy as np
-  >>> from sklearn.model_selection import RepeatedKFold
-  >>> X = np.array([[1, 2], [3, 4], [1, 2], [3, 4]])
+  >>> import jax.numpy as jnp
+  >>> from xlearn.model_selection import RepeatedKFold
+  >>> X = jnp.array([[1, 2], [3, 4], [1, 2], [3, 4]])
   >>> random_state = 12883823
   >>> rkf = RepeatedKFold(n_splits=2, n_repeats=2, random_state=random_state)
   >>> for train, test in rkf.split(X):
@@ -406,7 +406,7 @@ training sets and :math:`n` different tests set. This cross-validation
 procedure does not waste much data as only one sample is removed from the
 training set::
 
-  >>> from sklearn.model_selection import LeaveOneOut
+  >>> from xlearn.model_selection import LeaveOneOut
 
   >>> X = [1, 2, 3, 4]
   >>> loo = LeaveOneOut()
@@ -466,9 +466,9 @@ overlap for :math:`p > 1`.
 
 Example of Leave-2-Out on a dataset with 4 samples::
 
-  >>> from sklearn.model_selection import LeavePOut
+  >>> from xlearn.model_selection import LeavePOut
 
-  >>> X = np.ones(4)
+  >>> X = jnp.ones(4)
   >>> lpo = LeavePOut(p=2)
   >>> for train, test in lpo.split(X):
   ...     print("%s %s" % (train, test))
@@ -495,8 +495,8 @@ generator.
 
 Here is a usage example::
 
-  >>> from sklearn.model_selection import ShuffleSplit
-  >>> X = np.arange(10)
+  >>> from xlearn.model_selection import ShuffleSplit
+  >>> X = jnp.arange(10)
   >>> ss = ShuffleSplit(n_splits=5, test_size=0.25, random_state=0)
   >>> for train_index, test_index in ss.split(X):
   ...     print("%s %s" % (train_index, test_index))
@@ -543,20 +543,20 @@ Here is an example of stratified 3-fold cross-validation on a dataset with 50 sa
 two unbalanced classes.  We show the number of samples in each class and compare with
 :class:`KFold`.
 
-  >>> from sklearn.model_selection import StratifiedKFold, KFold
-  >>> import numpy as np
-  >>> X, y = np.ones((50, 1)), np.hstack(([0] * 45, [1] * 5))
+  >>> from xlearn.model_selection import StratifiedKFold, KFold
+  >>> import jax.numpy as jnp
+  >>> X, y = jnp.ones((50, 1)), jnp.hstack(([0] * 45, [1] * 5))
   >>> skf = StratifiedKFold(n_splits=3)
   >>> for train, test in skf.split(X, y):
   ...     print('train -  {}   |   test -  {}'.format(
-  ...         np.bincount(y[train]), np.bincount(y[test])))
+  ...         jnp.bincount(y[train]), jnp.bincount(y[test])))
   train -  [30  3]   |   test -  [15  2]
   train -  [30  3]   |   test -  [15  2]
   train -  [30  4]   |   test -  [15  1]
   >>> kf = KFold(n_splits=3)
   >>> for train, test in kf.split(X, y):
   ...     print('train -  {}   |   test -  {}'.format(
-  ...         np.bincount(y[train]), np.bincount(y[test])))
+  ...         jnp.bincount(y[train]), jnp.bincount(y[test])))
   train -  [28  5]   |   test -  [17]
   train -  [28  5]   |   test -  [17]
   train -  [34]   |   test -  [11  5]
@@ -626,7 +626,7 @@ to detect this kind of overfitting situations.
 
 Imagine you have three subjects, each with an associated number from 1 to 3::
 
-  >>> from sklearn.model_selection import GroupKFold
+  >>> from xlearn.model_selection import GroupKFold
 
   >>> X = [0.1, 0.2, 2.2, 2.4, 2.3, 4.55, 5.8, 8.8, 9, 10]
   >>> y = ["a", "b", "b", "b", "c", "c", "c", "d", "d", "d"]
@@ -669,7 +669,7 @@ dataset so that using just :class:`GroupKFold` might produce skewed splits.
 
 Example::
 
-  >>> from sklearn.model_selection import StratifiedGroupKFold
+  >>> from xlearn.model_selection import StratifiedGroupKFold
   >>> X = list(range(18))
   >>> y = [1] * 6 + [0] * 12
   >>> groups = [1, 2, 3, 3, 4, 4, 1, 1, 2, 2, 3, 4, 5, 5, 5, 6, 6, 6]
@@ -726,7 +726,7 @@ For example, in the cases of multiple experiments, :class:`LeaveOneGroupOut`
 can be used to create a cross-validation based on the different experiments:
 we create a training set using the samples of all the experiments except one::
 
-  >>> from sklearn.model_selection import LeaveOneGroupOut
+  >>> from xlearn.model_selection import LeaveOneGroupOut
 
   >>> X = [1, 5, 10, 50, 60, 70, 80]
   >>> y = [0, 1, 1, 2, 2, 2, 2]
@@ -754,9 +754,9 @@ for :math:`P>1`.
 
 Example of Leave-2-Group Out::
 
-  >>> from sklearn.model_selection import LeavePGroupsOut
+  >>> from xlearn.model_selection import LeavePGroupsOut
 
-  >>> X = np.arange(6)
+  >>> X = jnp.arange(6)
   >>> y = [1, 1, 1, 2, 2, 2]
   >>> groups = [1, 1, 2, 2, 3, 3]
   >>> lpgo = LeavePGroupsOut(n_groups=2)
@@ -779,7 +779,7 @@ there is no guaranteed relationship between successive test sets.
 
 Here is a usage example::
 
-  >>> from sklearn.model_selection import GroupShuffleSplit
+  >>> from xlearn.model_selection import GroupShuffleSplit
 
   >>> X = [0.1, 0.2, 2.2, 2.4, 2.3, 4.55, 5.8, 0.001]
   >>> y = ["a", "b", "b", "b", "c", "c", "c", "a"]
@@ -833,12 +833,12 @@ To perform the train and test split, use the indices for the train and test
 subsets yielded by the generator output by the `split()` method of the
 cross-validation splitter. For example::
 
-  >>> import numpy as np
-  >>> from sklearn.model_selection import GroupShuffleSplit
+  >>> import jax.numpy as jnp
+  >>> from xlearn.model_selection import GroupShuffleSplit
 
-  >>> X = np.array([0.1, 0.2, 2.2, 2.4, 2.3, 4.55, 5.8, 0.001])
-  >>> y = np.array(["a", "b", "b", "b", "c", "c", "c", "a"])
-  >>> groups = np.array([1, 1, 2, 2, 3, 3, 4, 4])
+  >>> X = jnp.array([0.1, 0.2, 2.2, 2.4, 2.3, 4.55, 5.8, 0.001])
+  >>> y = jnp.array(["a", "b", "b", "b", "c", "c", "c", "a"])
+  >>> groups = jnp.array([1, 1, 2, 2, 3, 3, 4, 4])
   >>> train_indx, test_indx = next(
   ...     GroupShuffleSplit(random_state=7).split(X, y, groups)
   ... )
@@ -846,7 +846,7 @@ cross-validation splitter. For example::
   ...     X[train_indx], X[test_indx], y[train_indx], y[test_indx]
   >>> X_train.shape, X_test.shape
   ((6,), (2,))
-  >>> np.unique(groups[train_indx]), np.unique(groups[test_indx])
+  >>> jnp.unique(groups[train_indx]), jnp.unique(groups[test_indx])
   (array([1, 2, 4]), array([3]))
 
 .. _timeseries_cv:
@@ -882,10 +882,10 @@ that are observed at fixed time intervals.
 
 Example of 3-split time series cross-validation on a dataset with 6 samples::
 
-  >>> from sklearn.model_selection import TimeSeriesSplit
+  >>> from xlearn.model_selection import TimeSeriesSplit
 
-  >>> X = np.array([[1, 2], [3, 4], [1, 2], [3, 4], [1, 2], [3, 4]])
-  >>> y = np.array([1, 2, 3, 4, 5, 6])
+  >>> X = jnp.array([[1, 2], [3, 4], [1, 2], [3, 4], [1, 2], [3, 4]])
+  >>> y = jnp.array([1, 2, 3, 4, 5, 6])
   >>> tscv = TimeSeriesSplit(n_splits=3)
   >>> print(tscv)
   TimeSeriesSplit(gap=0, max_train_size=None, n_splits=3, test_size=None)
@@ -943,13 +943,13 @@ model. This is the topic of the next section: :ref:`grid_search`.
 Permutation test score
 ======================
 
-:func:`~sklearn.model_selection.permutation_test_score` offers another way
+:func:`~xlearn.model_selection.permutation_test_score` offers another way
 to evaluate the performance of classifiers. It provides a permutation-based
 p-value, which represents how likely an observed performance of the
 classifier would be obtained by chance. The null hypothesis in this test is
 that the classifier fails to leverage any statistical dependency between the
 features and the labels to make correct predictions on left out data.
-:func:`~sklearn.model_selection.permutation_test_score` generates a null
+:func:`~xlearn.model_selection.permutation_test_score` generates a null
 distribution by calculating `n_permutations` different permutations of the
 data. In each permutation the labels are randomly shuffled, thereby removing
 any dependency between the features and the labels. The p-value output
@@ -973,7 +973,7 @@ classifier trained on a high dimensional dataset with no structure may still
 perform better than expected on cross-validation, just by chance.
 This can typically happen with small datasets with less than a few hundred
 samples.
-:func:`~sklearn.model_selection.permutation_test_score` provides information
+:func:`~xlearn.model_selection.permutation_test_score` provides information
 on whether the classifier has found a real class structure and can help in
 evaluating the performance of the classifier.
 
@@ -983,7 +983,7 @@ corresponding permutated datasets there is absolutely no structure. This
 test is therefore only able to show when the model reliably outperforms
 random guessing.
 
-Finally, :func:`~sklearn.model_selection.permutation_test_score` is computed
+Finally, :func:`~xlearn.model_selection.permutation_test_score` is computed
 using brute force and internally fits ``(n_permutations + 1) * n_cv`` models.
 It is therefore only tractable with small datasets for which fitting an
 individual model is very fast.

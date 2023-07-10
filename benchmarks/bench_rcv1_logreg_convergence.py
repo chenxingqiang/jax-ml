@@ -7,12 +7,12 @@ import gc
 import time
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from joblib import Memory
 
-from sklearn.datasets import fetch_rcv1
-from sklearn.linear_model import LogisticRegression, SGDClassifier
-from sklearn.linear_model._sag import get_auto_step_size
+from xlearn.datasets import fetch_rcv1
+from xlearn.linear_model import LogisticRegression, SGDClassifier
+from xlearn.linear_model._sag import get_auto_step_size
 
 try:
     import lightning.classification as lightning_clf
@@ -26,7 +26,7 @@ m = Memory(cachedir=".", verbose=0)
 def get_loss(w, intercept, myX, myy, C):
     n_samples = myX.shape[0]
     w = w.ravel()
-    p = np.mean(np.log(1.0 + np.exp(-myy * (myX.dot(w) + intercept))))
+    p = jnp.mean(jnp.log(1.0 + jnp.exp(-myy * (myX.dot(w) + intercept))))
     print("%f + %f" % (p, w.dot(w) / 2.0 / C / n_samples))
     p += w.dot(w) / 2.0 / C / n_samples
     return p
@@ -136,11 +136,11 @@ def plot_dloss(clfs):
     for name, _, _, train_losses, _, _, durations in clfs:
         pobj_final.append(train_losses[-1])
 
-    indices = np.argsort(pobj_final)
+    indices = jnp.argsort(pobj_final)
     pobj_best = pobj_final[indices[0]]
 
     for name, _, _, train_losses, _, _, durations in clfs:
-        log_pobj = np.log(abs(np.array(train_losses) - pobj_best)) / np.log(10)
+        log_pobj = jnp.log(abs(jnp.array(train_losses) - pobj_best)) / jnp.log(10)
 
         plt.plot(durations, log_pobj, "-o", label=name)
         plt.legend(loc=0)
@@ -150,7 +150,7 @@ def plot_dloss(clfs):
 
 def get_max_squared_sum(X):
     """Get the maximum row-wise sum of squares"""
-    return np.sum(X**2, axis=1).max()
+    return jnp.sum(X**2, axis=1).max()
 
 
 rcv1 = fetch_rcv1()
@@ -159,7 +159,7 @@ n_samples, n_features = X.shape
 
 # consider the binary classification problem 'CCAT' vs the rest
 ccat_idx = rcv1.target_names.tolist().index("CCAT")
-y = rcv1.target.tocsc()[:, ccat_idx].toarray().ravel().astype(np.float64)
+y = rcv1.target.tocsc()[:, ccat_idx].toarray().ravel().astype(jnp.float64)
 y[y == 0] = -1
 
 # parameters
@@ -209,7 +209,8 @@ clfs = [
     ),
     (
         "LR-SAG",
-        LogisticRegression(C=C, tol=tol, solver="sag", fit_intercept=fit_intercept),
+        LogisticRegression(C=C, tol=tol, solver="sag",
+                           fit_intercept=fit_intercept),
         sag_iter_range,
         [],
         [],
@@ -229,7 +230,8 @@ clfs = [
     ),
     (
         "LR-lbfgs",
-        LogisticRegression(C=C, tol=tol, solver="lbfgs", fit_intercept=fit_intercept),
+        LogisticRegression(C=C, tol=tol, solver="lbfgs",
+                           fit_intercept=fit_intercept),
         lbfgs_iter_range,
         [],
         [],
@@ -258,7 +260,8 @@ if lightning_clf is not None and not fit_intercept:
     alpha = 1.0 / C / n_samples
     # compute the same step_size than in LR-sag
     max_squared_sum = get_max_squared_sum(X)
-    step_size = get_auto_step_size(max_squared_sum, alpha, "log", fit_intercept)
+    step_size = get_auto_step_size(
+        max_squared_sum, alpha, "log", fit_intercept)
 
     clfs.append(
         (
@@ -291,7 +294,7 @@ if lightning_clf is not None and not fit_intercept:
     # and compare to lightning SAG, which seems incorrect in the sparse case.
     X_csc = X.tocsc()
     nnz_in_each_features = X_csc.indptr[1:] - X_csc.indptr[:-1]
-    X = X_csc[:, np.argsort(nnz_in_each_features)[-200:]]
+    X = X_csc[:, jnp.argsort(nnz_in_each_features)[-200:]]
     X = X.toarray()
     print("dataset: %.3f MB" % (X.nbytes / 1e6))
 

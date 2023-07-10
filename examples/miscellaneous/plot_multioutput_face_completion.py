@@ -13,13 +13,13 @@ regression and ridge regression complete the lower half of those faces.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import fetch_olivetti_faces
-from sklearn.ensemble import ExtraTreesRegressor
-from sklearn.linear_model import LinearRegression, RidgeCV
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.utils.validation import check_random_state
+from xlearn.datasets import fetch_olivetti_faces
+from xlearn.ensemble import ExtraTreesRegressor
+from xlearn.linear_model import LinearRegression, RidgeCV
+from xlearn.neighbors import KNeighborsRegressor
+from xlearn.utils.validation import check_random_state
 
 # Load the faces datasets
 data, targets = fetch_olivetti_faces(return_X_y=True)
@@ -37,9 +37,9 @@ n_pixels = data.shape[1]
 # Upper half of the faces
 X_train = train[:, : (n_pixels + 1) // 2]
 # Lower half of the faces
-y_train = train[:, n_pixels // 2 :]
+y_train = train[:, n_pixels // 2:]
 X_test = test[:, : (n_pixels + 1) // 2]
-y_test = test[:, n_pixels // 2 :]
+y_test = test[:, n_pixels // 2:]
 
 # Fit estimators
 ESTIMATORS = {
@@ -64,7 +64,7 @@ plt.figure(figsize=(2.0 * n_cols, 2.26 * n_faces))
 plt.suptitle("Face completion with multi-output estimators", size=16)
 
 for i in range(n_faces):
-    true_face = np.hstack((X_test[i], y_test[i]))
+    true_face = jnp.hstack((X_test[i], y_test[i]))
 
     if i:
         sub = plt.subplot(n_faces, n_cols, i * n_cols + 1)
@@ -77,7 +77,7 @@ for i in range(n_faces):
     )
 
     for j, est in enumerate(sorted(ESTIMATORS)):
-        completed_face = np.hstack((X_test[i], y_test_predict[est][i]))
+        completed_face = jnp.hstack((X_test[i], y_test_predict[est][i]))
 
         if i:
             sub = plt.subplot(n_faces, n_cols, i * n_cols + 2 + j)

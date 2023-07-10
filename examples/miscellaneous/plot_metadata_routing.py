@@ -3,10 +3,10 @@
 Metadata Routing
 ================
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 This document shows how you can use the :ref:`metadata routing mechanism
-<metadata_routing>` in scikit-learn to route metadata through meta-estimators
+<metadata_routing>` in jax-learn to route metadata through meta-estimators
 to the estimators consuming them. To better understand the rest of the
 document, we need to introduce two concepts: routers and consumers. A router is
 an object, in most cases a meta-estimator, which forwards given data and
@@ -25,10 +25,10 @@ First a few imports and some random data for the rest of the script.
 import warnings
 from pprint import pprint
 
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn import set_config
-from sklearn.base import (
+from xlearn import set_config
+from xlearn.base import (
     BaseEstimator,
     ClassifierMixin,
     MetaEstimatorMixin,
@@ -36,15 +36,15 @@ from sklearn.base import (
     TransformerMixin,
     clone,
 )
-from sklearn.linear_model import LinearRegression
-from sklearn.utils import metadata_routing
-from sklearn.utils.metadata_routing import (
+from xlearn.linear_model import LinearRegression
+from xlearn.utils import metadata_routing
+from xlearn.utils.metadata_routing import (
     MetadataRouter,
     MethodMapping,
     get_routing_for_object,
     process_routing,
 )
-from sklearn.utils.validation import check_is_fitted
+from xlearn.utils.validation import check_is_fitted
 
 n_samples, n_features = 100, 4
 rng = np.random.RandomState(42)
@@ -91,13 +91,13 @@ class ExampleClassifier(ClassifierMixin, BaseEstimator):
     def fit(self, X, y, sample_weight=None):
         check_metadata(self, sample_weight=sample_weight)
         # all classifiers need to expose a classes_ attribute once they're fit.
-        self.classes_ = np.array([0, 1])
+        self.classes_ = jnp.array([0, 1])
         return self
 
     def predict(self, X, groups=None):
         check_metadata(self, groups=groups)
         # return a constant value of 1, not a very smart classifier!
-        return np.ones(len(X))
+        return jnp.ones(len(X))
 
 
 # %%
@@ -169,13 +169,15 @@ class MetaClassifier(MetaEstimatorMixin, ClassifierMixin, BaseEstimator):
         # we can use provided utility methods to map the given metadata to what
         # is required by the underlying estimator. Here `method` refers to the
         # parent's method, i.e. `fit` in this example.
-        routed_params = request_router.route_params(params=fit_params, caller="fit")
+        routed_params = request_router.route_params(
+            params=fit_params, caller="fit")
 
         # the output has a key for each object's method which is used here,
         # i.e. parent's `fit` method, containing the metadata which should be
         # routed to them, based on the information provided in
         # `get_metadata_routing`.
-        self.estimator_ = clone(self.estimator).fit(X, y, **routed_params.estimator.fit)
+        self.estimator_ = clone(self.estimator).fit(
+            X, y, **routed_params.estimator.fit)
         self.classes_ = self.estimator_.classes_
         return self
 
@@ -183,7 +185,8 @@ class MetaClassifier(MetaEstimatorMixin, ClassifierMixin, BaseEstimator):
         check_is_fitted(self)
         # same as in `fit`, we validate the given metadata
         request_router = get_routing_for_object(self)
-        request_router.validate_metadata(params=predict_params, method="predict")
+        request_router.validate_metadata(
+            params=predict_params, method="predict")
         # and then prepare the input to the underlying `predict` method.
         routed_params = request_router.route_params(
             params=predict_params, caller="predict"
@@ -208,7 +211,8 @@ class MetaClassifier(MetaEstimatorMixin, ClassifierMixin, BaseEstimator):
 # makes sure all given metadata are requested to avoid silent bugs. Now, we
 # illustrate the different behaviors and notably the type of errors raised:
 
-est = MetaClassifier(estimator=ExampleClassifier().set_fit_request(sample_weight=True))
+est = MetaClassifier(
+    estimator=ExampleClassifier().set_fit_request(sample_weight=True))
 est.fit(X, y, sample_weight=my_weights)
 
 # %%
@@ -256,7 +260,8 @@ except TypeError as e:
 # ``sample_weight``, and passes it as ``sample_weight`` to the underlying
 # estimator:
 est = MetaClassifier(
-    estimator=ExampleClassifier().set_fit_request(sample_weight="aliased_sample_weight")
+    estimator=ExampleClassifier().set_fit_request(
+        sample_weight="aliased_sample_weight")
 )
 est.fit(X, y, aliased_sample_weight=my_weights)
 
@@ -270,7 +275,7 @@ except TypeError as e:
 
 # %%
 # This leads us to the ``get_metadata_routing``. The way routing works in
-# scikit-learn is that consumers request what they need, and routers pass that
+# jax-learn is that consumers request what they need, and routers pass that
 # along. Additionally, a router exposes what it requires itself so that it can
 # be used inside another router, e.g. a pipeline inside a grid search object.
 # The output of the ``get_metadata_routing`` which is a dictionary
@@ -292,7 +297,8 @@ print_routing(est)
 # ``fit`` and so on. In order to understand how aliases work in
 # meta-estimators, imagine our meta-estimator inside another one:
 
-meta_est = MetaClassifier(estimator=est).fit(X, y, aliased_sample_weight=my_weights)
+meta_est = MetaClassifier(estimator=est).fit(
+    X, y, aliased_sample_weight=my_weights)
 
 # %%
 # In the above example, this is how each ``fit`` method will call the
@@ -343,7 +349,8 @@ class RouterConsumerClassifier(MetaEstimatorMixin, ClassifierMixin, BaseEstimato
         # we can use provided utility methods to map the given metadata to what
         # is required by the underlying estimator
         params = request_router.route_params(params=fit_params, caller="fit")
-        self.estimator_ = clone(self.estimator).fit(X, y, **params.estimator.fit)
+        self.estimator_ = clone(self.estimator).fit(
+            X, y, **params.estimator.fit)
         self.classes_ = self.estimator_.classes_
         return self
 
@@ -351,9 +358,11 @@ class RouterConsumerClassifier(MetaEstimatorMixin, ClassifierMixin, BaseEstimato
         check_is_fitted(self)
         # same as in ``fit``, we validate the given metadata
         request_router = get_routing_for_object(self)
-        request_router.validate_metadata(params=predict_params, method="predict")
+        request_router.validate_metadata(
+            params=predict_params, method="predict")
         # and then prepare the input to the underlying ``predict`` method.
-        params = request_router.route_params(params=predict_params, caller="predict")
+        params = request_router.route_params(
+            params=predict_params, caller="predict")
         return self.estimator_.predict(X, **params.estimator.predict)
 
 
@@ -397,7 +406,8 @@ print_routing(est)
 # - We can also alias the metadata to pass different values to them:
 
 est = RouterConsumerClassifier(
-    estimator=ExampleClassifier().set_fit_request(sample_weight="clf_sample_weight"),
+    estimator=ExampleClassifier().set_fit_request(
+        sample_weight="clf_sample_weight"),
 ).set_fit_request(sample_weight="meta_clf_sample_weight")
 print_routing(est)
 
@@ -411,7 +421,8 @@ est.fit(X, y, sample_weight=my_weights, clf_sample_weight=my_other_weights)
 #   meta-estimator to use the metadata, and we only want the metadata to be used
 #   by the sub-estimator.
 est = RouterConsumerClassifier(
-    estimator=ExampleClassifier().set_fit_request(sample_weight="aliased_sample_weight")
+    estimator=ExampleClassifier().set_fit_request(
+        sample_weight="aliased_sample_weight")
 ).set_fit_request(sample_weight=True)
 print_routing(est)
 
@@ -449,8 +460,10 @@ class SimplePipeline(ClassifierMixin, BaseEstimator):
     def fit(self, X, y, **fit_params):
         params = process_routing(self, "fit", fit_params)
 
-        self.transformer_ = clone(self.transformer).fit(X, y, **params.transformer.fit)
-        X_transformed = self.transformer_.transform(X, **params.transformer.transform)
+        self.transformer_ = clone(self.transformer).fit(
+            X, y, **params.transformer.fit)
+        X_transformed = self.transformer_.transform(
+            X, **params.transformer.transform)
 
         self.classifier_ = clone(self.classifier).fit(
             X_transformed, y, **params.classifier.fit
@@ -460,7 +473,8 @@ class SimplePipeline(ClassifierMixin, BaseEstimator):
     def predict(self, X, **predict_params):
         params = process_routing(self, "predict", predict_params)
 
-        X_transformed = self.transformer_.transform(X, **params.transformer.transform)
+        X_transformed = self.transformer_.transform(
+            X, **params.transformer.transform)
         return self.classifier_.predict(X_transformed, **params.classifier.predict)
 
 
@@ -535,7 +549,8 @@ class MetaRegressor(MetaEstimatorMixin, RegressorMixin, BaseEstimator):
 
     def fit(self, X, y, **fit_params):
         params = process_routing(self, "fit", fit_params)
-        self.estimator_ = clone(self.estimator).fit(X, y, **params.estimator.fit)
+        self.estimator_ = clone(self.estimator).fit(
+            X, y, **params.estimator.fit)
 
     def get_metadata_routing(self):
         router = MetadataRouter(owner=self.__class__.__name__).add(
@@ -547,7 +562,8 @@ class MetaRegressor(MetaEstimatorMixin, RegressorMixin, BaseEstimator):
 # %%
 # As explained above, this is now a valid usage:
 
-reg = MetaRegressor(estimator=LinearRegression().set_fit_request(sample_weight=True))
+reg = MetaRegressor(
+    estimator=LinearRegression().set_fit_request(sample_weight=True))
 reg.fit(X, y, sample_weight=my_weights)
 
 
@@ -563,9 +579,11 @@ class WeightedMetaRegressor(MetaEstimatorMixin, RegressorMixin, BaseEstimator):
         self.estimator = estimator
 
     def fit(self, X, y, sample_weight=None, **fit_params):
-        params = process_routing(self, "fit", fit_params, sample_weight=sample_weight)
+        params = process_routing(
+            self, "fit", fit_params, sample_weight=sample_weight)
         check_metadata(self, sample_weight=sample_weight)
-        self.estimator_ = clone(self.estimator).fit(X, y, **params.estimator.fit)
+        self.estimator_ = clone(self.estimator).fit(
+            X, y, **params.estimator.fit)
 
     def get_metadata_routing(self):
         router = (
@@ -602,24 +620,25 @@ class ExampleRegressor(RegressorMixin, BaseEstimator):
         return self
 
     def predict(self, X):
-        return np.zeros(shape=(len(X)))
+        return jnp.zeros(shape=(len(X)))
 
 
 with warnings.catch_warnings(record=True) as record:
-    MetaRegressor(estimator=ExampleRegressor()).fit(X, y, sample_weight=my_weights)
+    MetaRegressor(estimator=ExampleRegressor()).fit(
+        X, y, sample_weight=my_weights)
 for w in record:
     print(w.message)
 
 # %%
-# Third Party Development and scikit-learn Dependency
+# Third Party Development and jax-learn Dependency
 # ---------------------------------------------------
 #
 # As seen above, information is communicated between classes using
 # :class:`~utils.metadata_routing.MetadataRequest` and
 # :class:`~utils.metadata_routing.MetadataRouter`. It is strongly not advised,
 # but possible to vendor the tools related to metadata-routing if you strictly
-# want to have a scikit-learn compatible estimator, without depending on the
-# scikit-learn package. If the following conditions are met, you do NOT need to
+# want to have a jax-learn compatible estimator, without depending on the
+# jax-learn package. If the following conditions are met, you do NOT need to
 # modify your code at all:
 #
 # - your estimator inherits from :class:`~base.BaseEstimator`

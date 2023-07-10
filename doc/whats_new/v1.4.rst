@@ -1,6 +1,6 @@
 .. include:: _contributors.rst
 
-.. currentmodule:: sklearn
+.. currentmodule:: xlearn
 
 .. _changes_1_4:
 
@@ -25,7 +25,7 @@ Changes impacting all modules
 - |Enhancement| All estimators now recognizes the column names from any dataframe
   that adopts the
   `DataFrame Interchange Protocol <https://data-apis.org/dataframe-protocol/latest/purpose_and_scope.html>`__.
-  Dataframes that return a correct representation through `np.asarray(df)` is expected
+  Dataframes that return a correct representation through `jnp.asarray(df)` is expected
   to work with our estimators and functions.
   :pr:`26464` by `Thomas Fan`_.
 
@@ -43,7 +43,7 @@ Changelog
     :pr:`123456` by :user:`Joe Bloggs <joeongithub>`.
     where 123456 is the *pull request* number, not the issue number.
 
-:mod:`sklearn.base`
+:mod:`xlearn.base`
 ...................
 
 - |Enhancement| :meth:`base.ClusterMixin.fit_predict` and
@@ -51,7 +51,7 @@ Changelog
   passed to the ``fit`` method of the the estimator. :pr:`26506` by `Adrin
   Jalali`_.
 
-:mod:`sklearn.decomposition`
+:mod:`xlearn.decomposition`
 ............................
 
 - |Enhancement| An "auto" option was added to the `n_components` parameter of
@@ -61,7 +61,7 @@ Changelog
   from `None` to `auto` in version 1.6.
   :pr:`26634` by :user:`Alexandre Landeau <AlexL>` and :user:`Alexandre Vigny <avigny>`.
 
-:mod:`sklearn.ensemble`
+:mod:`xlearn.ensemble`
 .......................
 
 - |Feature| :class:`ensemble.RandomForestClassifier`,
@@ -72,13 +72,13 @@ Changelog
   :pr:`13649` by :user:`Samuel Ronsin <samronsin>`,
   initiated by :user:`Patrick O'Reilly <pat-oreilly>`.
 
-:mod:`sklearn.feature_selection`
+:mod:`xlearn.feature_selection`
 ................................
 
 - |Fix| :func:`feature_selection.mutual_info_regression` now correctly computes the
   result when `X` is of integer dtype. :pr:`26748` by :user:`Yao Xiao <Charlie-XIAO>`.
 
-:mod:`sklearn.tree`
+:mod:`xlearn.tree`
 ...................
 
 - |Feature| :class:`tree.DecisionTreeClassifier`, :class:`tree.DecisionTreeRegressor`,

@@ -25,26 +25,30 @@ weak: the point cloud is very spherical.
 # Dataset based latent variables model
 # ------------------------------------
 
-import numpy as np
+from xlearn.cross_decomposition import CCA
+from xlearn.cross_decomposition import PLSRegression
+import matplotlib.pyplot as plt
+from xlearn.cross_decomposition import PLSCanonical
+import jax.numpy as jnp
 
 n = 500
 # 2 latents vars:
 l1 = np.random.normal(size=n)
 l2 = np.random.normal(size=n)
 
-latents = np.array([l1, l1, l2, l2]).T
+latents = jnp.array([l1, l1, l2, l2]).T
 X = latents + np.random.normal(size=4 * n).reshape((n, 4))
 Y = latents + np.random.normal(size=4 * n).reshape((n, 4))
 
 X_train = X[: n // 2]
 Y_train = Y[: n // 2]
-X_test = X[n // 2 :]
-Y_test = Y[n // 2 :]
+X_test = X[n // 2:]
+Y_test = Y[n // 2:]
 
 print("Corr(X)")
-print(np.round(np.corrcoef(X.T), 2))
+print(jnp.round(jnp.corrcoef(X.T), 2))
 print("Corr(Y)")
-print(np.round(np.corrcoef(Y.T), 2))
+print(jnp.round(jnp.corrcoef(Y.T), 2))
 
 # %%
 # Canonical (symmetric) PLS
@@ -53,7 +57,6 @@ print(np.round(np.corrcoef(Y.T), 2))
 # Transform data
 # ~~~~~~~~~~~~~~
 
-from sklearn.cross_decomposition import PLSCanonical
 
 plsca = PLSCanonical(n_components=2)
 plsca.fit(X_train, Y_train)
@@ -64,7 +67,6 @@ X_test_r, Y_test_r = plsca.transform(X_test, Y_test)
 # Scatter plot of scores
 # ~~~~~~~~~~~~~~~~~~~~~~
 
-import matplotlib.pyplot as plt
 
 # On diagonal plot X vs Y scores on each components
 plt.figure(figsize=(12, 8))
@@ -75,7 +77,7 @@ plt.xlabel("x scores")
 plt.ylabel("y scores")
 plt.title(
     "Comp. 1: X vs Y (test corr = %.2f)"
-    % np.corrcoef(X_test_r[:, 0], Y_test_r[:, 0])[0, 1]
+    % jnp.corrcoef(X_test_r[:, 0], Y_test_r[:, 0])[0, 1]
 )
 plt.xticks(())
 plt.yticks(())
@@ -88,7 +90,7 @@ plt.xlabel("x scores")
 plt.ylabel("y scores")
 plt.title(
     "Comp. 2: X vs Y (test corr = %.2f)"
-    % np.corrcoef(X_test_r[:, 1], Y_test_r[:, 1])[0, 1]
+    % jnp.corrcoef(X_test_r[:, 1], Y_test_r[:, 1])[0, 1]
 )
 plt.xticks(())
 plt.yticks(())
@@ -102,7 +104,7 @@ plt.xlabel("X comp. 1")
 plt.ylabel("X comp. 2")
 plt.title(
     "X comp. 1 vs X comp. 2 (test corr = %.2f)"
-    % np.corrcoef(X_test_r[:, 0], X_test_r[:, 1])[0, 1]
+    % jnp.corrcoef(X_test_r[:, 0], X_test_r[:, 1])[0, 1]
 )
 plt.legend(loc="best")
 plt.xticks(())
@@ -115,7 +117,7 @@ plt.xlabel("Y comp. 1")
 plt.ylabel("Y comp. 2")
 plt.title(
     "Y comp. 1 vs Y comp. 2 , (test corr = %.2f)"
-    % np.corrcoef(Y_test_r[:, 0], Y_test_r[:, 1])[0, 1]
+    % jnp.corrcoef(Y_test_r[:, 0], Y_test_r[:, 1])[0, 1]
 )
 plt.legend(loc="best")
 plt.xticks(())
@@ -126,15 +128,14 @@ plt.show()
 # PLS regression, with multivariate response, a.k.a. PLS2
 # -------------------------------------------------------
 
-from sklearn.cross_decomposition import PLSRegression
 
 n = 1000
 q = 3
 p = 10
 X = np.random.normal(size=n * p).reshape((n, p))
-B = np.array([[1, 2] + [0] * (p - 2)] * q).T
+B = jnp.array([[1, 2] + [0] * (p - 2)] * q).T
 # each Yj = 1*X1 + 2*X2 + noize
-Y = np.dot(X, B) + np.random.normal(size=n * q).reshape((n, q)) + 5
+Y = jnp.dot(X, B) + np.random.normal(size=n * q).reshape((n, q)) + 5
 
 pls2 = PLSRegression(n_components=3)
 pls2.fit(X, Y)
@@ -142,7 +143,7 @@ print("True B (such that: Y = XB + Err)")
 print(B)
 # compare pls2.coef_ with B
 print("Estimated B")
-print(np.round(pls2.coef_, 1))
+print(jnp.round(pls2.coef_, 1))
 pls2.predict(X)
 
 # %%
@@ -157,13 +158,12 @@ pls1 = PLSRegression(n_components=3)
 pls1.fit(X, y)
 # note that the number of components exceeds 1 (the dimension of y)
 print("Estimated betas")
-print(np.round(pls1.coef_, 1))
+print(jnp.round(pls1.coef_, 1))
 
 # %%
 # CCA (PLS mode B with symmetric deflation)
 # -----------------------------------------
 
-from sklearn.cross_decomposition import CCA
 
 cca = CCA(n_components=2)
 cca.fit(X_train, Y_train)

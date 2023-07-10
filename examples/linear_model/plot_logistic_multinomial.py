@@ -13,17 +13,17 @@ are represented by the dashed lines.
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import make_blobs
-from sklearn.inspection import DecisionBoundaryDisplay
-from sklearn.linear_model import LogisticRegression
+from xlearn.datasets import make_blobs
+from xlearn.inspection import DecisionBoundaryDisplay
+from xlearn.linear_model import LogisticRegression
 
 # make 3-class dataset for classification
 centers = [[-5, 0], [0, 1.5], [5, -1]]
 X, y = make_blobs(n_samples=1000, centers=centers, random_state=40)
 transformation = [[0.4, 0.2], [-0.4, 1.2]]
-X = np.dot(X, transformation)
+X = jnp.dot(X, transformation)
 
 for multi_class in ("multinomial", "ovr"):
     clf = LogisticRegression(
@@ -43,7 +43,7 @@ for multi_class in ("multinomial", "ovr"):
     # Plot also the training points
     colors = "bry"
     for i, color in zip(clf.classes_, colors):
-        idx = np.where(y == i)
+        idx = jnp.where(y == i)
         plt.scatter(
             X[idx, 0], X[idx, 1], c=color, cmap=plt.cm.Paired, edgecolor="black", s=20
         )

@@ -12,16 +12,16 @@ loader or setting them to `None` to get all 20 of them.
 """
 
 
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import fetch_20newsgroups
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.linear_model import SGDClassifier
-from sklearn.metrics import f1_score
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import FunctionTransformer
-from sklearn.semi_supervised import LabelSpreading, SelfTrainingClassifier
+from xlearn.datasets import fetch_20newsgroups
+from xlearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from xlearn.linear_model import SGDClassifier
+from xlearn.metrics import f1_score
+from xlearn.model_selection import train_test_split
+from xlearn.pipeline import Pipeline
+from xlearn.preprocessing import FunctionTransformer
+from xlearn.semi_supervised import LabelSpreading, SelfTrainingClassifier
 
 # Loading dataset containing first five categories
 data = fetch_20newsgroups(
@@ -72,7 +72,8 @@ ls_pipeline = Pipeline(
 
 def eval_and_print_metrics(clf, X_train, y_train, X_test, y_test):
     print("Number of training samples:", len(X_train))
-    print("Unlabeled samples in training set:", sum(1 for x in y_train if x == -1))
+    print("Unlabeled samples in training set:",
+          sum(1 for x in y_train if x == -1))
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
     print(

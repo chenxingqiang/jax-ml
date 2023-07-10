@@ -6,11 +6,11 @@ import gc
 from collections import defaultdict
 from time import time
 
-import numpy as np
+import jax.numpy as jnp
 from scipy.linalg import svd
 
-from sklearn.datasets import make_low_rank_matrix
-from sklearn.utils.extmath import randomized_svd
+from xlearn.datasets import make_low_rank_matrix
+from xlearn.utils.extmath import randomized_svd
 
 
 def compute_bench(samples_range, features_range, n_iter=3, rank=50):
@@ -36,16 +36,17 @@ def compute_bench(samples_range, features_range, n_iter=3, rank=50):
             results["scipy svd"].append(time() - tstart)
 
             gc.collect()
-            print("benchmarking scikit-learn randomized_svd: n_iter=0")
+            print("benchmarking jax-learn randomized_svd: n_iter=0")
             tstart = time()
             randomized_svd(X, rank, n_iter=0)
-            results["scikit-learn randomized_svd (n_iter=0)"].append(time() - tstart)
+            results["jax-learn randomized_svd (n_iter=0)"].append(
+                time() - tstart)
 
             gc.collect()
-            print("benchmarking scikit-learn randomized_svd: n_iter=%d " % n_iter)
+            print("benchmarking jax-learn randomized_svd: n_iter=%d " % n_iter)
             tstart = time()
             randomized_svd(X, rank, n_iter=n_iter)
-            results["scikit-learn randomized_svd (n_iter=%d)" % n_iter].append(
+            results["jax-learn randomized_svd (n_iter=%d)" % n_iter].append(
                 time() - tstart
             )
 
@@ -56,16 +57,17 @@ if __name__ == "__main__":
     from mpl_toolkits.mplot3d import axes3d  # noqa register the 3d projection
     import matplotlib.pyplot as plt
 
-    samples_range = np.linspace(2, 1000, 4).astype(int)
-    features_range = np.linspace(2, 1000, 4).astype(int)
+    samples_range = jnp.linspace(2, 1000, 4).astype(int)
+    features_range = jnp.linspace(2, 1000, 4).astype(int)
     results = compute_bench(samples_range, features_range)
 
-    label = "scikit-learn singular value decomposition benchmark results"
+    label = "jax-learn singular value decomposition benchmark results"
     fig = plt.figure(label)
     ax = fig.gca(projection="3d")
     for c, (label, timings) in zip("rbg", sorted(results.items())):
-        X, Y = np.meshgrid(samples_range, features_range)
-        Z = np.asarray(timings).reshape(samples_range.shape[0], features_range.shape[0])
+        X, Y = jnp.meshgrid(samples_range, features_range)
+        Z = jnp.asarray(timings).reshape(
+            samples_range.shape[0], features_range.shape[0])
         # plot the actual surface
         ax.plot_surface(X, Y, Z, rstride=8, cstride=8, alpha=0.3, color=c)
         # dummy point plot to stick the legend to since surface plot do not

@@ -26,14 +26,14 @@ import timeit
 import warnings
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.datasets import fetch_20newsgroups_vectorized
-from sklearn.exceptions import ConvergenceWarning
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
+from xlearn.datasets import fetch_20newsgroups_vectorized
+from xlearn.exceptions import ConvergenceWarning
+from xlearn.linear_model import LogisticRegression
+from xlearn.model_selection import train_test_split
 
-warnings.filterwarnings("ignore", category=ConvergenceWarning, module="sklearn")
+warnings.filterwarnings("ignore", category=ConvergenceWarning, module="xlearn")
 t0 = timeit.default_timer()
 
 # We use SAGA solver
@@ -50,7 +50,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, random_state=42, stratify=y, test_size=0.1
 )
 train_samples, n_features = X_train.shape
-n_classes = np.unique(y).shape[0]
+n_classes = jnp.unique(y).shape[0]
 
 print(
     "Dataset 20newsgroup, train_samples=%i, n_features=%i, n_classes=%i"
@@ -88,8 +88,8 @@ for model in models:
         train_time = timeit.default_timer() - t1
 
         y_pred = lr.predict(X_test)
-        accuracy = np.sum(y_pred == y_test) / y_test.shape[0]
-        density = np.mean(lr.coef_ != 0, axis=1) * 100
+        accuracy = jnp.sum(y_pred == y_test) / y_test.shape[0]
+        density = jnp.mean(lr.coef_ != 0, axis=1) * 100
         accuracies.append(accuracy)
         densities.append(density)
         times.append(train_time)
@@ -117,7 +117,8 @@ for model in models:
     ax.set_xlabel("Train time (s)")
     ax.set_ylabel("Test accuracy")
 ax.legend()
-fig.suptitle("Multinomial vs One-vs-Rest Logistic L1\nDataset %s" % "20newsgroups")
+fig.suptitle("Multinomial vs One-vs-Rest Logistic L1\nDataset %s" %
+             "20newsgroups")
 fig.tight_layout()
 fig.subplots_adjust(top=0.85)
 run_time = timeit.default_timer() - t0

@@ -10,9 +10,9 @@ import sys
 from datetime import datetime
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 
-from sklearn.utils.random import sample_without_replacement
+from xlearn.utils.random import sample_without_replacement
 
 
 def compute_time(t_start, delta):
@@ -106,7 +106,8 @@ if __name__ == "__main__":
     ###########################################################################
     # Set Python core input
     sampling_algorithm["python-core-sample"] = (
-        lambda n_population, n_sample: random.sample(range(n_population), n_sample)
+        lambda n_population, n_sample: random.sample(
+            range(n_population), n_sample)
     )
 
     ###########################################################################
@@ -150,7 +151,8 @@ if __name__ == "__main__":
     ###########################################################################
     # Numpy permutation based
     sampling_algorithm["numpy-permutation"] = (
-        lambda n_population, n_sample: np.random.permutation(n_population)[:n_sample]
+        lambda n_population, n_sample: np.random.permutation(n_population)[
+            :n_sample]
     )
 
     ###########################################################################
@@ -165,7 +167,7 @@ if __name__ == "__main__":
     # Perform benchmark
     ###########################################################################
     time = {}
-    n_samples = np.linspace(start=0, stop=opts.n_population, num=opts.n_steps).astype(
+    n_samples = jnp.linspace(start=0, stop=opts.n_population, num=opts.n_steps).astype(
         int
     )
 
@@ -176,7 +178,7 @@ if __name__ == "__main__":
 
     for name in sorted(sampling_algorithm):
         print("Perform benchmarks for %s..." % name, end="")
-        time[name] = np.zeros(shape=(opts.n_steps, opts.n_times))
+        time[name] = jnp.zeros(shape=(opts.n_steps, opts.n_times))
 
         for step in range(opts.n_steps):
             for it in range(opts.n_times):
@@ -188,7 +190,7 @@ if __name__ == "__main__":
 
     print("Averaging results...", end="")
     for name in sampling_algorithm:
-        time[name] = np.mean(time[name], axis=1)
+        time[name] = jnp.mean(time[name], axis=1)
     print("done\n")
 
     # Print results
@@ -213,8 +215,9 @@ if __name__ == "__main__":
     print("Results are averaged over %s repetition(s)." % opts.n_times)
     print("")
 
-    fig = plt.figure("scikit-learn sample w/o replacement benchmark results")
-    fig.suptitle("n_population = %s, n_times = %s" % (opts.n_population, opts.n_times))
+    fig = plt.figure("jax-learn sample w/o replacement benchmark results")
+    fig.suptitle("n_population = %s, n_times = %s" %
+                 (opts.n_population, opts.n_times))
     ax = fig.add_subplot(111)
     for name in sampling_algorithm:
         ax.plot(ratio, time[name], label=name)

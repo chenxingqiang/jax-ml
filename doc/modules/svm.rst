@@ -7,7 +7,7 @@ Support Vector Machines
 .. TODO: Describe tol parameter
 .. TODO: Describe max_iter parameter
 
-.. currentmodule:: sklearn.svm
+.. currentmodule:: xlearn.svm
 
 **Support vector machines (SVMs)** are a set of supervised learning
 methods used for :ref:`classification <svm_classification>`,
@@ -38,7 +38,7 @@ The disadvantages of support vector machines include:
       calculated using an expensive five-fold cross-validation
       (see :ref:`Scores and probabilities <scores_probabilities>`, below).
 
-The support vector machines in scikit-learn support both dense
+The support vector machines in jax-learn support both dense
 (``numpy.ndarray`` and convertible to that by ``numpy.asarray``) and
 sparse (any ``scipy.sparse``) sample vectors as input. However, to use
 an SVM to make predictions for sparse data, it must have been fit on such
@@ -75,7 +75,7 @@ As other classifiers, :class:`SVC`, :class:`NuSVC` and
 class labels (strings or integers), of shape `(n_samples)`::
 
 
-    >>> from sklearn import svm
+    >>> from xlearn import svm
     >>> X = [[0, 0], [1, 1]]
     >>> y = [0, 1]
     >>> clf = svm.SVC()
@@ -226,11 +226,11 @@ In the multiclass case, this is extended as per [#2]_.
 .. note::
 
   The same probability calibration procedure is available for all estimators
-  via the :class:`~sklearn.calibration.CalibratedClassifierCV` (see
+  via the :class:`~xlearn.calibration.CalibratedClassifierCV` (see
   :ref:`calibration`). In the case of :class:`SVC` and :class:`NuSVC`, this
   procedure is builtin in `libsvm`_ which is used under the hood, so it does
-  not rely on scikit-learn's
-  :class:`~sklearn.calibration.CalibratedClassifierCV`.
+  not rely on jax-learn's
+  :class:`~xlearn.calibration.CalibratedClassifierCV`.
 
 The cross-validation involved in Platt scaling
 is an expensive operation for large datasets.
@@ -250,7 +250,7 @@ and use ``decision_function`` instead of ``predict_proba``.
 Please note that when ``decision_function_shape='ovr'`` and ``n_classes > 2``,
 unlike ``decision_function``, the ``predict`` method does not try to break ties
 by default. You can set ``break_ties=True`` for the output of ``predict`` to be
-the same as ``np.argmax(clf.decision_function(...), axis=1)``, otherwise the
+the same as ``jnp.argmax(clf.decision_function(...), axis=1)``, otherwise the
 first class among the tied classes will always be returned; but have in mind
 that it comes with a computational cost. See
 :ref:`sphx_glr_auto_examples_svm_plot_svm_tie_breaking.py` for an example on
@@ -323,7 +323,7 @@ As with classification classes, the fit method will take as
 argument vectors X, y, only that in this case y is expected to have
 floating point values instead of integer values::
 
-    >>> from sklearn import svm
+    >>> from xlearn import svm
     >>> X = [[0, 0], [2, 2]]
     >>> y = [0.5, 2.5]
     >>> regr = svm.SVR()
@@ -378,13 +378,13 @@ Tips on Practical Use
     C-contiguous by inspecting its ``flags`` attribute.
 
     For :class:`LinearSVC` (and :class:`LogisticRegression
-    <sklearn.linear_model.LogisticRegression>`) any input passed as a numpy
+    <xlearn.linear_model.LogisticRegression>`) any input passed as a numpy
     array will be copied and converted to the `liblinear`_ internal sparse data
     representation (double precision floats and int32 indices of non-zero
     components). If you want to fit a large-scale linear classifier without
     copying a dense numpy C-contiguous double precision array as input, we
     suggest to use the :class:`SGDClassifier
-    <sklearn.linear_model.SGDClassifier>` class instead.  The objective
+    <xlearn.linear_model.SGDClassifier>` class instead.  The objective
     function can be configured to be almost the same as the :class:`LinearSVC`
     model.
 
@@ -409,11 +409,11 @@ Tips on Practical Use
     attribute on the input vector X to [0,1] or [-1,+1], or standardize it
     to have mean 0 and variance 1. Note that the *same* scaling must be
     applied to the test vector to obtain meaningful results. This can be done
-    easily by using a :class:`~sklearn.pipeline.Pipeline`::
+    easily by using a :class:`~xlearn.pipeline.Pipeline`::
 
-        >>> from sklearn.pipeline import make_pipeline
-        >>> from sklearn.preprocessing import StandardScaler
-        >>> from sklearn.svm import SVC
+        >>> from xlearn.pipeline import make_pipeline
+        >>> from xlearn.preprocessing import StandardScaler
+        >>> from xlearn.svm import SVC
 
         >>> clf = make_pipeline(StandardScaler(), SVC())
 
@@ -503,7 +503,7 @@ correctly.  ``gamma`` defines how much influence a single training example has.
 The larger ``gamma`` is, the closer other examples must be to be affected.
 
 Proper choice of ``C`` and ``gamma`` is critical to the SVM's performance.  One
-is advised to use :class:`~sklearn.model_selection.GridSearchCV` with
+is advised to use :class:`~xlearn.model_selection.GridSearchCV` with
 ``C`` and ``gamma`` spaced exponentially far apart to choose good values.
 
 .. topic:: Examples:
@@ -542,10 +542,10 @@ and return a kernel matrix of shape ``(n_samples_1, n_samples_2)``.
 The following code defines a linear kernel and creates a classifier
 instance that will use that kernel::
 
-    >>> import numpy as np
-    >>> from sklearn import svm
+    >>> import jax.numpy as jnp
+    >>> from xlearn import svm
     >>> def my_kernel(X, Y):
-    ...     return np.dot(X, Y.T)
+    ...     return jnp.dot(X, Y.T)
     ...
     >>> clf = svm.SVC(kernel=my_kernel)
 
@@ -561,19 +561,19 @@ option. You should then pass Gram matrix instead of X to the `fit` and
 `predict` methods. The kernel values between *all* training vectors and the
 test vectors must be provided:
 
-    >>> import numpy as np
-    >>> from sklearn.datasets import make_classification
-    >>> from sklearn.model_selection import train_test_split
-    >>> from sklearn import svm
+    >>> import jax.numpy as jnp
+    >>> from xlearn.datasets import make_classification
+    >>> from xlearn.model_selection import train_test_split
+    >>> from xlearn import svm
     >>> X, y = make_classification(n_samples=10, random_state=0)
     >>> X_train , X_test , y_train, y_test = train_test_split(X, y, random_state=0)
     >>> clf = svm.SVC(kernel='precomputed')
     >>> # linear kernel computation
-    >>> gram_train = np.dot(X_train, X_train.T)
+    >>> gram_train = jnp.dot(X_train, X_train.T)
     >>> clf.fit(gram_train, y_train)
     SVC(kernel='precomputed')
     >>> # predict on training examples
-    >>> gram_test = np.dot(X_test, X_train.T)
+    >>> gram_test = jnp.dot(X_test, X_train.T)
     >>> clf.predict(gram_test)
     array([0, 1, 0])
 
@@ -671,7 +671,7 @@ term :math:`b`
     regularization parameter, most other estimators use ``alpha``. The exact
     equivalence between the amount of regularization of two models depends on
     the exact objective function optimized by the model. For example, when the
-    estimator used is :class:`~sklearn.linear_model.Ridge` regression,
+    estimator used is :class:`~xlearn.linear_model.Ridge` regression,
     the relation between them is given as :math:`C = \frac{1}{alpha}`.
 
 |details-start|

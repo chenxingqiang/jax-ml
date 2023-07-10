@@ -9,12 +9,12 @@ It will plot the decision boundaries for each class.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 from matplotlib.colors import ListedColormap
 
-from sklearn import datasets
-from sklearn.inspection import DecisionBoundaryDisplay
-from sklearn.neighbors import NearestCentroid
+from xlearn import datasets
+from xlearn.inspection import DecisionBoundaryDisplay
+from xlearn.neighbors import NearestCentroid
 
 # import some data to play with
 iris = datasets.load_iris()
@@ -32,7 +32,7 @@ for shrinkage in [None, 0.2]:
     clf = NearestCentroid(shrink_threshold=shrinkage)
     clf.fit(X, y)
     y_pred = clf.predict(X)
-    print(shrinkage, np.mean(y == y_pred))
+    print(shrinkage, jnp.mean(y == y_pred))
 
     _, ax = plt.subplots()
     DecisionBoundaryDisplay.from_estimator(

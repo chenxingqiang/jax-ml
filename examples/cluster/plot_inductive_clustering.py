@@ -25,13 +25,13 @@ extends clustering by inducing a classifier from the cluster labels.
 
 import matplotlib.pyplot as plt
 
-from sklearn.base import BaseEstimator, clone
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.datasets import make_blobs
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.inspection import DecisionBoundaryDisplay
-from sklearn.utils.metaestimators import available_if
-from sklearn.utils.validation import check_is_fitted
+from xlearn.base import BaseEstimator, clone
+from xlearn.cluster import AgglomerativeClustering
+from xlearn.datasets import make_blobs
+from xlearn.ensemble import RandomForestClassifier
+from xlearn.inspection import DecisionBoundaryDisplay
+from xlearn.utils.metaestimators import available_if
+from xlearn.utils.validation import check_is_fitted
 
 N_SAMPLES = 5000
 RANDOM_STATE = 42

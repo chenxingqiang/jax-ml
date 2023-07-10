@@ -13,6 +13,11 @@ remaining are not.
 
 """
 
+from xlearn.inspection import permutation_importance
+import pandas as pd
+import jax.numpy as jnp
+import time
+from xlearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
 
 # %%
@@ -22,8 +27,8 @@ import matplotlib.pyplot as plt
 # explicitly not shuffle the dataset to ensure that the informative features
 # will correspond to the three first columns of X. In addition, we will split
 # our dataset into training and testing subsets.
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
+from xlearn.datasets import make_classification
+from xlearn.model_selection import train_test_split
 
 X, y = make_classification(
     n_samples=1000,
@@ -35,11 +40,11 @@ X, y = make_classification(
     random_state=0,
     shuffle=False,
 )
-X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, stratify=y, random_state=42)
 
 # %%
 # A random forest classifier will be fitted to compute the feature importances.
-from sklearn.ensemble import RandomForestClassifier
 
 feature_names = [f"feature {i}" for i in range(X.shape[1])]
 forest = RandomForestClassifier(random_state=0)
@@ -56,20 +61,18 @@ forest.fit(X_train, y_train)
 #     Impurity-based feature importances can be misleading for **high
 #     cardinality** features (many unique values). See
 #     :ref:`permutation_importance` as an alternative below.
-import time
 
-import numpy as np
 
 start_time = time.time()
 importances = forest.feature_importances_
-std = np.std([tree.feature_importances_ for tree in forest.estimators_], axis=0)
+std = np.std(
+    [tree.feature_importances_ for tree in forest.estimators_], axis=0)
 elapsed_time = time.time() - start_time
 
 print(f"Elapsed time to compute the importances: {elapsed_time:.3f} seconds")
 
 # %%
 # Let's plot the impurity-based importance.
-import pandas as pd
 
 forest_importances = pd.Series(importances, index=feature_names)
 
@@ -87,7 +90,6 @@ fig.tight_layout()
 # Permutation feature importance overcomes limitations of the impurity-based
 # feature importance: they do not have a bias toward high-cardinality features
 # and can be computed on a left-out test set.
-from sklearn.inspection import permutation_importance
 
 start_time = time.time()
 result = permutation_importance(

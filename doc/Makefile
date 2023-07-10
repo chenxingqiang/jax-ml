@@ -54,8 +54,8 @@ clean:
 # Default to SPHINX_NUMJOBS=1 for full documentation build. Using
 # SPHINX_NUMJOBS!=1 may actually slow down the build, or cause weird issues in
 # the CI (job stalling or EOFError), see
-# https://github.com/scikit-learn/scikit-learn/pull/25836 or
-# https://github.com/scikit-learn/scikit-learn/pull/25809
+# https://github.com/jax-learn/jax-learn/pull/25836 or
+# https://github.com/jax-learn/jax-learn/pull/25809
 html: SPHINX_NUMJOBS ?= 1
 html:
 	# These two lines make the build a bit more lengthy, and the
@@ -89,7 +89,7 @@ ziphtml:
 	# Exclude the output directory to avoid infinity recursion
 	cd $(BUILDDIR)/html/stable; \
 	zip -q -x _downloads \
-	       -r _downloads/scikit-learn-docs.zip .
+	       -r _downloads/jax-learn-docs.zip .
 	@echo
 	@echo "Build finished. The ZIP of the HTML is in $(BUILDDIR)/html/stable/_downloads."
 
@@ -133,7 +133,7 @@ doctest:
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
 download-data:
-	python -c "from sklearn.datasets._lfw import _check_fetch_lfw; _check_fetch_lfw()"
+	python -c "from xlearn.datasets._lfw import _check_fetch_lfw; _check_fetch_lfw()"
 
 # Optimize PNG files. Needs OptiPNG. Change the -P argument to the number of
 # cores you have available, so -P 64 if you have a real computer ;)

@@ -15,15 +15,15 @@ We use a GridSearchCV to set the dimensionality of the PCA
 # License: BSD 3 clause
 
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 import pandas as pd
 
-from sklearn import datasets
-from sklearn.decomposition import PCA
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import GridSearchCV
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+from xlearn import datasets
+from xlearn.decomposition import PCA
+from xlearn.linear_model import LogisticRegression
+from xlearn.model_selection import GridSearchCV
+from xlearn.pipeline import Pipeline
+from xlearn.preprocessing import StandardScaler
 
 # Define a pipeline to search for the best combination of PCA truncation
 # and classifier regularization.
@@ -33,13 +33,14 @@ scaler = StandardScaler()
 
 # set the tolerance to a large value to make the example faster
 logistic = LogisticRegression(max_iter=10000, tol=0.1)
-pipe = Pipeline(steps=[("scaler", scaler), ("pca", pca), ("logistic", logistic)])
+pipe = Pipeline(steps=[("scaler", scaler),
+                ("pca", pca), ("logistic", logistic)])
 
 X_digits, y_digits = datasets.load_digits(return_X_y=True)
 # Parameters of pipelines can be set using '__' separated parameter names:
 param_grid = {
     "pca__n_components": [5, 15, 30, 45, 60],
-    "logistic__C": np.logspace(-4, 4, 4),
+    "logistic__C": jnp.logspace(-4, 4, 4),
 }
 search = GridSearchCV(pipe, param_grid, n_jobs=2)
 search.fit(X_digits, y_digits)
@@ -51,7 +52,7 @@ pca.fit(X_digits)
 
 fig, (ax0, ax1) = plt.subplots(nrows=2, sharex=True, figsize=(6, 6))
 ax0.plot(
-    np.arange(1, pca.n_components_ + 1), pca.explained_variance_ratio_, "+", linewidth=2
+    jnp.arange(1, pca.n_components_ + 1), pca.explained_variance_ratio_, "+", linewidth=2
 )
 ax0.set_ylabel("PCA explained variance ratio")
 
