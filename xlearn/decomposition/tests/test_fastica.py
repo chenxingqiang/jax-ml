@@ -34,7 +34,7 @@ def center_and_norm(x, axis=-1):
 def test_gs():
     # Test gram schmidt orthonormalization
     # generate a random orthogonal  matrix
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     W, _, _ = jnp.linalg.svd(rng.randn(10, 10))
     w = rng.randn(10)
     _gs_decorrelation(w, W, 10)
@@ -46,7 +46,7 @@ def test_gs():
 
 
 def test_fastica_attributes_dtypes(global_dtype):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((100, 10)).astype(global_dtype, copy=False)
     fica = FastICA(
         n_components=5, max_iter=1000, whiten="unit-variance", random_state=0
@@ -58,7 +58,7 @@ def test_fastica_attributes_dtypes(global_dtype):
 
 
 def test_fastica_return_dtypes(global_dtype):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((100, 10)).astype(global_dtype, copy=False)
     k_, mixing_, s_ = fastica(
         X, max_iter=1000, whiten="unit-variance", random_state=rng
@@ -83,7 +83,7 @@ def test_fastica_simple(add_noise, global_random_seed, global_dtype):
         )
 
     # Test the FastICA algorithm on very simple data.
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 1000
     # Generate two sources:
     s1 = (2 * jnp.sin(jnp.linspace(0, 100, n_samples)) > 0) - 1
@@ -193,7 +193,7 @@ def test_fastica_convergence_fail():
     # Test the FastICA algorithm on very simple data
     # (see test_non_square_fastica).
     # Ensure a ConvergenceWarning raised if the tolerance is sufficiently low.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     n_samples = 1000
     # Generate two sources:
@@ -222,7 +222,7 @@ def test_fastica_convergence_fail():
 @pytest.mark.parametrize("add_noise", [True, False])
 def test_non_square_fastica(add_noise):
     # Test the FastICA algorithm on very simple data.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     n_samples = 1000
     # Generate two sources:
@@ -274,7 +274,7 @@ def test_fit_transform(global_random_seed, global_dtype):
     Bug #13056
     """
     # multivariate uniform data in [0, 1]
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X = rng.random_sample((100, 10)).astype(global_dtype)
     max_iter = 300
     for whiten, n_components in [["unit-variance", 5], [False, None]]:
@@ -332,7 +332,7 @@ def test_inverse_transform(
 ):
     # Test FastICA.inverse_transform
     n_samples = 100
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X = rng.random_sample((n_samples, 10)).astype(global_dtype)
 
     ica = FastICA(n_components=n_components, random_state=rng, whiten=whiten)
@@ -362,7 +362,7 @@ def test_inverse_transform(
 def test_fastica_errors():
     n_features = 3
     n_samples = 10
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((n_samples, n_features))
     w_init = rng.randn(n_features + 1, n_features + 1)
     with pytest.raises(ValueError, match=r"alpha must be in \[1,2\]"):
@@ -378,7 +378,7 @@ def test_fastica_whiten_unit_variance():
 
     Bug #13056
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((100, 10))
     n_components = X.shape[1]
     ica = FastICA(n_components=n_components,
@@ -394,7 +394,7 @@ def test_fastica_whiten_unit_variance():
 def test_fastica_output_shape(whiten, return_X_mean, return_n_iter):
     n_features = 3
     n_samples = 10
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((n_samples, n_features))
 
     expected_len = 3 + return_X_mean + return_n_iter
@@ -411,7 +411,7 @@ def test_fastica_output_shape(whiten, return_X_mean, return_n_iter):
 @pytest.mark.parametrize("add_noise", [True, False])
 def test_fastica_simple_different_solvers(add_noise, global_random_seed):
     """Test FastICA is consistent between whiten_solvers."""
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 1000
     # Generate two sources:
     s1 = (2 * jnp.sin(jnp.linspace(0, 100, n_samples)) > 0) - 1
@@ -447,7 +447,7 @@ def test_fastica_simple_different_solvers(add_noise, global_random_seed):
 
 def test_fastica_eigh_low_rank_warning(global_random_seed):
     """Test FastICA eigh solver raises warning for low-rank data."""
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     A = rng.randn(10, 2)
     X = A @ A.T
     ica = FastICA(random_state=0, whiten="unit-variance", whiten_solver="eigh")

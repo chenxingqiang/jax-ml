@@ -23,7 +23,7 @@
 #    processing memory-bound.
 #
 #    Finally, the routines follow a generic parallelization template to process
-#    chunks of data with OpenMP loops (via Cython prange), either on rows of X
+#    chunks of data with OpenMP loops (via cython prange), either on rows of X
 #    or rows of Y depending on their respective sizes.
 #
 #

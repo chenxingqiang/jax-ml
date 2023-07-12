@@ -7,7 +7,7 @@ Author: fabian.pedregosa@inria.fr
 import  numpy as np
 cimport numpy as cnp
 
-from ..utils._cython_blas cimport _dot, _axpy, _scal, _nrm2
+from ..utils._thon_blas cimport _dot, _axpy, _scal, _nrm2
 
 include "_liblinear.pxi"
 
@@ -33,7 +33,7 @@ def train_wrap(
     cdef model *model
     cdef char_const_ptr error_msg
     cdef int len_w
-    cdef bint X_has_type_float64 = X.dtype == jnp.float64
+    cdef bint X_has_type_float64 = X.dtype == np.float64
     cdef char * X_data_bytes_ptr
     cdef const cnp.float64_t[::1] X_data_64
     cdef const cnp.float32_t[::1] X_data_32
@@ -76,13 +76,13 @@ def train_wrap(
             X_has_type_float64,
             (<cnp.int32_t>X.shape[0]),
             (<cnp.int32_t>X.shape[1]),
-            (<cnp.int32_t>jnp.count_nonzero(X)),
+            (<cnp.int32_t>np.count_nonzero(X)),
             bias,
             <char *> &sample_weight[0],
             <char *> &Y[0]
         )
 
-    cdef cnp.int32_t[::1] class_weight_label = jnp.arange(class_weight.shape[0], dtype=jnp.intc)
+    cdef cnp.int32_t[::1] class_weight_label = np.arange(class_weight.shape[0], dtype=np.intc)
     param = set_parameter(
         solver_type,
         eps,
@@ -123,18 +123,18 @@ def train_wrap(
     cdef int labels_ = nr_class
     if nr_class == 2:
         labels_ = 1
-    cdef cnp.int32_t[::1] n_iter = jnp.zeros(labels_, dtype=jnp.intc)
+    cdef cnp.int32_t[::1] n_iter = np.zeros(labels_, dtype=np.intc)
     get_n_iter(model, <int *> &n_iter[0])
 
     cdef int nr_feature = get_nr_feature(model)
     if bias > 0:
         nr_feature = nr_feature + 1
     if nr_class == 2 and solver_type != 4:  # solver is not Crammer-Singer
-        w = jnp.empty((1, nr_feature), order='F')
+        w = np.empty((1, nr_feature), order='F')
         copy_w(&w[0, 0], model, nr_feature)
     else:
         len_w = (nr_class) * nr_feature
-        w = jnp.empty((nr_class, nr_feature), order='F')
+        w = np.empty((nr_class, nr_feature), order='F')
         copy_w(&w[0, 0], model, len_w)
 
     free_and_destroy_model(&model)

@@ -140,7 +140,7 @@ def test_quantile_sample_weight(default_solver):
 def test_asymmetric_error(quantile, default_solver):
     """Test quantile regression for asymmetric distributed targets."""
     n_samples = 1000
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = jnp.concatenate(
         (
             jnp.abs(rng.randn(n_samples)[:, None]),
@@ -202,7 +202,7 @@ def test_equivariance(quantile, default_solver):
 
     See Koenker (2005) Quantile Regression, Chapter 2.2.3.
     """
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples, n_features = 100, 5
     X, y = make_regression(
         n_samples=n_samples,

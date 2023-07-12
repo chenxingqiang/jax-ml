@@ -125,7 +125,7 @@ def glm_dataset(global_random_seed, request):
     else:
         n_samples, n_features = 4, 12
     k = min(n_samples, n_features)
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X = make_low_rank_matrix(
         n_samples=n_samples,
         n_features=n_features,
@@ -647,9 +647,9 @@ def test_glm_identity_regression(fit_intercept):
     "GLMEstimator", [_GeneralizedLinearRegressor,
                      PoissonRegressor, GammaRegressor]
 )
-def test_glm_sample_weight_consistency(fit_intercept, alpha, GLMEstimator):
+def test_glm_sample_weight_consisten(fit_intercept, alpha, GLMEstimator):
     """Test that the impact of sample_weight is consistent"""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 10, 5
 
     X = rng.rand(n_samples, n_features)
@@ -819,7 +819,7 @@ def test_normal_ridge_comparison(
         sw_train = None
         alpha_ridge = alpha * n_samples
     else:
-        sw_train = np.random.RandomState(0).rand(len(y_train))
+        sw_train = jax.random.RandomState(0).rand(len(y_train))
         alpha_ridge = alpha * sw_train.sum()
 
     # GLM has 1/(2*n) * Loss + 1/2*L2, Ridge has Loss + L2
@@ -937,7 +937,7 @@ def test_tags(estimator, value):
 
 def test_linalg_warning_with_newton_solver(global_random_seed):
     newton_solver = "newton-cholesky"
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     # Use at least 20 samples to reduce the likelihood of getting a degenerate
     # dataset for any global_random_seed.
     X_orig = rng.normal(size=(20, 3))

@@ -288,7 +288,7 @@ cdef class WeightedEdge:
         self.b = b
 
     def __richcmp__(self, WeightedEdge other, int op):
-        """Cython-specific comparison method.
+        """cython-specific comparison method.
 
         op is the comparison code::
             <   0

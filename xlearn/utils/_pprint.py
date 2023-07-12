@@ -48,7 +48,7 @@ BaseEstimator.__repr__ for pretty-printing estimators"""
 # breach of its terms and conditions.
 
 # 7. Nothing in this License Agreement shall be deemed to create any
-# relationship of agency, partnership, or joint venture between PSF and
+# relationship of agen, partnership, or joint venture between PSF and
 # Licensee. This License Agreement does not grant permission to use PSF
 # trademarks or trade name in a trademark sense to endorse or promote products
 # or services of Licensee, or any third party.

@@ -53,7 +53,7 @@ def test_lda_default_prior_params():
 
 def test_lda_fit_batch():
     # Test LDA batch learning_offset (`fit` method with 'batch' learning)
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_components, X = _build_sparse_mtx()
     lda = LatentDirichletAllocation(
         n_components=n_components,
@@ -72,7 +72,7 @@ def test_lda_fit_batch():
 
 def test_lda_fit_online():
     # Test LDA online learning (`fit` method with 'online' learning)
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_components, X = _build_sparse_mtx()
     lda = LatentDirichletAllocation(
         n_components=n_components,
@@ -93,7 +93,7 @@ def test_lda_fit_online():
 def test_lda_partial_fit():
     # Test LDA online learning (`partial_fit` method)
     # (same as test_lda_batch)
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_components, X = _build_sparse_mtx()
     lda = LatentDirichletAllocation(
         n_components=n_components,
@@ -112,7 +112,7 @@ def test_lda_partial_fit():
 
 def test_lda_dense_input():
     # Test LDA with dense input.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_components, X = _build_sparse_mtx()
     lda = LatentDirichletAllocation(
         n_components=n_components, learning_method="batch", random_state=rng
@@ -129,7 +129,7 @@ def test_lda_dense_input():
 def test_lda_transform():
     # Test LDA transform.
     # Transform result cannot be negative and should be normalized
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randint(5, size=(20, 10))
     n_components = 3
     lda = LatentDirichletAllocation(
@@ -144,7 +144,7 @@ def test_lda_transform():
 def test_lda_fit_transform(method):
     # Test LDA fit_transform & transform
     # fit_transform and transform result should be the same
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randint(10, size=(50, 20))
     lda = LatentDirichletAllocation(
         n_components=5, learning_method=method, random_state=rng
@@ -165,7 +165,7 @@ def test_lda_negative_input():
 
 def test_lda_no_component_error():
     # test `perplexity` before `fit`
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randint(4, size=(20, 10))
     lda = LatentDirichletAllocation()
     regex = (
@@ -182,7 +182,7 @@ def test_lda_no_component_error():
 def test_lda_multi_jobs(method):
     n_components, X = _build_sparse_mtx()
     # Test LDA batch training with multi CPU
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     lda = LatentDirichletAllocation(
         n_components=n_components,
         n_jobs=2,
@@ -201,7 +201,7 @@ def test_lda_multi_jobs(method):
 @if_safe_multiprocessing_with_blas
 def test_lda_partial_fit_multi_jobs():
     # Test LDA online training with multi CPU
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_components, X = _build_sparse_mtx()
     lda = LatentDirichletAllocation(
         n_components=n_components,
@@ -221,10 +221,10 @@ def test_lda_partial_fit_multi_jobs():
 
 def test_lda_preplexity_mismatch():
     # test dimension mismatch in `perplexity` method
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_components = rng.randint(3, 6)
     n_samples = rng.randint(6, 10)
-    X = np.random.randint(4, size=(n_samples, 10))
+    X = jax.random.randint(4, size=(n_samples, 10))
     lda = LatentDirichletAllocation(
         n_components=n_components,
         learning_offset=5.0,
@@ -364,7 +364,7 @@ def test_lda_empty_docs():
 
 
 def test_dirichlet_expectation():
-    """Test Cython version of Dirichlet expectation calculation."""
+    """Test cython version of Dirichlet expectation calculation."""
     x = jnp.logspace(-100, 10, 10000)
     expectation = jnp.empty_like(x)
     _dirichlet_expectation_1d(x, 0, expectation)
@@ -431,7 +431,7 @@ def test_lda_feature_names_out():
 @pytest.mark.parametrize("learning_method", ("batch", "online"))
 def test_lda_dtype_match(learning_method, global_dtype):
     """Check data type preservation of fitted attributes."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.uniform(size=(20, 10)).astype(global_dtype, copy=False)
 
     lda = LatentDirichletAllocation(
@@ -443,9 +443,9 @@ def test_lda_dtype_match(learning_method, global_dtype):
 
 
 @pytest.mark.parametrize("learning_method", ("batch", "online"))
-def test_lda_numerical_consistency(learning_method, global_random_seed):
+def test_lda_numerical_consisten(learning_method, global_random_seed):
     """Check numerical consistency between jnp.float32 and jnp.float64."""
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X64 = rng.uniform(size=(20, 10))
     X32 = X64.astype(jnp.float32)
 

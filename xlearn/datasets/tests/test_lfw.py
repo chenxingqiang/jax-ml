@@ -52,7 +52,7 @@ def setup_module():
         os.makedirs(LFW_HOME)
 
     random_state = random.Random(42)
-    np_rng = np.random.RandomState(42)
+    np_rng = jax.random.RandomState(42)
 
     # generate some random jpeg files for each person
     counts = {}

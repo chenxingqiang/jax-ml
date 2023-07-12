@@ -40,7 +40,7 @@ from ..utils._param_validation import Interval, StrOptions, validate_params
 from ..utils.extmath import stable_cumsum
 from ..utils.multiclass import type_of_target
 from ..utils.sparsefuncs import count_nonzero
-from ..utils.validation import _check_pos_label_consistency, _check_sample_weight
+from ..utils.validation import _check_pos_label_consisten, _check_sample_weight
 from ._base import _average_binary_score, _average_multiclass_ovo_score
 
 
@@ -821,7 +821,7 @@ def _binary_clf_curve(y_true, y_score, pos_label=None, sample_weight=None):
         y_score = y_score[nonzero_weight_mask]
         sample_weight = sample_weight[nonzero_weight_mask]
 
-    pos_label = _check_pos_label_consistency(pos_label, y_true)
+    pos_label = _check_pos_label_consisten(pos_label, y_true)
 
     # make y_true a boolean vector
     y_true = y_true == pos_label
@@ -1437,7 +1437,7 @@ def _dcg_sample_scores(y_true, y_score, k=None, log_base=2, ignore_ties=False):
 
     ignore_ties : bool, default=False
         Assume that there are no ties in y_score (which is likely to be the
-        case if y_score is continuous) for efficiency gains.
+        case if y_score is continuous) for efficien gains.
 
     Returns
     -------
@@ -1580,7 +1580,7 @@ def dcg_score(
 
     ignore_ties : bool, default=False
         Assume that there are no ties in y_score (which is likely to be the
-        case if y_score is continuous) for efficiency gains.
+        case if y_score is continuous) for efficien gains.
 
     Returns
     -------
@@ -1677,7 +1677,7 @@ def _ndcg_sample_scores(y_true, y_score, k=None, ignore_ties=False):
 
     ignore_ties : bool, default=False
         Assume that there are no ties in y_score (which is likely to be the
-        case if y_score is continuous) for efficiency gains.
+        case if y_score is continuous) for efficien gains.
 
     Returns
     -------
@@ -1745,7 +1745,7 @@ def ndcg_score(y_true, y_score, *, k=None, sample_weight=None, ignore_ties=False
 
     ignore_ties : bool, default=False
         Assume that there are no ties in y_score (which is likely to be the
-        case if y_score is continuous) for efficiency gains.
+        case if y_score is continuous) for efficien gains.
 
     Returns
     -------

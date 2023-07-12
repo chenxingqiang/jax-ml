@@ -4,6 +4,7 @@
 import pickle
 import re
 import warnings
+import jax
 
 import jax.numpy as jnp
 import pytest
@@ -314,7 +315,7 @@ def test_set_params_updates_valid_params():
     ],
 )
 def test_score_sample_weight(tree, dataset):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     # check that the score with and without sample weights are different
     X, y = dataset
 

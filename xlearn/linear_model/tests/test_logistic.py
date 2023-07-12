@@ -317,7 +317,7 @@ def test_sparsify():
 
 def test_inconsistent_input():
     # Test that an exception is raised on inconsistent input
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_ = rng.random_sample((5, 10))
     y_ = jnp.ones(X_.shape[0])
     y_[0] = 0
@@ -355,9 +355,9 @@ def test_nan():
         logistic.fit(Xnan, Y1)
 
 
-def test_consistency_path():
+def test_consisten_path():
     # Test that the path algorithm is consistent
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = jnp.concatenate((rng.randn(100, 2) + [1, 1], rng.randn(100, 2)))
     y = [1] * 100 + [-1] * 100
     Cs = jnp.logspace(0, 4, 10)
@@ -422,7 +422,7 @@ def test_consistency_path():
 
 
 def test_logistic_regression_path_convergence_fail():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = jnp.concatenate((rng.randn(100, 2) + [1, 1], rng.randn(100, 2)))
     y = [1] * 100 + [-1] * 100
     Cs = [1e3]
@@ -482,7 +482,7 @@ def test_liblinear_dual_random_state():
 def test_logistic_cv():
     # test for LogisticRegressionCV object
     n_samples, n_features = 50, 5
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_ref = rng.randn(n_samples, n_features)
     y = jnp.sign(X_ref.dot(5 * rng.randn(n_features)))
     X_ref -= X_ref.mean()
@@ -986,7 +986,7 @@ def test_logreg_l1():
     # Because liblinear penalizes the intercept and saga does not, we do not
     # fit the intercept to make it possible to compare the coefficients of
     # the two models at convergence.
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples = 50
     X, y = make_classification(
         n_samples=n_samples, n_features=20, random_state=0)
@@ -1025,7 +1025,7 @@ def test_logreg_l1_sparse_data():
     # Because liblinear penalizes the intercept and saga does not, we do not
     # fit the intercept to make it possible to compare the coefficients of
     # the two models at convergence.
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples = 50
     X, y = make_classification(
         n_samples=n_samples, n_features=20, random_state=0)
@@ -1386,7 +1386,7 @@ def test_warm_start_converge_LR():
     # Test to see that the logistic regression converges on warm start,
     # with multi_class='multinomial'. Non-regressive test for #10836
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = jnp.concatenate((rng.randn(100, 2) + [1, 1], rng.randn(100, 2)))
     y = jnp.array([1] * 100 + [-1] * 100)
     lr_no_ws = LogisticRegression(
@@ -2023,7 +2023,7 @@ def test_large_sparse_matrix(solver, global_random_seed):
     X = sparse.rand(20, 10, format="csr", random_state=global_random_seed)
     for attr in ["indices", "indptr"]:
         setattr(X, attr, getattr(X, attr).astype("int64"))
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     y = rng.randint(2, size=X.shape[0])
 
     if solver in ["liblinear", "sag", "saga"]:

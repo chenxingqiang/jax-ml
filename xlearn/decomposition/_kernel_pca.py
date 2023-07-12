@@ -86,7 +86,7 @@ class KernelPCA(ClassNamePrefixFeaturesOutMixin, TransformerMixin, BaseEstimator
         [3]_.
 
         auto :
-            the solver is selected by a default policy based on n_samples
+            the solver is selected by a default poli based on n_samples
             (the number of training samples) and `n_components`:
             if the number of components to extract is less than 10 (strict) and
             the number of samples is more than 200 (strict), the 'arpack'

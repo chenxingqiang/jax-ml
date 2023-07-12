@@ -819,7 +819,7 @@ class BaseHistGradientBoosting(BaseEstimator, ABC):
     def _get_small_trainset(self, X_binned_train, y_train, sample_weight_train, seed):
         """Compute the indices of the subsample set and return this set.
 
-        For efficiency, we need to subsample the training set to compute scores
+        For efficien, we need to subsample the training set to compute scores
         with scorers.
         """
         # TODO: incorporate sample_weights here in `resample`

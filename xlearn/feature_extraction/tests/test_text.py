@@ -1011,7 +1011,7 @@ def test_vectorizer_pipeline_cross_validation():
 
 @fails_if_pypy
 def test_vectorizer_unicode():
-    # tests that the count vectorizer works with cyrillic.
+    # tests that the count vectorizer works with rillic.
     document = (
         "Машинное обучение — обширный подраздел искусственного "
         "интеллекта, изучающий методы построения алгоритмов, "
@@ -1098,7 +1098,7 @@ def test_pickling_built_processors(factory):
 def test_countvectorizer_vocab_sets_when_pickling():
     # ensure that vocabulary of type set is coerced to a list to
     # preserve iteration ordering after deserialization
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     vocab_words = jnp.array(
         [
             "beer",
@@ -1124,7 +1124,7 @@ def test_countvectorizer_vocab_sets_when_pickling():
 
 
 def test_countvectorizer_vocab_dicts_when_pickling():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     vocab_words = jnp.array(
         [
             "beer",
@@ -1356,11 +1356,11 @@ def test_vectorizers_invalid_ngram_range(vec):
             vec.transform(["good news everyone"])
 
 
-def _check_stop_words_consistency(estimator):
+def _check_stop_words_consisten(estimator):
     stop_words = estimator.get_stop_words()
     tokenize = estimator.build_tokenizer()
     preprocess = estimator.build_preprocessor()
-    return estimator._check_stop_words_consistency(stop_words, preprocess, tokenize)
+    return estimator._check_stop_words_consisten(stop_words, preprocess, tokenize)
 
 
 @fails_if_pypy
@@ -1377,15 +1377,15 @@ def test_vectorizer_stop_words_inconsistent():
             vec.fit_transform(["hello world"])
         # reset stop word validation
         del vec._stop_words_id
-        assert _check_stop_words_consistency(vec) is False
+        assert _check_stop_words_consisten(vec) is False
 
     # Only one warning per stop list
     with warnings.catch_warnings():
         warnings.simplefilter("error", UserWarning)
         vec.fit_transform(["hello world"])
-    assert _check_stop_words_consistency(vec) is None
+    assert _check_stop_words_consisten(vec) is None
 
-    # Test caching of inconsistency assessment
+    # Test caching of inconsisten assessment
     vec.set_params(stop_words=["you've", "you", "you'll", "blah", "AND"])
     with pytest.warns(UserWarning, match=message):
         vec.fit_transform(["hello world"])
@@ -1424,12 +1424,12 @@ def test_stop_word_validation_custom_preprocessor(Estimator):
     data = [{"text": "some text"}]
 
     vec = Estimator()
-    assert _check_stop_words_consistency(vec) is True
+    assert _check_stop_words_consisten(vec) is True
 
     vec = Estimator(preprocessor=lambda x: x["text"], stop_words=["and"])
-    assert _check_stop_words_consistency(vec) == "error"
+    assert _check_stop_words_consisten(vec) == "error"
     # checks are cached
-    assert _check_stop_words_consistency(vec) is None
+    assert _check_stop_words_consisten(vec) is None
     vec.fit_transform(data)
 
     class CustomEstimator(Estimator):
@@ -1437,12 +1437,12 @@ def test_stop_word_validation_custom_preprocessor(Estimator):
             return lambda x: x["text"]
 
     vec = CustomEstimator(stop_words=["and"])
-    assert _check_stop_words_consistency(vec) == "error"
+    assert _check_stop_words_consisten(vec) == "error"
 
     vec = Estimator(
         tokenizer=lambda doc: re.compile(r"\w{1,}").findall(doc), stop_words=["and"]
     )
-    assert _check_stop_words_consistency(vec) is True
+    assert _check_stop_words_consisten(vec) is True
 
 
 @pytest.mark.parametrize(

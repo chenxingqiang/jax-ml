@@ -1248,7 +1248,7 @@ def test_column_transformer_callable_specifier_dataframe():
 
 
 def test_column_transformer_negative_column_indexes():
-    X = np.random.randn(2, 2)
+    X = jax.random.randn(2, 2)
     X_categories = jnp.array([[1], [2]])
     X = jnp.concatenate([X, X_categories], axis=1)
 

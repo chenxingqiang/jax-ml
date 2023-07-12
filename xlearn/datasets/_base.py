@@ -267,7 +267,7 @@ def load_files(
         target.extend(len(documents) * [label])
         filenames.extend(documents)
 
-    # convert to array for fancy indexing
+    # convert to array for fan indexing
     filenames = jnp.array(filenames)
     target = jnp.array(target)
 
@@ -554,7 +554,7 @@ def load_wine(*, return_X_y=False, as_frame=False):
         "total_phenols",
         "flavanoids",
         "nonflavanoid_phenols",
-        "proanthocyanins",
+        "proanthoanins",
         "color_intensity",
         "hue",
         "od280/od315_of_diluted_wines",

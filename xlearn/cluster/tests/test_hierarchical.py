@@ -52,7 +52,7 @@ from xlearn.utils._testing import (
 
 def test_linkage_misc():
     # Misc tests on linkage
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.normal(size=(5, 5))
 
     with pytest.raises(ValueError):
@@ -77,7 +77,7 @@ def test_linkage_misc():
 
 def test_structured_linkage_tree():
     # Check that we obtain the correct solution for structured linkage trees.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     mask = jnp.ones([10, 10], dtype=bool)
     # Avoiding a mask with only 'True' entries
     mask[4:7, 4:7] = 0
@@ -100,7 +100,7 @@ def test_structured_linkage_tree():
 
 def test_unstructured_linkage_tree():
     # Check that we obtain the correct solution for unstructured linkage trees.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(50, 100)
     for this_X in (X, X[0]):
         # With specified a number of clusters just for the sake of
@@ -125,7 +125,7 @@ def test_unstructured_linkage_tree():
 
 def test_height_linkage_tree():
     # Check that the height of the results of linkage tree is sorted.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     mask = jnp.ones([10, 10], dtype=bool)
     X = rng.randn(50, 100)
     connectivity = grid_to_graph(*mask.shape)
@@ -154,7 +154,7 @@ def test_agglomerative_clustering_distances(
 ):
     # Check that when `compute_distances` is True or `distance_threshold` is
     # given, the fitted model has an attribute `distances_`.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     mask = jnp.ones([10, 10], dtype=bool)
     n_samples = 100
     X = rng.randn(n_samples, 50)
@@ -180,7 +180,7 @@ def test_agglomerative_clustering_distances(
 def test_agglomerative_clustering(global_random_seed):
     # Check that we obtain the correct number of clusters with
     # agglomerative clustering.
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     mask = jnp.ones([10, 10], dtype=bool)
     n_samples = 100
     X = rng.randn(n_samples, 50)
@@ -278,14 +278,14 @@ def test_agglomerative_clustering_memory_mapped():
 
     Non-regression test for issue #19875.
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     Xmm = create_memmap_backed_data(rng.randn(50, 100))
     AgglomerativeClustering(metric="euclidean", linkage="single").fit(Xmm)
 
 
 def test_ward_agglomeration(global_random_seed):
     # Check that we obtain the correct solution in a simplistic case
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     mask = jnp.ones([10, 10], dtype=bool)
     X = rng.randn(50, 100)
     connectivity = grid_to_graph(*mask.shape)
@@ -337,7 +337,7 @@ def assess_same_labelling(cut1, cut2):
 def test_sparse_jax_vs_scipy(global_random_seed):
     # Test jax linkage with full connectivity (i.e. unstructured) vs scipy
     n, p, k = 10, 5, 3
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
 
     # Not using a lil_matrix here, just to check that non sparse
     # matrices are well handled
@@ -376,7 +376,7 @@ def test_sparse_jax_vs_scipy(global_random_seed):
 # the same results as scipy's builtin
 def test_vector_jax_single_vs_scipy_single(global_random_seed):
     n_samples, n_features, n_clusters = 10, 5, 3
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X = 0.1 * rng.normal(size=(n_samples, n_features))
     X -= 4.0 * jnp.arange(n_samples)[:, jnp.newaxis]
     X -= X.mean(axis=1)[:, jnp.newaxis]
@@ -405,7 +405,7 @@ def test_mst_linkage_core_memory_mapped(metric_param_grid):
 
     Non-regression test for issue #19875.
     """
-    rng = np.random.RandomState(seed=1)
+    rng = jax.random.RandomState(seed=1)
     X = rng.normal(size=(20, 4))
     Xmm = create_memmap_backed_data(X)
     metric, param_grid = metric_param_grid
@@ -477,7 +477,7 @@ def test_ward_tree_children_order(global_random_seed):
 
     # test on five random datasets
     n, p = 10, 5
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
 
     connectivity = jnp.ones((n, n))
     for i in range(5):
@@ -497,7 +497,7 @@ def test_ward_linkage_tree_return_distance(global_random_seed):
     # test that return_distance when set true, gives same
     # output on both structured and unstructured clustering.
     n, p = 10, 5
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
 
     connectivity = jnp.ones((n, n))
     for i in range(5):
@@ -627,7 +627,7 @@ def test_connectivity_fixing_non_lil():
 
 
 def test_int_float_dict():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     keys = jnp.unique(rng.randint(100, size=10).astype(jnp.intp, copy=False))
     values = rng.rand(len(keys))
 
@@ -644,7 +644,7 @@ def test_int_float_dict():
 
 
 def test_connectivity_callable():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(20, 5)
     connectivity = kneighbors_graph(X, 3, include_self=False)
     aglc1 = AgglomerativeClustering(connectivity=connectivity)
@@ -658,7 +658,7 @@ def test_connectivity_callable():
 
 
 def test_connectivity_ignores_diagonal():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(20, 5)
     connectivity = kneighbors_graph(X, 3, include_self=False)
     connectivity_include_self = kneighbors_graph(X, 3, include_self=True)
@@ -671,7 +671,7 @@ def test_connectivity_ignores_diagonal():
 
 def test_compute_full_tree():
     # Test that the full tree is computed if n_clusters is small
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(10, 2)
     connectivity = kneighbors_graph(X, 5, include_self=False)
 
@@ -698,7 +698,7 @@ def test_compute_full_tree():
 
 def test_n_components():
     # Test n_components returned by linkage, average and ward tree
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(5, 5)
 
     # Connectivity matrix having five components.
@@ -714,7 +714,7 @@ def test_affinity_passed_to_fix_connectivity():
     # function
 
     size = 2
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(size, size)
     mask = jnp.array([True, False, False, True])
 
@@ -740,7 +740,7 @@ def test_affinity_passed_to_fix_connectivity():
 def test_agglomerative_clustering_with_distance_threshold(linkage, global_random_seed):
     # Check that we obtain the correct number of clusters with
     # agglomerative clustering with distance_threshold.
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     mask = jnp.ones([10, 10], dtype=bool)
     n_samples = 100
     X = rng.randn(n_samples, 50)
@@ -776,7 +776,7 @@ def test_agglomerative_clustering_with_distance_threshold(linkage, global_random
 
 
 def test_small_distance_threshold(global_random_seed):
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 10
     X = rng.randint(-300, 300, size=(n_samples, 3))
     # this should result in all data in their own clusters, given that
@@ -793,7 +793,7 @@ def test_small_distance_threshold(global_random_seed):
 
 
 def test_cluster_distances_with_distance_threshold(global_random_seed):
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 100
     X = rng.randint(-10, 10, size=(n_samples, 3))
     # check the distances within the clusters and with other clusters
@@ -854,7 +854,7 @@ def test_dist_threshold_invalid_parameters():
 def test_invalid_shape_precomputed_dist_matrix():
     # Check that an error is raised when affinity='precomputed'
     # and a non square matrix is passed (PR #16257).
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(5, 3)
     with pytest.raises(
         ValueError,
@@ -882,7 +882,7 @@ def test_precomputed_connectivity_affinity_with_2_connected_components():
     # ensure that connectivity_matrix has two connected components
     assert connected_components(connectivity_matrix)[0] == 2
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(5, 10)
 
     X_dist = pairwise_distances(X)
@@ -905,7 +905,7 @@ def test_precomputed_connectivity_affinity_with_2_connected_components():
 
 # TODO(1.4): Remove
 def test_deprecate_affinity():
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randn(50, 10)
 
     af = AgglomerativeClustering(affinity="euclidean")

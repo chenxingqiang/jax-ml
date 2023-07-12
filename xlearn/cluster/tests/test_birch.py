@@ -49,7 +49,7 @@ def test_partial_fit(global_random_seed, global_dtype):
 
 def test_birch_predict(global_random_seed, global_dtype):
     # Test the predict method predicts the nearest centroid.
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X = generate_clustered_data(
         n_clusters=3, n_features=3, n_samples_per_cluster=10)
     X = X.astype(global_dtype, copy=False)

@@ -196,7 +196,7 @@ def test_display_curve_not_fitted_errors(pyplot, data_binary, clf, Display):
 @pytest.mark.parametrize(
     "Display", [DetCurveDisplay, PrecisionRecallDisplay, RocCurveDisplay]
 )
-def test_display_curve_n_samples_consistency(pyplot, data_binary, Display):
+def test_display_curve_n_samples_consisten(pyplot, data_binary, Display):
     """Check the error raised when `y_pred` or `sample_weight` have inconsistent
     length."""
     X, y = data_binary

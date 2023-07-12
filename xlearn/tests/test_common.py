@@ -72,7 +72,7 @@ from xlearn.utils.estimator_checks import (
     _get_check_estimator_ids,
     _set_checking_parameters,
     check_class_weight_balanced_linear_classifier,
-    check_dataframe_column_names_consistency,
+    check_dataframe_column_names_consisten,
     check_estimator,
     check_get_feature_names_out_error,
     check_global_output_transform_pandas,
@@ -161,10 +161,10 @@ def test_check_estimator_generate_only():
 def test_configure():
     # Smoke test `python setup.py config` command run at the root of the
     # jax-learn source tree.
-    # This test requires Cython which is not necessarily there when running
+    # This test requires cython which is not necessarily there when running
     # the tests of an installed version of jax-learn or when jax-learn
     # is installed in editable mode by pip build isolation enabled.
-    pytest.importorskip("Cython")
+    pytest.importorskip("cython")
     cwd = os.getcwd()
     setup_path = os.path.abspath(os.path.join(xlearn.__path__[0], ".."))
     setup_filename = os.path.join(setup_path, "setup.py")
@@ -208,7 +208,7 @@ def test_class_weight_balanced_linear_classifiers(name, Classifier):
 
 
 @ignore_warnings
-def test_import_all_consistency():
+def test_import_all_consisten():
     # Smoke test to check that any name in a __all__ list is actually defined
     # in the namespace of the module or package.
     pkgs = pkgutil.walk_packages(
@@ -397,7 +397,7 @@ def _estimators_that_predict_in_fit():
             yield estimator.set_params(n_iter_no_change=1)
 
 
-# NOTE: When running `check_dataframe_column_names_consistency` on a meta-estimator that
+# NOTE: When running `check_dataframe_column_names_consisten` on a meta-estimator that
 # delegates validation to a base estimator, the check is testing that the base estimator
 # is checking for column name consistency.
 column_name_estimators = list(
@@ -413,11 +413,11 @@ column_name_estimators = list(
 @pytest.mark.parametrize(
     "estimator", column_name_estimators, ids=_get_check_estimator_ids
 )
-def test_pandas_column_name_consistency(estimator):
+def test_pandas_column_name_consisten(estimator):
     _set_checking_parameters(estimator)
     with ignore_warnings(category=(FutureWarning)):
         with warnings.catch_warnings(record=True) as record:
-            check_dataframe_column_names_consistency(
+            check_dataframe_column_names_consisten(
                 estimator.__class__.__name__, estimator
             )
         for warning in record:

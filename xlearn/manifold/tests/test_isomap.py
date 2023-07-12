@@ -25,7 +25,7 @@ def create_sample_data(dtype, n_pts=25, add_noise=False):
                  ).astype(dtype, copy=False)
     if add_noise:
         # add noise in a third dimension
-        rng = np.random.RandomState(0)
+        rng = jax.random.RandomState(0)
         noise = 0.1 * rng.randn(n_pts, 1).astype(dtype, copy=False)
         X = jnp.concatenate((X, noise), 1)
     return X
@@ -138,7 +138,7 @@ def test_transform(global_dtype, n_neighbors, radius):
     X_iso = iso.fit_transform(X)
 
     # Re-embed a noisy version of the points
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     noise = noise_scale * rng.randn(*X.shape)
     X_iso2 = iso.transform(X + noise)
 
@@ -226,7 +226,7 @@ def test_isomap_clone_bug():
     model = manifold.Isomap()
     for n_neighbors in [10, 15, 20]:
         model.set_params(n_neighbors=n_neighbors)
-        model.fit(np.random.rand(50, 2))
+        model.fit(jax.random.rand(50, 2))
         assert model.nbrs_.n_neighbors == n_neighbors
 
 

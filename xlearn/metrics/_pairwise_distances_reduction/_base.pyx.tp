@@ -3,7 +3,7 @@ from cython.operator cimport dereference as deref
 from cython.parallel cimport parallel, prange
 from libcpp.vector cimport vector
 
-from ...utils._cython_blas cimport _dot
+from ...utils._thon_blas cimport _dot
 from ...utils._openmp_helpers cimport omp_get_thread_num
 from ...utils._typedefs cimport intp_t, float32_t, float64_t, int32_t
 
@@ -27,7 +27,7 @@ cdef float64_t[::1] _sqeuclidean_row_norms64_dense(
     """
     cdef:
         # Casting for X to remove the const qualifier is needed because APIs
-        # exposed via scipy.linalg.cython_blas aren't reflecting the arguments'
+        # exposed via scipy.linalg.thon_blas aren't reflecting the arguments'
         # const qualifier.
         # See: https://github.com/scipy/scipy/issues/14262
         float64_t * X_ptr = <float64_t *> &X[0, 0]
@@ -52,7 +52,7 @@ cdef float64_t[::1] _sqeuclidean_row_norms32_dense(
     """
     cdef:
         # Casting for X to remove the const qualifier is needed because APIs
-        # exposed via scipy.linalg.cython_blas aren't reflecting the arguments'
+        # exposed via scipy.linalg.thon_blas aren't reflecting the arguments'
         # const qualifier.
         # See: https://github.com/scipy/scipy/issues/14262
         float32_t * X_ptr = <float32_t *> &X[0, 0]

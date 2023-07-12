@@ -9,7 +9,7 @@ from xlearn.utils._testing import _convert_container, assert_allclose
 
 @pytest.fixture
 def data():
-    X = np.random.randn(10, 2)
+    X = jax.random.randn(10, 2)
     X[::2] = jnp.nan
     return X
 
@@ -93,7 +93,7 @@ def test_base_no_precomputed_mask_transform(data):
 @pytest.mark.parametrize("X1_type", ["array", "dataframe"])
 def test_assign_where(X1_type):
     """Check the behaviour of the private helpers `_assign_where`."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     n_samples, n_features = 10, 5
     X1 = _convert_container(

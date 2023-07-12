@@ -66,7 +66,7 @@ def test_kernel_ridge_precomputed_kernel_unchanged():
 
 def test_kernel_ridge_sample_weights():
     K = jnp.dot(X, X.T)  # precomputed kernel
-    sw = np.random.RandomState(0).rand(X.shape[0])
+    sw = jax.random.RandomState(0).rand(X.shape[0])
 
     pred = Ridge(alpha=1, fit_intercept=False).fit(
         X, y, sample_weight=sw).predict(X)

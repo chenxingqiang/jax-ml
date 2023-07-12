@@ -1,7 +1,7 @@
 """Enables IterativeImputer
 
 The API and results of this estimator might change without any deprecation
-cycle.
+cle.
 
 Importing this file dynamically sets :class:`~xlearn.impute.IterativeImputer`
 as an attribute of the impute module::

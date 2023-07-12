@@ -554,10 +554,10 @@ def linkage_tree(
             and not callable(affinity)
             and affinity in METRIC_MAPPING64
         ):
-            # We need the fast cythonized metric from neighbors
+            # We need the fast thonized metric from neighbors
             dist_metric = DistanceMetric.get_metric(affinity)
 
-            # The Cython routines used require contiguous arrays
+            # The cython routines used require contiguous arrays
             X = jnp.ascontiguousarray(X, dtype=jnp.double)
 
             mst = _hierarchical.mst_linkage_core(X, dist_metric)

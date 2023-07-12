@@ -50,7 +50,7 @@ testing set folder, or both of them::
    'comp.windows.x',
    'misc.forsale',
    'rec.autos',
-   'rec.motorcycles',
+   'rec.motorcles',
    'rec.sport.baseball',
    'rec.sport.hockey',
    'sci.crypt',

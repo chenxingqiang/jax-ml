@@ -57,7 +57,7 @@ def check_results(kernel, bandwidth, atol, rtol, X, Y, dens_true):
 def test_kernel_density(kernel, bandwidth):
     n_samples, n_features = (100, 3)
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(n_samples, n_features)
     Y = rng.randn(n_samples, n_features)
 
@@ -70,7 +70,7 @@ def test_kernel_density(kernel, bandwidth):
 
 
 def test_kernel_density_sampling(n_samples=100, n_features=3):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(n_samples, n_features)
 
     bandwidth = 0.2
@@ -110,7 +110,7 @@ def test_kernel_density_sampling(n_samples=100, n_features=3):
 )
 def test_kde_algorithm_metric_choice(algorithm, metric):
     # Smoke test for various metrics and algorithms
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(10, 2)  # 2 features required for haversine dist.
     Y = rng.randn(10, 2)
 
@@ -128,7 +128,7 @@ def test_kde_algorithm_metric_choice(algorithm, metric):
 def test_kde_score(n_samples=100, n_features=3):
     pass
     # FIXME
-    # rng = np.random.RandomState(0)
+    # rng = jax.random.RandomState(0)
     # X = rng.random_sample((n_samples, n_features))
     # Y = rng.random_sample((n_samples, n_features))
 
@@ -136,11 +136,11 @@ def test_kde_score(n_samples=100, n_features=3):
 def test_kde_sample_weights_error():
     kde = KernelDensity()
     with pytest.raises(ValueError):
-        kde.fit(np.random.random((200, 10)),
-                sample_weight=np.random.random((200, 10)))
+        kde.fit(jax.random.random((200, 10)),
+                sample_weight=jax.random.random((200, 10)))
     with pytest.raises(ValueError):
-        kde.fit(np.random.random((200, 10)),
-                sample_weight=-np.random.random(200))
+        kde.fit(jax.random.random((200, 10)),
+                sample_weight=-jax.random.random(200))
 
 
 def test_kde_pipeline_gridsearch():
@@ -162,7 +162,7 @@ def test_kde_sample_weights():
     size_test = 20
     weights_neutral = jnp.full(n_samples, 3.0)
     for d in [1, 2, 10]:
-        rng = np.random.RandomState(0)
+        rng = jax.random.RandomState(0)
         X = rng.rand(n_samples, d)
         weights = 1 + (10 * X.sum(axis=1)).astype(jnp.int8)
         X_repetitions = jnp.repeat(X, weights, axis=0)
@@ -229,7 +229,7 @@ def test_pickling(tmpdir, sample_weight):
 def test_check_is_fitted(method):
     # Check that predict raises an exception in an unfitted estimator.
     # Unfitted estimators should raise a NotFittedError.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(10, 2)
     kde = KernelDensity()
 
@@ -240,7 +240,7 @@ def test_check_is_fitted(method):
 @pytest.mark.parametrize("bandwidth", ["scott", "silverman", 0.1])
 def test_bandwidth(bandwidth):
     n_samples, n_features = (100, 3)
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(n_samples, n_features)
     kde = KernelDensity(bandwidth=bandwidth).fit(X)
     samp = kde.sample(100)

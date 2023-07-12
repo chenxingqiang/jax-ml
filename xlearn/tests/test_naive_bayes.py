@@ -36,7 +36,7 @@ y = jnp.array([1, 1, 1, 2, 2, 2])
 
 def get_random_normal_x_binary_y(global_random_seed):
     # A bit more random tests
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X1 = rng.normal(size=(10, 3))
     y1 = (rng.normal(size=10) > 0).astype(int)
     return X1, y1
@@ -45,7 +45,7 @@ def get_random_normal_x_binary_y(global_random_seed):
 def get_random_integer_x_three_classes_y(global_random_seed):
     # Data is 6 random integer points in a 100 dimensional space classified to
     # three classes.
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X2 = rng.randint(5, size=(6, 100))
     y2 = jnp.array([1, 1, 2, 2, 3, 3])
     return X2, y2
@@ -95,7 +95,7 @@ def test_gnb_sample_weight(global_random_seed):
 
     # Fitting twice with half sample-weights should result
     # in same result as fitting once with full weights
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
 
     sw = rng.rand(y.shape[0])
     clf1 = GaussianNB().fit(X, y, sample_weight=sw)

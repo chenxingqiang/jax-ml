@@ -1,3 +1,4 @@
+import jax
 import jax.numpy as jnp
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -50,7 +51,7 @@ def test_weighted_percentile_zero_weight_zero_percentile():
 
 def test_weighted_median_equal_weights():
     # Checks weighted percentile=0.5 is same as median when weights equal
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     # Odd size as _weighted_percentile takes lower weighted percentile
     x = rng.randint(10, size=11)
     weights = jnp.ones(x.shape)
@@ -63,7 +64,7 @@ def test_weighted_median_equal_weights():
 def test_weighted_median_integer_weights():
     # Checks weighted percentile=0.5 is same as median when manually weight
     # data
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     x = rng.randint(20, size=10)
     weights = rng.choice(5, size=10)
     x_manual = jnp.repeat(x, weights)
@@ -76,7 +77,7 @@ def test_weighted_median_integer_weights():
 
 def test_weighted_percentile_2d():
     # Check for when array 2D and sample_weight 1D
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     x1 = rng.randint(10, size=10)
     w1 = rng.choice(5, size=10)
 

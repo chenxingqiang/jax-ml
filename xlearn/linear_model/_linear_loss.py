@@ -479,7 +479,7 @@ class LinearModelLoss:
                 return grad, hess, hessian_warning
 
             # TODO: This "sandwich product", X' diag(W) X, is the main computational
-            # bottleneck for solvers. A dedicated Cython routine might improve it
+            # bottleneck for solvers. A dedicated cython routine might improve it
             # exploiting the symmetry (as opposed to, e.g., BLAS gemm).
             if sparse.issparse(X):
                 hess[:n_features, :n_features] = (

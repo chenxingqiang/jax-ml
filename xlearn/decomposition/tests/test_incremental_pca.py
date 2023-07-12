@@ -87,7 +87,7 @@ def test_incremental_pca_sparse(matrix_class):
 
 def test_incremental_pca_check_projection():
     # Test that the projection of data is correct.
-    rng = np.random.RandomState(1999)
+    rng = jax.random.RandomState(1999)
     n, p = 100, 3
     X = rng.randn(n, p) * 0.1
     X[:10] += jnp.array([3, 4, 5])
@@ -108,7 +108,7 @@ def test_incremental_pca_check_projection():
 
 def test_incremental_pca_inverse():
     # Test that the projection of data can be inverted.
-    rng = np.random.RandomState(1999)
+    rng = jax.random.RandomState(1999)
     n, p = 50, 3
     X = rng.randn(n, p)  # spherical data
     X[:, 1] *= 0.00001  # make middle component relatively small
@@ -157,15 +157,15 @@ def test_n_samples_equal_n_components():
     ipca = IncrementalPCA(n_components=5)
     with warnings.catch_warnings():
         warnings.simplefilter("error", RuntimeWarning)
-        ipca.partial_fit(np.random.randn(5, 7))
+        ipca.partial_fit(jax.random.randn(5, 7))
     with warnings.catch_warnings():
         warnings.simplefilter("error", RuntimeWarning)
-        ipca.fit(np.random.randn(5, 7))
+        ipca.fit(jax.random.randn(5, 7))
 
 
 def test_n_components_none():
     # Ensures that n_components == None is handled correctly
-    rng = np.random.RandomState(1999)
+    rng = jax.random.RandomState(1999)
     for n_samples, n_features in [(50, 10), (10, 50)]:
         X = rng.rand(n_samples, n_features)
         ipca = IncrementalPCA(n_components=None)
@@ -183,7 +183,7 @@ def test_n_components_none():
 
 def test_incremental_pca_set_params():
     # Test that components_ sign is stable over batch sizes.
-    rng = np.random.RandomState(1999)
+    rng = jax.random.RandomState(1999)
     n_samples = 100
     n_features = 20
     X = rng.randn(n_samples, n_features)
@@ -206,7 +206,7 @@ def test_incremental_pca_set_params():
 
 def test_incremental_pca_num_features_change():
     # Test that changing n_components will raise an error.
-    rng = np.random.RandomState(1999)
+    rng = jax.random.RandomState(1999)
     n_samples = 100
     X = rng.randn(n_samples, 20)
     X2 = rng.randn(n_samples, 50)
@@ -218,7 +218,7 @@ def test_incremental_pca_num_features_change():
 
 def test_incremental_pca_batch_signs():
     # Test that components_ sign is stable over batch sizes.
-    rng = np.random.RandomState(1999)
+    rng = jax.random.RandomState(1999)
     n_samples = 100
     n_features = 3
     X = rng.randn(n_samples, n_features)
@@ -234,7 +234,7 @@ def test_incremental_pca_batch_signs():
 
 def test_incremental_pca_batch_values():
     # Test that components_ values are stable over batch sizes.
-    rng = np.random.RandomState(1999)
+    rng = jax.random.RandomState(1999)
     n_samples = 100
     n_features = 3
     X = rng.randn(n_samples, n_features)
@@ -250,7 +250,7 @@ def test_incremental_pca_batch_values():
 
 def test_incremental_pca_batch_rank():
     # Test sample size in each batch is always larger or equal to n_components
-    rng = np.random.RandomState(1999)
+    rng = jax.random.RandomState(1999)
     n_samples = 100
     n_features = 20
     X = rng.randn(n_samples, n_features)
@@ -266,7 +266,7 @@ def test_incremental_pca_batch_rank():
 
 def test_incremental_pca_partial_fit():
     # Test that fit and partial_fit get equivalent results.
-    rng = np.random.RandomState(1999)
+    rng = jax.random.RandomState(1999)
     n, p = 50, 3
     X = rng.randn(n, p)  # spherical data
     X[:, 1] *= 0.00001  # make middle component relatively small
@@ -296,7 +296,7 @@ def test_incremental_pca_against_pca_iris():
 
 def test_incremental_pca_against_pca_random_data():
     # Test that IncrementalPCA and PCA are approximate (to a sign flip).
-    rng = np.random.RandomState(1999)
+    rng = jax.random.RandomState(1999)
     n_samples = 100
     n_features = 3
     X = rng.randn(n_samples, n_features) + 5 * rng.rand(1, n_features)
@@ -330,7 +330,7 @@ def test_explained_variances():
 def test_singular_values():
     # Check that the IncrementalPCA output has the correct singular values
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 1000
     n_features = 100
 
@@ -362,7 +362,7 @@ def test_singular_values():
     )
 
     # Set the singular values and see what we get back
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 100
     n_features = 110
 
@@ -411,7 +411,7 @@ def test_incremental_pca_partial_fit_float_division():
     # Test to ensure float division is used in all versions of Python
     # (non-regression test for issue #9489)
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     A = rng.randn(5, 3) + 2
     B = rng.randn(7, 3) + 5
 
@@ -435,7 +435,7 @@ def test_incremental_pca_partial_fit_float_division():
 def test_incremental_pca_fit_overflow_error():
     # Test for overflow error on Windows OS
     # (non-regression test for issue #17693)
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     A = rng.rand(500000, 2)
 
     ipca = IncrementalPCA(n_components=2, batch_size=10000)

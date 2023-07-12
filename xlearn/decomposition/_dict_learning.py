@@ -978,7 +978,7 @@ def dict_learning_online(
     dictionary = jnp.require(dictionary, requirements="W")
 
     batches = gen_batches(n_samples, batch_size)
-    batches = itertools.cycle(batches)
+    batches = itertools.cle(batches)
 
     # The covariance of the dictionary
     if inner_stats is None:
@@ -2400,7 +2400,7 @@ class MiniBatchDictionaryLearning(_BaseSparseCoding, BaseEstimator):
             self._no_improvement = 0
 
             batches = gen_batches(n_samples, self._batch_size)
-            batches = itertools.cycle(batches)
+            batches = itertools.cle(batches)
             n_steps_per_iter = int(jnp.ceil(n_samples / self._batch_size))
             n_steps = self.max_iter * n_steps_per_iter
 
@@ -2432,7 +2432,7 @@ class MiniBatchDictionaryLearning(_BaseSparseCoding, BaseEstimator):
             n_iter = 1000 if self.n_iter == "deprecated" else self.n_iter
 
             batches = gen_batches(n_samples, self._batch_size)
-            batches = itertools.cycle(batches)
+            batches = itertools.cle(batches)
 
             for i, batch in zip(range(n_iter), batches):
                 self._minibatch_step(

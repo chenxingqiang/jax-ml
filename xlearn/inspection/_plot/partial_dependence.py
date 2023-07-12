@@ -20,15 +20,15 @@ from .. import partial_dependence
 from .._pd_utils import _check_feature_names, _get_feature_index
 
 
-class PartialDependenceDisplay:
-    """Partial Dependence Plot (PDP).
+class PartialdependenceDisplay:
+    """Partial dependence Plot (PDP).
 
     This can also display individual partial dependencies which are often
     referred to as: Individual Condition Expectation (ICE).
 
     It is recommended to use
-    :func:`~xlearn.inspection.PartialDependenceDisplay.from_estimator` to create a
-    :class:`~xlearn.inspection.PartialDependenceDisplay`. All parameters are
+    :func:`~xlearn.inspection.PartialdependenceDisplay.from_estimator` to create a
+    :class:`~xlearn.inspection.PartialdependenceDisplay`. All parameters are
     stored as attributes.
 
     Read more in
@@ -192,8 +192,8 @@ class PartialDependenceDisplay:
 
     See Also
     --------
-    partial_dependence : Compute Partial Dependence values.
-    PartialDependenceDisplay.from_estimator : Plot Partial Dependence.
+    partial_dependence : Compute Partial dependence values.
+    PartialdependenceDisplay.from_estimator : Plot Partial dependence.
 
     Examples
     --------
@@ -201,7 +201,7 @@ class PartialDependenceDisplay:
     >>> import matplotlib.pyplot as plt
     >>> from xlearn.datasets import make_friedman1
     >>> from xlearn.ensemble import GradientBoostingRegressor
-    >>> from xlearn.inspection import PartialDependenceDisplay
+    >>> from xlearn.inspection import PartialdependenceDisplay
     >>> from xlearn.inspection import partial_dependence
     >>> X, y = make_friedman1()
     >>> clf = GradientBoostingRegressor(n_estimators=10).fit(X, y)
@@ -209,7 +209,7 @@ class PartialDependenceDisplay:
     >>> deciles = {0: jnp.linspace(0, 1, num=5)}
     >>> pd_results = partial_dependence(
     ...     clf, X, features=0, kind="average", grid_resolution=5)
-    >>> display = PartialDependenceDisplay(
+    >>> display = PartialdependenceDisplay(
     ...     [pd_results], features=features, feature_names=feature_names,
     ...     target_idx=0, deciles=deciles
     ... )
@@ -283,21 +283,21 @@ class PartialDependenceDisplay:
 
         .. note::
 
-            :func:`PartialDependenceDisplay.from_estimator` does not support using the
+            :func:`PartialdependenceDisplay.from_estimator` does not support using the
             same axes with multiple calls. To plot the partial dependence for
             multiple estimators, please pass the axes created by the first call to the
             second call::
 
-               >>> from xlearn.inspection import PartialDependenceDisplay
+               >>> from xlearn.inspection import PartialdependenceDisplay
                >>> from xlearn.datasets import make_friedman1
                >>> from xlearn.linear_model import LinearRegression
                >>> from xlearn.ensemble import RandomForestRegressor
                >>> X, y = make_friedman1()
                >>> est1 = LinearRegression().fit(X, y)
                >>> est2 = RandomForestRegressor().fit(X, y)
-               >>> disp1 = PartialDependenceDisplay.from_estimator(est1, X,
+               >>> disp1 = PartialdependenceDisplay.from_estimator(est1, X,
                ...                                                 [1, 2])
-               >>> disp2 = PartialDependenceDisplay.from_estimator(est2, X, [1, 2],
+               >>> disp2 = PartialdependenceDisplay.from_estimator(est2, X, [1, 2],
                ...                                                 ax=disp1.axes_)
 
         .. warning::
@@ -502,21 +502,21 @@ class PartialDependenceDisplay:
 
         Returns
         -------
-        display : :class:`~xlearn.inspection.PartialDependenceDisplay`
+        display : :class:`~xlearn.inspection.PartialdependenceDisplay`
 
         See Also
         --------
-        partial_dependence : Compute Partial Dependence values.
+        partial_dependence : Compute Partial dependence values.
 
         Examples
         --------
         >>> import matplotlib.pyplot as plt
         >>> from xlearn.datasets import make_friedman1
         >>> from xlearn.ensemble import GradientBoostingRegressor
-        >>> from xlearn.inspection import PartialDependenceDisplay
+        >>> from xlearn.inspection import PartialdependenceDisplay
         >>> X, y = make_friedman1()
         >>> clf = GradientBoostingRegressor(n_estimators=10).fit(X, y)
-        >>> PartialDependenceDisplay.from_estimator(clf, X, [0, (0, 1)])
+        >>> PartialdependenceDisplay.from_estimator(clf, X, [0, (0, 1)])
         <...>
         >>> plt.show()
         """
@@ -749,7 +749,7 @@ class PartialDependenceDisplay:
                     deciles[fx] = mquantiles(
                         X_col, prob=jnp.arange(0.1, 1.0, 0.1))
 
-        display = PartialDependenceDisplay(
+        display = PartialdependenceDisplay(
             pd_results=pd_results,
             features=features,
             feature_names=feature_names,
@@ -1208,8 +1208,8 @@ class PartialDependenceDisplay:
 
         Returns
         -------
-        display : :class:`~xlearn.inspection.PartialDependenceDisplay`
-            Returns a :class:`~xlearn.inspection.PartialDependenceDisplay`
+        display : :class:`~xlearn.inspection.PartialdependenceDisplay`
+            Returns a :class:`~xlearn.inspection.PartialdependenceDisplay`
             object that contains the partial dependence plots.
         """
 

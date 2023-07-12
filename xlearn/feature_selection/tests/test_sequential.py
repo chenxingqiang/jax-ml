@@ -106,7 +106,7 @@ def test_n_features_to_select_stopping_criterion(direction):
     sfs.fit(X, y)
     selected_X = sfs.transform(X)
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     added_candidates = list(
         set(range(X.shape[1])) - set(sfs.get_support(indices=True)))
@@ -174,7 +174,7 @@ def test_sanity(seed, direction, n_features_to_select, expected_selected_feature
     # target, f2 having a stronger correlation than f0. We expect f1 to be
     # dropped, and f2 to always be selected.
 
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
     n_samples = 100
     X = rng.randn(n_samples, 3)
     y = 3 * X[:, 0] - 10 * X[:, 2]
@@ -205,7 +205,7 @@ def test_sparse_support():
 def test_nan_support():
     # Make sure nans are OK if the underlying estimator supports nans
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 40, 4
     X, y = make_regression(n_samples, n_features, random_state=0)
     nan_mask = rng.randint(0, 2, size=(n_samples, n_features), dtype=bool)

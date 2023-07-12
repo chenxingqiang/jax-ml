@@ -379,7 +379,7 @@ class DBSCAN(ClusterMixin, BaseEstimator):
             # set the diagonal to explicit values, as a point is its own
             # neighbor
             with warnings.catch_warnings():
-                warnings.simplefilter("ignore", sparse.SparseEfficiencyWarning)
+                warnings.simplefilter("ignore", sparse.SparseEfficienWarning)
                 X.setdiag(X.diagonal())  # XXX: modifies X's internals in-place
 
         neighbors_model = NearestNeighbors(

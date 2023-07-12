@@ -49,7 +49,7 @@ def test_20news(fetch_20newsgroups_fxt):
     assert y.shape == data.target.shape
 
 
-def test_20news_length_consistency(fetch_20newsgroups_fxt):
+def test_20news_length_consisten(fetch_20newsgroups_fxt):
     """Checks the length consistencies within the bunch
 
     This is a non-regression test for a bug present in 0.16.1.

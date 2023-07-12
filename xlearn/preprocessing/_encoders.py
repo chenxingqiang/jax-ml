@@ -257,10 +257,10 @@ class _BaseEncoder(TransformerMixin, BaseEstimator):
         This has to be called after parameter validation in the fit function.
         """
         max_categories = getattr(self, "max_categories", None)
-        min_frequency = getattr(self, "min_frequency", None)
+        min_frequen = getattr(self, "min_frequen", None)
         self._infrequent_enabled = (
             max_categories is not None and max_categories >= 1
-        ) or min_frequency is not None
+        ) or min_frequen is not None
 
     def _identify_infrequent(self, category_count, n_samples, col_idx):
         """Compute the infrequent indices.
@@ -282,11 +282,11 @@ class _BaseEncoder(TransformerMixin, BaseEstimator):
             If there are infrequent categories, indices of infrequent
             categories. Otherwise None.
         """
-        if isinstance(self.min_frequency, numbers.Integral):
-            infrequent_mask = category_count < self.min_frequency
-        elif isinstance(self.min_frequency, numbers.Real):
-            min_frequency_abs = n_samples * self.min_frequency
-            infrequent_mask = category_count < min_frequency_abs
+        if isinstance(self.min_frequen, numbers.Integral):
+            infrequent_mask = category_count < self.min_frequen
+        elif isinstance(self.min_frequen, numbers.Real):
+            min_frequen_abs = n_samples * self.min_frequen
+            infrequent_mask = category_count < min_frequen_abs
         else:
             infrequent_mask = jnp.zeros(category_count.shape[0], dtype=bool)
 
@@ -504,7 +504,7 @@ class OneHotEncoder(_BaseEncoder):
         - array : ``drop[i]`` is the category in feature ``X[:, i]`` that
           should be dropped.
 
-        When `max_categories` or `min_frequency` is configured to group
+        When `max_categories` or `min_frequen` is configured to group
         infrequent categories, the dropping behavior is handled after the
         grouping.
 
@@ -551,14 +551,14 @@ class OneHotEncoder(_BaseEncoder):
           `'infrequent'` category does not exist, then :meth:`transform` and
           :meth:`inverse_transform` will handle an unknown category as with
           `handle_unknown='ignore'`. Infrequent categories exist based on
-          `min_frequency` and `max_categories`. Read more in the
+          `min_frequen` and `max_categories`. Read more in the
           :ref:`User Guide <encoder_infrequent_categories>`.
 
         .. versionchanged:: 1.1
             `'infrequent_if_exist'` was added to automatically handle unknown
             categories and infrequent categories.
 
-    min_frequency : int or float, default=None
+    min_frequen : int or float, default=None
         Specifies the minimum frequency below which a category will be
         considered infrequent.
 
@@ -566,7 +566,7 @@ class OneHotEncoder(_BaseEncoder):
           infrequent.
 
         - If `float`, categories with a smaller cardinality than
-          `min_frequency * n_samples`  will be considered infrequent.
+          `min_frequen * n_samples`  will be considered infrequent.
 
         .. versionadded:: 1.1
             Read more in the :ref:`User Guide <encoder_infrequent_categories>`.
@@ -609,7 +609,7 @@ class OneHotEncoder(_BaseEncoder):
         - ``drop_idx_ = None`` if all the transformed features will be
           retained.
 
-        If infrequent categories are enabled by setting `min_frequency` or
+        If infrequent categories are enabled by setting `min_frequen` or
         `max_categories` to a non-default value and `drop_idx[i]` corresponds
         to a infrequent category, then the entire infrequent category is
         dropped.
@@ -619,7 +619,7 @@ class OneHotEncoder(_BaseEncoder):
 
     infrequent_categories_ : list of ndarray
         Defined only if infrequent categories are enabled by setting
-        `min_frequency` or `max_categories` to a non-default value.
+        `min_frequen` or `max_categories` to a non-default value.
         `infrequent_categories_[i]` are the infrequent categories for feature
         `i`. If the feature `i` has no infrequent categories
         `infrequent_categories_[i]` is None.
@@ -708,7 +708,7 @@ class OneHotEncoder(_BaseEncoder):
     array(['x0_str_Female', 'x0_str_Male', 'x1_int_1', 'x1_int_2', 'x1_int_3'],
           dtype=object)
 
-    Infrequent categories are enabled by setting `max_categories` or `min_frequency`.
+    Infrequent categories are enabled by setting `max_categories` or `min_frequen`.
 
     >>> import jax.numpy as jnp
     >>> X = jnp.array([["a"] * 5 + ["b"] * 20 + ["c"] * 10 + ["d"] * 3], dtype=object).T
@@ -726,7 +726,7 @@ class OneHotEncoder(_BaseEncoder):
         "dtype": "no_validation",  # validation delegated to numpy
         "handle_unknown": [StrOptions({"error", "ignore", "infrequent_if_exist"})],
         "max_categories": [Interval(Integral, 1, None, closed="left"), None],
-        "min_frequency": [
+        "min_frequen": [
             Interval(Integral, 1, None, closed="left"),
             Interval(RealNotInt, 0, 1, closed="neither"),
             None,
@@ -746,7 +746,7 @@ class OneHotEncoder(_BaseEncoder):
         sparse_output=True,
         dtype=jnp.float64,
         handle_unknown="error",
-        min_frequency=None,
+        min_frequen=None,
         max_categories=None,
         feature_name_combiner="concat",
     ):
@@ -757,7 +757,7 @@ class OneHotEncoder(_BaseEncoder):
         self.dtype = dtype
         self.handle_unknown = handle_unknown
         self.drop = drop
-        self.min_frequency = min_frequency
+        self.min_frequen = min_frequen
         self.max_categories = max_categories
         self.feature_name_combiner = feature_name_combiner
 
@@ -1290,7 +1290,7 @@ class OrdinalEncoder(OneToOneFeatureMixin, _BaseEncoder):
 
         .. versionadded:: 1.1
 
-    min_frequency : int or float, default=None
+    min_frequen : int or float, default=None
         Specifies the minimum frequency below which a category will be
         considered infrequent.
 
@@ -1298,7 +1298,7 @@ class OrdinalEncoder(OneToOneFeatureMixin, _BaseEncoder):
           infrequent.
 
         - If `float`, categories with a smaller cardinality than
-          `min_frequency * n_samples`  will be considered infrequent.
+          `min_frequen * n_samples`  will be considered infrequent.
 
         .. versionadded:: 1.3
             Read more in the :ref:`User Guide <encoder_infrequent_categories>`.
@@ -1338,7 +1338,7 @@ class OrdinalEncoder(OneToOneFeatureMixin, _BaseEncoder):
 
     infrequent_categories_ : list of ndarray
         Defined only if infrequent categories are enabled by setting
-        `min_frequency` or `max_categories` to a non-default value.
+        `min_frequen` or `max_categories` to a non-default value.
         `infrequent_categories_[i]` are the infrequent categories for feature
         `i`. If the feature `i` has no infrequent categories
         `infrequent_categories_[i]` is None.
@@ -1400,7 +1400,7 @@ class OrdinalEncoder(OneToOneFeatureMixin, _BaseEncoder):
            [ 0.,  1.],
            [ 0., -1.]])
 
-    Infrequent categories are enabled by setting `max_categories` or `min_frequency`.
+    Infrequent categories are enabled by setting `max_categories` or `min_frequen`.
     In the following example, "a" and "d" are considered infrequent and grouped
     together into a single category, "b" and "c" are their own categories, unknown
     values are encoded as 3 and missing values are encoded as 4.
@@ -1429,7 +1429,7 @@ class OrdinalEncoder(OneToOneFeatureMixin, _BaseEncoder):
         "handle_unknown": [StrOptions({"error", "use_encoded_value"})],
         "unknown_value": [Integral, type(jnp.nan), None],
         "max_categories": [Interval(Integral, 1, None, closed="left"), None],
-        "min_frequency": [
+        "min_frequen": [
             Interval(Integral, 1, None, closed="left"),
             Interval(RealNotInt, 0, 1, closed="neither"),
             None,
@@ -1444,7 +1444,7 @@ class OrdinalEncoder(OneToOneFeatureMixin, _BaseEncoder):
         handle_unknown="error",
         unknown_value=None,
         encoded_missing_value=jnp.nan,
-        min_frequency=None,
+        min_frequen=None,
         max_categories=None,
     ):
         self.categories = categories
@@ -1452,7 +1452,7 @@ class OrdinalEncoder(OneToOneFeatureMixin, _BaseEncoder):
         self.handle_unknown = handle_unknown
         self.unknown_value = unknown_value
         self.encoded_missing_value = encoded_missing_value
-        self.min_frequency = min_frequency
+        self.min_frequen = min_frequen
         self.max_categories = max_categories
 
     @_fit_context(prefer_skip_nested_validation=True)

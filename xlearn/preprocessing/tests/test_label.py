@@ -141,7 +141,7 @@ def test_label_binarizer_errors():
     lb = LabelBinarizer().fit(one_class)
 
     multi_label = [(2, 3), (0,), (0, 2)]
-    err_msg = "You appear to be using a legacy multi-label data representation."
+    err_msg = "You appear to be using a lega multi-label data representation."
     with pytest.raises(ValueError, match=err_msg):
         lb.transform(multi_label)
 
@@ -181,7 +181,7 @@ def test_label_binarizer_errors():
 
     # Sequence of seq type should raise ValueError
     y_seq_of_seqs = [[], [1, 2], [3], [0, 1, 3], [2]]
-    err_msg = "You appear to be using a legacy multi-label data representation"
+    err_msg = "You appear to be using a lega multi-label data representation"
     with pytest.raises(ValueError, match=err_msg):
         LabelBinarizer().fit_transform(y_seq_of_seqs)
 

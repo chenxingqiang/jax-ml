@@ -1,14 +1,6 @@
 """Utilities for input validation"""
 
-# Authors: Olivier Grisel
-#          Gael Varoquaux
-#          Andreas Mueller
-#          Lars Buitinck
-#          Alexandre Gramfort
-#          Nicolas Tresegnie
-#          Sylvain Marie
-# License: BSD 3 clause
-
+import jax
 import numbers
 import operator
 import sys
@@ -27,7 +19,7 @@ from numpy.core.numeric import ComplexWarning  # type: ignore
 from .. import get_config as _get_config
 from ..exceptions import DataConversionWarning, NotFittedError, PositiveSpectrumWarning
 from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
-from ._isfinite import FiniteStatus, cy_isfinite
+from ._isfinite import FiniteStatus, isfinite
 from .fixes import _object_dtype_isnan
 
 FLOAT_DTYPES = (jnp.float64, jnp.float32, jnp.float16)
@@ -35,7 +27,7 @@ FLOAT_DTYPES = (jnp.float64, jnp.float32, jnp.float16)
 
 # This function is not used anymore at this moment in the code base but we keep it in
 # case that we merge a new public function without kwarg only by mistake, which would
-# require a deprecation cycle to fix.
+# require a deprecation cle to fix.
 def _deprecate_positional_args(func=None, *, version="1.3"):
     """Decorator for methods that issues warnings for positional arguments.
 
@@ -115,7 +107,7 @@ def _assert_all_finite(
 
     # First try an O(n) time, O(1) space solution for the common case that
     # everything is finite; fall back to O(n) space `jnp.isinf/isnan` or custom
-    # Cython implementation to prevent false positives and provide a detailed
+    # cython implementation to prevent false positives and provide a detailed
     # error message.
     with jnp.errstate(over="ignore"):
         first_pass_isfinite = xp.isfinite(xp.sum(X))
@@ -135,13 +127,13 @@ def _assert_all_finite(
 def _assert_all_finite_element_wise(
     X, *, xp, allow_nan, msg_dtype=None, estimator_name=None, input_name=""
 ):
-    # Cython implementation doesn't support FP16 or complex numbers
-    use_cython = (
+    # cython implementation doesn't support FP16 or complex numbers
+    use_thon = (
         xp is np and X.data.contiguous and X.dtype.type in {
             jnp.float32, jnp.float64}
     )
-    if use_cython:
-        out = cy_isfinite(X.reshape(-1), allow_nan=allow_nan)
+    if use_thon:
+        out = isfinite(X.reshape(-1), allow_nan=allow_nan)
         has_nan_error = False if allow_nan else out == FiniteStatus.has_nan
         has_inf = out == FiniteStatus.has_infinite
     else:
@@ -1255,12 +1247,12 @@ def column_or_1d(y, *, dtype=None, warn=False):
 
 
 def check_random_state(seed):
-    """Turn seed into a np.random.RandomState instance.
+    """Turn seed into a jax.random.RandomState instance.
 
     Parameters
     ----------
     seed : None, int or instance of RandomState
-        If seed is None, return the RandomState singleton used by np.random.
+        If seed is None, return the RandomState singleton used by jax.random.
         If seed is an int, return a new RandomState instance seeded with seed.
         If seed is already a RandomState instance, return it.
         Otherwise raise ValueError.
@@ -1270,11 +1262,11 @@ def check_random_state(seed):
     :class:`numpy:numpy.random.RandomState`
         The random state object based on `seed` parameter.
     """
-    if seed is None or seed is np.random:
-        return np.random.mtrand._rand
+    if seed is None or seed is jax.random:
+        return jax.random.mtrand._rand
     if isinstance(seed, numbers.Integral):
-        return np.random.RandomState(seed)
-    if isinstance(seed, np.random.RandomState):
+        return jax.random.RandomState(seed)
+    if isinstance(seed, jax.random.RandomState):
         return seed
     raise ValueError(
         "%r cannot be used to seed a numpy.random.RandomState instance" % seed
@@ -2241,7 +2233,7 @@ def _check_monotonic_cst(estimator, monotonic_cst=None):
     return monotonic_cst
 
 
-def _check_pos_label_consistency(pos_label, y_true):
+def _check_pos_label_consisten(pos_label, y_true):
     """Check if `pos_label` need to be specified or not.
 
     In binary classification, we fix `pos_label=1` if the labels are in the set

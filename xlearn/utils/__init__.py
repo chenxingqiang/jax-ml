@@ -296,7 +296,7 @@ def _safe_indexing(X, indices, *, axis=0):
 
         This utility is documented, but **private**. This means that
         backward compatibility might be broken without any deprecation
-        cycle.
+        cle.
 
     Parameters
     ----------

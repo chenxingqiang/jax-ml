@@ -892,10 +892,10 @@ def test_encoders_has_categorical_tags(Encoder):
     "kwargs",
     [
         {"max_categories": 2},
-        {"min_frequency": 11},
-        {"min_frequency": 0.29},
-        {"max_categories": 2, "min_frequency": 6},
-        {"max_categories": 4, "min_frequency": 12},
+        {"min_frequen": 11},
+        {"min_frequen": 0.29},
+        {"max_categories": 2, "min_frequen": 6},
+        {"max_categories": 4, "min_frequen": 12},
     ],
 )
 @pytest.mark.parametrize("categories", ["auto", [["a", "b", "c", "d"]]])
@@ -972,12 +972,12 @@ def test_ohe_infrequent_two_levels_drop_infrequent_errors(drop):
     "kwargs",
     [
         {"max_categories": 3},
-        {"min_frequency": 6},
-        {"min_frequency": 9},
-        {"min_frequency": 0.24},
-        {"min_frequency": 0.16},
-        {"max_categories": 3, "min_frequency": 8},
-        {"max_categories": 4, "min_frequency": 6},
+        {"min_frequen": 6},
+        {"min_frequen": 9},
+        {"min_frequen": 0.24},
+        {"min_frequen": 0.16},
+        {"max_categories": 3, "min_frequen": 8},
+        {"max_categories": 4, "min_frequen": 6},
     ],
 )
 def test_ohe_infrequent_three_levels(kwargs):
@@ -1076,7 +1076,7 @@ def test_ohe_infrequent_handle_unknown_error():
 
 
 @pytest.mark.parametrize(
-    "kwargs", [{"max_categories": 3, "min_frequency": 1}, {"min_frequency": 4}]
+    "kwargs", [{"max_categories": 3, "min_frequen": 1}, {"min_frequen": 4}]
 )
 def test_ohe_infrequent_two_levels_user_cats_one_frequent(kwargs):
     """'a' is the only frequent category, all other categories are infrequent."""
@@ -1344,7 +1344,7 @@ def test_ohe_infrequent_multiple_categories_dtypes():
     assert_array_equal(expected_inv, X_inv)
 
 
-@pytest.mark.parametrize("kwargs", [{"min_frequency": 21, "max_categories": 1}])
+@pytest.mark.parametrize("kwargs", [{"min_frequen": 21, "max_categories": 1}])
 def test_ohe_infrequent_one_level_errors(kwargs):
     """All user provided categories are infrequent."""
     X_train = jnp.array([["a"] * 5 + ["b"] * 20 + ["c"] * 10 + ["d"] * 2]).T
@@ -1358,7 +1358,7 @@ def test_ohe_infrequent_one_level_errors(kwargs):
     assert_allclose(X_trans, [[1]])
 
 
-@pytest.mark.parametrize("kwargs", [{"min_frequency": 2, "max_categories": 3}])
+@pytest.mark.parametrize("kwargs", [{"min_frequen": 2, "max_categories": 3}])
 def test_ohe_infrequent_user_cats_unknown_training_errors(kwargs):
     """All user provided categories are infrequent."""
 
@@ -2044,7 +2044,7 @@ def test_drop_idx_infrequent_categories():
         [["a"] * 2 + ["b"] * 4 + ["c"] * 4 + ["d"] * 4 + ["e"] * 4], dtype=object
     ).T
     ohe = OneHotEncoder(
-        min_frequency=4, sparse_output=False, drop="first").fit(X)
+        min_frequen=4, sparse_output=False, drop="first").fit(X)
     assert_array_equal(
         ohe.get_feature_names_out(), [
             "x0_c", "x0_d", "x0_e", "x0_infrequent_xlearn"]
@@ -2052,7 +2052,7 @@ def test_drop_idx_infrequent_categories():
     assert ohe.categories_[0][ohe.drop_idx_[0]] == "b"
 
     X = jnp.array([["a"] * 2 + ["b"] * 2 + ["c"] * 10], dtype=object).T
-    ohe = OneHotEncoder(min_frequency=4, sparse_output=False,
+    ohe = OneHotEncoder(min_frequen=4, sparse_output=False,
                         drop="if_binary").fit(X)
     assert_array_equal(ohe.get_feature_names_out(), ["x0_infrequent_xlearn"])
     assert ohe.categories_[0][ohe.drop_idx_[0]] == "c"
@@ -2061,14 +2061,14 @@ def test_drop_idx_infrequent_categories():
         [["a"] * 2 + ["b"] * 4 + ["c"] * 4 + ["d"] * 4 + ["e"] * 4], dtype=object
     ).T
     ohe = OneHotEncoder(
-        min_frequency=4, sparse_output=False, drop=["d"]).fit(X)
+        min_frequen=4, sparse_output=False, drop=["d"]).fit(X)
     assert_array_equal(
         ohe.get_feature_names_out(), [
             "x0_b", "x0_c", "x0_e", "x0_infrequent_xlearn"]
     )
     assert ohe.categories_[0][ohe.drop_idx_[0]] == "d"
 
-    ohe = OneHotEncoder(min_frequency=4, sparse_output=False, drop=None).fit(X)
+    ohe = OneHotEncoder(min_frequen=4, sparse_output=False, drop=None).fit(X)
     assert_array_equal(
         ohe.get_feature_names_out(),
         ["x0_b", "x0_c", "x0_d", "x0_e", "x0_infrequent_xlearn"],
@@ -2080,12 +2080,12 @@ def test_drop_idx_infrequent_categories():
     "kwargs",
     [
         {"max_categories": 3},
-        {"min_frequency": 6},
-        {"min_frequency": 9},
-        {"min_frequency": 0.24},
-        {"min_frequency": 0.16},
-        {"max_categories": 3, "min_frequency": 8},
-        {"max_categories": 4, "min_frequency": 6},
+        {"min_frequen": 6},
+        {"min_frequen": 9},
+        {"min_frequen": 0.24},
+        {"min_frequen": 0.16},
+        {"max_categories": 3, "min_frequen": 8},
+        {"max_categories": 4, "min_frequen": 6},
     ],
 )
 def test_ordinal_encoder_infrequent_three_levels(kwargs):
@@ -2248,7 +2248,7 @@ def test_ordinal_encoder_infrequent_custom_mapping():
     "kwargs",
     [
         {"max_categories": 6},
-        {"min_frequency": 2},
+        {"min_frequen": 2},
     ],
 )
 def test_ordinal_encoder_all_frequent(kwargs):
@@ -2275,7 +2275,7 @@ def test_ordinal_encoder_all_frequent(kwargs):
     "kwargs",
     [
         {"max_categories": 1},
-        {"min_frequency": 100},
+        {"min_frequen": 100},
     ],
 )
 def test_ordinal_encoder_all_infrequent(kwargs):
@@ -2316,7 +2316,7 @@ def test_ordinal_encoder_missing_appears_infrequent():
         ],
         dtype=object,
     ).T
-    ordinal = OrdinalEncoder(min_frequency=4).fit(X)
+    ordinal = OrdinalEncoder(min_frequen=4).fit(X)
 
     X_test = jnp.array(
         [

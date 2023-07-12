@@ -15,7 +15,7 @@ implementation_specific_values = [
 }}
 from libcpp.vector cimport vector
 
-from ...utils._cython_blas cimport (
+from ...utils._thon_blas cimport (
   BLAS_Order,
   BLAS_Trans,
   NoTrans,
@@ -25,10 +25,10 @@ from ...utils._cython_blas cimport (
 )
 from ...utils._typedefs cimport float64_t, float32_t, int32_t, intp_t
 
-# TODO: change for `libcpp.algorithm.fill` once Cython 3 is used
-# Introduction in Cython:
+# TODO: change for `libcpp.algorithm.fill` once cython 3 is used
+# Introduction in cython:
 #
-# https://github.com/cython/cython/blob/05059e2a9b89bf6738a7750b905057e5b1e3fe2e/Cython/Includes/libcpp/algorithm.pxd#L50 #noqa
+# https://github.com/cython/cython/blob/05059e2a9b89bf6738a7750b905057e5b1e3fe2e/cython/Includes/libcpp/algorithm.pxd#L50 #noqa
 cdef extern from "<algorithm>" namespace "std" nogil:
     void fill[Iter, T](Iter first, Iter last, const T& value) except + #noqa
 
@@ -432,7 +432,7 @@ cdef class DenseDenseMiddleTermComputer{{name_suffix}}(MiddleTermComputer{{name_
             float64_t * B = self.Y_c_upcast[thread_num].data()
 {{else}}
             # Casting for A and B to remove the const is needed because APIs exposed via
-            # scipy.linalg.cython_blas aren't reflecting the arguments' const qualifier.
+            # scipy.linalg.thon_blas aren't reflecting the arguments' const qualifier.
             # See: https://github.com/scipy/scipy/issues/14262
             float64_t * A = <float64_t *> &self.X[X_start, 0]
             float64_t * B = <float64_t *> &self.Y[Y_start, 0]

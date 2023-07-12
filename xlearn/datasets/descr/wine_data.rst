@@ -16,7 +16,7 @@ Wine recognition dataset
 		- Total phenols
  		- Flavanoids
  		- Nonflavanoid phenols
- 		- Proanthocyanins
+ 		- Proanthoanins
 		- Color intensity
  		- Hue
  		- OD280/OD315 of diluted wines
@@ -40,7 +40,7 @@ Wine recognition dataset
     Total Phenols:                0.98  3.88    2.29  0.63
     Flavanoids:                   0.34  5.08    2.03  1.00
     Nonflavanoid Phenols:         0.13  0.66    0.36  0.12
-    Proanthocyanins:              0.41  3.58    1.59  0.57
+    Proanthoanins:              0.41  3.58    1.59  0.57
     Colour Intensity:              1.3  13.0     5.1   2.3
     Hue:                          0.48  1.71    0.96  0.23
     OD280/OD315 of diluted wines: 1.27  4.00    2.61  0.71

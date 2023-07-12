@@ -231,7 +231,7 @@ def affinity_propagation(
 
     copy : bool, default=True
         If copy is False, the affinity matrix is modified inplace by the
-        algorithm, for memory efficiency.
+        algorithm, for memory efficien.
 
     verbose : bool, default=False
         The verbosity level.

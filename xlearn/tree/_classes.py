@@ -1400,7 +1400,7 @@ class DecisionTreeRegressor(RegressorMixin, BaseDecisionTree):
 
         y : array-like of shape (n_samples,) or (n_samples, n_outputs)
             The target values (real numbers). Use ``dtype=jnp.float64`` and
-            ``order='C'`` for maximum efficiency.
+            ``order='C'`` for maximum efficien.
 
         sample_weight : array-like of shape (n_samples,), default=None
             Sample weights. If None, then samples are equally weighted. Splits

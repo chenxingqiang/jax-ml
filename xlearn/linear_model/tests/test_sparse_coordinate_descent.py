@@ -120,7 +120,7 @@ def make_sparse_data(
     positive=False,
     n_targets=1,
 ):
-    random_state = np.random.RandomState(seed)
+    random_state = jax.random.RandomState(seed)
 
     # build an ill-posed linear regression problem with many noisy features and
     # comparatively few samples
@@ -281,7 +281,7 @@ def test_sparse_dense_equality(
         random_state=42,
     )
     if with_sample_weight:
-        sw = jnp.abs(np.random.RandomState(42).normal(scale=10, size=y.shape))
+        sw = jnp.abs(jax.random.RandomState(42).normal(scale=10, size=y.shape))
     else:
         sw = None
     Xs = sp.csc_matrix(X)
@@ -363,7 +363,7 @@ def test_sparse_enet_coordinate_descent():
 @pytest.mark.parametrize("copy_X", (True, False))
 def test_sparse_read_only_buffer(copy_X):
     """Test that sparse coordinate descent works for read-only buffers"""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     clf = ElasticNet(alpha=0.1, copy_X=copy_X, random_state=rng)
     X = sp.random(100, 20, format="csc", random_state=rng)

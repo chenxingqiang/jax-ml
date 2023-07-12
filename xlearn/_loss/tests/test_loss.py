@@ -68,7 +68,7 @@ def random_y_true_raw_prediction(
     loss, n_samples, y_bound=(-100, 100), raw_bound=(-5, 5), seed=42
 ):
     """Random generate y_true and raw_prediction in valid range."""
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
     if loss.is_multiclass:
         raw_prediction = jnp.empty((n_samples, loss.n_classes))
         raw_prediction.flat[:] = rng.uniform(
@@ -370,7 +370,7 @@ def test_loss_dtype(
 @pytest.mark.parametrize("loss", LOSS_INSTANCES, ids=loss_instance_name)
 @pytest.mark.parametrize("sample_weight", [None, "range"])
 def test_loss_same_as_C_functions(loss, sample_weight):
-    """Test that Python and Cython functions return same results."""
+    """Test that Python and cython functions return same results."""
     y_true, raw_prediction = random_y_true_raw_prediction(
         loss=loss,
         n_samples=20,
@@ -550,7 +550,7 @@ def test_sample_weight_multiplies(loss, sample_weight, global_random_seed):
     if sample_weight == "ones":
         sample_weight = jnp.ones(shape=n_samples, dtype=jnp.float64)
     else:
-        rng = np.random.RandomState(global_random_seed)
+        rng = jax.random.RandomState(global_random_seed)
         sample_weight = rng.normal(size=n_samples).astype(jnp.float64)
 
     assert_allclose(
@@ -928,7 +928,7 @@ def test_specific_fit_intercept_only(loss, func, random_dist, global_random_seed
     We test the functional for specific, meaningful distributions, e.g.
     squared error estimates the expectation of a probability distribution.
     """
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     if random_dist == "binomial":
         y_train = rng.binomial(1, 0.5, size=100)
     else:
@@ -956,7 +956,7 @@ def test_specific_fit_intercept_only(loss, func, random_dist, global_random_seed
 
 def test_multinomial_loss_fit_intercept_only():
     """Test that fit_intercept_only returns the mean functional for CCE."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_classes = 4
     loss = HalfMultinomialLoss(n_classes=n_classes)
     # Same logic as test_specific_fit_intercept_only. Here inverse link
@@ -979,7 +979,7 @@ def test_multinomial_loss_fit_intercept_only():
 
 def test_binomial_and_multinomial_loss(global_random_seed):
     """Test that multinomial loss with n_classes = 2 is the same as binomial loss."""
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 20
     binom = HalfBinomialLoss()
     multinom = HalfMultinomialLoss(n_classes=2)
@@ -1190,7 +1190,7 @@ def test_loss_pickle(loss):
 
 
 @pytest.mark.parametrize("p", [-1.5, 0, 1, 1.5, 2, 3])
-def test_tweedie_log_identity_consistency(p):
+def test_tweedie_log_identity_consisten(p):
     """Test for identical losses when only the link function is different."""
     half_tweedie_log = HalfTweedieLoss(power=p)
     half_tweedie_identity = HalfTweedieLossIdentity(power=p)

@@ -44,7 +44,7 @@ def _get_metric_params_list(metric: str, n_features: int, seed: int = 1):
     """Return list of dummy DistanceMetric kwargs for tests."""
 
     # Distinguishing on cases not to compute unneeded datastructures.
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
 
     if metric == "minkowski":
         minkowski_kwargs = [
@@ -507,7 +507,7 @@ def test_assert_radius_neighbors_results_quasi_equality():
 
 
 def test_pairwise_distances_reduction_is_usable_for():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(100, 10)
     Y = rng.rand(100, 10)
     X_csr = csr_matrix(X)
@@ -576,7 +576,7 @@ def test_pairwise_distances_reduction_is_usable_for():
 
 
 def test_argkmin_factory_method_wrong_usages():
-    rng = np.random.RandomState(1)
+    rng = jax.random.RandomState(1)
     X = rng.rand(100, 10)
     Y = rng.rand(100, 10)
     k = 5
@@ -656,7 +656,7 @@ def test_argkmin_factory_method_wrong_usages():
 
 
 def test_argkmin_classmode_factory_method_wrong_usages():
-    rng = np.random.RandomState(1)
+    rng = jax.random.RandomState(1)
     X = rng.rand(100, 10)
     Y = rng.rand(100, 10)
     k = 5
@@ -774,7 +774,7 @@ def test_argkmin_classmode_factory_method_wrong_usages():
 
 
 def test_radius_neighbors_factory_method_wrong_usages():
-    rng = np.random.RandomState(1)
+    rng = jax.random.RandomState(1)
     X = rng.rand(100, 10)
     Y = rng.rand(100, 10)
     radius = 5
@@ -880,7 +880,7 @@ def test_chunk_size_agnosticism(
     n_features=100,
 ):
     """Check that results do not depend on the chunk size."""
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     spread = 100
     X = rng.rand(n_samples_X, n_features).astype(dtype) * spread
     Y = rng.rand(n_samples_Y, n_features).astype(dtype) * spread
@@ -935,7 +935,7 @@ def test_n_threads_agnosticism(
     n_features=100,
 ):
     """Check that results do not depend on the number of threads."""
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     spread = 100
     X = rng.rand(n_samples_X, n_features).astype(dtype) * spread
     Y = rng.rand(n_samples_Y, n_features).astype(dtype) * spread
@@ -990,7 +990,7 @@ def test_format_agnosticism(
     dtype,
 ):
     """Check that results do not depend on the format (dense, sparse) of the input."""
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     spread = 100
     n_samples, n_features = 100, 100
 
@@ -1049,7 +1049,7 @@ def test_format_agnosticism(
 )
 @pytest.mark.parametrize("Dispatcher", [ArgKmin, RadiusNeighbors])
 @pytest.mark.parametrize("dtype", [jnp.float64, jnp.float32])
-def test_strategies_consistency(
+def test_strategies_consisten(
     global_random_seed,
     Dispatcher,
     metric,
@@ -1059,7 +1059,7 @@ def test_strategies_consistency(
     n_features=10,
 ):
     """Check that the results do not depend on the strategy used."""
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     spread = 100
     X = rng.rand(n_samples_X, n_features).astype(dtype) * spread
     Y = rng.rand(n_samples_Y, n_features).astype(dtype) * spread
@@ -1144,7 +1144,7 @@ def test_pairwise_distances_argkmin(
         pytest.xfail(
             "Numerical differences lead to small differences in results.")
 
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     spread = 1000
     X = translation + rng.rand(n_samples, n_features).astype(dtype) * spread
     Y = translation + rng.rand(n_samples, n_features).astype(dtype) * spread
@@ -1210,7 +1210,7 @@ def test_pairwise_distances_radius_neighbors(
     dtype,
     n_samples=100,
 ):
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     spread = 1000
     radius = spread * jnp.log(n_features)
     X = translation + rng.rand(n_samples, n_features).astype(dtype) * spread
@@ -1268,7 +1268,7 @@ def test_memmap_backed_data(
     dtype,
 ):
     """Check that the results do not depend on the datasets writability."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     spread = 100
     n_samples, n_features = 128, 10
     X = rng.rand(n_samples, n_features).astype(dtype) * spread
@@ -1322,7 +1322,7 @@ def test_sqeuclidean_row_norms(
     num_threads,
     dtype,
 ):
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     spread = 100
     X = rng.rand(n_samples, n_features).astype(dtype) * spread
 
@@ -1342,7 +1342,7 @@ def test_sqeuclidean_row_norms(
 
 
 def test_argkmin_classmode_strategy_consistent():
-    rng = np.random.RandomState(1)
+    rng = jax.random.RandomState(1)
     X = rng.rand(100, 10)
     Y = rng.rand(100, 10)
     k = 5

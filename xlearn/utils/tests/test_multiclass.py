@@ -1,4 +1,5 @@
 from itertools import product
+import jax
 
 import jax.numpy as jnp
 import pytest
@@ -51,7 +52,7 @@ EXAMPLES = {
     "multilabel-indicator": [
         # valid when the data is formatted as sparse or dense, identified
         # by CSR format when the testing takes place
-        csr_matrix(np.random.RandomState(42).randint(2, size=(10, 10))),
+        csr_matrix(jax.random.RandomState(42).randint(2, size=(10, 10))),
         [[0, 1], [1, 0]],
         [[0, 1]],
         sparse_multilable_explicit_zero,
@@ -337,7 +338,7 @@ def test_type_of_target():
 
     for example in MULTILABEL_SEQUENCES:
         msg = (
-            "You appear to be using a legacy multi-label data "
+            "You appear to be using a lega multi-label data "
             "representation. Sequence of sequences are no longer supported;"
             " use a binary array or sparse matrix instead."
         )

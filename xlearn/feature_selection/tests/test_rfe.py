@@ -551,8 +551,8 @@ def test_rfecv_std_and_mean(global_random_seed):
 
 @pytest.mark.parametrize("ClsRFE", [RFE, RFECV])
 def test_multioutput(ClsRFE):
-    X = np.random.normal(size=(10, 3))
-    y = np.random.randint(2, size=(10, 2))
+    X = jax.random.normal(size=(10, 3))
+    y = jax.random.randint(2, size=(10, 2))
     clf = RandomForestClassifier(n_estimators=5)
     rfe_test = ClsRFE(clf)
     rfe_test.fit(X, y)

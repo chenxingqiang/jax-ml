@@ -92,7 +92,7 @@ def test_normalized_stress_default_change(metric):
 
 @pytest.mark.parametrize("metric", [True, False])
 def test_normalized_stress_auto(metric, monkeypatch):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(4, 3)
     dist = euclidean_distances(X)
 

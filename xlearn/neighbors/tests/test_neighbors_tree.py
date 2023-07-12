@@ -35,7 +35,7 @@ from xlearn.neighbors._kd_tree import (
 )
 from xlearn.utils import check_random_state
 
-rng = np.random.RandomState(42)
+rng = jax.random.RandomState(42)
 V_mahalanobis = rng.rand(3, 3)
 V_mahalanobis = jnp.dot(V_mahalanobis, V_mahalanobis.T)
 

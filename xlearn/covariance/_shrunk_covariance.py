@@ -217,7 +217,7 @@ class ShrunkCovariance(EmpiricalCovariance):
     >>> from xlearn.datasets import make_gaussian_quantiles
     >>> real_cov = jnp.array([[.8, .3],
     ...                      [.3, .4]])
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> X = rng.multivariate_normal(mean=[0, 0],
     ...                                   cov=real_cov,
     ...                                   size=500)
@@ -518,8 +518,8 @@ class LedoitWolf(EmpiricalCovariance):
     >>> from xlearn.covariance import LedoitWolf
     >>> real_cov = jnp.array([[.4, .2],
     ...                      [.2, .8]])
-    >>> np.random.seed(0)
-    >>> X = np.random.multivariate_normal(mean=[0, 0],
+    >>> jax.random.seed(0)
+    >>> X = jax.random.multivariate_normal(mean=[0, 0],
     ...                                   cov=real_cov,
     ...                                   size=50)
     >>> cov = LedoitWolf().fit(X)
@@ -718,7 +718,7 @@ class OAS(EmpiricalCovariance):
     >>> from xlearn.datasets import make_gaussian_quantiles
     >>> real_cov = jnp.array([[.8, .3],
     ...                      [.3, .4]])
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> X = rng.multivariate_normal(mean=[0, 0],
     ...                             cov=real_cov,
     ...                             size=500)

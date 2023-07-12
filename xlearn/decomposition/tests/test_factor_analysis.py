@@ -21,7 +21,7 @@ from xlearn.utils._testing import (
 @ignore_warnings
 def test_factor_analysis():
     # Test FactorAnalysis ability to recover the data covariance structure
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features, n_components = 20, 5, 3
 
     # Some random settings for the generative model

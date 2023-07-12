@@ -138,13 +138,13 @@ cdef class Splitter:
 
         y : ndarray, dtype=DOUBLE_t
             This is the vector of targets, or true labels, for the samples represented
-            as a Cython memoryview.
+            as a cython memoryview.
 
         sample_weight : ndarray, dtype=DOUBLE_t
             The weights of the samples, where higher weighted samples are fit
             closer than lower weight samples. If not provided, all samples
             are assumed to have uniform weight. This is represented
-            as a Cython memoryview.
+            as a cython memoryview.
 
         has_missing : bool
             At least one missing values is in X.

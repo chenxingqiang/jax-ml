@@ -1,4 +1,5 @@
 from collections import defaultdict
+import jax
 
 import jax.numpy as jnp
 from numpy.testing import assert_array_almost_equal
@@ -30,7 +31,7 @@ def floyd_warshall_slow(graph, directed=False):
 
 def generate_graph(N=20):
     # sparse grid of distances
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     dist_matrix = rng.random_sample((N, N))
 
     # make symmetric: distances are not direction-dependent

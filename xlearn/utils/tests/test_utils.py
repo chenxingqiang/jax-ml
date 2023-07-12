@@ -3,6 +3,7 @@ import timeit
 import warnings
 from copy import copy
 from itertools import chain
+import jax
 
 import jax.numpy as jnp
 import pytest
@@ -42,16 +43,16 @@ X_toy = jnp.arange(9).reshape((3, 3))
 
 def test_make_rng():
     # Check the check_random_state utility function behavior
-    assert check_random_state(None) is np.random.mtrand._rand
-    assert check_random_state(np.random) is np.random.mtrand._rand
+    assert check_random_state(None) is jax.random.mtrand._rand
+    assert check_random_state(jax.random) is jax.random.mtrand._rand
 
-    rng_42 = np.random.RandomState(42)
+    rng_42 = jax.random.RandomState(42)
     assert check_random_state(42).randint(100) == rng_42.randint(100)
 
-    rng_42 = np.random.RandomState(42)
+    rng_42 = jax.random.RandomState(42)
     assert check_random_state(rng_42) is rng_42
 
-    rng_42 = np.random.RandomState(42)
+    rng_42 = jax.random.RandomState(42)
     assert check_random_state(43).randint(100) != rng_42.randint(100)
 
     with pytest.raises(ValueError):
@@ -111,7 +112,7 @@ def test_resample():
 
 def test_resample_stratified():
     # Make sure resample can stratify
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 100
     p = 0.9
     X = rng.normal(size=(n_samples, 1))
@@ -128,7 +129,7 @@ def test_resample_stratified():
 
 def test_resample_stratified_replace():
     # Make sure stratified resampling supports the replace parameter
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 100
     X = rng.normal(size=(n_samples, 1))
     y = rng.randint(0, 2, size=n_samples)
@@ -153,7 +154,7 @@ def test_resample_stratified_replace():
 
 def test_resample_stratify_2dy():
     # Make sure y can be 2d when stratifying
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 100
     X = rng.normal(size=(n_samples, 1))
     y = rng.randint(0, 2, size=(n_samples, 2))
@@ -163,7 +164,7 @@ def test_resample_stratify_2dy():
 
 def test_resample_stratify_sparse_error():
     # resample must be ndarray
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 100
     X = rng.normal(size=(n_samples, 2))
     y = rng.randint(0, 2, size=n_samples)
@@ -744,7 +745,7 @@ def test_to_object_array(sequence):
 @pytest.mark.parametrize("array_type", ["array", "sparse", "dataframe"])
 def test_safe_assign(array_type):
     """Check that `_safe_assign` works as expected."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_array = rng.randn(10, 5)
 
     row_indexer = [1, 2]

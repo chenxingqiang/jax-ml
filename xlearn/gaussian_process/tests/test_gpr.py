@@ -213,7 +213,7 @@ def test_anisotropic_kernel():
     # We learn a function which varies in one dimension ten-times slower
     # than in the other. The corresponding length-scales should differ by at
     # least a factor 5
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.uniform(-1, 1, (50, 2))
     y = X[:, 0] + 0.1 * X[:, 1]
 
@@ -226,7 +226,7 @@ def test_random_starts():
     # Test that an increasing number of random-starts of GP fitting only
     # increases the log marginal likelihood of the chosen theta.
     n_samples, n_features = 25, 2
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(n_samples, n_features) * 2 - 1
     y = (
         jnp.sin(X).sum(axis=1)
@@ -397,7 +397,7 @@ def test_custom_optimizer(kernel):
     # Test that GPR can use externally defined optimizers.
     # Define a dummy optimizer that simply tests 50 random hyperparameters
     def optimizer(obj_func, initial_theta, bounds):
-        rng = np.random.RandomState(0)
+        rng = jax.random.RandomState(0)
         theta_opt, func_min = initial_theta, obj_func(
             initial_theta, eval_gradient=False
         )
@@ -586,7 +586,7 @@ def test_constant_target(kernel):
 
     # Test multi-target data
     n_samples, n_targets = X.shape[0], 2
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     y = jnp.concatenate(
         [
             rng.normal(size=(n_samples, 1)),  # non-constant target
@@ -605,7 +605,7 @@ def test_constant_target(kernel):
     assert Y_cov.shape == (n_samples, n_samples, n_targets)
 
 
-def test_gpr_consistency_std_cov_non_invertible_kernel():
+def test_gpr_consisten_std_cov_non_invertible_kernel():
     """Check the consistency between the returned std. dev. and the covariance.
     Non-regression test for:
     https://github.com/jax-learn/jax-learn/issues/19936
@@ -705,7 +705,7 @@ def test_predict_shapes(normalize_y, n_targets):
     https://github.com/jax-learn/jax-learn/issues/18065
     https://github.com/jax-learn/jax-learn/issues/22174
     """
-    rng = np.random.RandomState(1234)
+    rng = jax.random.RandomState(1234)
 
     n_features, n_samples_train, n_samples_test = 6, 9, 7
 
@@ -743,7 +743,7 @@ def test_sample_y_shapes(normalize_y, n_targets):
     Non-regression test for:
     https://github.com/jax-learn/jax-learn/issues/22175
     """
-    rng = np.random.RandomState(1234)
+    rng = jax.random.RandomState(1234)
 
     n_features, n_samples_train = 6, 9
     # Number of spatial locations to predict at
@@ -785,7 +785,7 @@ def test_sample_y_shapes(normalize_y, n_targets):
 @pytest.mark.parametrize("n_samples", [1, 5])
 def test_sample_y_shape_with_prior(n_targets, n_samples):
     """Check the output shape of `sample_y` is consistent before and after `fit`."""
-    rng = np.random.RandomState(1024)
+    rng = jax.random.RandomState(1024)
 
     X = rng.randn(10, 3)
     y = rng.randn(10, n_targets if n_targets is not None else 1)
@@ -800,7 +800,7 @@ def test_sample_y_shape_with_prior(n_targets, n_samples):
 @pytest.mark.parametrize("n_targets", [None, 1, 2, 3])
 def test_predict_shape_with_prior(n_targets):
     """Check the output shape of `predict` with prior distribution."""
-    rng = np.random.RandomState(1024)
+    rng = jax.random.RandomState(1024)
 
     n_sample = 10
     X = rng.randn(n_sample, 3)
@@ -823,7 +823,7 @@ def test_n_targets_error():
     """Check that an error is raised when the number of targets seen at fit is
     inconsistent with n_targets.
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(10, 3)
     y = rng.randn(10, 2)
 

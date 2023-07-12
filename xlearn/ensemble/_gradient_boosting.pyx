@@ -130,15 +130,15 @@ def _predict_regression_tree_stages_sparse(
 
     memset(feature_to_sample, -1, n_features * sizeof(SIZE_t))
 
-    # Cycle through all samples
+    # cle through all samples
     for sample_i in range(n_samples):
         for feature_i in range(X_indptr[sample_i], X_indptr[sample_i + 1]):
             feature_to_sample[X_indices[feature_i]] = sample_i
             X_sample[X_indices[feature_i]] = X_data[feature_i]
 
-        # Cycle through all stages
+        # cle through all stages
         for stage_i in range(n_stages):
-            # Cycle through all trees
+            # cle through all trees
             for output_i in range(n_outputs):
                 root_node = nodes[stage_i * n_outputs + output_i]
                 value = values[stage_i * n_outputs + output_i]

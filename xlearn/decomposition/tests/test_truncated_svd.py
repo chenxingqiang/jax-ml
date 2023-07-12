@@ -135,9 +135,9 @@ def test_explained_variance_components_10_20(X_sparse, kind, solver):
 
 
 @pytest.mark.parametrize("solver", SVD_SOLVERS)
-def test_singular_values_consistency(solver):
+def test_singular_values_consisten(solver):
     # Check that the TruncatedSVD output has the correct singular values
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 100, 80
     X = rng.randn(n_samples, n_features)
 
@@ -161,7 +161,7 @@ def test_singular_values_consistency(solver):
 @pytest.mark.parametrize("solver", SVD_SOLVERS)
 def test_singular_values_expected(solver):
     # Set the singular values and see what we get back
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 100
     n_features = 110
 

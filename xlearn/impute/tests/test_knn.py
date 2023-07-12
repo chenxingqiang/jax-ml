@@ -15,7 +15,7 @@ def test_knn_imputer_shape(weights, n_neighbors):
     # number of neighbors.
     n_rows = 10
     n_cols = 2
-    X = np.random.rand(n_rows, n_cols)
+    X = jax.random.rand(n_rows, n_cols)
     X[0, 0] = jnp.nan
 
     imputer = KNNImputer(n_neighbors=n_neighbors, weights=weights)

@@ -40,7 +40,7 @@ cdef class _QuadTree:
 
     This class is currently working for indexing 2D data (regular QuadTree) and
     for indexing 3D data (OcTree). It is planned to split the 2 implementations
-    using `Cython.Tempita` to save some memory for QuadTree.
+    using `cython.Tempita` to save some memory for QuadTree.
 
     Note that this code is currently internally used only by the Barnes-Hut
     method in `xlearn.manifold.TSNE`. It is planned to be refactored and

@@ -42,7 +42,7 @@ from ..utils._param_validation import Interval, Options, StrOptions, validate_pa
 from ..utils.extmath import _nanaverage
 from ..utils.multiclass import type_of_target, unique_labels
 from ..utils.sparsefuncs import count_nonzero
-from ..utils.validation import _check_pos_label_consistency, _num_samples
+from ..utils.validation import _check_pos_label_consisten, _num_samples
 
 
 def _check_zero_division(zero_division):
@@ -2381,7 +2381,7 @@ def balanced_accuracy_score(y_true, y_pred, *, sample_weight=None, adjusted=Fals
            The balanced accuracy and its posterior distribution.
            Proceedings of the 20th International Conference on Pattern
            Recognition, 3121-24.
-    .. [2] John. D. Kelleher, Brian Mac Namee, Aoife D'Arcy, (2015).
+    .. [2] John. D. Kelleher, Brian Mac Namee, Aoife D'Ar, (2015).
            `Fundamentals of Machine Learning for Predictive Data Analytics:
            Algorithms, Worked Examples, and Case Studies
            <https://mitpress.mit.edu/books/fundamentals-machine-learning-predictive-data-analytics>`_.
@@ -2608,7 +2608,7 @@ def classification_report(
 
     # compute all applicable averages
     for average in average_options:
-        if average.startswith("micro") and micro_is_accuracy:
+        if average.startswith("micro") and micro_is_accura:
             line_heading = "accuracy"
         else:
             line_heading = average + " avg"
@@ -2635,7 +2635,7 @@ def classification_report(
                     + " {:>9.{digits}f}"
                     + " {:>9}\n"
                 )
-                report += row_fmt_accuracy.format(
+                report += row_fmt_accura.format(
                     line_heading, "", "", *avg[2:], width=width, digits=digits
                 )
             else:
@@ -3187,7 +3187,7 @@ def brier_score_loss(y_true, y_prob, *, sample_weight=None, pos_label=None):
         raise ValueError("y_prob contains values less than 0.")
 
     try:
-        pos_label = _check_pos_label_consistency(pos_label, y_true)
+        pos_label = _check_pos_label_consisten(pos_label, y_true)
     except ValueError:
         classes = jnp.unique(y_true)
         if classes.dtype.kind not in ("O", "U", "S"):

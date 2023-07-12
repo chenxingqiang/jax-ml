@@ -2,7 +2,7 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from numbers import Integral, Real
 
-import jax.numpy as jnp
+import numpy as np
 import scipy.sparse as sp
 
 from ..base import BaseEstimator, ClassifierMixin, _fit_context
@@ -22,7 +22,7 @@ from ..utils.validation import (
 )
 from . import _liblinear as liblinear  # type: ignore
 
-# mypy error: error: Module 'xlearn.svm' has no attribute '_libsvm'
+# mypy error: error: Module 'sklearn.svm' has no attribute '_libsvm'
 # (and same for other imports)
 from . import _libsvm as libsvm  # type: ignore
 from . import _libsvm_sparse as libsvm_sparse  # type: ignore
@@ -44,23 +44,21 @@ def _one_vs_one_coef(dual_coef, n_support, support_vectors):
     # XXX we could do preallocation of coef but
     # would have to take care in the sparse case
     coef = []
-    sv_locs = jnp.cumsum(jnp.hstack([[0], n_support]))
+    sv_locs = np.cumsum(np.hstack([[0], n_support]))
     for class1 in range(n_class):
         # SVs for class1:
-        sv1 = support_vectors[sv_locs[class1]: sv_locs[class1 + 1], :]
+        sv1 = support_vectors[sv_locs[class1] : sv_locs[class1 + 1], :]
         for class2 in range(class1 + 1, n_class):
             # SVs for class1:
-            sv2 = support_vectors[sv_locs[class2]: sv_locs[class2 + 1], :]
+            sv2 = support_vectors[sv_locs[class2] : sv_locs[class2 + 1], :]
 
             # dual coef for class1 SVs:
-            alpha1 = dual_coef[class2 - 1,
-                               sv_locs[class1]: sv_locs[class1 + 1]]
+            alpha1 = dual_coef[class2 - 1, sv_locs[class1] : sv_locs[class1 + 1]]
             # dual coef for class2 SVs:
-            alpha2 = dual_coef[class1, sv_locs[class2]: sv_locs[class2 + 1]]
+            alpha2 = dual_coef[class1, sv_locs[class2] : sv_locs[class2 + 1]]
             # build weight for class1 vs class2
 
-            coef.append(safe_sparse_dot(alpha1, sv1) +
-                        safe_sparse_dot(alpha2, sv2))
+            coef.append(safe_sparse_dot(alpha1, sv1) + safe_sparse_dot(alpha2, sv2))
     return coef
 
 
@@ -122,8 +120,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
     ):
         if self._impl not in LIBSVM_IMPL:
             raise ValueError(
-                "impl should be one of %s, %s was given" % (
-                    LIBSVM_IMPL, self._impl)
+                "impl should be one of %s, %s was given" % (LIBSVM_IMPL, self._impl)
             )
 
         self.kernel = kernel
@@ -174,7 +171,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
 
         Notes
         -----
-        If X and y are not C-ordered and contiguous arrays of jnp.float64 and
+        If X and y are not C-ordered and contiguous arrays of np.float64 and
         X is not a scipy.sparse.csr_matrix, X and/or y may be copied.
 
         If X is a dense array, then the other methods will not support sparse
@@ -193,7 +190,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
             X, y = self._validate_data(
                 X,
                 y,
-                dtype=jnp.float64,
+                dtype=np.float64,
                 order="C",
                 accept_sparse="csr",
                 accept_large_sparse=False,
@@ -201,8 +198,8 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
 
         y = self._validate_targets(y)
 
-        sample_weight = jnp.asarray(
-            [] if sample_weight is None else sample_weight, dtype=jnp.float64
+        sample_weight = np.asarray(
+            [] if sample_weight is None else sample_weight, dtype=np.float64
         )
         solver_type = LIBSVM_IMPL.index(self._impl)
 
@@ -238,8 +235,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
         elif isinstance(self.gamma, str):
             if self.gamma == "scale":
                 # var = E[X^2] - E[X]^2 if sparse
-                X_var = (X.multiply(X)).mean() - \
-                    (X.mean()) ** 2 if sparse else X.var()
+                X_var = (X.multiply(X)).mean() - (X.mean()) ** 2 if sparse else X.var()
                 self._gamma = 1.0 / (X.shape[1] * X_var) if X_var != 0 else 1.0
             elif self.gamma == "auto":
                 self._gamma = 1.0 / X.shape[1]
@@ -250,9 +246,9 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
         if self.verbose:
             print("[LibSVM]", end="")
 
-        seed = rnd.randint(jnp.iinfo("i").max)
+        seed = rnd.randint(np.iinfo("i").max)
         fit(X, y, sample_weight, solver_type, kernel, random_seed=seed)
-        # see comment on the other call to jnp.iinfo in this file
+        # see comment on the other call to np.iinfo in this file
 
         self.shape_fit_ = X.shape if hasattr(X, "shape") else (n_samples,)
 
@@ -266,8 +262,8 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
             self.dual_coef_ = -self.dual_coef_
 
         dual_coef = self._dual_coef_.data if self._sparse else self._dual_coef_
-        intercept_finiteness = jnp.isfinite(self._intercept_).all()
-        dual_coef_finiteness = jnp.isfinite(dual_coef).all()
+        intercept_finiteness = np.isfinite(self._intercept_).all()
+        dual_coef_finiteness = np.isfinite(dual_coef).all()
         if not (intercept_finiteness and dual_coef_finiteness):
             raise ValueError(
                 "The dual coefficients or intercepts are not finite."
@@ -293,7 +289,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
 
         Default implementation for SVR and one-class; overridden in BaseSVC.
         """
-        return column_or_1d(y, warn=True).astype(jnp.float64, copy=False)
+        return column_or_1d(y, warn=True).astype(np.float64, copy=False)
 
     def _warn_from_fit_status(self):
         assert self.fit_status_ in (0, 1)
@@ -336,7 +332,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
             svm_type=solver_type,
             sample_weight=sample_weight,
             # TODO(1.4): Replace "_class_weight" with "class_weight_"
-            class_weight=getattr(self, "_class_weight", jnp.empty(0)),
+            class_weight=getattr(self, "_class_weight", np.empty(0)),
             kernel=kernel,
             C=self.C,
             nu=self.nu,
@@ -355,7 +351,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
         self._warn_from_fit_status()
 
     def _sparse_fit(self, X, y, sample_weight, solver_type, kernel, random_seed):
-        X.data = jnp.asarray(X.data, dtype=jnp.float64, order="C")
+        X.data = np.asarray(X.data, dtype=np.float64, order="C")
         X.sort_indices()
 
         kernel_type = self._sparse_kernels.index(kernel)
@@ -386,7 +382,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
             self.tol,
             self.C,
             # TODO(1.4): Replace "_class_weight" with "class_weight_"
-            getattr(self, "_class_weight", jnp.empty(0)),
+            getattr(self, "_class_weight", np.empty(0)),
             sample_weight,
             self.nu,
             self.cache_size,
@@ -405,16 +401,15 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
             n_class = 1
         n_SV = self.support_vectors_.shape[0]
 
-        dual_coef_indices = jnp.tile(jnp.arange(n_SV), n_class)
+        dual_coef_indices = np.tile(np.arange(n_SV), n_class)
         if not n_SV:
             self.dual_coef_ = sp.csr_matrix([])
         else:
-            dual_coef_indptr = jnp.arange(
+            dual_coef_indptr = np.arange(
                 0, dual_coef_indices.size + 1, dual_coef_indices.size / n_class
             )
             self.dual_coef_ = sp.csr_matrix(
-                (dual_coef_data, dual_coef_indices,
-                 dual_coef_indptr), (n_class, n_SV)
+                (dual_coef_data, dual_coef_indices, dual_coef_indptr), (n_class, n_SV)
             )
 
     def predict(self, X):
@@ -472,7 +467,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
         )
 
     def _sparse_predict(self, X):
-        # Precondition: X is a csr_matrix of dtype jnp.float64.
+        # Precondition: X is a csr_matrix of dtype np.float64.
         kernel = self.kernel
         if callable(kernel):
             kernel = "precomputed"
@@ -498,7 +493,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
             self.tol,
             C,
             # TODO(1.4): Replace "_class_weight" with "class_weight_"
-            getattr(self, "_class_weight", jnp.empty(0)),
+            getattr(self, "_class_weight", np.empty(0)),
             self.nu,
             self.epsilon,
             self.shrinking,
@@ -516,7 +511,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
             kernel = self.kernel(X, self.__Xfit)
             if sp.issparse(kernel):
                 kernel = kernel.toarray()
-            X = jnp.asarray(kernel, dtype=jnp.float64, order="C")
+            X = np.asarray(kernel, dtype=np.float64, order="C")
         return X
 
     def _decision_function(self, X):
@@ -550,8 +545,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
         return dec_func
 
     def _dense_decision_function(self, X):
-        X = check_array(X, dtype=jnp.float64, order="C",
-                        accept_large_sparse=False)
+        X = check_array(X, dtype=np.float64, order="C", accept_large_sparse=False)
 
         kernel = self.kernel
         if callable(kernel):
@@ -575,7 +569,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
         )
 
     def _sparse_decision_function(self, X):
-        X.data = jnp.asarray(X.data, dtype=jnp.float64, order="C")
+        X.data = np.asarray(X.data, dtype=np.float64, order="C")
 
         kernel = self.kernel
         if hasattr(kernel, "__call__"):
@@ -600,7 +594,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
             self.tol,
             self.C,
             # TODO(1.4): Replace "_class_weight" with "class_weight_"
-            getattr(self, "_class_weight", jnp.empty(0)),
+            getattr(self, "_class_weight", np.empty(0)),
             self.nu,
             self.epsilon,
             self.shrinking,
@@ -617,7 +611,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
             X = self._validate_data(
                 X,
                 accept_sparse="csr",
-                dtype=jnp.float64,
+                dtype=np.float64,
                 order="C",
                 accept_large_sparse=False,
                 reset=False,
@@ -659,8 +653,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
         ndarray of shape (n_features, n_classes)
         """
         if self.kernel != "linear":
-            raise AttributeError(
-                "coef_ is only available when using a linear kernel")
+            raise AttributeError("coef_ is only available when using a linear kernel")
 
         coef = self._get_coef()
 
@@ -691,7 +684,7 @@ class BaseLibSVM(BaseEstimator, metaclass=ABCMeta):
         else:
             # SVR and OneClass
             # _n_support has size 2, we make it size 1
-            return jnp.array([self._n_support[0]])
+            return np.array([self._n_support[0]])
 
 
 class BaseSVC(ClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
@@ -748,9 +741,8 @@ class BaseSVC(ClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
     def _validate_targets(self, y):
         y_ = column_or_1d(y, warn=True)
         check_classification_targets(y)
-        cls, y = jnp.unique(y_, return_inverse=True)
-        self.class_weight_ = compute_class_weight(
-            self.class_weight, classes=cls, y=y_)
+        cls, y = np.unique(y_, return_inverse=True)
+        self.class_weight_ = compute_class_weight(self.class_weight, classes=cls, y=y_)
         if len(cls) < 2:
             raise ValueError(
                 "The number of classes has to be greater than one; got %d class"
@@ -759,7 +751,7 @@ class BaseSVC(ClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
 
         self.classes_ = cls
 
-        return jnp.asarray(y, dtype=jnp.float64, order="C")
+        return np.asarray(y, dtype=np.float64, order="C")
 
     def decision_function(self, X):
         """Evaluate the decision function for the samples in X.
@@ -821,10 +813,10 @@ class BaseSVC(ClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
             and self.decision_function_shape == "ovr"
             and len(self.classes_) > 2
         ):
-            y = jnp.argmax(self.decision_function(X), axis=1)
+            y = np.argmax(self.decision_function(X), axis=1)
         else:
             y = super().predict(X)
-        return self.classes_.take(jnp.asarray(y, dtype=jnp.intp))
+        return self.classes_.take(np.asarray(y, dtype=np.intp))
 
     # Hacky way of getting predict_proba to raise an AttributeError when
     # probability=False using properties. Do not use this in new code; when
@@ -836,8 +828,7 @@ class BaseSVC(ClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
                 "predict_proba is not available when  probability=False"
             )
         if self._impl not in ("c_svc", "nu_svc"):
-            raise AttributeError(
-                "predict_proba only implemented for SVC and NuSVC")
+            raise AttributeError("predict_proba only implemented for SVC and NuSVC")
         return True
 
     @available_if(_check_proba)
@@ -905,7 +896,7 @@ class BaseSVC(ClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
         predict. Also, it will produce meaningless results on very small
         datasets.
         """
-        return jnp.log(self.predict_proba(X))
+        return np.log(self.predict_proba(X))
 
     def _dense_predict_proba(self, X):
         X = self._compute_kernel(X)
@@ -935,7 +926,7 @@ class BaseSVC(ClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
         return pprob
 
     def _sparse_predict_proba(self, X):
-        X.data = jnp.asarray(X.data, dtype=jnp.float64, order="C")
+        X.data = np.asarray(X.data, dtype=np.float64, order="C")
 
         kernel = self.kernel
         if callable(kernel):
@@ -960,7 +951,7 @@ class BaseSVC(ClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
             self.tol,
             self.C,
             # TODO(1.4): Replace "_class_weight" with "class_weight_"
-            getattr(self, "_class_weight", jnp.empty(0)),
+            getattr(self, "_class_weight", np.empty(0)),
             self.nu,
             self.epsilon,
             self.shrinking,
@@ -982,7 +973,7 @@ class BaseSVC(ClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
             if sp.issparse(coef[0]):
                 coef = sp.vstack(coef).tocsr()
             else:
-                coef = jnp.vstack(coef)
+                coef = np.vstack(coef)
 
         return coef
 
@@ -1062,8 +1053,7 @@ def _get_liblinear_solver_type(multi_class, penalty, loss, dual):
             if solver_num is None:
                 error_string = (
                     "The combination of penalty='%s' and "
-                    "loss='%s' are not supported when dual=%s" % (
-                        penalty, loss, dual)
+                    "loss='%s' are not supported when dual=%s" % (penalty, loss, dual)
                 )
             else:
                 return solver_num
@@ -1126,7 +1116,7 @@ def _fit_liblinear(
 
         The "balanced" mode uses the values of y to automatically adjust
         weights inversely proportional to class frequencies in the input data
-        as ``n_samples / (n_classes * jnp.bincount(y))``
+        as ``n_samples / (n_classes * np.bincount(y))``
 
     penalty : {'l1', 'l2'}
         The norm of the penalty used in regularization.
@@ -1193,10 +1183,9 @@ def _fit_liblinear(
                 % classes_[0]
             )
 
-        class_weight_ = compute_class_weight(
-            class_weight, classes=classes_, y=y)
+        class_weight_ = compute_class_weight(class_weight, classes=classes_, y=y)
     else:
-        class_weight_ = jnp.empty(0, dtype=jnp.float64)
+        class_weight_ = np.empty(0, dtype=np.float64)
         y_ind = y
     liblinear.set_verbosity_wrap(verbose)
     rnd = check_random_state(random_state)
@@ -1224,10 +1213,10 @@ def _fit_liblinear(
         _check_large_sparse(X)
 
     # LibLinear wants targets as doubles, even for classification
-    y_ind = jnp.asarray(y_ind, dtype=jnp.float64).ravel()
-    y_ind = jnp.require(y_ind, requirements="W")
+    y_ind = np.asarray(y_ind, dtype=np.float64).ravel()
+    y_ind = np.require(y_ind, requirements="W")
 
-    sample_weight = _check_sample_weight(sample_weight, X, dtype=jnp.float64)
+    sample_weight = _check_sample_weight(sample_weight, X, dtype=np.float64)
 
     solver_type = _get_liblinear_solver_type(multi_class, penalty, loss, dual)
     raw_coef_, n_iter_ = liblinear.train_wrap(
@@ -1240,7 +1229,7 @@ def _fit_liblinear(
         C,
         class_weight_,
         max_iter,
-        rnd.randint(jnp.iinfo("i").max),
+        rnd.randint(np.iinfo("i").max),
         epsilon,
         sample_weight,
     )

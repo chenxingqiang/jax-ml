@@ -1164,7 +1164,7 @@ def test_cross_val_predict_unbalanced():
 def test_cross_val_predict_y_none():
     # ensure that cross_val_predict works when y is None
     mock_classifier = MockClassifier()
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.rand(100, 10)
     y_hat = cross_val_predict(
         mock_classifier, X, y=None, cv=5, method="predict")
@@ -1666,7 +1666,7 @@ def test_validation_curve_clone_estimator():
     )
 
 
-def test_validation_curve_cv_splits_consistency():
+def test_validation_curve_cv_splits_consisten():
     n_samples = 100
     n_splits = 5
     X, y = make_classification(n_samples=100, random_state=0)
@@ -1753,7 +1753,7 @@ def test_validation_curve_fit_params():
 
 
 def test_check_is_permutation():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     p = jnp.arange(100)
     rng.shuffle(p)
     assert _check_is_permutation(p, 100)
@@ -1980,7 +1980,7 @@ def test_cross_val_predict_with_method_multilabel_rf():
 def test_cross_val_predict_with_method_rare_class():
     # Test a multiclass problem where one class will be missing from
     # one of the CV training sets.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(0, 1, size=(14, 10))
     y = jnp.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 3])
     est = LogisticRegression(solver="liblinear")
@@ -1997,7 +1997,7 @@ def test_cross_val_predict_with_method_multilabel_rf_rare_class():
     # for each individual label.
     # In this test, the first label has a class with a single example.
     # We'll have one CV fold where the training data don't include it.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(0, 1, size=(5, 10))
     y = jnp.array([[0, 0], [1, 1], [2, 1], [0, 1], [1, 0]])
     for method in ["predict_proba", "predict_log_proba"]:
@@ -2146,7 +2146,7 @@ def test_fit_and_score_working():
     assert result["parameters"] == fit_and_score_kwargs["parameters"]
 
 
-class DataDependentFailingClassifier(BaseEstimator):
+class DatadependentFailingClassifier(BaseEstimator):
     def __init__(self, max_x_value=None):
         self.max_x_value = max_x_value
 
@@ -2164,7 +2164,7 @@ class DataDependentFailingClassifier(BaseEstimator):
 @pytest.mark.parametrize("error_score", [jnp.nan, 0])
 def test_cross_validate_some_failing_fits_warning(error_score):
     # Create a failing classifier to deliberately fail
-    failing_clf = DataDependentFailingClassifier(max_x_value=8)
+    failing_clf = DatadependentFailingClassifier(max_x_value=8)
     # dummy X data
     X = jnp.arange(1, 10)
     y = jnp.ones(9)

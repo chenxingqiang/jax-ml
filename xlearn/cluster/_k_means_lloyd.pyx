@@ -16,8 +16,8 @@ from ..utils._openmp_helpers cimport omp_destroy_lock
 from ..utils._openmp_helpers cimport omp_set_lock
 from ..utils._openmp_helpers cimport omp_unset_lock
 from ..utils.extmath import row_norms
-from ..utils._cython_blas cimport _gemm
-from ..utils._cython_blas cimport RowMajor, Trans, NoTrans
+from ..utils._thon_blas cimport _gemm
+from ..utils._thon_blas cimport RowMajor, Trans, NoTrans
 from ._k_means_common import CHUNK_SIZE
 from ._k_means_common cimport _relocate_empty_clusters_dense
 from ._k_means_common cimport _relocate_empty_clusters_sparse

@@ -57,7 +57,7 @@ def test_linear_regression():
 def test_linear_regression_sample_weights(
     array_constr, fit_intercept, global_random_seed
 ):
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
 
     # It would not work with under-determined systems
     n_samples, n_features = 6, 5
@@ -106,7 +106,7 @@ def test_raises_value_error_if_positive_and_sparse():
 @pytest.mark.parametrize("n_samples, n_features", [(2, 3), (3, 2)])
 def test_raises_value_error_if_sample_weights_greater_than_1d(n_samples, n_features):
     # Sample weights must be either scalar or 1D
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(n_samples, n_features)
     y = rng.randn(n_samples)
     sample_weights_OK = rng.randn(n_samples) ** 2 + 1
@@ -180,7 +180,7 @@ def test_deprecate_normalize(normalize):
 
 def test_linear_regression_sparse(global_random_seed):
     # Test that linear regression also works with sparse data
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n = 100
     X = sparse.eye(n, n)
     beta = rng.rand(n)
@@ -196,7 +196,7 @@ def test_linear_regression_sparse(global_random_seed):
 @pytest.mark.parametrize("fit_intercept", [True, False])
 def test_linear_regression_sparse_equal_dense(fit_intercept):
     # Test that linear regression agrees between sparse and dense
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 200
     n_features = 2
     X = rng.randn(n_samples, n_features)
@@ -214,7 +214,7 @@ def test_linear_regression_sparse_equal_dense(fit_intercept):
 
 def test_linear_regression_multiple_outcome():
     # Test multiple-outcome linear regressions
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X, y = make_regression(random_state=rng)
 
     Y = jnp.vstack((y, y)).T
@@ -231,7 +231,7 @@ def test_linear_regression_multiple_outcome():
 
 def test_linear_regression_sparse_multiple_outcome(global_random_seed):
     # Test multiple-outcome linear regressions with sparse data
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X, y = make_sparse_uncorrelated(random_state=rng)
     X = sparse.coo_matrix(X)
     Y = jnp.vstack((y, y)).T
@@ -271,7 +271,7 @@ def test_linear_regression_positive():
 
 def test_linear_regression_positive_multiple_outcome(global_random_seed):
     # Test multiple-outcome nonnegative linear regressions
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X, y = make_sparse_uncorrelated(random_state=rng)
     Y = jnp.vstack((y, y)).T
     n_features = X.shape[1]
@@ -288,7 +288,7 @@ def test_linear_regression_positive_multiple_outcome(global_random_seed):
 
 def test_linear_regression_positive_vs_nonpositive(global_random_seed):
     # Test differences with LinearRegression when positive=False.
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X, y = make_sparse_uncorrelated(random_state=rng)
 
     reg = LinearRegression(positive=True)
@@ -302,7 +302,7 @@ def test_linear_regression_positive_vs_nonpositive(global_random_seed):
 def test_linear_regression_positive_vs_nonpositive_when_positive(global_random_seed):
     # Test LinearRegression fitted coefficients
     # when the problem is positive.
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 200
     n_features = 4
     X = rng.rand(n_samples, n_features)
@@ -321,7 +321,7 @@ def test_linear_regression_positive_vs_nonpositive_when_positive(global_random_s
 def test_inplace_data_preprocessing(sparse_X, use_sw, global_random_seed):
     # Check that the data is not modified inplace by the linear regression
     # estimator.
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     original_X_data = rng.randn(10, 12)
     original_y_data = rng.randn(10, 2)
     orginal_sw_data = rng.rand(10)
@@ -376,9 +376,9 @@ def test_linear_regression_pd_sparse_dataframe_warning():
     pd = pytest.importorskip("pandas")
 
     # Warning is raised only when some of the columns is sparse
-    df = pd.DataFrame({"0": np.random.randn(10)})
+    df = pd.DataFrame({"0": jax.random.randn(10)})
     for col in range(1, 4):
-        arr = np.random.randn(10)
+        arr = jax.random.randn(10)
         arr[:8] = 0
         # all columns but the first column is sparse
         if col != 0:
@@ -401,7 +401,7 @@ def test_linear_regression_pd_sparse_dataframe_warning():
 
 
 def test_preprocess_data(global_random_seed):
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 200
     n_features = 2
     X = rng.rand(n_samples, n_features)
@@ -439,7 +439,7 @@ def test_preprocess_data(global_random_seed):
 
 
 def test_preprocess_data_multioutput(global_random_seed):
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 200
     n_features = 3
     n_outputs = 2
@@ -469,7 +469,7 @@ def test_preprocess_data_multioutput(global_random_seed):
 
 @pytest.mark.parametrize("is_sparse", [False, True])
 def test_preprocess_data_weighted(is_sparse, global_random_seed):
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 200
     n_features = 4
     # Generate random data with 50% of zero values to make sure
@@ -577,7 +577,7 @@ def test_preprocess_data_weighted(is_sparse, global_random_seed):
 
 
 def test_sparse_preprocess_data_offsets(global_random_seed):
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 200
     n_features = 2
     X = sparse.rand(n_samples, n_features, density=0.5, random_state=rng)
@@ -646,7 +646,7 @@ def test_preprocess_copy_data_no_checks(is_sparse, to_copy):
 
 
 def test_dtype_preprocess_data(global_random_seed):
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 200
     n_features = 2
     X = rng.rand(n_samples, n_features)
@@ -726,7 +726,7 @@ def test_dtype_preprocess_data(global_random_seed):
 @pytest.mark.parametrize("n_targets", [None, 2])
 @pytest.mark.parametrize("sparse_data", [True, False])
 def test_rescale_data(n_targets, sparse_data, global_random_seed):
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 200
     n_features = 2
 
@@ -813,16 +813,16 @@ def test_fused_types_make_dataset():
 
 @pytest.mark.parametrize("sparseX", [False, True])
 @pytest.mark.parametrize("fit_intercept", [False, True])
-def test_linear_regression_sample_weight_consistency(
+def test_linear_regression_sample_weight_consisten(
     sparseX, fit_intercept, global_random_seed
 ):
     """Test that the impact of sample_weight is consistent.
 
     Note that this test is stricter than the common test
     check_sample_weights_invariance alone and also tests sparse X.
-    It is very similar to test_enet_sample_weight_consistency.
+    It is very similar to test_enet_sample_weight_consisten.
     """
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples, n_features = 10, 5
 
     X = rng.rand(n_samples, n_features)
@@ -878,7 +878,7 @@ def test_linear_regression_sample_weight_consistency(
         # This often fails, e.g. when calling
         # XLEARN_TESTS_GLOBAL_RANDOM_SEED="all" pytest \
         # xlearn/linear_model/tests/test_base.py\
-        # ::test_linear_regression_sample_weight_consistency
+        # ::test_linear_regression_sample_weight_consisten
         pass
     else:
         assert_allclose(reg.coef_, coef_0, rtol=1e-5)

@@ -1488,11 +1488,11 @@ def test_feature_union_fit_params():
     t.fit_transform(X, y, a=0)
 
 
-def test_pipeline_missing_values_leniency():
+def test_pipeline_missing_values_lenien():
     # check that pipeline let the missing values validation to
     # the underlying transformers and predictors.
     X, y = iris.data, iris.target
-    mask = np.random.choice([1, 0], X.shape, p=[0.1, 0.9]).astype(bool)
+    mask = jax.random.choice([1, 0], X.shape, p=[0.1, 0.9]).astype(bool)
     X[mask] = jnp.nan
     pipe = make_pipeline(SimpleImputer(), LogisticRegression())
     assert pipe.fit(X, y).score(X, y) > 0.4
@@ -1532,7 +1532,7 @@ def test_pipeline_get_tags_none(passthrough):
 def test_search_cv_using_minimal_compatible_estimator(Predictor):
     # Check that third-party library estimators can be part of a pipeline
     # and tuned by grid-search without inheriting from BaseEstimator.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X, y = rng.randn(25, 2), jnp.array([0] * 5 + [1] * 20)
 
     model = Pipeline(

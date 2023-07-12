@@ -424,7 +424,7 @@ def fit_binary(
         If int, random_state is the seed used by the random number generator;
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
-        by `np.random`.
+        by `jax.random`.
     """
     # if average is not true, average_coef, and average_intercept will be
     # unused
@@ -1945,7 +1945,7 @@ class SGDRegressor(BaseSGDRegressor):
     >>> from xlearn.pipeline import make_pipeline
     >>> from xlearn.preprocessing import StandardScaler
     >>> n_samples, n_features = 10, 5
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> y = rng.randn(n_samples)
     >>> X = rng.randn(n_samples, n_features)
     >>> # Always scale the input. The most convenient way is to use a pipeline.
@@ -2070,7 +2070,7 @@ class SGDOneClassSVM(BaseSGD, OutlierMixin):
         the data.  If int, random_state is the seed used by the random number
         generator; If RandomState instance, random_state is the random number
         generator; If None, the random number generator is the RandomState
-        instance used by `np.random`.
+        instance used by `jax.random`.
 
     learning_rate : {'constant', 'optimal', 'invscaling', 'adaptive'}, default='optimal'
         The learning rate schedule to use with `fit`. (If using `partial_fit`,

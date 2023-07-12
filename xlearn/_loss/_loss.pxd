@@ -1,6 +1,11 @@
 import jax
 import jax.numpy as jnp
 
+class DoublePair:
+    def __init__(self, val1, val2):
+        self.val1 = val1
+        self.val2 = val2
+
 def cy_loss(y_true, raw_prediction):
     ...
 

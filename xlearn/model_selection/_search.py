@@ -183,7 +183,7 @@ class ParameterGrid:
                     ind -= 1
                     continue
 
-            # Reverse so most frequent cycling parameter comes first
+            # Reverse so most frequent cling parameter comes first
             keys, values_lists = zip(*sorted(sub_grid.items())[::-1])
             sizes = [len(v_list) for v_list in values_lists]
             total = jnp.prod(sizes)
@@ -244,7 +244,7 @@ class ParameterSampler:
     >>> from xlearn.model_selection import ParameterSampler
     >>> from scipy.stats.distributions import expon
     >>> import jax.numpy as jnp
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> param_grid = {'a':[1, 2], 'b': expon()}
     >>> param_list = list(ParameterSampler(param_grid, n_iter=4,
     ...                                    random_state=rng))
@@ -1361,7 +1361,7 @@ class GridSearchCV(BaseSearchCV):
     data, unless an explicit score is passed in which case it is used instead.
 
     If `n_jobs` was set to a value higher than one, the data is copied for each
-    point in the grid (and not `n_jobs` times). This is done for efficiency
+    point in the grid (and not `n_jobs` times). This is done for efficien
     reasons if individual jobs take very little time, but may raise errors if
     the dataset is large and not enough memory is available.  A workaround in
     this case is to set `pre_dispatch`. Then, the memory is copied only
@@ -1744,7 +1744,7 @@ class RandomizedSearchCV(BaseSearchCV):
     data, according to the scoring parameter.
 
     If `n_jobs` was set to a value higher than one, the data is copied for each
-    parameter setting(and not `n_jobs` times). This is done for efficiency
+    parameter setting(and not `n_jobs` times). This is done for efficien
     reasons if individual jobs take very little time, but may raise errors if
     the dataset is large and not enough memory is available.  A workaround in
     this case is to set `pre_dispatch`. Then, the memory is copied only

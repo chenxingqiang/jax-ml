@@ -35,7 +35,7 @@ def _graph_connected_component(graph, node_id):
     Parameters
     ----------
     graph : array-like of shape (n_samples, n_samples)
-        Adjacency matrix of the graph, non-zero weight means an edge
+        Adjacen matrix of the graph, non-zero weight means an edge
         between the nodes.
 
     node_id : int
@@ -77,7 +77,7 @@ def _graph_is_connected(graph):
     Parameters
     ----------
     graph : {array-like, sparse matrix} of shape (n_samples, n_samples)
-        Adjacency matrix of the graph, non-zero weight means an edge
+        Adjacen matrix of the graph, non-zero weight means an edge
         between the nodes.
 
     Returns
@@ -194,7 +194,7 @@ def spectral_embedding(
         .. note::
             When using `eigen_solver == 'amg'`,
             it is necessary to also fix the global numpy seed with
-            `np.random.seed(int)` to get deterministic results. See
+            `jax.random.seed(int)` to get deterministic results. See
             https://github.com/pyamg/pyamg/issues/139 for further
             information.
 
@@ -455,7 +455,7 @@ class SpectralEmbedding(BaseEstimator):
         .. note::
             When using `eigen_solver == 'amg'`,
             it is necessary to also fix the global numpy seed with
-            `np.random.seed(int)` to get deterministic results. See
+            `jax.random.seed(int)` to get deterministic results. See
             https://github.com/pyamg/pyamg/issues/139 for further
             information.
 

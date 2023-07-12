@@ -7,7 +7,7 @@ that adds to libsvm some capabilities, like index of support vectors
 and efficient representation of dense matrices.
 
 These are low-level routines, but can be used for flexibility or
-performance reasons. See xlearn.svm for a higher-level API.
+performance reasons. See sklearn.svm for a higher-level API.
 
 Low-level memory management is done in libsvm_helper.c. If we happen
 to run out of memory a MemoryError will be raised. In practice this is
@@ -30,7 +30,7 @@ Authors
 import  numpy as np
 cimport numpy as cnp
 from libc.stdlib cimport free
-from ..utils._cython_blas cimport _dot
+from ..utils._thon_blas cimport _dot
 
 include "_libsvm.pxi"
 
@@ -61,8 +61,8 @@ def fit(
     double C=1.0,
     double nu=0.5,
     double epsilon=0.1,
-    const cnp.float64_t[::1] class_weight=jnp.empty(0),
-    const cnp.float64_t[::1] sample_weight=jnp.empty(0),
+    const cnp.float64_t[::1] class_weight=np.empty(0),
+    const cnp.float64_t[::1] sample_weight=np.empty(0),
     int shrinking=1,
     int probability=0,
     double cache_size=100.,
@@ -112,13 +112,13 @@ def fit(
         Epsilon parameter in the epsilon-insensitive loss function.
 
     class_weight : array, dtype=float64, shape (n_classes,), \
-            default=jnp.empty(0)
+            default=np.empty(0)
         Set the parameter C of class i to class_weight[i]*C for
         SVC. If not given, all classes are supposed to have
         weight one.
 
     sample_weight : array, dtype=float64, shape (n_samples,), \
-            default=jnp.empty(0)
+            default=np.empty(0)
         Weights assigned to each sample.
 
     shrinking : int, default=1
@@ -169,7 +169,7 @@ def fit(
     cdef cnp.npy_intp SV_len
 
     if len(sample_weight) == 0:
-        sample_weight = jnp.ones(X.shape[0], dtype=jnp.float64)
+        sample_weight = np.ones(X.shape[0], dtype=np.float64)
     else:
         assert sample_weight.shape[0] == X.shape[0], (
             f"sample_weight and X have incompatible shapes: sample_weight has "
@@ -187,8 +187,8 @@ def fit(
     )
     if problem.x == NULL:
         raise MemoryError("Seems we've run out of memory")
-    cdef cnp.int32_t[::1] class_weight_label = jnp.arange(
-        class_weight.shape[0], dtype=jnp.int32
+    cdef cnp.int32_t[::1] class_weight_label = np.arange(
+        class_weight.shape[0], dtype=np.int32
     )
     set_parameter(
         &param,
@@ -228,28 +228,28 @@ def fit(
     SV_len = get_l(model)
     n_class = get_nr(model)
 
-    cdef int[::1] n_iter = jnp.empty(max(1, n_class * (n_class - 1) // 2), dtype=jnp.intc)
+    cdef int[::1] n_iter = np.empty(max(1, n_class * (n_class - 1) // 2), dtype=np.intc)
     copy_n_iter(<char*> &n_iter[0], model)
 
-    cdef cnp.float64_t[:, ::1] sv_coef = jnp.empty((n_class-1, SV_len), dtype=jnp.float64)
+    cdef cnp.float64_t[:, ::1] sv_coef = np.empty((n_class-1, SV_len), dtype=np.float64)
     copy_sv_coef(<char*> &sv_coef[0, 0] if sv_coef.size > 0 else NULL, model)
 
     # the intercept is just model.rho but with sign changed
-    cdef cnp.float64_t[::1] intercept = jnp.empty(
-        int((n_class*(n_class-1))/2), dtype=jnp.float64
+    cdef cnp.float64_t[::1] intercept = np.empty(
+        int((n_class*(n_class-1))/2), dtype=np.float64
     )
     copy_intercept(<char*> &intercept[0], model, <cnp.npy_intp*> intercept.shape)
 
-    cdef cnp.int32_t[::1] support = jnp.empty(SV_len, dtype=jnp.int32)
+    cdef cnp.int32_t[::1] support = np.empty(SV_len, dtype=np.int32)
     copy_support(<char*> &support[0] if support.size > 0 else NULL, model)
 
     # copy model.SV
     cdef cnp.float64_t[:, ::1] support_vectors
     if kernel_index == 4:
         # precomputed kernel
-        support_vectors = jnp.empty((0, 0), dtype=jnp.float64)
+        support_vectors = np.empty((0, 0), dtype=np.float64)
     else:
-        support_vectors = jnp.empty((SV_len, X.shape[1]), dtype=jnp.float64)
+        support_vectors = np.empty((SV_len, X.shape[1]), dtype=np.float64)
         copy_SV(
             <char*> &support_vectors[0, 0] if support_vectors.size > 0 else NULL,
             model,
@@ -258,26 +258,26 @@ def fit(
 
     cdef cnp.int32_t[::1] n_class_SV
     if svm_type == 0 or svm_type == 1:
-        n_class_SV = jnp.empty(n_class, dtype=jnp.int32)
+        n_class_SV = np.empty(n_class, dtype=np.int32)
         copy_nSV(<char*> &n_class_SV[0] if n_class_SV.size > 0 else NULL, model)
     else:
         # OneClass and SVR are considered to have 2 classes
-        n_class_SV = jnp.array([SV_len, SV_len], dtype=jnp.int32)
+        n_class_SV = np.array([SV_len, SV_len], dtype=np.int32)
 
     cdef cnp.float64_t[::1] probA
     cdef cnp.float64_t[::1] probB
     if probability != 0:
         if svm_type < 2:  # SVC and NuSVC
-            probA = jnp.empty(int(n_class*(n_class-1)/2), dtype=jnp.float64)
-            probB = jnp.empty(int(n_class*(n_class-1)/2), dtype=jnp.float64)
+            probA = np.empty(int(n_class*(n_class-1)/2), dtype=np.float64)
+            probB = np.empty(int(n_class*(n_class-1)/2), dtype=np.float64)
             copy_probB(<char*> &probB[0], model, <cnp.npy_intp*> probB.shape)
         else:
-            probA = jnp.empty(1, dtype=jnp.float64)
-            probB = jnp.empty(0, dtype=jnp.float64)
+            probA = np.empty(1, dtype=np.float64)
+            probB = np.empty(0, dtype=np.float64)
         copy_probA(<char*> &probA[0], model, <cnp.npy_intp*> probA.shape)
     else:
-        probA = jnp.empty(0, dtype=jnp.float64)
-        probB = jnp.empty(0, dtype=jnp.float64)
+        probA = np.empty(0, dtype=np.float64)
+        probB = np.empty(0, dtype=np.float64)
 
     svm_free_and_destroy_model(&model)
     free(problem.x)
@@ -350,15 +350,15 @@ def predict(
     const cnp.int32_t[::1] nSV,
     const cnp.float64_t[:, ::1] sv_coef,
     const cnp.float64_t[::1] intercept,
-    const cnp.float64_t[::1] probA=jnp.empty(0),
-    const cnp.float64_t[::1] probB=jnp.empty(0),
+    const cnp.float64_t[::1] probA=np.empty(0),
+    const cnp.float64_t[::1] probB=np.empty(0),
     int svm_type=0,
     kernel='rbf',
     int degree=3,
     double gamma=0.1,
     double coef0=0.0,
-    const cnp.float64_t[::1] class_weight=jnp.empty(0),
-    const cnp.float64_t[::1] sample_weight=jnp.empty(0),
+    const cnp.float64_t[::1] class_weight=np.empty(0),
+    const cnp.float64_t[::1] sample_weight=np.empty(0),
     double cache_size=100.0,
 ):
     """
@@ -415,8 +415,8 @@ def predict(
     cdef svm_model *model
     cdef int rv
 
-    cdef cnp.int32_t[::1] class_weight_label = jnp.arange(
-        class_weight.shape[0], dtype=jnp.int32
+    cdef cnp.int32_t[::1] class_weight_label = np.arange(
+        class_weight.shape[0], dtype=np.int32
     )
 
     set_predict_params(
@@ -450,7 +450,7 @@ def predict(
     blas_functions.dot = _dot[double]
     # TODO: use check_model
     try:
-        dec_values = jnp.empty(X.shape[0])
+        dec_values = np.empty(X.shape[0])
         with nogil:
             rv = copy_predict(
                 <char*> &X[0, 0],
@@ -474,15 +474,15 @@ def predict_proba(
     const cnp.int32_t[::1] nSV,
     cnp.float64_t[:, ::1] sv_coef,
     cnp.float64_t[::1] intercept,
-    cnp.float64_t[::1] probA=jnp.empty(0),
-    cnp.float64_t[::1] probB=jnp.empty(0),
+    cnp.float64_t[::1] probA=np.empty(0),
+    cnp.float64_t[::1] probB=np.empty(0),
     int svm_type=0,
     kernel='rbf',
     int degree=3,
     double gamma=0.1,
     double coef0=0.0,
-    cnp.float64_t[::1] class_weight=jnp.empty(0),
-    cnp.float64_t[::1] sample_weight=jnp.empty(0),
+    cnp.float64_t[::1] class_weight=np.empty(0),
+    cnp.float64_t[::1] sample_weight=np.empty(0),
     double cache_size=100.0,
 ):
     """
@@ -496,7 +496,7 @@ def predict_proba(
     We have to reconstruct model and parameters to make sure we stay
     in sync with the python object.
 
-    See xlearn.svm.predict for a complete list of parameters.
+    See sklearn.svm.predict for a complete list of parameters.
 
     Parameters
     ----------
@@ -547,8 +547,8 @@ def predict_proba(
     cdef cnp.float64_t[:, ::1] dec_values
     cdef svm_parameter param
     cdef svm_model *model
-    cdef cnp.int32_t[::1] class_weight_label = jnp.arange(
-        class_weight.shape[0], dtype=jnp.int32
+    cdef cnp.int32_t[::1] class_weight_label = np.arange(
+        class_weight.shape[0], dtype=np.int32
     )
     cdef int rv
 
@@ -584,7 +584,7 @@ def predict_proba(
     cdef BlasFunctions blas_functions
     blas_functions.dot = _dot[double]
     try:
-        dec_values = jnp.empty((X.shape[0], n_class), dtype=jnp.float64)
+        dec_values = np.empty((X.shape[0], n_class), dtype=np.float64)
         with nogil:
             rv = copy_predict_proba(
                 <char*> &X[0, 0],
@@ -608,15 +608,15 @@ def decision_function(
     const cnp.int32_t[::1] nSV,
     const cnp.float64_t[:, ::1] sv_coef,
     const cnp.float64_t[::1] intercept,
-    const cnp.float64_t[::1] probA=jnp.empty(0),
-    const cnp.float64_t[::1] probB=jnp.empty(0),
+    const cnp.float64_t[::1] probA=np.empty(0),
+    const cnp.float64_t[::1] probB=np.empty(0),
     int svm_type=0,
     kernel='rbf',
     int degree=3,
     double gamma=0.1,
     double coef0=0.0,
-    const cnp.float64_t[::1] class_weight=jnp.empty(0),
-    const cnp.float64_t[::1] sample_weight=jnp.empty(0),
+    const cnp.float64_t[::1] class_weight=np.empty(0),
+    const cnp.float64_t[::1] sample_weight=np.empty(0),
     double cache_size=100.0,
 ):
     """
@@ -676,8 +676,8 @@ def decision_function(
     cdef svm_model *model
     cdef cnp.npy_intp n_class
 
-    cdef cnp.int32_t[::1] class_weight_label = jnp.arange(
-        class_weight.shape[0], dtype=jnp.int32
+    cdef cnp.int32_t[::1] class_weight_label = np.arange(
+        class_weight.shape[0], dtype=np.int32
     )
 
     cdef int rv
@@ -719,7 +719,7 @@ def decision_function(
     cdef BlasFunctions blas_functions
     blas_functions.dot = _dot[double]
     try:
-        dec_values = jnp.empty((X.shape[0], n_class), dtype=jnp.float64)
+        dec_values = np.empty((X.shape[0], n_class), dtype=np.float64)
         with nogil:
             rv = copy_predict_values(
                 <char*> &X[0, 0],
@@ -750,8 +750,8 @@ def cross_validation(
     double C=1.0,
     double nu=0.5,
     double epsilon=0.1,
-    cnp.float64_t[::1] class_weight=jnp.empty(0),
-    cnp.float64_t[::1] sample_weight=jnp.empty(0),
+    cnp.float64_t[::1] class_weight=np.empty(0),
+    cnp.float64_t[::1] sample_weight=np.empty(0),
     int shrinking=0,
     int probability=0,
     double cache_size=100.0,
@@ -805,13 +805,13 @@ def cross_validation(
         Epsilon parameter in the epsilon-insensitive loss function.
 
     class_weight : array, dtype=float64, shape (n_classes,), \
-            default=jnp.empty(0)
+            default=np.empty(0)
         Set the parameter C of class i to class_weight[i]*C for
         SVC. If not given, all classes are supposed to have
         weight one.
 
     sample_weight : array, dtype=float64, shape (n_samples,), \
-            default=jnp.empty(0)
+            default=np.empty(0)
         Weights assigned to each sample.
 
     shrinking : int, default=1
@@ -841,7 +841,7 @@ def cross_validation(
     cdef const char *error_msg
 
     if len(sample_weight) == 0:
-        sample_weight = jnp.ones(X.shape[0], dtype=jnp.float64)
+        sample_weight = np.ones(X.shape[0], dtype=np.float64)
     else:
         assert sample_weight.shape[0] == X.shape[0], (
             f"sample_weight and X have incompatible shapes: sample_weight has "
@@ -863,8 +863,8 @@ def cross_validation(
     )
     if problem.x == NULL:
         raise MemoryError("Seems we've run out of memory")
-    cdef cnp.int32_t[::1] class_weight_label = jnp.arange(
-        class_weight.shape[0], dtype=jnp.int32
+    cdef cnp.int32_t[::1] class_weight_label = np.arange(
+        class_weight.shape[0], dtype=np.int32
     )
 
     # set parameters
@@ -897,7 +897,7 @@ def cross_validation(
     cdef BlasFunctions blas_functions
     blas_functions.dot = _dot[double]
     try:
-        target = jnp.empty((X.shape[0]), dtype=jnp.float64)
+        target = np.empty((X.shape[0]), dtype=np.float64)
         with nogil:
             svm_cross_validation(
                 &problem,

@@ -310,7 +310,7 @@ def test_1d_tree_nodes_values(
     #        a <=  root  <= b
     # c <= d <= (a + b) / 2 <= e <= f
 
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 1000
     n_features = 1
     X = rng.rand(n_samples, n_features)
@@ -347,7 +347,7 @@ def assert_nd_reg_tree_children_monotonic_bounded(tree_, monotonic_cst):
         # different from the average of the siblings values, because
         # sum_right / weighted_n_right
         # is slightly different from the value of the right sibling.
-        # This can cause a discrepancy up to numerical noise when clipping,
+        # This can cause a discrepancycy up to numerical noise when clipping,
         # which is resolved by comparing with some loss of precision.
         assert jnp.float32(node_value) <= jnp.float32(upper_bound[i])
         assert jnp.float32(node_value) >= jnp.float32(lower_bound[i])
@@ -468,7 +468,7 @@ def test_nd_tree_nodes_values(
     # For iii) we check that each node value is within the proper lower and
     # upper bounds.
 
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples = 1000
     n_features = 2
     monotonic_cst = [monotonic_sign, 0]

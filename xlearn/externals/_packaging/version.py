@@ -33,7 +33,7 @@ from typing import Callable, Iterator, List, Optional, SupportsInt, Tuple, Union
 
 from ._structures import Infinity, InfinityType, NegativeInfinity, NegativeInfinityType
 
-__all__ = ["parse", "Version", "LegacyVersion", "InvalidVersion", "VERSION_PATTERN"]
+__all__ = ["parse", "Version", "LegaVersion", "InvalidVersion", "VERSION_PATTERN"]
 
 InfiniteTypes = Union[InfinityType, NegativeInfinityType]
 PrePostDevType = Union[InfiniteTypes, Tuple[str, int]]
@@ -52,9 +52,9 @@ LocalType = Union[
 CmpKey = Tuple[
     int, Tuple[int, ...], PrePostDevType, PrePostDevType, PrePostDevType, LocalType
 ]
-LegacyCmpKey = Tuple[int, Tuple[str, ...]]
+LegaCmpKey = Tuple[int, Tuple[str, ...]]
 VersionComparisonMethod = Callable[
-    [Union[CmpKey, LegacyCmpKey], Union[CmpKey, LegacyCmpKey]], bool
+    [Union[CmpKey, LegaCmpKey], Union[CmpKey, LegaCmpKey]], bool
 ]
 
 _Version = collections.namedtuple(
@@ -62,7 +62,7 @@ _Version = collections.namedtuple(
 )
 
 
-def parse(version: str) -> Union["LegacyVersion", "Version"]:
+def parse(version: str) -> Union["LegaVersion", "Version"]:
     """Parse the given version from a string to an appropriate class.
 
     Parameters
@@ -72,14 +72,14 @@ def parse(version: str) -> Union["LegacyVersion", "Version"]:
 
     Returns
     -------
-    version : :class:`Version` object or a :class:`LegacyVersion` object
+    version : :class:`Version` object or a :class:`LegaVersion` object
         Returned class depends on the given version: if is a valid
-        PEP 440 version or a legacy version.
+        PEP 440 version or a lega version.
     """
     try:
         return Version(version)
     except InvalidVersion:
-        return LegacyVersion(version)
+        return LegaVersion(version)
 
 
 class InvalidVersion(ValueError):
@@ -89,7 +89,7 @@ class InvalidVersion(ValueError):
 
 
 class _BaseVersion:
-    _key: Union[CmpKey, LegacyCmpKey]
+    _key: Union[CmpKey, LegaCmpKey]
 
     def __hash__(self) -> int:
         return hash(self._key)
@@ -134,13 +134,13 @@ class _BaseVersion:
         return self._key != other._key
 
 
-class LegacyVersion(_BaseVersion):
+class LegaVersion(_BaseVersion):
     def __init__(self, version: str) -> None:
         self._version = str(version)
-        self._key = _legacy_cmpkey(self._version)
+        self._key = _lega_cmpkey(self._version)
 
         warnings.warn(
-            "Creating a LegacyVersion has been deprecated and will be "
+            "Creating a LegaVersion has been deprecated and will be "
             "removed in the next major release",
             DeprecationWarning,
         )
@@ -149,7 +149,7 @@ class LegacyVersion(_BaseVersion):
         return self._version
 
     def __repr__(self) -> str:
-        return f"<LegacyVersion('{self}')>"
+        return f"<LegaVersion('{self}')>"
 
     @property
     def public(self) -> str:
@@ -196,9 +196,9 @@ class LegacyVersion(_BaseVersion):
         return False
 
 
-_legacy_version_component_re = re.compile(r"(\d+ | [a-z]+ | \.| -)", re.VERBOSE)
+_lega_version_component_re = re.compile(r"(\d+ | [a-z]+ | \.| -)", re.VERBOSE)
 
-_legacy_version_replacement_map = {
+_lega_version_replacement_map = {
     "pre": "c",
     "preview": "c",
     "-": "final-",
@@ -208,8 +208,8 @@ _legacy_version_replacement_map = {
 
 
 def _parse_version_parts(s: str) -> Iterator[str]:
-    for part in _legacy_version_component_re.split(s):
-        part = _legacy_version_replacement_map.get(part, part)
+    for part in _lega_version_component_re.split(s):
+        part = _lega_version_replacement_map.get(part, part)
 
         if not part or part == ".":
             continue
@@ -224,10 +224,10 @@ def _parse_version_parts(s: str) -> Iterator[str]:
     yield "*final"
 
 
-def _legacy_cmpkey(version: str) -> LegacyCmpKey:
+def _lega_cmpkey(version: str) -> LegaCmpKey:
 
     # We hardcode an epoch of -1 here. A PEP 440 version can only have a epoch
-    # greater than or equal to 0. This will effectively put the LegacyVersion,
+    # greater than or equal to 0. This will effectively put the LegaVersion,
     # which uses the defacto standard originally implemented by setuptools,
     # as before all PEP 440 versions.
     epoch = -1

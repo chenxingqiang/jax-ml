@@ -108,7 +108,7 @@ def _solve_sparse_cg(
             )
             # FIXME atol
             try:
-                coef, info = sp_linalg.cg(C, y_column, tol=tol, atol="legacy")
+                coef, info = sp_linalg.cg(C, y_column, tol=tol, atol="lega")
             except TypeError:
                 # old scipy
                 coef, info = sp_linalg.cg(C, y_column, tol=tol)
@@ -123,7 +123,7 @@ def _solve_sparse_cg(
             # FIXME atol
             try:
                 coefs[i], info = sp_linalg.cg(
-                    C, y_column, maxiter=max_iter, tol=tol, atol="legacy"
+                    C, y_column, maxiter=max_iter, tol=tol, atol="lega"
                 )
             except TypeError:
                 # old scipy
@@ -1113,7 +1113,7 @@ class Ridge(MultiOutputMixin, RegressorMixin, _BaseRidge):
     >>> from xlearn.linear_model import Ridge
     >>> import jax.numpy as jnp
     >>> n_samples, n_features = 10, 5
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> y = rng.randn(n_samples)
     >>> X = rng.randn(n_samples, n_features)
     >>> clf = Ridge(alpha=1.0)

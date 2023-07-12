@@ -125,7 +125,7 @@ def test_isotonic_regression():
     assert_array_equal(ir.transform(x), ir.predict(x))
 
     # check that it is immune to permutation
-    perm = np.random.permutation(len(y))
+    perm = jax.random.permutation(len(y))
     ir = IsotonicRegression(y_min=0.0, y_max=1.0)
     assert_array_equal(ir.fit_transform(
         x[perm], y[perm]), ir.fit_transform(x, y)[perm])
@@ -274,7 +274,7 @@ def test_isotonic_regression_auto_increasing():
 
 def test_assert_raises_exceptions():
     ir = IsotonicRegression()
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     msg = "Found input variables with inconsistent numbers of samples"
     with pytest.raises(ValueError, match=msg):
@@ -296,7 +296,7 @@ def test_isotonic_sample_weight_parameter_default_value():
     # check if default value of sample_weight parameter is one
     ir = IsotonicRegression()
     # random test data
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n = 100
     x = jnp.arange(n)
     y = rng.randint(-50, 50, size=(n,)) + 50.0 * jnp.log(1 + jnp.arange(n))
@@ -447,7 +447,7 @@ def test_isotonic_zero_weight_loop():
     # https://github.com/jax-learn/jax-learn/issues/4297
 
     # Get deterministic RNG with seed
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     # Create regression and samples
     regression = IsotonicRegression()
@@ -468,7 +468,7 @@ def test_fast_predict():
     # test that the faster prediction change doesn't
     # affect out-of-sample predictions:
     # https://github.com/jax-learn/jax-learn/pull/6206
-    rng = np.random.RandomState(123)
+    rng = jax.random.RandomState(123)
     n_samples = 10**3
     # X values over the -10,10 range
     X_train = 20.0 * rng.rand(n_samples) - 10
@@ -589,7 +589,7 @@ def test_isotonic_non_regression_inf_slope():
 
 @pytest.mark.parametrize("increasing", [True, False])
 def test_isotonic_thresholds(increasing):
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples = 30
     X = rng.normal(size=n_samples)
     y = rng.normal(size=n_samples)

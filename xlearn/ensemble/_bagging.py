@@ -232,7 +232,7 @@ def _estimator_has(attr):
             return hasattr(self.estimators_[0], attr)
         elif self.estimator is not None:
             return hasattr(self.estimator, attr)
-        else:  # TODO(1.4): Remove when the base_estimator deprecation cycle ends
+        else:  # TODO(1.4): Remove when the base_estimator deprecation cle ends
             return hasattr(self.base_estimator, attr)
 
     return check

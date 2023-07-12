@@ -177,7 +177,7 @@ def test_collinearity():
     # Check that lars_path is robust to collinearity in input
     X = jnp.array([[3.0, 3.0, 1.0], [2.0, 2.0, 0.0], [1.0, 1.0, 0]])
     y = jnp.array([1.0, 0.0, 0])
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     f = ignore_warnings
     _, _, coef_path_ = f(linear_model.lars_path)(X, y, alpha_min=0.01)
@@ -376,7 +376,7 @@ def test_lasso_lars_vs_lasso_cd_ill_conditioned():
     # Also test that lasso_path (using lars_path output style) gives
     # the same result as lars_path and previous lasso output style
     # under these conditions.
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     # Generate data
     n, m = 70, 100
@@ -505,7 +505,7 @@ def test_lars_cv_max_iter(recwarn):
     with jnp.errstate(divide="raise", invalid="raise"):
         X = diabetes.data
         y = diabetes.target
-        rng = np.random.RandomState(42)
+        rng = jax.random.RandomState(42)
         x = rng.randn(len(y))
         X = diabetes.data
         X = jnp.c_[X, x, x]  # add correlated features
@@ -528,7 +528,7 @@ def test_lasso_lars_ic():
     # - n_nonzero_bic < n_nonzero_aic
     lars_bic = linear_model.LassoLarsIC("bic")
     lars_aic = linear_model.LassoLarsIC("aic")
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = diabetes.data
     X = jnp.c_[X, rng.randn(X.shape[0], 5)]  # add 5 bad features
     X = StandardScaler().fit_transform(X)
@@ -764,7 +764,7 @@ def test_lasso_lars_copyX_behaviour(copy_X):
 
     """
     lasso_lars = LassoLarsIC(copy_X=copy_X, precompute=False)
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(0, 1, (100, 5))
     X_copy = X.copy()
     y = X[:, 2]
@@ -780,7 +780,7 @@ def test_lasso_lars_fit_copyX_behaviour(copy_X):
 
     """
     lasso_lars = LassoLarsIC(precompute=False)
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(0, 1, (100, 5))
     X_copy = X.copy()
     y = X[:, 2]
@@ -818,7 +818,7 @@ def test_X_none_gram_not_none():
 def test_copy_X_with_auto_gram():
     # Non-regression test for #17789, `copy_X=True` and Gram='auto' does not
     # overwrite X
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.rand(6, 6)
     y = rng.rand(6)
 
@@ -843,7 +843,7 @@ def test_copy_X_with_auto_gram():
 @filterwarnings_normalize
 def test_lars_dtype_match(LARS, has_coef_path, args, dtype):
     # The test ensures that the fit method preserves input dtype
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(20, 6).astype(dtype)
     y = rng.rand(20).astype(dtype)
 
@@ -867,13 +867,13 @@ def test_lars_dtype_match(LARS, has_coef_path, args, dtype):
     ),
 )
 @filterwarnings_normalize
-def test_lars_numeric_consistency(LARS, has_coef_path, args):
+def test_lars_numeric_consisten(LARS, has_coef_path, args):
     # The test ensures numerical consistency between trained coefficients
     # of float32 and float64.
     rtol = 1e-5
     atol = 1e-5
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_64 = rng.rand(10, 6)
     y_64 = rng.rand(10)
 
@@ -908,7 +908,7 @@ def test_lassolarsic_alpha_selection(criterion):
 def test_lassolarsic_noise_variance(fit_intercept):
     """Check the behaviour when `n_samples` < `n_features` and that one needs
     to provide the noise variance."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X, y = datasets.make_regression(
         n_samples=10, n_features=11 - fit_intercept, random_state=rng
     )

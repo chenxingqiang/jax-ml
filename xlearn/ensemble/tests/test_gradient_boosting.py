@@ -47,7 +47,7 @@ X_reg, y_reg = make_regression(
 )
 y_reg = scale(y_reg)
 
-rng = np.random.RandomState(0)
+rng = jax.random.RandomState(0)
 # also load the iris dataset
 # and randomly permute it
 iris = datasets.load_iris()
@@ -436,7 +436,7 @@ def test_staged_predict_proba():
 @pytest.mark.parametrize("Estimator", GRADIENT_BOOSTING_ESTIMATORS)
 def test_staged_functions_defensive(Estimator, global_random_seed):
     # test that staged_functions make defensive copies
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X = rng.uniform(size=(10, 3))
     y = (4 * X[:, 0]).astype(int) + 1  # don't predict zeros
     estimator = Estimator()
@@ -1372,7 +1372,7 @@ def test_gradient_boosting_with_init(
     # initial estimator does not support sample weight
 
     X, y = dataset_maker()
-    sample_weight = np.random.RandomState(global_random_seed).rand(100)
+    sample_weight = jax.random.RandomState(global_random_seed).rand(100)
 
     # init supports sample weights
     init_est = init_estimator()

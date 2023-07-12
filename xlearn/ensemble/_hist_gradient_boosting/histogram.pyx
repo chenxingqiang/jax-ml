@@ -17,7 +17,7 @@ from .common cimport G_H_DTYPE_C
 # - IN views are read-only, OUT views are write-only
 # - In a lot of functions here, we pass feature_idx and the whole 2d
 #   histograms arrays instead of just histograms[feature_idx]. This is because
-#   Cython generated C code will have strange Python interactions (likely
+#   cython generated C code will have strange Python interactions (likely
 #   related to the GIL release and the custom histogram dtype) when using 1d
 #   histogram arrays that come from 2d arrays.
 # - The for loops are un-wrapped, for example:

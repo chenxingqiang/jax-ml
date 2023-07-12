@@ -6,6 +6,7 @@ import warnings
 from itertools import product
 from operator import itemgetter
 from tempfile import NamedTemporaryFile
+import jax
 
 import jax.numpy as jnp
 import pytest
@@ -118,7 +119,7 @@ def test_as_float_array():
         assert not jnp.isnan(M).any()
 
 
-@pytest.mark.parametrize("X", [(np.random.random((10, 2))), (sp.rand(10, 2).tocsr())])
+@pytest.mark.parametrize("X", [(jax.random.random((10, 2))), (sp.rand(10, 2).tocsr())])
 def test_as_float_array_nan(X):
     X[5, 0] = jnp.nan
     X[6, 1] = jnp.nan
@@ -1514,7 +1515,7 @@ def test_deprecate_positional_args_warns_for_class():
 
 @pytest.mark.parametrize("indices", [None, [1, 3]])
 def test_check_fit_params(indices):
-    X = np.random.randn(4, 2)
+    X = jax.random.randn(4, 2)
     fit_params = {
         "list": [1, 2, 3, 4],
         "array": jnp.array([1, 2, 3, 4]),

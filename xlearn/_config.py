@@ -12,7 +12,7 @@ _global_config = {
     "pairwise_dist_chunk_size": int(
         os.environ.get("XLEARN_PAIRWISE_DIST_CHUNK_SIZE", 256)
     ),
-    "enable_cython_pairwise_dist": True,
+    "enable_thon_pairwise_dist": True,
     "array_api_dispatch": False,
     "transform_output": "default",
     "enable_metadata_routing": False,
@@ -53,7 +53,7 @@ def set_config(
     print_changed_only=None,
     display=None,
     pairwise_dist_chunk_size=None,
-    enable_cython_pairwise_dist=None,
+    enable_thon_pairwise_dist=None,
     array_api_dispatch=None,
     transform_output=None,
     enable_metadata_routing=None,
@@ -108,7 +108,7 @@ def set_config(
 
         .. versionadded:: 1.1
 
-    enable_cython_pairwise_dist : bool, default=None
+    enable_thon_pairwise_dist : bool, default=None
         Use the accelerated pairwise-distances reduction backend when
         possible. Global default: True.
 
@@ -178,8 +178,8 @@ def set_config(
         local_config["display"] = display
     if pairwise_dist_chunk_size is not None:
         local_config["pairwise_dist_chunk_size"] = pairwise_dist_chunk_size
-    if enable_cython_pairwise_dist is not None:
-        local_config["enable_cython_pairwise_dist"] = enable_cython_pairwise_dist
+    if enable_thon_pairwise_dist is not None:
+        local_config["enable_thon_pairwise_dist"] = enable_thon_pairwise_dist
     if array_api_dispatch is not None:
         from .utils._array_api import _check_array_api_dispatch
 
@@ -201,7 +201,7 @@ def config_context(
     print_changed_only=None,
     display=None,
     pairwise_dist_chunk_size=None,
-    enable_cython_pairwise_dist=None,
+    enable_thon_pairwise_dist=None,
     array_api_dispatch=None,
     transform_output=None,
     enable_metadata_routing=None,
@@ -255,7 +255,7 @@ def config_context(
 
         .. versionadded:: 1.1
 
-    enable_cython_pairwise_dist : bool, default=None
+    enable_thon_pairwise_dist : bool, default=None
         Use the accelerated pairwise-distances reduction backend when
         possible. Global default: True.
 
@@ -342,7 +342,7 @@ def config_context(
         print_changed_only=print_changed_only,
         display=display,
         pairwise_dist_chunk_size=pairwise_dist_chunk_size,
-        enable_cython_pairwise_dist=enable_cython_pairwise_dist,
+        enable_thon_pairwise_dist=enable_thon_pairwise_dist,
         array_api_dispatch=array_api_dispatch,
         transform_output=transform_output,
         enable_metadata_routing=enable_metadata_routing,

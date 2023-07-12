@@ -35,8 +35,8 @@ from xlearn.utils._testing import (
     assert_array_equal,
 )
 
-X = np.random.RandomState(0).normal(0, 1, (5, 2))
-Y = np.random.RandomState(0).normal(0, 1, (6, 2))
+X = jax.random.RandomState(0).normal(0, 1, (5, 2))
+Y = jax.random.RandomState(0).normal(0, 1, (6, 2))
 
 kernel_rbf_plus_white = RBF(length_scale=2.0) + WhiteKernel(noise_level=3.0)
 kernels = [

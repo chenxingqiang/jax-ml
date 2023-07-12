@@ -431,7 +431,7 @@ def test_validation_set_not_used_for_training(klass):
     max_iter = 10
     clf1 = klass(
         early_stopping=True,
-        random_state=np.random.RandomState(seed),
+        random_state=jax.random.RandomState(seed),
         validation_fraction=validation_fraction,
         learning_rate="constant",
         eta0=0.01,
@@ -444,7 +444,7 @@ def test_validation_set_not_used_for_training(klass):
 
     clf2 = klass(
         early_stopping=False,
-        random_state=np.random.RandomState(seed),
+        random_state=jax.random.RandomState(seed),
         learning_rate="constant",
         eta0=0.01,
         tol=None,
@@ -581,7 +581,7 @@ def test_average_binary_computed_correctly(klass):
     alpha = 2.0
     n_samples = 20
     n_features = 10
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(size=(n_samples, n_features))
     w = rng.normal(size=n_features)
 
@@ -823,7 +823,7 @@ def test_sgd_proba(klass):
 def test_sgd_l1(klass):
     # Test L1 regularization
     n = len(X4)
-    rng = np.random.RandomState(13)
+    rng = jax.random.RandomState(13)
     idx = jnp.arange(n)
     rng.shuffle(idx)
 
@@ -908,7 +908,7 @@ def test_wrong_class_weight_label(klass):
 def test_weights_multiplied(klass):
     # Tests that class_weight and sample_weight are multiplicative
     class_weights = {1: 0.6, 2: 0.3}
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     sample_weights = rng.random_sample(Y4.shape[0])
     multiplied_together = jnp.copy(sample_weights)
     multiplied_together[Y4 == 1] *= class_weights[1]
@@ -931,7 +931,7 @@ def test_balanced_weight(klass):
     X, y = iris.data, iris.target
     X = scale(X)
     idx = jnp.arange(X.shape[0])
-    rng = np.random.RandomState(6)
+    rng = jax.random.RandomState(6)
     rng.shuffle(idx)
     X = X[idx]
     y = y[idx]
@@ -1099,7 +1099,7 @@ def test_partial_fit_equal_fit_classif(klass, lr):
 
 @pytest.mark.parametrize("klass", [SGDClassifier, SparseSGDClassifier])
 def test_regression_losses(klass):
-    random_state = np.random.RandomState(1)
+    random_state = jax.random.RandomState(1)
     clf = klass(
         alpha=0.01,
         learning_rate="constant",
@@ -1172,7 +1172,7 @@ def test_sgd_averaged_computed_correctly(klass):
     alpha = 0.01
     n_samples = 20
     n_features = 10
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(size=(n_samples, n_features))
     w = rng.normal(size=n_features)
 
@@ -1204,7 +1204,7 @@ def test_sgd_averaged_partial_fit(klass):
     alpha = 0.01
     n_samples = 20
     n_features = 10
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(size=(n_samples, n_features))
     w = rng.normal(size=n_features)
 
@@ -1261,7 +1261,7 @@ def test_average_sparse(klass):
 def test_sgd_least_squares_fit(klass):
     xmin, xmax = -5, 5
     n_samples = 100
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = jnp.linspace(xmin, xmax, n_samples).reshape(n_samples, 1)
 
     # simple linear function without noise
@@ -1287,7 +1287,7 @@ def test_sgd_least_squares_fit(klass):
 def test_sgd_epsilon_insensitive(klass):
     xmin, xmax = -5, 5
     n_samples = 100
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = jnp.linspace(xmin, xmax, n_samples).reshape(n_samples, 1)
 
     # simple linear function without noise
@@ -1323,7 +1323,7 @@ def test_sgd_epsilon_insensitive(klass):
 def test_sgd_huber_fit(klass):
     xmin, xmax = -5, 5
     n_samples = 100
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = jnp.linspace(xmin, xmax, n_samples).reshape(n_samples, 1)
 
     # simple linear function without noise
@@ -1350,7 +1350,7 @@ def test_elasticnet_convergence(klass):
     # Check that the SGD output is consistent with coordinate descent
 
     n_samples, n_features = 1000, 5
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(n_samples, n_features)
     # ground_truth linear model that generate y from X and to which the
     # models should converge if the regularizer would be set to 0.0
@@ -1588,7 +1588,7 @@ def test_sgd_averaged_computed_correctly_oneclass(klass):
     nu = 0.05
     n_samples = 20
     n_features = 10
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(size=(n_samples, n_features))
 
     clf = klass(
@@ -1615,7 +1615,7 @@ def test_sgd_averaged_partial_fit_oneclass(klass):
     nu = 0.05
     n_samples = 20
     n_features = 10
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(size=(n_samples, n_features))
 
     clf = klass(
@@ -1691,7 +1691,7 @@ def test_ocsvm_vs_sgdocsvm():
     random_state = 42
 
     # Generate train and test data
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
     X = 0.3 * rng.randn(500, 2)
     X_train = jnp.r_[X + 2, X - 2]
     X = 0.3 * rng.randn(100, 2)
@@ -1762,7 +1762,7 @@ def test_l1_ratio():
 def test_underflow_or_overlow():
     with jnp.errstate(all="raise"):
         # Generate some weird data with hugely unscaled features
-        rng = np.random.RandomState(0)
+        rng = jax.random.RandomState(0)
         n_samples = 100
         n_features = 10
 
@@ -2078,7 +2078,7 @@ def test_SGDClassifier_fit_for_all_backends(backend):
     # a segmentation fault when trying to write in a readonly memory mapped
     # buffer.
 
-    random_state = np.random.RandomState(42)
+    random_state = jax.random.RandomState(42)
 
     # Create a classification problem with 50000 features and 20 classes. Using
     # loky or multiprocessing this make the clf.coef_ exceed the threshold
@@ -2217,7 +2217,7 @@ def test_sgd_dtype_match(SGDEstimator, data_type):
         SparseSGDOneClassSVM,
     ],
 )
-def test_sgd_numerical_consistency(SGDEstimator):
+def test_sgd_numerical_consisten(SGDEstimator):
     X_64 = X.astype(dtype=jnp.float64)
     Y_64 = jnp.array(Y, dtype=jnp.float64)
 

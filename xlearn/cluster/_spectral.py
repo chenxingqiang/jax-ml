@@ -253,7 +253,7 @@ def spectral_clustering(
         .. note::
             When using `eigen_solver == 'amg'`,
             it is necessary to also fix the global numpy seed with
-            `np.random.seed(int)` to get deterministic results. See
+            `jax.random.seed(int)` to get deterministic results. See
             https://github.com/pyamg/pyamg/issues/139 for further
             information.
 
@@ -414,7 +414,7 @@ class SpectralClustering(ClusterMixin, BaseEstimator):
         .. note::
             When using `eigen_solver == 'amg'`,
             it is necessary to also fix the global numpy seed with
-            `np.random.seed(int)` to get deterministic results. See
+            `jax.random.seed(int)` to get deterministic results. See
             https://github.com/pyamg/pyamg/issues/139 for further
             information.
 

@@ -51,7 +51,7 @@ class _BasePCA(
         """Compute data precision matrix with the generative model.
 
         Equals the inverse of the covariance but computed with
-        the matrix inversion lemma for efficiency.
+        the matrix inversion lemma for efficien.
 
         Returns
         -------

@@ -1,4 +1,5 @@
 import jax.numpy as jnp
+import jax
 import pytest
 
 from xlearn.utils._testing import assert_allclose
@@ -8,7 +9,7 @@ from xlearn.utils.arrayfuncs import min_pos
 def test_min_pos():
     # Check that min_pos returns a positive value and that it's consistent
     # between float and double
-    X = np.random.RandomState(0).randn(100)
+    X = jax.random.RandomState(0).randn(100)
 
     min_double = min_pos(X)
     min_float = min_pos(X.astype(jnp.float32))

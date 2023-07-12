@@ -211,7 +211,7 @@ def sag_solver(
     >>> import jax.numpy as jnp
     >>> from xlearn import linear_model
     >>> n_samples, n_features = 10, 5
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> X = rng.randn(n_samples, n_features)
     >>> y = rng.randn(n_samples)
     >>> clf = linear_model.Ridge(solver='sag')

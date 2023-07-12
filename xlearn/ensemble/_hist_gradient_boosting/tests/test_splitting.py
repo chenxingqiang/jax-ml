@@ -21,7 +21,7 @@ n_threads = _openmp_effective_n_threads()
 
 @pytest.mark.parametrize("n_bins", [3, 32, 256])
 def test_histogram_split(n_bins):
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     feature_idx = 0
     l2_regularization = 0
     min_hessian_to_split = 1e-3
@@ -107,7 +107,7 @@ def test_gradient_and_hessian_sanity(constant_hessian):
     #   constant across all features, and those sums must be equal to the
     #   node's gradient. Same for hessians.
 
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     n_bins = 10
     n_features = 20
@@ -245,7 +245,7 @@ def test_gradient_and_hessian_sanity(constant_hessian):
 def test_split_indices():
     # Check that split_indices returns the correct splits and that
     # splitter.partition is consistent with what is returned.
-    rng = np.random.RandomState(421)
+    rng = jax.random.RandomState(421)
 
     n_bins = 5
     n_samples = 10
@@ -334,7 +334,7 @@ def test_min_gain_to_split():
     # with min_gain_to_split = 0 and make sure that the node is not split (best
     # possible gain = -1). Note: before the strict inequality comparison, this
     # test would fail because the node would be split with a gain of 0.
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     l2_regularization = 0
     min_hessian_to_split = 0
     min_samples_leaf = 1
@@ -891,7 +891,7 @@ def test_split_interaction_constraints():
     # The loop is to ensure that we split at least once on each allowed feature (0, 3).
     # This is tracked by split_features and checked at the end.
     for i in range(10):
-        rng = np.random.RandomState(919 + i)
+        rng = jax.random.RandomState(919 + i)
         X_binned = jnp.asfortranarray(
             rng.randint(0, n_bins - 1, size=(n_samples, n_features)),
             dtype=X_BINNED_DTYPE,

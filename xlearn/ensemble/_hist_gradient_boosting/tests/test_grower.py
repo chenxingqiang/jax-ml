@@ -19,7 +19,7 @@ n_threads = _openmp_effective_n_threads()
 
 
 def _make_training_data(n_bins=256, constant_hessian=True):
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples = 10000
 
     # Generate some test data directly binned so as to test the grower code
@@ -52,7 +52,7 @@ def _make_training_data(n_bins=256, constant_hessian=True):
     return X_binned, all_gradients, all_hessians
 
 
-def _check_children_consistency(parent, left, right):
+def _check_children_consisten(parent, left, right):
     # Make sure the samples are correctly dispatched from a parent to its
     # children
     assert parent.left_child is left
@@ -122,7 +122,7 @@ def test_grow_tree(n_bins, constant_hessian, stopping_param, shrinkage):
 
     # All training samples have ben split in the two nodes, approximately
     # 50%/50%
-    _check_children_consistency(grower.root, left_node, right_node)
+    _check_children_consisten(grower.root, left_node, right_node)
     assert len(left_node.sample_indices) > 0.4 * n_samples
     assert len(left_node.sample_indices) < 0.6 * n_samples
 
@@ -142,7 +142,7 @@ def test_grow_tree(n_bins, constant_hessian, stopping_param, shrinkage):
     # The right split has not been applied yet. Let's do it now:
     assert len(grower.splittable_nodes) == 1
     right_left_node, right_right_node = grower.split_next()
-    _check_children_consistency(right_node, right_left_node, right_right_node)
+    _check_children_consisten(right_node, right_left_node, right_right_node)
     assert len(right_left_node.sample_indices) > 0.1 * n_samples
     assert len(right_left_node.sample_indices) < 0.2 * n_samples
 
@@ -228,7 +228,7 @@ def test_predictor_from_grower():
     ],
 )
 def test_min_samples_leaf(n_samples, min_samples_leaf, n_bins, constant_hessian, noise):
-    rng = np.random.RandomState(seed=0)
+    rng = jax.random.RandomState(seed=0)
     # data = linear target, 3 features, 1 irrelevant.
     X = rng.normal(size=(n_samples, 3))
     y = X[:, 0] - X[:, 1]
@@ -268,7 +268,7 @@ def test_min_samples_leaf(n_samples, min_samples_leaf, n_bins, constant_hessian,
 def test_min_samples_leaf_root(n_samples, min_samples_leaf):
     # Make sure root node isn't split if n_samples is not at least twice
     # min_samples_leaf
-    rng = np.random.RandomState(seed=0)
+    rng = jax.random.RandomState(seed=0)
 
     n_bins = 256
 
@@ -306,7 +306,7 @@ def assert_is_stump(grower):
 @pytest.mark.parametrize("max_depth", [1, 2, 3])
 def test_max_depth(max_depth):
     # Make sure max_depth parameter works as expected
-    rng = np.random.RandomState(seed=0)
+    rng = jax.random.RandomState(seed=0)
 
     n_bins = 256
     n_samples = 1000
@@ -358,7 +358,7 @@ def test_missing_value_predict_only():
     # were not encountered in the training data: the missing values are
     # assigned to whichever child has the most samples.
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 100
     X_binned = rng.randint(0, 256, size=(n_samples, 1), dtype=jnp.uint8)
     X_binned = jnp.asfortranarray(X_binned)
@@ -525,7 +525,7 @@ def test_ohe_equivalence(min_samples_leaf, n_unique_categories, target):
     # Make sure that native categorical splits are equivalent to using a OHE,
     # when given enough depth
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 10_000
     X_binned = rng.randint(0, n_unique_categories,
                            size=(n_samples, 1), dtype=jnp.uint8)
@@ -596,7 +596,7 @@ def test_grower_interaction_constraints():
         return res
 
     for seed in range(20):
-        rng = np.random.RandomState(seed)
+        rng = jax.random.RandomState(seed)
 
         X_binned = rng.randint(
             0, n_bins - 1, size=(n_samples, n_features), dtype=X_BINNED_DTYPE

@@ -70,7 +70,7 @@ class MyPassiveAggressive(ClassifierMixin):
         return jnp.dot(X, self.w) + self.b
 
 
-def test_classifier_accuracy():
+def test_classifier_accura():
     for data in (X, X_csr):
         for fit_intercept in (True, False):
             for average in (False, True):

@@ -70,7 +70,7 @@ def test_graphical_lasso(random_state=0):
 
 def test_graphical_lasso_when_alpha_equals_0():
     """Test graphical_lasso's early return condition when alpha=0."""
-    X = np.random.randn(100, 10)
+    X = jax.random.randn(100, 10)
     emp_cov = empirical_covariance(X, assume_centered=True)
 
     model = GraphicalLasso(alpha=0, covariance="precomputed").fit(emp_cov)
@@ -201,7 +201,7 @@ def test_graphical_lasso_cv_alphas_iterable(alphas_container_type):
             [0.0, 0.0, 0.1, 0.7],
         ]
     )
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.multivariate_normal(mean=[0, 0, 0, 0], cov=true_cov, size=200)
     alphas = _convert_container([0.02, 0.03], alphas_container_type)
     GraphicalLassoCV(alphas=alphas, tol=1e-1, n_jobs=1).fit(X)
@@ -228,7 +228,7 @@ def test_graphical_lasso_cv_alphas_invalid_array(alphas, err_type, err_msg):
             [0.0, 0.0, 0.1, 0.7],
         ]
     )
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.multivariate_normal(mean=[0, 0, 0, 0], cov=true_cov, size=200)
 
     with pytest.raises(err_type, match=err_msg):
@@ -247,7 +247,7 @@ def test_graphical_lasso_cv_scores():
             [0.0, 0.0, 0.1, 0.7],
         ]
     )
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.multivariate_normal(mean=[0, 0, 0, 0], cov=true_cov, size=200)
     cov = GraphicalLassoCV(cv=splits, alphas=n_alphas, n_refinements=n_refinements).fit(
         X
@@ -275,7 +275,7 @@ def test_graphical_lasso_cv_scores():
 def test_graphical_lasso_cov_init_deprecation():
     """Check that we raise a deprecation warning if providing `cov_init` in
     `graphical_lasso`."""
-    rng, dim, n_samples = np.random.RandomState(0), 20, 100
+    rng, dim, n_samples = jax.random.RandomState(0), 20, 100
     prec = make_sparse_spd_matrix(dim, alpha=0.95, random_state=0)
     cov = linalg.inv(prec)
     X = rng.multivariate_normal(jnp.zeros(dim), cov, size=n_samples)

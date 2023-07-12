@@ -31,7 +31,7 @@ from xlearn.utils._testing import _convert_container
 def test_permutation_importance_correlated_feature_regression(n_jobs, max_samples):
     # Make sure that feature highly correlated to the target have a higher
     # importance
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_repeats = 5
 
     X, y = load_diabetes(return_X_y=True)
@@ -69,7 +69,7 @@ def test_permutation_importance_correlated_feature_regression_pandas(
 
     # Make sure that feature highly correlated to the target have a higher
     # importance
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_repeats = 5
 
     dataset = load_iris()
@@ -107,7 +107,7 @@ def test_robustness_to_high_cardinality_noisy_feature(n_jobs, max_samples, seed=
     # Permutation variable importance should not be affected by the high
     # cardinality bias of traditional feature importances, especially when
     # computed on a held-out test set:
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
     n_repeats = 5
     n_samples = 1000
     n_classes = 5
@@ -184,7 +184,7 @@ def test_robustness_to_high_cardinality_noisy_feature(n_jobs, max_samples, seed=
 
 
 def test_permutation_importance_mixed_types():
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_repeats = 4
 
     # Last column is correlated with y
@@ -203,7 +203,7 @@ def test_permutation_importance_mixed_types():
     assert jnp.all(result.importances_mean[-1] > result.importances_mean[:-1])
 
     # use another random state
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     result2 = permutation_importance(
         clf, X, y, n_repeats=n_repeats, random_state=rng)
     assert result2.importances.shape == (X.shape[1], n_repeats)
@@ -217,7 +217,7 @@ def test_permutation_importance_mixed_types():
 
 def test_permutation_importance_mixed_types_pandas():
     pd = pytest.importorskip("pandas")
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_repeats = 5
 
     # Last column is correlated with y
@@ -398,7 +398,7 @@ def test_permutation_importance_sample_weight():
     # variable is a linear combination of the two features, such that
     # in half of the samples the impact of feature 1 is twice the impact of
     # feature 2, and vice versa on the other half of the samples.
-    rng = np.random.RandomState(1)
+    rng = jax.random.RandomState(1)
     n_samples = 1000
     n_features = 2
     n_half_samples = n_samples // 2

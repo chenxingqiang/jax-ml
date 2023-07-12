@@ -132,5 +132,5 @@ def test_common_check_as_frame(name, dataset_func):
 @pytest.mark.parametrize(
     "name, dataset_func", _generate_func_supporting_param("as_frame")
 )
-def test_common_check_pandas_dependency(name, dataset_func):
+def test_common_check_pandas_dependen(name, dataset_func):
     check_pandas_dependency_message(dataset_func)

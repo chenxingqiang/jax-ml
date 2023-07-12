@@ -27,8 +27,6 @@ codecov:
 
 ignore:
 - "xlearn/externals"
-- "xlearn/_build_utils"
-- "xlearn/__check_build"
 - "xlearn/_min_dependencies.py"
 - "**/setup.py"
 - "**/conftest.py"

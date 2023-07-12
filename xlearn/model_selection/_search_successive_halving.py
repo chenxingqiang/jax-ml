@@ -403,7 +403,7 @@ class HalvingGridSearchCV(BaseSuccessiveHalving):
     .. note::
 
       This estimator is still **experimental** for now: the predictions
-      and the API might change without any deprecation cycle. To use it,
+      and the API might change without any deprecation cle. To use it,
       you need to explicitly import ``enable_halving_search_cv``::
 
         >>> # explicitly require this experimental feature
@@ -739,7 +739,7 @@ class HalvingRandomSearchCV(BaseSuccessiveHalving):
     .. note::
 
       This estimator is still **experimental** for now: the predictions
-      and the API might change without any deprecation cycle. To use it,
+      and the API might change without any deprecation cle. To use it,
       you need to explicitly import ``enable_halving_search_cv``::
 
         >>> # explicitly require this experimental feature
@@ -1012,7 +1012,7 @@ class HalvingRandomSearchCV(BaseSuccessiveHalving):
     ...
     >>> X, y = load_iris(return_X_y=True)
     >>> clf = RandomForestClassifier(random_state=0)
-    >>> np.random.seed(0)
+    >>> jax.random.seed(0)
     ...
     >>> param_distributions = {"max_depth": [3, None],
     ...                        "min_samples_split": randint(2, 11)}

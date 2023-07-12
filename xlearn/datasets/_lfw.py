@@ -227,7 +227,7 @@ def _fetch_lfw_people(
     # k-means that make an IID assumption
 
     indices = jnp.arange(n_faces)
-    np.random.RandomState(42).shuffle(indices)
+    jax.random.RandomState(42).shuffle(indices)
     faces, target = faces[indices], target[indices]
     return faces, target, target_names
 

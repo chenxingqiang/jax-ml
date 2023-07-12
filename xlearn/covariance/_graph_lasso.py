@@ -489,8 +489,8 @@ class GraphicalLasso(BaseGraphicalLasso):
     ...                      [0.0, 0.4, 0.0, 0.0],
     ...                      [0.2, 0.0, 0.3, 0.1],
     ...                      [0.0, 0.0, 0.1, 0.7]])
-    >>> np.random.seed(0)
-    >>> X = np.random.multivariate_normal(mean=[0, 0, 0, 0],
+    >>> jax.random.seed(0)
+    >>> X = jax.random.multivariate_normal(mean=[0, 0, 0, 0],
     ...                                   cov=true_cov,
     ...                                   size=200)
     >>> cov = GraphicalLasso().fit(X)
@@ -877,8 +877,8 @@ class GraphicalLassoCV(BaseGraphicalLasso):
     ...                      [0.0, 0.4, 0.0, 0.0],
     ...                      [0.2, 0.0, 0.3, 0.1],
     ...                      [0.0, 0.0, 0.1, 0.7]])
-    >>> np.random.seed(0)
-    >>> X = np.random.multivariate_normal(mean=[0, 0, 0, 0],
+    >>> jax.random.seed(0)
+    >>> X = jax.random.multivariate_normal(mean=[0, 0, 0, 0],
     ...                                   cov=true_cov,
     ...                                   size=200)
     >>> cov = GraphicalLassoCV().fit(X)

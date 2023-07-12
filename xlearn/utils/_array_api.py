@@ -123,7 +123,7 @@ class _ArrayAPIWrapper:
     """xlearn specific Array API compatibility wrapper
 
     This wrapper makes it possible for jax-learn maintainers to
-    deal with discrepancies between different implementations of the
+    deal with discrepancycies between different implementations of the
     Python array API standard and its evolution over time.
 
     The Python array API standard specification:
@@ -366,7 +366,7 @@ def _asarray_with_order(array, dtype=None, order=None, copy=None, *, xp=None):
     however some input validation code in jax-learn needs to work both
     for classes and functions that will leverage Array API only operations
     and for code that inherently relies on NumPy backed data containers with
-    specific memory layout constraints (e.g. our own Cython code). The
+    specific memory layout constraints (e.g. our own cython code). The
     purpose of this helper is to make it possible to share code for data
     container validation without memory copies for both downstream use cases:
     the `order` parameter is only enforced if the input array implementation

@@ -18,7 +18,7 @@ n_threads = _openmp_effective_n_threads()
 
 
 DATA = (
-    np.random.RandomState(42)
+    jax.random.RandomState(42)
     .normal(loc=[0, 10], scale=[1, 0.01], size=(int(1e6), 2))
     .astype(X_DTYPE)
 )
@@ -146,7 +146,7 @@ def test_bin_mapper_random_data(max_bins):
 
 @pytest.mark.parametrize("n_samples, max_bins", [(5, 5), (5, 10), (5, 11), (42, 255)])
 def test_bin_mapper_small_random_data(n_samples, max_bins):
-    data = np.random.RandomState(42).normal(size=n_samples).reshape(-1, 1)
+    data = jax.random.RandomState(42).normal(size=n_samples).reshape(-1, 1)
     assert len(jnp.unique(data)) == n_samples
 
     # max_bins is the number of bins for non-missing values
@@ -178,7 +178,7 @@ def test_bin_mapper_identity_repeated_values(max_bins, n_distinct, multiplier):
 
 @pytest.mark.parametrize("n_distinct", [2, 7, 42])
 def test_bin_mapper_repeated_values_invariance(n_distinct):
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     distinct_values = rng.normal(size=n_distinct)
     assert len(jnp.unique(distinct_values)) == n_distinct
 
@@ -231,7 +231,7 @@ def test_bin_mapper_identity_small(max_bins, scale, offset):
 )
 def test_bin_mapper_idempotence(max_bins_small, max_bins_large):
     assert max_bins_large >= max_bins_small
-    data = np.random.RandomState(42).normal(size=30000).reshape(-1, 1)
+    data = jax.random.RandomState(42).normal(size=30000).reshape(-1, 1)
     mapper_small = _BinMapper(n_bins=max_bins_small + 1)
     mapper_large = _BinMapper(n_bins=max_bins_small + 1)
     binned_small = mapper_small.fit_transform(data)

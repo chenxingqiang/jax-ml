@@ -27,7 +27,7 @@ def test_kernel_pca():
      - that fit_transform is equivalent to fit+transform
      - that the shapes of transforms and inverse transforms are correct
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_fit = rng.random_sample((5, 4))
     X_pred = rng.random_sample((2, 4))
 
@@ -77,7 +77,7 @@ def test_kernel_pca_invalid_parameters():
     )
     err_ms = "Cannot fit_inverse_transform with a precomputed kernel"
     with pytest.raises(ValueError, match=err_ms):
-        estimator.fit(np.random.randn(10, 10))
+        estimator.fit(jax.random.randn(10, 10))
 
 
 def test_kernel_pca_consistent_transform():
@@ -88,7 +88,7 @@ def test_kernel_pca_consistent_transform():
     internal copy.
     """
     # X_fit_ needs to retain the old, unmodified copy of X
-    state = np.random.RandomState(0)
+    state = jax.random.RandomState(0)
     X = state.rand(10, 10)
     kpca = KernelPCA(random_state=state).fit(X)
     transformed1 = kpca.transform(X)
@@ -104,7 +104,7 @@ def test_kernel_pca_deterministic_output():
 
     Tests that the same inputs and random state produce the same output.
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(10, 10)
     eigen_solver = ("arpack", "dense")
 
@@ -124,7 +124,7 @@ def test_kernel_pca_sparse():
     Same test as ``test_kernel_pca except inverse_transform`` since it's not
     implemented for sparse matrices.
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_fit = sp.csr_matrix(rng.random_sample((5, 4)))
     X_pred = sp.csr_matrix(rng.random_sample((2, 4)))
 
@@ -162,7 +162,7 @@ def test_kernel_pca_linear_kernel(solver, n_features):
 
     KernelPCA with linear kernel should produce the same output as PCA.
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_fit = rng.random_sample((5, n_features))
     X_pred = rng.random_sample((2, n_features))
 
@@ -188,7 +188,7 @@ def test_kernel_pca_n_components():
     For all solvers this tests that the output has the correct shape depending
     on the selected number of components.
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_fit = rng.random_sample((5, 4))
     X_pred = rng.random_sample((2, 4))
 
@@ -250,7 +250,7 @@ def test_leave_zero_eig():
 
 def test_kernel_pca_precomputed():
     """Test that kPCA works with a precomputed kernel, for all solvers"""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_fit = rng.random_sample((5, 4))
     X_pred = rng.random_sample((2, 4))
 
@@ -499,7 +499,7 @@ def test_kernel_pca_inverse_transform_reconstruction():
 
 
 def test_kernel_pca_raise_not_fitted_error():
-    X = np.random.randn(15).reshape(5, 3)
+    X = jax.random.randn(15).reshape(5, 3)
     kpca = KernelPCA()
     kpca.fit(X)
     with pytest.raises(NotFittedError):
@@ -538,7 +538,7 @@ def test_kernel_pca_inverse_correct_gamma():
 
     Non-regression test for #26280
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
 
     kwargs = {

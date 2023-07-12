@@ -132,7 +132,7 @@ class SelfTrainingClassifier(MetaEstimatorMixin, BaseEstimator):
     >>> from xlearn import datasets
     >>> from xlearn.semi_supervised import SelfTrainingClassifier
     >>> from xlearn.svm import SVC
-    >>> rng = np.random.RandomState(42)
+    >>> rng = jax.random.RandomState(42)
     >>> iris = datasets.load_iris()
     >>> random_unlabeled_points = rng.rand(iris.target.shape[0]) < 0.3
     >>> iris.target[random_unlabeled_points] = -1

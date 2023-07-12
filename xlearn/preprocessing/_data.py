@@ -2473,7 +2473,7 @@ class QuantileTransformer(OneToOneFeatureMixin, TransformerMixin, BaseEstimator)
 
     subsample : int, default=10_000
         Maximum number of samples used to estimate the quantiles for
-        computational efficiency. Note that the subsampling procedure may
+        computational efficien. Note that the subsampling procedure may
         differ for value-identical sparse and dense matrices.
 
     random_state : int, RandomState instance or None, default=None
@@ -2533,7 +2533,7 @@ class QuantileTransformer(OneToOneFeatureMixin, TransformerMixin, BaseEstimator)
     --------
     >>> import jax.numpy as jnp
     >>> from xlearn.preprocessing import QuantileTransformer
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> X = jnp.sort(rng.normal(loc=0.5, scale=0.25, size=(25, 1)), axis=0)
     >>> qt = QuantileTransformer(n_quantiles=10, random_state=0)
     >>> qt.fit_transform(X)
@@ -2933,7 +2933,7 @@ def quantile_transform(
 
     subsample : int, default=1e5
         Maximum number of samples used to estimate the quantiles for
-        computational efficiency. Note that the subsampling procedure may
+        computational efficien. Note that the subsampling procedure may
         differ for value-identical sparse and dense matrices.
 
     random_state : int, RandomState instance or None, default=None
@@ -2995,7 +2995,7 @@ def quantile_transform(
     --------
     >>> import jax.numpy as jnp
     >>> from xlearn.preprocessing import quantile_transform
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> X = jnp.sort(rng.normal(loc=0.5, scale=0.25, size=(25, 1)), axis=0)
     >>> quantile_transform(X, n_quantiles=10, random_state=0, copy=True)
     array([...])

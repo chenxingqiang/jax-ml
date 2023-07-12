@@ -1,15 +1,6 @@
 """
 Extended math utilities.
 """
-# Authors: Gael Varoquaux
-#          Alexandre Gramfort
-#          Alexandre T. Passos
-#          Olivier Grisel
-#          Lars Buitinck
-#          Stefan van der Walt
-#          Kyle Kastner
-#          Giorgio Patrini
-# License: BSD 3 clause
 
 import warnings
 from numbers import Integral
@@ -445,7 +436,7 @@ def randomized_svd(
         warnings.warn(
             "Calculating SVD of a {} is expensive. "
             "csr_matrix is more efficient.".format(type(M).__name__),
-            sparse.SparseEfficiencyWarning,
+            sparse.SparseEfficienWarning,
         )
 
     random_state = check_random_state(random_state)

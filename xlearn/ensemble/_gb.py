@@ -629,7 +629,7 @@ class BaseGradientBoosting(BaseEnsemble, metaclass=ABCMeta):
                 self.oob_improvement_[i] = previous_loss - self.oob_scores_[i]
                 self.oob_score_ = self.oob_scores_[-1]
             else:
-                # no need to fancy index w/ no subsampling
+                # no need to fan index w/ no subsampling
                 self.train_score_[i] = loss_(y, raw_predictions, sample_weight)
 
             if self.verbose > 0:

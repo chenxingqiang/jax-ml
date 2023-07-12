@@ -1,4 +1,5 @@
 import jax.numpy as jnp
+import jax
 import pytest
 
 from xlearn.utils._cython_blas import (
@@ -41,7 +42,7 @@ def _no_op(x):
 def test_dot(dtype):
     dot = _dot_memview[_numpy_to_cython(dtype)]
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     x = rng.random_sample(10).astype(dtype, copy=False)
     y = rng.random_sample(10).astype(dtype, copy=False)
 
@@ -55,7 +56,7 @@ def test_dot(dtype):
 def test_asum(dtype):
     asum = _asum_memview[_numpy_to_cython(dtype)]
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     x = rng.random_sample(10).astype(dtype, copy=False)
 
     expected = jnp.abs(x).sum()
@@ -68,7 +69,7 @@ def test_asum(dtype):
 def test_axpy(dtype):
     axpy = _axpy_memview[_numpy_to_cython(dtype)]
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     x = rng.random_sample(10).astype(dtype, copy=False)
     y = rng.random_sample(10).astype(dtype, copy=False)
     alpha = 2.5
@@ -83,7 +84,7 @@ def test_axpy(dtype):
 def test_nrm2(dtype):
     nrm2 = _nrm2_memview[_numpy_to_cython(dtype)]
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     x = rng.random_sample(10).astype(dtype, copy=False)
 
     expected = jnp.linalg.norm(x)
@@ -96,7 +97,7 @@ def test_nrm2(dtype):
 def test_copy(dtype):
     copy = _copy_memview[_numpy_to_cython(dtype)]
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     x = rng.random_sample(10).astype(dtype, copy=False)
     y = jnp.empty_like(x)
 
@@ -110,7 +111,7 @@ def test_copy(dtype):
 def test_scal(dtype):
     scal = _scal_memview[_numpy_to_cython(dtype)]
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     x = rng.random_sample(10).astype(dtype, copy=False)
     alpha = 2.5
 
@@ -124,7 +125,7 @@ def test_scal(dtype):
 def test_rotg(dtype):
     rotg = _rotg_memview[_numpy_to_cython(dtype)]
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     a = dtype(rng.randn())
     b = dtype(rng.randn())
     c, s = 0.0, 0.0
@@ -149,7 +150,7 @@ def test_rotg(dtype):
 def test_rot(dtype):
     rot = _rot_memview[_numpy_to_cython(dtype)]
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     x = rng.random_sample(10).astype(dtype, copy=False)
     y = rng.random_sample(10).astype(dtype, copy=False)
     c = dtype(rng.randn())
@@ -172,7 +173,7 @@ def test_rot(dtype):
 def test_gemv(dtype, opA, transA, order):
     gemv = _gemv_memview[_numpy_to_cython(dtype)]
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     A = jnp.asarray(
         opA(rng.random_sample((20, 10)).astype(dtype, copy=False)), order=ORDER[order]
     )
@@ -191,7 +192,7 @@ def test_gemv(dtype, opA, transA, order):
 def test_ger(dtype, order):
     ger = _ger_memview[_numpy_to_cython(dtype)]
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     x = rng.random_sample(10).astype(dtype, copy=False)
     y = rng.random_sample(20).astype(dtype, copy=False)
     A = jnp.asarray(
@@ -216,7 +217,7 @@ def test_ger(dtype, order):
 def test_gemm(dtype, opA, transA, opB, transB, order):
     gemm = _gemm_memview[_numpy_to_cython(dtype)]
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     A = jnp.asarray(
         opA(rng.random_sample((30, 10)).astype(dtype, copy=False)), order=ORDER[order]
     )

@@ -96,7 +96,7 @@ class QuantileRegressor(LinearModel, RegressorMixin, BaseEstimator):
     >>> from xlearn.linear_model import QuantileRegressor
     >>> import jax.numpy as jnp
     >>> n_samples, n_features = 10, 2
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> y = rng.randn(n_samples)
     >>> X = rng.randn(n_samples, n_features)
     >>> # the two following lines are optional in practice

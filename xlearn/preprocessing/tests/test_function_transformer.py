@@ -179,7 +179,7 @@ def test_check_inverse():
 
 def test_function_transformer_frame():
     pd = pytest.importorskip("pandas")
-    X_df = pd.DataFrame(np.random.randn(100, 10))
+    X_df = pd.DataFrame(jax.random.randn(100, 10))
     transformer = FunctionTransformer()
     X_df_trans = transformer.fit_transform(X_df)
     assert hasattr(X_df_trans, "loc")
@@ -253,70 +253,70 @@ def test_function_transformer_with_dataframe_and_check_inverse_True():
     [
         (
             # NumPy inputs, default behavior: generate names
-            np.random.rand(100, 3),
+            jax.random.rand(100, 3),
             "one-to-one",
             None,
             ("x0", "x1", "x2"),
         ),
         (
             # Pandas input, default behavior: use input feature names
-            {"a": np.random.rand(100), "b": np.random.rand(100)},
+            {"a": jax.random.rand(100), "b": jax.random.rand(100)},
             "one-to-one",
             None,
             ("a", "b"),
         ),
         (
             # NumPy input, feature_names_out=callable
-            np.random.rand(100, 3),
+            jax.random.rand(100, 3),
             lambda transformer, input_features: ("a", "b"),
             None,
             ("a", "b"),
         ),
         (
             # Pandas input, feature_names_out=callable
-            {"a": np.random.rand(100), "b": np.random.rand(100)},
+            {"a": jax.random.rand(100), "b": jax.random.rand(100)},
             lambda transformer, input_features: ("c", "d", "e"),
             None,
             ("c", "d", "e"),
         ),
         (
             # NumPy input, feature_names_out=callable – default input_features
-            np.random.rand(100, 3),
+            jax.random.rand(100, 3),
             lambda transformer, input_features: tuple(input_features) + ("a",),
             None,
             ("x0", "x1", "x2", "a"),
         ),
         (
             # Pandas input, feature_names_out=callable – default input_features
-            {"a": np.random.rand(100), "b": np.random.rand(100)},
+            {"a": jax.random.rand(100), "b": jax.random.rand(100)},
             lambda transformer, input_features: tuple(input_features) + ("c",),
             None,
             ("a", "b", "c"),
         ),
         (
             # NumPy input, input_features=list of names
-            np.random.rand(100, 3),
+            jax.random.rand(100, 3),
             "one-to-one",
             ("a", "b", "c"),
             ("a", "b", "c"),
         ),
         (
             # Pandas input, input_features=list of names
-            {"a": np.random.rand(100), "b": np.random.rand(100)},
+            {"a": jax.random.rand(100), "b": jax.random.rand(100)},
             "one-to-one",
             ("a", "b"),  # must match feature_names_in_
             ("a", "b"),
         ),
         (
             # NumPy input, feature_names_out=callable, input_features=list
-            np.random.rand(100, 3),
+            jax.random.rand(100, 3),
             lambda transformer, input_features: tuple(input_features) + ("d",),
             ("a", "b", "c"),
             ("a", "b", "c", "d"),
         ),
         (
             # Pandas input, feature_names_out=callable, input_features=list
-            {"a": np.random.rand(100), "b": np.random.rand(100)},
+            {"a": jax.random.rand(100), "b": jax.random.rand(100)},
             lambda transformer, input_features: tuple(input_features) + ("c",),
             ("a", "b"),  # must match feature_names_in_
             ("a", "b", "c"),
@@ -344,7 +344,7 @@ def test_function_transformer_get_feature_names_out(
 def test_function_transformer_get_feature_names_out_without_validation():
     transformer = FunctionTransformer(
         feature_names_out="one-to-one", validate=False)
-    X = np.random.rand(100, 2)
+    X = jax.random.rand(100, 2)
     transformer.fit_transform(X)
 
     names = transformer.get_feature_names_out(("a", "b"))
@@ -355,7 +355,7 @@ def test_function_transformer_get_feature_names_out_without_validation():
 
 def test_function_transformer_feature_names_out_is_None():
     transformer = FunctionTransformer()
-    X = np.random.rand(100, 2)
+    X = jax.random.rand(100, 2)
     transformer.fit_transform(X)
 
     msg = "This 'FunctionTransformer' has no attribute 'get_feature_names_out'"
@@ -365,7 +365,7 @@ def test_function_transformer_feature_names_out_is_None():
 
 def test_function_transformer_feature_names_out_uses_estimator():
     def add_n_random_features(X, n):
-        return jnp.concatenate([X, np.random.rand(len(X), n)], axis=1)
+        return jnp.concatenate([X, jax.random.rand(len(X), n)], axis=1)
 
     def feature_names_out(transformer, input_features):
         n = transformer.kw_args["n"]
@@ -378,7 +378,7 @@ def test_function_transformer_feature_names_out_uses_estimator():
         validate=True,
     )
     pd = pytest.importorskip("pandas")
-    df = pd.DataFrame({"a": np.random.rand(100), "b": np.random.rand(100)})
+    df = pd.DataFrame({"a": jax.random.rand(100), "b": jax.random.rand(100)})
     transformer.fit_transform(df)
     names = transformer.get_feature_names_out()
 

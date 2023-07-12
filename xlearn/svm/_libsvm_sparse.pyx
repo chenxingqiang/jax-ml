@@ -1,7 +1,7 @@
 import  numpy as np
 cimport numpy as cnp
 from scipy import sparse
-from ..utils._cython_blas cimport _dot
+from ..utils._thon_blas cimport _dot
 cnp.import_array()
 
 cdef extern from *:
@@ -10,7 +10,7 @@ cdef extern from *:
 ################################################################################
 # Includes
 
-cdef extern from "_svm_cython_blas_helpers.h":
+cdef extern from "_svm_thon_blas_helpers.h":
     ctypedef double (*dot_func)(int, const double*, int, const double*, int)
     cdef struct BlasFunctions:
         dot_func dot
@@ -101,7 +101,7 @@ def libsvm_sparse_train (int n_features,
 
     Notes
     -------------------
-    See xlearn.svm.predict for a complete list of parameters.
+    See sklearn.svm.predict for a complete list of parameters.
 
     """
 
@@ -111,7 +111,7 @@ def libsvm_sparse_train (int n_features,
     cdef const_char_p error_msg
 
     if len(sample_weight) == 0:
-        sample_weight = jnp.ones(Y.shape[0], dtype=jnp.float64)
+        sample_weight = np.ones(Y.shape[0], dtype=np.float64)
     else:
         assert sample_weight.shape[0] == indptr.shape[0] - 1, \
                "sample_weight and X have incompatible shapes: " + \
@@ -135,7 +135,7 @@ def libsvm_sparse_train (int n_features,
     )
 
     cdef cnp.int32_t[::1] \
-        class_weight_label = jnp.arange(class_weight.shape[0], dtype=jnp.int32)
+        class_weight_label = np.arange(class_weight.shape[0], dtype=np.int32)
 
     # set parameters
     param = set_parameter(
@@ -176,24 +176,24 @@ def libsvm_sparse_train (int n_features,
     cdef cnp.npy_intp n_class = get_nr(model)
 
     cdef int[::1] n_iter
-    n_iter = jnp.empty(max(1, n_class * (n_class - 1) // 2), dtype=jnp.intc)
+    n_iter = np.empty(max(1, n_class * (n_class - 1) // 2), dtype=np.intc)
     copy_n_iter(<char *> &n_iter[0], model)
 
     # copy model.sv_coef
     # we create a new array instead of resizing, otherwise
     # it would not erase previous information
     cdef cnp.float64_t[::1] sv_coef_data
-    sv_coef_data = jnp.empty((n_class-1)*SV_len, dtype=jnp.float64)
+    sv_coef_data = np.empty((n_class-1)*SV_len, dtype=np.float64)
     copy_sv_coef (<char *> &sv_coef_data[0] if sv_coef_data.size > 0 else NULL, model)
 
     cdef cnp.int32_t[::1] support
-    support = jnp.empty(SV_len, dtype=jnp.int32)
+    support = np.empty(SV_len, dtype=np.int32)
     copy_support(<char *> &support[0] if support.size > 0 else NULL, model)
 
     # copy model.rho into the intercept
     # the intercept is just model.rho but with sign changed
     cdef cnp.float64_t[::1]intercept
-    intercept = jnp.empty(n_class*(n_class-1)//2, dtype=jnp.float64)
+    intercept = np.empty(n_class*(n_class-1)//2, dtype=np.float64)
     copy_intercept (<char *> &intercept[0], model, <cnp.npy_intp *> intercept.shape)
 
     # copy model.SV
@@ -204,9 +204,9 @@ def libsvm_sparse_train (int n_features,
 
     cdef cnp.float64_t[::1] SV_data
     cdef cnp.int32_t[::1] SV_indices, SV_indptr
-    SV_data = jnp.empty(nonzero_SV, dtype=jnp.float64)
-    SV_indices = jnp.empty(nonzero_SV, dtype=jnp.int32)
-    SV_indptr = jnp.empty(<cnp.npy_intp>SV_len + 1, dtype=jnp.int32)
+    SV_data = np.empty(nonzero_SV, dtype=np.float64)
+    SV_indices = np.empty(nonzero_SV, dtype=np.int32)
+    SV_indptr = np.empty(<cnp.npy_intp>SV_len + 1, dtype=np.int32)
     csr_copy_SV(
         <char *> &SV_data[0] if SV_data.size > 0 else NULL,
         <cnp.npy_intp *> SV_indices.shape,
@@ -223,23 +223,23 @@ def libsvm_sparse_train (int n_features,
     # copy model.nSV
     # TODO: do only in classification
     cdef cnp.int32_t[::1]n_class_SV
-    n_class_SV = jnp.empty(n_class, dtype=jnp.int32)
+    n_class_SV = np.empty(n_class, dtype=np.int32)
     copy_nSV(<char *> &n_class_SV[0], model)
 
     # # copy probabilities
     cdef cnp.float64_t[::1] probA, probB
     if probability != 0:
         if svm_type < 2:  # SVC and NuSVC
-            probA = jnp.empty(n_class*(n_class-1)//2, dtype=jnp.float64)
-            probB = jnp.empty(n_class*(n_class-1)//2, dtype=jnp.float64)
+            probA = np.empty(n_class*(n_class-1)//2, dtype=np.float64)
+            probB = np.empty(n_class*(n_class-1)//2, dtype=np.float64)
             copy_probB(<char *> &probB[0], model, <cnp.npy_intp *> probB.shape)
         else:
-            probA = jnp.empty(1, dtype=jnp.float64)
-            probB = jnp.empty(0, dtype=jnp.float64)
+            probA = np.empty(1, dtype=np.float64)
+            probB = np.empty(0, dtype=np.float64)
         copy_probA(<char *> &probA[0], model, <cnp.npy_intp *> probA.shape)
     else:
-        probA = jnp.empty(0, dtype=jnp.float64)
-        probB = jnp.empty(0, dtype=jnp.float64)
+        probA = np.empty(0, dtype=np.float64)
+        probB = np.empty(0, dtype=np.float64)
 
     svm_csr_free_and_destroy_model (&model)
     free_problem(problem)
@@ -284,7 +284,7 @@ def libsvm_sparse_predict (const cnp.float64_t[::1] T_data,
     We have to reconstruct model and parameters to make sure we stay
     in sync with the python object.
 
-    See xlearn.svm.predict for a complete list of parameters.
+    See sklearn.svm.predict for a complete list of parameters.
 
     Parameters
     ----------
@@ -301,7 +301,7 @@ def libsvm_sparse_predict (const cnp.float64_t[::1] T_data,
     cdef svm_parameter *param
     cdef svm_csr_model *model
     cdef cnp.int32_t[::1] \
-        class_weight_label = jnp.arange(class_weight.shape[0], dtype=jnp.int32)
+        class_weight_label = np.arange(class_weight.shape[0], dtype=np.int32)
     cdef int rv
     param = set_parameter(
         svm_type,
@@ -337,7 +337,7 @@ def libsvm_sparse_predict (const cnp.float64_t[::1] T_data,
         <char *> &probB[0] if probB.size > 0 else NULL,
     )
     # TODO: use check_model
-    dec_values = jnp.empty(T_indptr.shape[0]-1)
+    dec_values = np.empty(T_indptr.shape[0]-1)
     cdef BlasFunctions blas_functions
     blas_functions.dot = _dot[double]
     with nogil:
@@ -386,7 +386,7 @@ def libsvm_sparse_predict_proba(
     cdef svm_parameter *param
     cdef svm_csr_model *model
     cdef cnp.int32_t[::1] \
-        class_weight_label = jnp.arange(class_weight.shape[0], dtype=jnp.int32)
+        class_weight_label = np.arange(class_weight.shape[0], dtype=np.int32)
     param = set_parameter(
         svm_type,
         kernel_type,
@@ -424,7 +424,7 @@ def libsvm_sparse_predict_proba(
     # TODO: use check_model
     cdef cnp.npy_intp n_class = get_nr(model)
     cdef int rv
-    dec_values = jnp.empty((T_indptr.shape[0]-1, n_class), dtype=jnp.float64)
+    dec_values = np.empty((T_indptr.shape[0]-1, n_class), dtype=np.float64)
     cdef BlasFunctions blas_functions
     blas_functions.dot = _dot[double]
     with nogil:
@@ -478,7 +478,7 @@ def libsvm_sparse_decision_function(
 
     cdef svm_csr_model *model
     cdef cnp.int32_t[::1] \
-        class_weight_label = jnp.arange(class_weight.shape[0], dtype=jnp.int32)
+        class_weight_label = np.arange(class_weight.shape[0], dtype=np.int32)
     param = set_parameter(
         svm_type,
         kernel_type,
@@ -520,7 +520,7 @@ def libsvm_sparse_decision_function(
         n_class = get_nr(model)
         n_class = n_class * (n_class - 1) // 2
 
-    dec_values = jnp.empty((T_indptr.shape[0] - 1, n_class), dtype=jnp.float64)
+    dec_values = np.empty((T_indptr.shape[0] - 1, n_class), dtype=np.float64)
     cdef BlasFunctions blas_functions
     blas_functions.dot = _dot[double]
     if csr_copy_predict_values(

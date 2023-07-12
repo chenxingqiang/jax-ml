@@ -1,12 +1,12 @@
-import jax.numpy as jnp
+import numpy as np
 import pytest
 from scipy import sparse as sp
 from scipy import stats
 
-from xlearn.linear_model import LogisticRegression
-from xlearn.svm import LinearSVC
-from xlearn.svm._bounds import l1_min_c
-from xlearn.svm._newrand import bounded_rand_int_wrap, set_seed_wrap
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
+from sklearn.svm._bounds import l1_min_c
+from sklearn.svm._newrand import bounded_rand_int_wrap, set_seed_wrap
 
 dense_X = [[-1, 0], [0, 1], [1, 1], [1, 1]]
 sparse_X = sp.csr_matrix(dense_X)
@@ -52,13 +52,12 @@ def check_l1_min_c(X, y, loss, fit_intercept=True, intercept_scaling=1.0):
 
     clf.C = min_c
     clf.fit(X, y)
-    assert (jnp.asarray(clf.coef_) == 0).all()
-    assert (jnp.asarray(clf.intercept_) == 0).all()
+    assert (np.asarray(clf.coef_) == 0).all()
+    assert (np.asarray(clf.intercept_) == 0).all()
 
     clf.C = min_c * 1.01
     clf.fit(X, y)
-    assert (jnp.asarray(clf.coef_) != 0).any() or (
-        jnp.asarray(clf.intercept_) != 0).any()
+    assert (np.asarray(clf.coef_) != 0).any() or (np.asarray(clf.intercept_) != 0).any()
 
 
 def test_ill_posed_min_c():
@@ -129,7 +128,7 @@ def test_newrand_bounded_rand_int(range_, n_pts):
     )
 
     # (2) (safety belt) check that 90% of p-values are above 0.05
-    min_10pct_pval = jnp.percentile(ks_pvals, q=10)
+    min_10pct_pval = np.percentile(ks_pvals, q=10)
     # lower 10th quantile pvalue <= 0.05 means that the test rejects the
     # null hypothesis that the sample came from the uniform distribution
     assert min_10pct_pval > 0.05, (

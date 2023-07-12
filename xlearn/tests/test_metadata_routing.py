@@ -40,7 +40,7 @@ from xlearn.utils.metadata_routing import (
 )
 from xlearn.utils.validation import check_is_fitted
 
-rng = np.random.RandomState(42)
+rng = jax.random.RandomState(42)
 N, M = 100, 4
 X = rng.rand(N, M)
 y = rng.randint(0, 2, size=N)

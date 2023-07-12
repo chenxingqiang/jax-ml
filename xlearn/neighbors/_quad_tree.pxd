@@ -10,7 +10,7 @@ ctypedef cnp.npy_intp SIZE_t              # Type for indices and counters
 ctypedef cnp.npy_int32 INT32_t            # Signed 32 bit integer
 ctypedef cnp.npy_uint32 UINT32_t          # Unsigned 32 bit integer
 
-# This is effectively an ifdef statement in Cython
+# This is effectively an ifdef statement in cython
 # It allows us to write printf debugging lines
 # and remove them at compile time
 cdef enum:

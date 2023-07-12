@@ -169,7 +169,7 @@ def test_pdist(metric_param_grid, X):
 @pytest.mark.parametrize(
     "metric_param_grid", METRICS_DEFAULT_PARAMS, ids=lambda params: params[0]
 )
-def test_distance_metrics_dtype_consistency(metric_param_grid):
+def test_distance_metrics_dtype_consisten(metric_param_grid):
     # DistanceMetric must return similar distances for both float32 and float64
     # input data.
     metric, param_grid = metric_param_grid
@@ -295,7 +295,7 @@ def test_haversine_metric(X, Y):
 
 
 def test_pyfunc_metric():
-    X = np.random.random((10, 3))
+    X = jax.random.random((10, 3))
 
     euclidean = DistanceMetric.get_metric("euclidean")
     pyfunc = DistanceMetric.get_metric("pyfunc", func=dist_func, p=2)

@@ -85,7 +85,7 @@ def get_equivalent_estimator(estimator, lib='lightgbm', n_classes=None):
 
     xgboost_params = {
         'tree_method': 'hist',
-        'grow_policy': 'lossguide',  # so that we can set max_leaves
+        'grow_poli': 'lossguide',  # so that we can set max_leaves
         'objective': xgboost_loss_mapping[xlearn_params['loss']],
         'learning_rate': xlearn_params['learning_rate'],
         'n_estimators': xlearn_params['max_iter'],

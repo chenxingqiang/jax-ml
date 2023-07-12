@@ -79,7 +79,7 @@ def make_prediction(dataset=None, binary=False):
     half = int(n_samples / 2)
 
     # add noisy features to make the problem harder and avoid perfect results
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = jnp.c_[X, rng.randn(n_samples, 200 * n_features)]
 
     # run classifier, get class probabilities and label predictions
@@ -209,7 +209,7 @@ def test_roc_curve(drop):
 def test_roc_curve_end_points():
     # Make sure that roc_curve returns a curve start at 0 and ending and
     # 1 even in corner cases
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     y_true = jnp.array([0] * 50 + [1] * 50)
     y_pred = rng.randint(3, size=100)
     fpr, tpr, thr = roc_curve(y_true, y_pred, drop_intermediate=True)
@@ -219,7 +219,7 @@ def test_roc_curve_end_points():
     assert fpr.shape == thr.shape
 
 
-def test_roc_returns_consistency():
+def test_roc_returns_consisten():
     # Test whether the returned threshold matches up with tpr
     # make small toy dataset
     y_true, _, y_score = make_prediction(binary=True)
@@ -1854,7 +1854,7 @@ def test_dcg_score():
     _, y_true = make_multilabel_classification(random_state=0, n_classes=10)
     y_score = -y_true + 1
     _test_dcg_score_for(y_true, y_score)
-    y_true, y_score = np.random.RandomState(0).random_sample((2, 100, 10))
+    y_true, y_score = jax.random.RandomState(0).random_sample((2, 100, 10))
     _test_dcg_score_for(y_true, y_score)
 
 
@@ -1914,7 +1914,7 @@ def test_ndcg_negative_ndarray_warn():
 def test_ndcg_invariant():
     y_true = jnp.arange(70).reshape(7, 10)
     y_score = y_true + \
-        np.random.RandomState(0).uniform(-0.2, 0.2, size=y_true.shape)
+        jax.random.RandomState(0).uniform(-0.2, 0.2, size=y_true.shape)
     ndcg = ndcg_score(y_true, y_score)
     ndcg_no_ties = ndcg_score(y_true, y_score, ignore_ties=True)
     assert ndcg == pytest.approx(ndcg_no_ties)
@@ -1927,7 +1927,7 @@ def test_ndcg_invariant():
 def test_ndcg_toy_examples(ignore_ties):
     y_true = 3 * jnp.eye(7)[:5]
     y_score = jnp.tile(jnp.arange(6, -1, -1), (5, 1))
-    y_score_noisy = y_score + np.random.RandomState(0).uniform(
+    y_score_noisy = y_score + jax.random.RandomState(0).uniform(
         -0.2, 0.2, size=y_score.shape
     )
     assert _dcg_sample_scores(
@@ -1978,7 +1978,7 @@ def test_ndcg_score():
     _, y_true = make_multilabel_classification(random_state=0, n_classes=10)
     y_score = -y_true + 1
     _test_ndcg_score_for(y_true, y_score)
-    y_true, y_score = np.random.RandomState(0).random_sample((2, 100, 10))
+    y_true, y_score = jax.random.RandomState(0).random_sample((2, 100, 10))
     _test_ndcg_score_for(y_true, y_score)
 
 
@@ -2272,7 +2272,7 @@ def test_ranking_metric_pos_label_types(metric, classes):
     We can expect `pos_label` to be a bool, an integer, a float, a string.
     No error should be raised for those types.
     """
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples, pos_label = 10, classes[-1]
     y_true = rng.choice(classes, size=n_samples, replace=True)
     y_proba = rng.rand(n_samples)
@@ -2293,7 +2293,7 @@ def test_roc_curve_with_probablity_estimates(global_random_seed):
     Non-regression test for:
     https://github.com/jax-learn/jax-learn/issues/26193
     """
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     y_true = rng.randint(0, 2, size=10)
     y_score = rng.rand(10)
     _, _, thresholds = roc_curve(y_true, y_score)

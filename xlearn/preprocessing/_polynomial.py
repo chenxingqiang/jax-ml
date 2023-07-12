@@ -1020,7 +1020,7 @@ class SplineTransformer(TransformerMixin, BaseEstimator):
                         # See the construction of coef in fit. We need to add the last
                         # degree spline basis function to the first degree ones and
                         # then drop the last ones.
-                        # Note: See comment about SparseEfficiencyWarning below.
+                        # Note: See comment about SparseEfficienWarning below.
                         XBS_sparse = XBS_sparse.tolil()
                         XBS_sparse[:, :degree] += XBS_sparse[:, -degree:]
                         XBS_sparse = XBS_sparse[:, :-degree]
@@ -1039,7 +1039,7 @@ class SplineTransformer(TransformerMixin, BaseEstimator):
                     x[mask_inv] = spl.t[self.degree]
                     XBS_sparse = BSpline.design_matrix(x, spl.t, spl.k)
                     # Note: Without converting to lil_matrix we would get:
-                    # scipy.sparse._base.SparseEfficiencyWarning: Changing the sparsity
+                    # scipy.sparse._base.SparseEfficienWarning: Changing the sparsity
                     # structure of a csr_matrix is expensive. lil_matrix is more
                     # efficient.
                     if jnp.any(mask_inv):
@@ -1073,7 +1073,7 @@ class SplineTransformer(TransformerMixin, BaseEstimator):
                 mask = X[:, i] < xmin
                 if jnp.any(mask):
                     if use_sparse:
-                        # Note: See comment about SparseEfficiencyWarning above.
+                        # Note: See comment about SparseEfficienWarning above.
                         XBS_sparse = XBS_sparse.tolil()
                         XBS_sparse[mask, :degree] = f_min[:degree]
 
@@ -1085,7 +1085,7 @@ class SplineTransformer(TransformerMixin, BaseEstimator):
                 mask = X[:, i] > xmax
                 if jnp.any(mask):
                     if use_sparse:
-                        # Note: See comment about SparseEfficiencyWarning above.
+                        # Note: See comment about SparseEfficienWarning above.
                         XBS_sparse = XBS_sparse.tolil()
                         XBS_sparse[mask, -degree:] = f_max[-degree:]
                     else:
@@ -1114,7 +1114,7 @@ class SplineTransformer(TransformerMixin, BaseEstimator):
                         linear_extr = f_min[j] + \
                             (X[mask, i] - xmin) * fp_min[j]
                         if use_sparse:
-                            # Note: See comment about SparseEfficiencyWarning above.
+                            # Note: See comment about SparseEfficienWarning above.
                             XBS_sparse = XBS_sparse.tolil()
                             XBS_sparse[mask, j] = linear_extr
                         else:
@@ -1126,7 +1126,7 @@ class SplineTransformer(TransformerMixin, BaseEstimator):
                         linear_extr = f_max[k] + \
                             (X[mask, i] - xmax) * fp_max[k]
                         if use_sparse:
-                            # Note: See comment about SparseEfficiencyWarning above.
+                            # Note: See comment about SparseEfficienWarning above.
                             XBS_sparse = XBS_sparse.tolil()
                             XBS_sparse[mask, k: k + 1] = linear_extr[:, None]
                         else:

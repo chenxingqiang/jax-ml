@@ -177,7 +177,7 @@ def test_iforest_works(contamination, global_random_seed):
     assert_array_equal(pred, 6 * [1] + 2 * [-1])
 
 
-def test_max_samples_consistency():
+def test_max_samples_consisten():
     # Make sure validated max_samples in iforest and BaseBagging are identical
     X = iris.data
     clf = IsolationForest().fit(X)
@@ -288,7 +288,7 @@ def test_iforest_with_uniform_data():
     iforest = IsolationForest()
     iforest.fit(X)
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     assert all(iforest.predict(X) == 1)
     assert all(iforest.predict(rng.randn(100, 10)) == 1)
@@ -347,7 +347,7 @@ def test_iforest_preserve_feature_names():
     Non-regression test for Issue #25844
     """
     pd = pytest.importorskip("pandas")
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     X = pd.DataFrame(data=rng.randn(4), columns=["a"])
     model = IsolationForest(random_state=0, contamination=0.05)

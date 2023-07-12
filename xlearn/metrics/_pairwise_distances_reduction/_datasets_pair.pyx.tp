@@ -132,14 +132,14 @@ cdef class DatasetsPair{{name_suffix}}:
         """Number of samples in X."""
         # This is a abstract method.
         # This _must_ always be overwritten in subclasses.
-        # TODO: add "with gil: raise" here when supporting Cython 3.0
+        # TODO: add "with gil: raise" here when supporting cython 3.0
         return -999
 
     cdef intp_t n_samples_Y(self) noexcept nogil:
         """Number of samples in Y."""
         # This is a abstract method.
         # This _must_ always be overwritten in subclasses.
-        # TODO: add "with gil: raise" here when supporting Cython 3.0
+        # TODO: add "with gil: raise" here when supporting cython 3.0
         return -999
 
     cdef float64_t surrogate_dist(self, intp_t i, intp_t j) noexcept nogil:
@@ -148,7 +148,7 @@ cdef class DatasetsPair{{name_suffix}}:
     cdef float64_t dist(self, intp_t i, intp_t j) noexcept nogil:
         # This is a abstract method.
         # This _must_ always be overwritten in subclasses.
-        # TODO: add "with gil: raise" here when supporting Cython 3.0
+        # TODO: add "with gil: raise" here when supporting cython 3.0
         return -1
 
 @final

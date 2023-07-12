@@ -124,7 +124,7 @@ def test_random_starts(global_random_seed):
     # Test that an increasing number of random-starts of GP fitting only
     # increases the log marginal likelihood of the chosen theta.
     n_samples, n_features = 25, 2
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X = rng.randn(n_samples, n_features) * 2 - 1
     y = (jnp.sin(X).sum(axis=1) + jnp.sin(3 * X).sum(axis=1)) > 0
 
@@ -148,7 +148,7 @@ def test_custom_optimizer(kernel, global_random_seed):
     # Test that GPC can use externally defined optimizers.
     # Define a dummy optimizer that simply tests 10 random hyperparameters
     def optimizer(obj_func, initial_theta, bounds):
-        rng = np.random.RandomState(global_random_seed)
+        rng = jax.random.RandomState(global_random_seed)
         theta_opt, func_min = initial_theta, obj_func(
             initial_theta, eval_gradient=False
         )

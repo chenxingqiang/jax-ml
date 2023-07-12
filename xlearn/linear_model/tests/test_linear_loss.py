@@ -27,7 +27,7 @@ def random_X_y_coef(
     linear_model_loss, n_samples, n_features, coef_bound=(-2, 2), seed=42
 ):
     """Random generate y, X and coef in valid range."""
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
     n_dof = n_features + linear_model_loss.fit_intercept
     X = make_low_rank_matrix(
         n_samples=n_samples,
@@ -82,7 +82,7 @@ def random_X_y_coef(
 def test_init_zero_coef(base_loss, fit_intercept, n_features, dtype):
     """Test that init_zero_coef initializes coef correctly."""
     loss = LinearModelLoss(base_loss=base_loss(), fit_intercept=fit_intercept)
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.normal(size=(5, n_features))
     coef = loss.init_zero_coef(X, dtype=dtype)
     if loss.base_loss.is_multiclass:
@@ -227,7 +227,7 @@ def test_loss_gradients_hessp_intercept(
     g_inter_corrected.T[-1] += l2_reg_strength * coef.T[-1]
     assert_allclose(g, g_inter_corrected)
 
-    s = np.random.RandomState(42).randn(*coef.shape)
+    s = jax.random.RandomState(42).randn(*coef.shape)
     h = hessp(s)
     h_inter = hessp_inter(s)
     h_inter_corrected = h_inter
@@ -329,7 +329,7 @@ def test_multinomial_coef_shape(fit_intercept):
     X, y, coef = random_X_y_coef(
         linear_model_loss=loss, n_samples=n_samples, n_features=n_features, seed=42
     )
-    s = np.random.RandomState(42).randn(*coef.shape)
+    s = jax.random.RandomState(42).randn(*coef.shape)
 
     l, g = loss.loss_gradient(coef, X, y)
     g1 = loss.gradient(coef, X, y)

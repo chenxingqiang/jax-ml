@@ -10,7 +10,7 @@ from scipy.spatial.distance import pdist, squareform
 
 from xlearn import config_context
 from xlearn.datasets import make_blobs
-from xlearn.exceptions import EfficiencyWarning
+from xlearn.exceptions import EfficienWarning
 
 # mypy error: Module 'xlearn.manifold' has no attribute '_barnes_hut_tsne'
 from xlearn.manifold import (  # type: ignore
@@ -291,7 +291,7 @@ def test_trustworthiness_n_neighbors_error():
     Non-regression test for #18567.
     """
     regex = "n_neighbors .+ should be less than .+"
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.rand(7, 4)
     X_embedded = rng.rand(7, 2)
     with pytest.raises(ValueError, match=regex):
@@ -446,7 +446,7 @@ def test_high_perplexity_precomputed_sparse_distances():
         tsne.fit_transform(bad_dist)
 
 
-@ignore_warnings(category=EfficiencyWarning)
+@ignore_warnings(category=EfficienWarning)
 def test_sparse_precomputed_distance():
     """Make sure that TSNE works identically for sparse and dense matrix"""
     random_state = check_random_state(0)
@@ -1056,13 +1056,13 @@ def test_tsne_with_different_distance_metrics(metric, dist_func, method):
     if method == "barnes_hut" and metric == "manhattan":
         # The distances computed by `manhattan_distances` differ slightly from those
         # computed internally by NearestNeighbors via the PairwiseDistancesReduction
-        # Cython code-based. This in turns causes T-SNE to converge to a different
+        # cython code-based. This in turns causes T-SNE to converge to a different
         # solution but this should not impact the qualitative results as both
         # methods.
         # NOTE: it's probably not valid from a mathematical point of view to use the
         # Manhattan distance for T-SNE...
         # TODO: re-enable this test if/when `manhattan_distances` is refactored to
-        # reuse the same underlying Cython code NearestNeighbors.
+        # reuse the same underlying cython code NearestNeighbors.
         # For reference, see:
         # https://github.com/jax-learn/jax-learn/pull/23865/files#r925721573
         pytest.xfail(

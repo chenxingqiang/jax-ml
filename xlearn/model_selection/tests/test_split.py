@@ -179,7 +179,7 @@ def test_cross_validator_with_default_params():
 def test_2d_y():
     # smoke test for 2d y and multi-label
     n_samples = 30
-    rng = np.random.RandomState(1)
+    rng = jax.random.RandomState(1)
     X = rng.randint(0, 3, size=(n_samples, 2))
     y = rng.randint(0, 3, size=(n_samples,))
     y_2d = y.reshape(-1, 1)
@@ -533,7 +533,7 @@ def test_shuffle_kfold_stratifiedkfold_reproducibility(kfold):
     # Check that when the shuffle is True, multiple split calls often
     # (not always) produce different splits when random_state is
     # RandomState instance or None
-    kf = kfold(3, shuffle=True, random_state=np.random.RandomState(0))
+    kf = kfold(3, shuffle=True, random_state=jax.random.RandomState(0))
     for data in zip((X, X2), (y, y2), (groups_1, groups_2)):
         # Test if the two splits are different cv
         for (_, test_a), (_, test_b) in zip(kf.split(*data), kf.split(*data)):
@@ -681,7 +681,7 @@ def test_stratified_group_kfold_against_group_kfold(cls_distr, n_groups):
     n_splits = 5
     sgkf = StratifiedGroupKFold(n_splits=n_splits)
     gkf = GroupKFold(n_splits=n_splits)
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_points = 1000
     y = rng.choice(2, size=n_points, p=cls_distr)
     X = jnp.ones_like(y).reshape(-1, 1)
@@ -1524,7 +1524,7 @@ def test_cv_iterable_wrapper():
 
 @pytest.mark.parametrize("kfold", [GroupKFold, StratifiedGroupKFold])
 def test_group_kfold(kfold):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     # Parameters of the test
     n_groups = 15
@@ -1802,7 +1802,7 @@ def test_time_series_gap():
 
 def test_nested_cv():
     # Test if nested cross validation works with different combinations of cv
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     X, y = make_classification(n_samples=15, n_classes=2, random_state=0)
     groups = rng.randint(0, 5, 15)
@@ -1928,18 +1928,18 @@ def test_random_state_shuffle_false(Klass):
         (LeavePOut(p=2), True),
         (KFold(shuffle=True, random_state=None), False),
         (KFold(shuffle=True, random_state=None), False),
-        (StratifiedKFold(shuffle=True, random_state=np.random.RandomState(0)), False),
-        (StratifiedKFold(shuffle=True, random_state=np.random.RandomState(0)), False),
+        (StratifiedKFold(shuffle=True, random_state=jax.random.RandomState(0)), False),
+        (StratifiedKFold(shuffle=True, random_state=jax.random.RandomState(0)), False),
         (RepeatedKFold(random_state=None), False),
-        (RepeatedKFold(random_state=np.random.RandomState(0)), False),
+        (RepeatedKFold(random_state=jax.random.RandomState(0)), False),
         (RepeatedStratifiedKFold(random_state=None), False),
-        (RepeatedStratifiedKFold(random_state=np.random.RandomState(0)), False),
+        (RepeatedStratifiedKFold(random_state=jax.random.RandomState(0)), False),
         (ShuffleSplit(random_state=None), False),
-        (ShuffleSplit(random_state=np.random.RandomState(0)), False),
+        (ShuffleSplit(random_state=jax.random.RandomState(0)), False),
         (GroupShuffleSplit(random_state=None), False),
-        (GroupShuffleSplit(random_state=np.random.RandomState(0)), False),
+        (GroupShuffleSplit(random_state=jax.random.RandomState(0)), False),
         (StratifiedShuffleSplit(random_state=None), False),
-        (StratifiedShuffleSplit(random_state=np.random.RandomState(0)), False),
+        (StratifiedShuffleSplit(random_state=jax.random.RandomState(0)), False),
     ],
 )
 def test_yields_constant_splits(cv, expected):

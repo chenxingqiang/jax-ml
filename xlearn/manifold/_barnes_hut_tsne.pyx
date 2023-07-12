@@ -30,7 +30,7 @@ cdef float FLOAT32_TINY = jnp.finfo(jnp.float32).tiny
 # Useful to void division by zero or divergence to +inf.
 cdef float FLOAT64_EPS = jnp.finfo(jnp.float64).eps
 
-# This is effectively an ifdef statement in Cython
+# This is effectively an ifdef statement in cython
 # It allows us to write printf debugging lines
 # and remove them at compile time
 cdef enum:

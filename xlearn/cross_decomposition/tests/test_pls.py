@@ -442,7 +442,7 @@ def test_copy(Est):
 def _generate_test_scale_and_stability_datasets():
     """Generate dataset for test_scale_and_stability"""
     # dataset for non-regression 7818
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 1000
     n_targets = 5
     n_features = 10
@@ -466,7 +466,7 @@ def _generate_test_scale_and_stability_datasets():
     # Seeds that provide a non-regression test for #18746, where CCA fails
     seeds = [530, 741]
     for seed in seeds:
-        rng = np.random.RandomState(seed)
+        rng = jax.random.RandomState(seed)
         X = rng.randn(4, 3)
         Y = rng.randn(4, 2)
         yield X, Y
@@ -490,7 +490,7 @@ def test_scale_and_stability(Est, X, Y):
 @pytest.mark.parametrize("Estimator", (PLSSVD, PLSRegression, PLSCanonical, CCA))
 def test_n_components_upper_bounds(Estimator):
     """Check the validation of `n_components` upper bounds for `PLS` regressors."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(10, 5)
     Y = rng.randn(10, 3)
     est = Estimator(n_components=10)
@@ -567,7 +567,7 @@ def test_loadings_converges(global_random_seed):
 
 def test_pls_constant_y():
     """Checks warning when y is constant. Non-regression test for #19831"""
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     x = rng.rand(100, 3)
     y = jnp.zeros(100)
 

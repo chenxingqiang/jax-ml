@@ -341,7 +341,7 @@ def test_multiclass_multioutput_estimator_predict_proba():
     seed = 542
 
     # make test deterministic
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
 
     # random features
     X = rng.normal(size=(5, 5))
@@ -667,7 +667,7 @@ def test_multioutput_estimator_with_fit_params(estimator, dataset):
 
 def test_regressor_chain_w_fit_params():
     # Make sure fit_params are properly propagated to the sub-estimators
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X, y = datasets.make_regression(n_targets=3, random_state=0)
     weight = rng.rand(y.shape[0])
 
@@ -696,7 +696,7 @@ def test_support_missing_values(MultiOutputEstimator, Estimator):
     # smoke test to check that pipeline MultioutputEstimators are letting
     # the validation of missing values to
     # the underlying pipeline, regressor or classifier
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X, y = rng.randn(50, 2), rng.binomial(1, 0.5, (50, 3))
     mask = rng.choice([1, 0], X.shape, p=[0.01, 0.99]).astype(bool)
     X[mask] = jnp.nan

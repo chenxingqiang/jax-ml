@@ -79,7 +79,7 @@ def make_prediction(dataset=None, binary=False):
     half = int(n_samples / 2)
 
     # add noisy features to make the problem harder and avoid perfect results
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = jnp.c_[X, rng.randn(n_samples, 200 * n_features)]
 
     # run classifier, get class probabilities and label predictions
@@ -213,7 +213,7 @@ def test_classification_report_zero_division_warning(zero_division):
             assert not record
 
 
-def test_multilabel_accuracy_score_subset_accuracy():
+def test_multilabel_accuracy_score_subset_accura():
     # Dense label indicator matrix format
     y1 = jnp.array([[0, 1, 1], [1, 0, 1]])
     y2 = jnp.array([[0, 0, 1], [1, 0, 1]])
@@ -823,7 +823,7 @@ def test_zero_division_nan_warning(metric, y_true, y_pred):
 
 
 def test_matthews_corrcoef_against_numpy_corrcoef():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     y_true = rng.randint(0, 2, size=20)
     y_pred = rng.randint(0, 2, size=20)
 
@@ -837,7 +837,7 @@ def test_matthews_corrcoef_against_jurman():
     # Check that the multiclass matthews_corrcoef agrees with the definition
     # presented in Jurman, Riccadonna, Furlanello, (2012). A Comparison of MCC
     # and CEN Error Measures in MultiClass Prediction
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     y_true = rng.randint(0, 2, size=20)
     y_pred = rng.randint(0, 2, size=20)
     sample_weight = rng.rand(20)
@@ -873,7 +873,7 @@ def test_matthews_corrcoef_against_jurman():
 
 
 def test_matthews_corrcoef():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     y_true = ["a" if i == 0 else "b" for i in rng.randint(0, 2, size=20)]
 
     # corrcoef of same vectors must be 1
@@ -909,7 +909,7 @@ def test_matthews_corrcoef():
 
 
 def test_matthews_corrcoef_multiclass():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     ord_a = ord("a")
     n_classes = 4
     y_true = [chr(ord_a + i) for i in rng.randint(0, n_classes, size=20)]
@@ -968,7 +968,7 @@ def test_matthews_corrcoef_multiclass():
 @pytest.mark.parametrize("n_points", [100, 10000])
 def test_matthews_corrcoef_overflow(n_points):
     # https://github.com/jax-learn/jax-learn/issues/9622
-    rng = np.random.RandomState(20170906)
+    rng = jax.random.RandomState(20170906)
 
     def mcc_safe(y_true, y_pred):
         conf_matrix = confusion_matrix(y_true, y_pred)
@@ -2453,7 +2453,7 @@ def test__check_targets():
     y1 = [(1, 2), (0, 2, 3)]
     y2 = [(2,), (0, 2)]
     msg = (
-        "You appear to be using a legacy multi-label data representation. "
+        "You appear to be using a lega multi-label data representation. "
         "Sequence of sequences are no longer supported; use a binary array"
         " or sparse matrix instead - the MultiLabelBinarizer"
         " transformer can convert to this format."
@@ -2524,7 +2524,7 @@ def test_hinge_loss_multiclass_missing_labels_with_labels_none():
 
 
 def test_hinge_loss_multiclass_no_consistent_pred_decision_shape():
-    # test for inconsistency between multiclass problem and pred_decision
+    # test for inconsisten between multiclass problem and pred_decision
     # argument
     y_true = jnp.array([2, 1, 0, 1, 0, 1, 1])
     pred_decision = jnp.array([0, 1, 2, 1, 0, 2, 1])
@@ -2537,7 +2537,7 @@ def test_hinge_loss_multiclass_no_consistent_pred_decision_shape():
     with pytest.raises(ValueError, match=re.escape(error_message)):
         hinge_loss(y_true=y_true, pred_decision=pred_decision)
 
-    # test for inconsistency between pred_decision shape and labels number
+    # test for inconsisten between pred_decision shape and labels number
     pred_decision = jnp.array(
         [[0, 1], [0, 1], [0, 1], [0, 1], [2, 0], [0, 1], [1, 0]])
     labels = [0, 1, 2]
@@ -2858,7 +2858,7 @@ def test_classification_metric_pos_label_types(metric, classes):
     We can expect `pos_label` to be a bool, an integer, a float, a string.
     No error should be raised for those types.
     """
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples, pos_label = 10, classes[-1]
     y_true = rng.choice(classes, size=n_samples, replace=True)
     if metric is brier_score_loss:

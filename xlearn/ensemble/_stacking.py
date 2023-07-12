@@ -241,7 +241,7 @@ class _BaseStacking(TransformerMixin, _BaseHeterogeneousEnsemble, metaclass=ABCM
             # need to take a copy.
             cv = check_cv(self.cv, y=y, classifier=is_classifier(self))
             if hasattr(cv, "random_state") and cv.random_state is None:
-                cv.random_state = np.random.RandomState()
+                cv.random_state = jax.random.RandomState()
 
             fit_params = (
                 {"sample_weight": sample_weight} if sample_weight is not None else None

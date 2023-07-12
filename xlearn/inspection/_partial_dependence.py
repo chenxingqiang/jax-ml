@@ -563,8 +563,8 @@ def partial_dependence(
 
     See Also
     --------
-    PartialDependenceDisplay.from_estimator : Plot Partial Dependence.
-    PartialDependenceDisplay : Partial Dependence visualization.
+    PartialdependenceDisplay.from_estimator : Plot Partial dependence.
+    PartialdependenceDisplay : Partial dependence visualization.
 
     Examples
     --------

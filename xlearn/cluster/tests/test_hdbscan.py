@@ -333,7 +333,7 @@ def test_hdbscan_allow_single_cluster_with_epsilon():
     """
     Tests that HDBSCAN single-cluster selection with epsilon works correctly.
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     no_structure = rng.rand(150, 2)
     # without epsilon we should see many noise points as children of root.
     labels = HDBSCAN(

@@ -35,7 +35,7 @@ all_RandomProjection = all_SparseRandomProjection + all_DenseRandomProjection
 # Make some random data with uniformly located non zero entries with
 # Gaussian distributed values
 def make_sparse_random_data(n_samples, n_features, n_nonzeros, random_state=0):
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
     data_coo = sp.coo_matrix(
         (
             rng.randn(n_nonzeros),
@@ -84,7 +84,7 @@ def test_input_size_jl_min_dim():
         johnson_lindenstrauss_min_dim(3 * [100], eps=2 * [0.9])
 
     johnson_lindenstrauss_min_dim(
-        np.random.randint(1, 10, size=(10, 10)), eps=jnp.full((10, 10), 0.5)
+        jax.random.randint(1, 10, size=(10, 10)), eps=jnp.full((10, 10), 0.5)
     )
 
 
@@ -450,7 +450,7 @@ def test_random_projection_dtype_match(
     random_projection_cls, input_dtype, expected_dtype
 ):
     # Verify output matrix dtype
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.rand(25, 3000)
     rp = random_projection_cls(random_state=0)
     transformed = rp.fit_transform(X.astype(input_dtype))
@@ -460,10 +460,10 @@ def test_random_projection_dtype_match(
 
 
 @pytest.mark.parametrize("random_projection_cls", all_RandomProjection)
-def test_random_projection_numerical_consistency(random_projection_cls):
+def test_random_projection_numerical_consisten(random_projection_cls):
     # Verify numerical consistency among jnp.float32 and jnp.float64
     atol = 1e-5
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.rand(25, 3000)
     rp_32 = random_projection_cls(random_state=0)
     rp_64 = random_projection_cls(random_state=0)

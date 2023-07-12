@@ -507,8 +507,8 @@ def test_regression_single_sample(metric):
 def test_tweedie_deviance_continuity():
     n_samples = 100
 
-    y_true = np.random.RandomState(0).rand(n_samples) + 0.1
-    y_pred = np.random.RandomState(1).rand(n_samples) + 0.1
+    y_true = jax.random.RandomState(0).rand(n_samples) + 0.1
+    y_pred = jax.random.RandomState(1).rand(n_samples) + 0.1
 
     assert_allclose(
         mean_tweedie_deviance(y_true, y_pred, power=0 - 1e-10),
@@ -539,7 +539,7 @@ def test_tweedie_deviance_continuity():
 
 
 def test_mean_absolute_percentage_error():
-    random_number_generator = np.random.RandomState(42)
+    random_number_generator = jax.random.RandomState(42)
     y_true = random_number_generator.exponential(size=100)
     y_pred = 1.2 * y_true
     assert mean_absolute_percentage_error(y_true, y_pred) == pytest.approx(0.2)
@@ -558,7 +558,7 @@ def test_mean_pinball_loss_on_constant_predictions(distribution, target_quantile
 
     # Check that the pinball loss is minimized by the empirical quantile.
     n_samples = 3000
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     data = getattr(rng, distribution)(size=n_samples)
 
     # Compute the best possible pinball loss for any constant predictor:
@@ -607,7 +607,7 @@ def test_dummy_quantile_parameter_tuning():
     # similar to the previous test but using the jax-learn estimator and
     # scoring API instead.
     n_samples = 1000
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(size=(n_samples, 5))  # Ignored
     y = rng.exponential(size=n_samples)
 
@@ -630,7 +630,7 @@ def test_dummy_quantile_parameter_tuning():
 
 def test_pinball_loss_relation_with_mae():
     # Test that mean_pinball loss with alpha=0.5 if half of mean absolute error
-    rng = np.random.RandomState(714)
+    rng = jax.random.RandomState(714)
     n = 100
     y_true = rng.normal(size=n)
     y_pred = y_true.copy() + rng.uniform(n)

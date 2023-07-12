@@ -189,7 +189,7 @@ class OneVsRestClassifier(
 
     Also known as one-vs-all, this strategy consists in fitting one classifier
     per class. For each classifier, the class is fitted against all the other
-    classes. In addition to its computational efficiency (only `n_classes`
+    classes. In addition to its computational efficien (only `n_classes`
     classifiers are needed), one advantage of this approach is its
     interpretability. Since each class is represented by one and one classifier
     only, it is possible to gain knowledge about the class by inspecting its

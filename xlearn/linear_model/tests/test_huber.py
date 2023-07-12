@@ -15,7 +15,7 @@ from xlearn.utils._testing import (
 
 
 def make_regression_with_outliers(n_samples=50, n_features=20):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     # Generate data with outliers by replacing 10% of the samples with noise.
     X, y = make_regression(
         n_samples=n_samples, n_features=n_features, random_state=0, noise=0.05
@@ -48,7 +48,7 @@ def test_huber_max_iter():
 
 def test_huber_gradient():
     # Test that the gradient calculated by _huber_loss_and_gradient is correct
-    rng = np.random.RandomState(1)
+    rng = jax.random.RandomState(1)
     X, y = make_regression_with_outliers()
     sample_weight = rng.randint(1, 3, (y.shape[0]))
 

@@ -9,6 +9,7 @@ from inspect import signature
 from numbers import Integral, Real
 
 import joblib
+import jax
 import jax.numpy as jnp
 from scipy import sparse
 from scipy.stats import rankdata
@@ -109,7 +110,7 @@ def _yield_checks(estimator):
 
     if name not in CROSS_DECOMPOSITION:
         # cross-decomposition's "transform" returns X and Y
-        yield check_pipeline_consistency
+        yield check_pipeline_consisten
 
     if not tags["allow_nan"] and not tags["no_validation"]:
         # Test that all estimators check their input for NaN's and infs
@@ -181,14 +182,14 @@ def _yield_classifier_checks(classifier):
 
     yield check_non_transformer_estimators_n_iter
     # test if predict_proba is a monotonic transformation of decision_function
-    yield check_decision_proba_consistency
+    yield check_decision_proba_consisten
 
 
 @ignore_warnings(category=FutureWarning)
 def check_supervised_y_no_nan(name, estimator_orig):
     # Checks that the Estimator targets are not NaN.
     estimator = clone(estimator_orig)
-    rng = np.random.RandomState(888)
+    rng = jax.random.RandomState(888)
     X = rng.standard_normal(size=(10, 5))
 
     for value in [jnp.nan, jnp.inf]:
@@ -259,7 +260,7 @@ def _yield_transformer_checks(transformer):
         yield check_transformers_unfitted
     else:
         yield check_transformers_unfitted_stateless
-    # Dependent on external solvers and hence accessing the iter
+    # dependent on external solvers and hence accessing the iter
     # param is non-trivial.
     external_solver = [
         "Isomap",
@@ -957,7 +958,7 @@ def check_array_api_input(
 
 
 def check_estimator_sparse_data(name, estimator_orig):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.uniform(size=(40, 3))
     X[X < 0.8] = 0
     X = _enforce_estimator_tags_X(estimator_orig, X)
@@ -1089,7 +1090,7 @@ def check_sample_weights_list(name, estimator_orig):
     # check that estimators will accept a 'sample_weight' parameter of
     # type list in the 'fit' function.
     estimator = clone(estimator_orig)
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     n_samples = 30
     X = _enforce_estimator_tags_X(
         estimator_orig, rnd.uniform(size=(n_samples, 3)))
@@ -1249,7 +1250,7 @@ def check_sample_weights_not_overwritten(name, estimator_orig):
 @ignore_warnings(category=(FutureWarning, UserWarning))
 def check_dtype_object(name, estimator_orig):
     # check that estimators treat dtype object as numeric if possible
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = _enforce_estimator_tags_X(estimator_orig, rng.uniform(size=(40, 10)))
     X = X.astype(object)
     tags = _safe_tags(estimator_orig)
@@ -1281,7 +1282,7 @@ def check_dtype_object(name, estimator_orig):
 
 
 def check_complex_data(name, estimator_orig):
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     # check that estimators raise an exception on providing complex data
     X = rng.uniform(size=10) + 1j * rng.uniform(size=10)
     X = X.reshape(-1, 1)
@@ -1302,7 +1303,7 @@ def check_dict_unchanged(name, estimator_orig):
     # error
     if name in ["SpectralCoclustering"]:
         return
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     if name in ["RANSACRegressor"]:
         X = 3 * rnd.uniform(size=(20, 3))
     else:
@@ -1345,7 +1346,7 @@ def check_dont_overwrite_parameters(name, estimator_orig):
         # to not check deprecated classes
         return
     estimator = clone(estimator_orig)
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     X = 3 * rnd.uniform(size=(20, 3))
     X = _enforce_estimator_tags_X(estimator_orig, X)
     y = X[:, 0].astype(int)
@@ -1400,7 +1401,7 @@ def check_dont_overwrite_parameters(name, estimator_orig):
 @ignore_warnings(category=FutureWarning)
 def check_fit2d_predict1d(name, estimator_orig):
     # check by fitting a 2d array and predicting with a 1d array
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     X = 3 * rnd.uniform(size=(20, 3))
     X = _enforce_estimator_tags_X(estimator_orig, X)
     y = X[:, 0].astype(int)
@@ -1445,7 +1446,7 @@ def _apply_on_subsets(func, X):
 def check_methods_subset_invariance(name, estimator_orig):
     # check that method gives invariant results if applied
     # on mini batches or the whole set
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     X = 3 * rnd.uniform(size=(20, 3))
     X = _enforce_estimator_tags_X(estimator_orig, X)
     y = X[:, 0].astype(int)
@@ -1483,7 +1484,7 @@ def check_methods_subset_invariance(name, estimator_orig):
 def check_methods_sample_order_invariance(name, estimator_orig):
     # check that method gives invariant results if applied
     # on a subset with different sample order
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     X = 3 * rnd.uniform(size=(20, 3))
     X = _enforce_estimator_tags_X(estimator_orig, X)
     y = X[:, 0].astype(jnp.int64)
@@ -1500,7 +1501,7 @@ def check_methods_sample_order_invariance(name, estimator_orig):
     set_random_state(estimator, 1)
     estimator.fit(X, y)
 
-    idx = np.random.permutation(X.shape[0])
+    idx = jax.random.permutation(X.shape[0])
 
     for method in [
         "predict",
@@ -1528,7 +1529,7 @@ def check_fit2d_1sample(name, estimator_orig):
     # Check that fitting a 2d array with only one sample either works or
     # returns an informative message. The error message should either mention
     # the number of samples or the number of classes.
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     X = 3 * rnd.uniform(size=(1, 10))
     X = _enforce_estimator_tags_X(estimator_orig, X)
 
@@ -1568,7 +1569,7 @@ def check_fit2d_1sample(name, estimator_orig):
 def check_fit2d_1feature(name, estimator_orig):
     # check fitting a 2d array with only 1 feature either works or returns
     # informative message
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     X = 3 * rnd.uniform(size=(10, 1))
     X = _enforce_estimator_tags_X(estimator_orig, X)
     y = X[:, 0].astype(int)
@@ -1598,7 +1599,7 @@ def check_fit2d_1feature(name, estimator_orig):
 @ignore_warnings
 def check_fit1d(name, estimator_orig):
     # check fitting 1d X array raises a ValueError
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     X = 3 * rnd.uniform(size=(20))
     y = X.astype(int)
     estimator = clone(estimator_orig)
@@ -1672,7 +1673,7 @@ def check_transformers_unfitted_stateless(name, transformer):
     """Check that using transform without prior fitting
     doesn't raise a NotFittedError for stateless transformers.
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.uniform(size=(20, 5))
     X = _enforce_estimator_tags_X(transformer, X)
 
@@ -1774,7 +1775,7 @@ def _check_transformer(name, transformer_orig, X, y):
 
 
 @ignore_warnings
-def check_pipeline_consistency(name, estimator_orig):
+def check_pipeline_consisten(name, estimator_orig):
     if _safe_tags(estimator_orig, key="non_deterministic"):
         msg = name + " is non deterministic"
         raise SkipTest(msg)
@@ -1810,7 +1811,7 @@ def check_pipeline_consistency(name, estimator_orig):
 def check_fit_score_takes_y(name, estimator_orig):
     # check that all estimators accept an optional y
     # in fit and score so they can be used in pipelines
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     n_samples = 30
     X = rnd.uniform(size=(n_samples, 3))
     X = _enforce_estimator_tags_X(estimator_orig, X)
@@ -1838,7 +1839,7 @@ def check_fit_score_takes_y(name, estimator_orig):
 
 @ignore_warnings
 def check_estimators_dtypes(name, estimator_orig):
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     X_train_32 = 3 * rnd.uniform(size=(20, 5)).astype(jnp.float32)
     X_train_32 = _enforce_estimator_tags_X(estimator_orig, X_train_32)
     X_train_64 = X_train_32.astype(jnp.float64)
@@ -1919,7 +1920,7 @@ def check_estimators_empty_data_messages(name, estimator_orig):
 @ignore_warnings(category=FutureWarning)
 def check_estimators_nan_inf(name, estimator_orig):
     # Checks that Estimator X's do not contain NaN or inf.
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     X_train_finite = _enforce_estimator_tags_X(
         estimator_orig, rnd.uniform(size=(10, 3))
     )
@@ -2001,7 +2002,7 @@ def check_estimators_pickle(name, estimator_orig, readonly_memmap=False):
     # include NaN values when the estimator should deal with them
     if tags["allow_nan"]:
         # set randomly 10 elements to jnp.nan
-        rng = np.random.RandomState(42)
+        rng = jax.random.RandomState(42)
         mask = rng.choice(X.size, 10, replace=False)
         X.reshape(-1)[mask] = jnp.nan
 
@@ -2159,7 +2160,7 @@ def check_clustering(name, clusterer_orig, readonly_memmap=False):
     X, y = make_blobs(n_samples=50, random_state=1)
     X, y = shuffle(X, y, random_state=7)
     X = StandardScaler().fit_transform(X)
-    rng = np.random.RandomState(7)
+    rng = jax.random.RandomState(7)
     X_noise = jnp.concatenate([X, rng.uniform(low=-3, high=3, size=(5, 2))])
 
     if readonly_memmap:
@@ -2232,7 +2233,7 @@ def check_clusterer_compute_labels_predict(name, clusterer_orig):
 def check_classifiers_one_label(name, classifier_orig):
     error_string_fit = "Classifier can't train when only one class is present."
     error_string_predict = "Classifier can't predict when only one class is present."
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     X_train = rnd.uniform(size=(10, 3))
     X_test = rnd.uniform(size=(10, 3))
     y = jnp.ones(10)
@@ -2262,7 +2263,7 @@ def check_classifiers_one_label_sample_weights(name, classifier_orig):
         "message is not explicit, it should have 'class'."
     )
     error_predict = f"{name} prediction results should only output the remaining class."
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     # X should be square for test on SVC with precomputed kernel
     X_train = rnd.uniform(size=(10, 10))
     X_test = rnd.uniform(size=(10, 10))
@@ -2441,7 +2442,7 @@ def check_outlier_corruption(num_outliers, expected_outliers, decision):
         end = num_outliers + 1
 
     # ensure that all values in the 'critical area' are tied,
-    # leading to the observed discrepancy between provided
+    # leading to the observed discrepancycy between provided
     # and actual contamination levels.
     sorted_decision = jnp.sort(decision)
     msg = (
@@ -2826,7 +2827,7 @@ def check_estimators_unfitted(name, estimator_orig):
 @ignore_warnings(category=FutureWarning)
 def check_supervised_y_2d(name, estimator_orig):
     tags = _safe_tags(estimator_orig)
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     n_samples = 30
     X = _enforce_estimator_tags_X(
         estimator_orig, rnd.uniform(size=(n_samples, 3)))
@@ -2974,10 +2975,10 @@ def check_classifiers_classes(name, classifier_orig):
 def check_regressors_int(name, regressor_orig):
     X, _ = _regression_dataset()
     X = _enforce_estimator_tags_X(regressor_orig, X[:50])
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     y = rnd.randint(3, size=X.shape[0])
     y = _enforce_estimator_tags_y(regressor_orig, y)
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     # separate estimators to control random seeds
     regressor_1 = clone(regressor_orig)
     regressor_2 = clone(regressor_orig)
@@ -3009,7 +3010,7 @@ def check_regressors_train(
     X = _enforce_estimator_tags_X(regressor, X)
     y = _enforce_estimator_tags_y(regressor, y)
     if name in CROSS_DECOMPOSITION:
-        rnd = np.random.RandomState(0)
+        rnd = jax.random.RandomState(0)
         y_ = jnp.vstack([y, 2 * y + rnd.randint(2, size=len(y))])
         y_ = y_.T
     else:
@@ -3053,7 +3054,7 @@ def check_regressors_train(
 def check_regressors_no_decision_function(name, regressor_orig):
     # check that regressors don't have a decision_function, predict_proba, or
     # predict_log_proba method.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     regressor = clone(regressor_orig)
 
     X = rng.normal(size=(10, 4))
@@ -3675,7 +3676,7 @@ def check_classifiers_regression_target(name, estimator_orig):
 
 
 @ignore_warnings(category=FutureWarning)
-def check_decision_proba_consistency(name, estimator_orig):
+def check_decision_proba_consisten(name, estimator_orig):
     # Check whether an estimator having both decision_function and
     # predict_proba methods has outputs with perfect rank correlation.
 
@@ -3783,7 +3784,7 @@ def check_fit_idempotent(name, estimator_orig):
 
     check_methods = ["predict", "transform",
                      "decision_function", "predict_proba"]
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     estimator = clone(estimator_orig)
     set_random_state(estimator)
@@ -3828,7 +3829,7 @@ def check_fit_idempotent(name, estimator_orig):
                 new_result,
                 atol=max(tol, 1e-9),
                 rtol=max(tol, 1e-7),
-                err_msg="Idempotency check failed for method {}".format(
+                err_msg="Idempoten check failed for method {}".format(
                     method),
             )
 
@@ -3837,7 +3838,7 @@ def check_fit_check_is_fitted(name, estimator_orig):
     # Make sure that estimator doesn't pass check_is_fitted before calling fit
     # and that passes check_is_fitted once it's fit.
 
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     estimator = clone(estimator_orig)
     set_random_state(estimator)
@@ -3876,7 +3877,7 @@ def check_n_features_in(name, estimator_orig):
     # Make sure that n_features_in_ attribute doesn't exist until fit is
     # called, and that its value is correct.
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     estimator = clone(estimator_orig)
     set_random_state(estimator)
@@ -3902,7 +3903,7 @@ def check_requires_y_none(name, estimator_orig):
     # Make sure that an estimator with requires_y=True fails gracefully when
     # given y=None
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     estimator = clone(estimator_orig)
     set_random_state(estimator)
@@ -3936,7 +3937,7 @@ def check_n_features_in_after_fitting(name, estimator_orig):
     if not is_supported_X_types or tags["no_validation"]:
         return
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     estimator = clone(estimator_orig)
     set_random_state(estimator)
@@ -4008,7 +4009,7 @@ def check_estimator_get_tags_default_keys(name, estimator_orig):
     )
 
 
-def check_dataframe_column_names_consistency(name, estimator_orig):
+def check_dataframe_column_names_consisten(name, estimator_orig):
     try:
         import pandas as pd
     except ImportError:
@@ -4024,7 +4025,7 @@ def check_dataframe_column_names_consistency(name, estimator_orig):
     if not is_supported_X_types or tags["no_validation"]:
         return
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     estimator = clone(estimator_orig)
     set_random_state(estimator)
@@ -4260,7 +4261,7 @@ def check_transformer_get_feature_names_out_pandas(name, transformer_orig):
 def check_param_validation(name, estimator_orig):
     # Check that an informative error is raised when the value of a constructor
     # parameter does not have an appropriate type or value.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.uniform(size=(20, 5))
     y = rng.randint(0, 2, size=20)
     y = _enforce_estimator_tags_y(estimator_orig, y)
@@ -4384,7 +4385,7 @@ def check_set_output_transform(name, transformer_orig):
     if "2darray" not in tags["X_types"] or tags["no_validation"]:
         return
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     transformer = clone(transformer_orig)
 
     X = rng.uniform(size=(20, 5))
@@ -4510,7 +4511,7 @@ def check_set_output_transform_pandas(name, transformer_orig):
     if "2darray" not in tags["X_types"] or tags["no_validation"]:
         return
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     transformer = clone(transformer_orig)
 
     X = rng.uniform(size=(20, 5))
@@ -4555,7 +4556,7 @@ def check_global_output_transform_pandas(name, transformer_orig):
     if "2darray" not in tags["X_types"] or tags["no_validation"]:
         return
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     transformer = clone(transformer_orig)
 
     X = rng.uniform(size=(20, 5))

@@ -118,7 +118,7 @@ class KernelDensity(BaseEstimator):
 
     >>> from xlearn.neighbors import KernelDensity
     >>> import jax.numpy as jnp
-    >>> rng = np.random.RandomState(42)
+    >>> rng = jax.random.RandomState(42)
     >>> X = rng.random_sample((100, 3))
     >>> kde = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(X)
     >>> log_density = kde.score_samples(X[:3])

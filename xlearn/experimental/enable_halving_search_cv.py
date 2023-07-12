@@ -1,7 +1,7 @@
 """Enables Successive Halving search-estimators
 
 The API and results of these estimators might change without any deprecation
-cycle.
+cle.
 
 Importing this file dynamically sets the
 :class:`~xlearn.model_selection.HalvingRandomSearchCV` and

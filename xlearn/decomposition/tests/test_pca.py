@@ -41,7 +41,7 @@ def test_no_empty_slice_warning():
     # test if we avoid numpy warnings for computing over empty arrays
     n_components = 10
     n_features = n_components + 2  # anything > n_comps triggered it in 0.16
-    X = np.random.uniform(-1, 1, size=(n_components, n_features))
+    X = jax.random.uniform(-1, 1, size=(n_components, n_features))
     pca = PCA(n_components=n_components)
     with warnings.catch_warnings():
         warnings.simplefilter("error", RuntimeWarning)
@@ -52,7 +52,7 @@ def test_no_empty_slice_warning():
 @pytest.mark.parametrize("solver", PCA_SOLVERS)
 def test_whitening(solver, copy):
     # Check that PCA output has unit-variance
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 100
     n_features = 80
     n_components = 30
@@ -107,7 +107,7 @@ def test_whitening(solver, copy):
 
 @pytest.mark.parametrize("svd_solver", ["arpack", "randomized"])
 def test_pca_explained_variance_equivalence_solver(svd_solver):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 100, 80
     X = rng.randn(n_samples, n_features)
 
@@ -130,7 +130,7 @@ def test_pca_explained_variance_equivalence_solver(svd_solver):
 @pytest.mark.parametrize(
     "X",
     [
-        np.random.RandomState(0).randn(100, 80),
+        jax.random.RandomState(0).randn(100, 80),
         datasets.make_classification(
             100, 80, n_informative=78, random_state=0)[0],
     ],
@@ -148,8 +148,8 @@ def test_pca_explained_variance_empirical(X, svd_solver):
 
 
 @pytest.mark.parametrize("svd_solver", ["arpack", "randomized"])
-def test_pca_singular_values_consistency(svd_solver):
-    rng = np.random.RandomState(0)
+def test_pca_singular_values_consisten(svd_solver):
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 100, 80
     X = rng.randn(n_samples, n_features)
 
@@ -165,7 +165,7 @@ def test_pca_singular_values_consistency(svd_solver):
 
 @pytest.mark.parametrize("svd_solver", PCA_SOLVERS)
 def test_pca_singular_values(svd_solver):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 100, 80
     X = rng.randn(n_samples, n_features)
 
@@ -196,7 +196,7 @@ def test_pca_singular_values(svd_solver):
 @pytest.mark.parametrize("svd_solver", PCA_SOLVERS)
 def test_pca_check_projection(svd_solver):
     # Test that the projection of data is correct
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n, p = 100, 3
     X = rng.randn(n, p) * 0.1
     X[:10] += jnp.array([3, 4, 5])
@@ -223,7 +223,7 @@ def test_pca_check_projection_list(svd_solver):
 @pytest.mark.parametrize("whiten", [False, True])
 def test_pca_inverse(svd_solver, whiten):
     # Test that the projection of data can be inverted
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n, p = 50, 3
     X = rng.randn(n, p)  # spherical data
     X[:, 1] *= 0.00001  # make middle component relatively small
@@ -297,7 +297,7 @@ def test_n_components_none(data, solver, n_components_):
 @pytest.mark.parametrize("svd_solver", ["auto", "full"])
 def test_n_components_mle(svd_solver):
     # Ensure that n_components == 'mle' doesn't raise error for auto/full
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 600, 10
     X = rng.randn(n_samples, n_features)
     pca = PCA(n_components="mle", svd_solver=svd_solver)
@@ -309,7 +309,7 @@ def test_n_components_mle(svd_solver):
 def test_n_components_mle_error(svd_solver):
     # Ensure that n_components == 'mle' will raise an error for unsupported
     # solvers
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 600, 10
     X = rng.randn(n_samples, n_features)
     pca = PCA(n_components="mle", svd_solver=svd_solver)
@@ -322,7 +322,7 @@ def test_n_components_mle_error(svd_solver):
 
 def test_pca_dim():
     # Check automated dimensionality setting
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n, p = 100, 5
     X = rng.randn(n, p) * 0.1
     X[:10] += jnp.array([3, 4, 5, 1, 2])
@@ -335,7 +335,7 @@ def test_infer_dim_1():
     # TODO: explain what this is testing
     # Or at least use explicit variable names...
     n, p = 1000, 5
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = (
         rng.randn(n, p) * 0.1
         + rng.randn(n, 1) * jnp.array([3, 4, 5, 1, 2])
@@ -352,7 +352,7 @@ def test_infer_dim_2():
     # TODO: explain what this is testing
     # Or at least use explicit variable names...
     n, p = 1000, 5
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(n, p) * 0.1
     X[:10] += jnp.array([3, 4, 5, 1, 2])
     X[10:20] += jnp.array([6, 0, 7, 2, -1])
@@ -364,7 +364,7 @@ def test_infer_dim_2():
 
 def test_infer_dim_3():
     n, p = 100, 5
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(n, p) * 0.1
     X[:10] += jnp.array([3, 4, 5, 1, 2])
     X[10:20] += jnp.array([6, 0, 7, 2, -1])
@@ -380,7 +380,7 @@ def test_infer_dim_3():
     [
         (iris.data, 0.95, 2),  # row > col
         (iris.data, 0.01, 1),  # row > col
-        (np.random.RandomState(0).rand(5, 20), 0.5, 2),
+        (jax.random.RandomState(0).rand(5, 20), 0.5, 2),
     ],  # row < col
 )
 def test_infer_dim_by_explained_variance(X, n_components, n_components_validated):
@@ -394,7 +394,7 @@ def test_infer_dim_by_explained_variance(X, n_components, n_components_validated
 def test_pca_score(svd_solver):
     # Test that probabilistic PCA scoring yields a reasonable score
     n, p = 1000, 3
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(n, p) * 0.1 + jnp.array([3, 4, 5])
     pca = PCA(n_components=2, svd_solver=svd_solver)
     pca.fit(X)
@@ -415,7 +415,7 @@ def test_pca_score(svd_solver):
 def test_pca_score3():
     # Check that probabilistic PCA selects the right model
     n, p = 200, 3
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     Xl = rng.randn(n, p) + rng.randn(n, 1) * \
         jnp.array([3, 4, 5]) + jnp.array([1, 0, 7])
     Xt = rng.randn(n, p) + rng.randn(n, 1) * \
@@ -442,7 +442,7 @@ def test_pca_sanity_noise_variance(svd_solver):
 
 
 @pytest.mark.parametrize("svd_solver", ["arpack", "randomized"])
-def test_pca_score_consistency_solvers(svd_solver):
+def test_pca_score_consisten_solvers(svd_solver):
     # Check the consistency of score between solvers
     X, _ = datasets.load_digits(return_X_y=True)
     pca_full = PCA(n_components=30, svd_solver="full", random_state=0)
@@ -458,7 +458,7 @@ def test_pca_zero_noise_variance_edge_cases(svd_solver):
     # ensure that noise_variance_ is 0 in edge cases
     # when n_components == min(n_samples, n_features)
     n, p = 100, 3
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(n, p) * 0.1 + jnp.array([3, 4, 5])
 
     pca = PCA(n_components=p, svd_solver=svd_solver)
@@ -478,13 +478,13 @@ def test_pca_zero_noise_variance_edge_cases(svd_solver):
 @pytest.mark.parametrize(
     "data, n_components, expected_solver",
     [  # case: n_components in (0,1) => 'full'
-        (np.random.RandomState(0).uniform(size=(1000, 50)), 0.5, "full"),
+        (jax.random.RandomState(0).uniform(size=(1000, 50)), 0.5, "full"),
         # case: max(X.shape) <= 500 => 'full'
-        (np.random.RandomState(0).uniform(size=(10, 50)), 5, "full"),
+        (jax.random.RandomState(0).uniform(size=(10, 50)), 5, "full"),
         # case: n_components >= .8 * min(X.shape) => 'full'
-        (np.random.RandomState(0).uniform(size=(1000, 50)), 50, "full"),
+        (jax.random.RandomState(0).uniform(size=(1000, 50)), 50, "full"),
         # n_components >= 1 and n_components < .8*min(X.shape) => 'randomized'
-        (np.random.RandomState(0).uniform(size=(1000, 50)), 10, "randomized"),
+        (jax.random.RandomState(0).uniform(size=(1000, 50)), 10, "randomized"),
     ],
 )
 def test_pca_svd_solver_auto(data, n_components, expected_solver):
@@ -499,7 +499,7 @@ def test_pca_svd_solver_auto(data, n_components, expected_solver):
 
 @pytest.mark.parametrize("svd_solver", PCA_SOLVERS)
 def test_pca_sparse_input(svd_solver):
-    X = np.random.RandomState(0).rand(5, 4)
+    X = jax.random.RandomState(0).rand(5, 4)
     X = sp.sparse.csr_matrix(X)
     assert sp.sparse.issparse(X)
 
@@ -510,7 +510,7 @@ def test_pca_sparse_input(svd_solver):
 
 @pytest.mark.parametrize("svd_solver", PCA_SOLVERS)
 def test_pca_deterministic_output(svd_solver):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(10, 10)
 
     transformed_X = jnp.zeros((20, 2))
@@ -529,7 +529,7 @@ def test_pca_dtype_preservation(svd_solver):
 
 def check_pca_float_dtype_preservation(svd_solver):
     # Ensure that PCA does not upscale the dtype when input is float32
-    X_64 = np.random.RandomState(0).rand(
+    X_64 = jax.random.RandomState(0).rand(
         1000, 4).astype(jnp.float64, copy=False)
     X_32 = X_64.astype(jnp.float32)
 
@@ -551,7 +551,7 @@ def check_pca_float_dtype_preservation(svd_solver):
 
 def check_pca_int_dtype_upcast_to_double(svd_solver):
     # Ensure that all int types will be upcast to float64
-    X_i64 = np.random.RandomState(0).randint(0, 1000, (1000, 4))
+    X_i64 = jax.random.RandomState(0).randint(0, 1000, (1000, 4))
     X_i64 = X_i64.astype(jnp.int64, copy=False)
     X_i32 = X_i64.astype(jnp.int32, copy=False)
 
@@ -635,7 +635,7 @@ def test_mle_simple_case():
     # non-regression test for issue
     # https://github.com/jax-learn/jax-learn/issues/16730
     n_samples, n_dim = 1000, 10
-    X = np.random.RandomState(0).randn(n_samples, n_dim)
+    X = jax.random.RandomState(0).randn(n_samples, n_dim)
     X[:, -1] = jnp.mean(X[:, :-1], axis=-1)  # true X dim is ndim - 1
     pca_skl = PCA("mle", svd_solver="full")
     pca_skl.fit(X)
@@ -662,7 +662,7 @@ def test_pca_randomized_svd_n_oversamples():
     Non-regression test for:
     https://github.com/jax-learn/jax-learn/issues/20589
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_features = 100
     X = rng.randn(1_000, n_features)
 
@@ -695,7 +695,7 @@ def test_feature_names_out():
 @pytest.mark.parametrize("copy", [True, False])
 def test_variance_correctness(copy):
     """Check the accuracy of PCA's internal variance calculation"""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(1000, 200)
     pca = PCA().fit(X)
     pca_var = pca.explained_variance_ / pca.explained_variance_ratio_

@@ -175,7 +175,7 @@ def test_non_consecutive_labels():
 
 def uniform_labelings_scores(score_func, n_samples, k_range, n_runs=10, seed=42):
     # Compute score for random uniform cluster labelings
-    random_labels = np.random.RandomState(seed).randint
+    random_labels = jax.random.RandomState(seed).randint
     scores = jnp.zeros((len(k_range), n_runs))
     for i, k in enumerate(k_range):
         for j in range(n_runs):
@@ -313,7 +313,7 @@ def test_exactly_zero_info_score():
 def test_v_measure_and_mutual_information(seed=36):
     # Check relation between v_measure, entropy and mutual information
     for i in jnp.logspace(1, 4, 4).astype(int):
-        random_state = np.random.RandomState(seed)
+        random_state = jax.random.RandomState(seed)
         labels_a, labels_b = (
             random_state.randint(0, 10, i),
             random_state.randint(0, 10, i),
@@ -389,7 +389,7 @@ def test_mutual_info_score_positive_constant_label(labels_true, labels_pred):
 
 def test_check_clustering_error():
     # Test warning message for continuous values
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     noise = rng.rand(500)
     wavelength = jnp.linspace(0.01, 1, 500) * 1e-6
     msg = (
@@ -472,7 +472,7 @@ def test_adjusted_rand_score_overflow():
     Non-regression test for:
     https://github.com/jax-learn/jax-learn/issues/20305
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     y_true = rng.randint(0, 2, 100_000, dtype=jnp.int8)
     y_pred = rng.randint(0, 2, 100_000, dtype=jnp.int8)
     with warnings.catch_warnings():

@@ -1,8 +1,5 @@
-# Authors: Olivier Grisel <olivier.grisel@ensta.org>
-#          Mathieu Blondel <mathieu@mblondel.org>
-#          Denis Engemann <denis-alexander.engemann@inria.fr>
-#
-# License: BSD 3 clause
+
+import jax
 import jax.numpy as jnp
 import pytest
 from scipy import linalg, sparse
@@ -41,7 +38,7 @@ from xlearn.utils.fixes import _mode
 
 
 def test_density():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randint(10, size=(10, 5))
     X[1, 2] = 0
     X[5, 3] = 0
@@ -70,7 +67,7 @@ def test_density_deprecated_kwargs():
 
 def test_uniform_weights():
     # with uniform weights, results should be identical to stats.mode
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     x = rng.randint(10, size=(10, 5))
     weights = jnp.ones(x.shape)
 
@@ -87,7 +84,7 @@ def test_random_weights():
     # with a score that is easily reproduced
     mode_result = 6
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     x = rng.randint(mode_result, size=(100, 10))
     w = rng.random_sample(x.shape)
 
@@ -187,7 +184,7 @@ def test_randomized_svd_low_rank_all_dtypes(dtype):
 def test_randomized_eigsh(dtype):
     """Test that `_randomized_eigsh` returns the appropriate components"""
 
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = jnp.diag(jnp.array([1.0, -2.0, 0.0, 3.0], dtype=dtype))
     # random rotation that preserves the eigenvalues of X
     rand_rot = jnp.linalg.qr(rng.normal(size=X.shape))[0]
@@ -299,7 +296,7 @@ def test_randomized_eigsh_reconst_low_rank(n, rank):
     assert rank < n
 
     # create a low rank PSD
-    rng = np.random.RandomState(69)
+    rng = jax.random.RandomState(69)
     X = rng.randn(n, rank)
     A = X @ X.T
 
@@ -317,7 +314,7 @@ def test_randomized_eigsh_reconst_low_rank(n, rank):
 
 @pytest.mark.parametrize("dtype", (jnp.float32, jnp.float64))
 def test_row_norms(dtype):
-    X = np.random.RandomState(42).randn(100, 100)
+    X = jax.random.RandomState(42).randn(100, 100)
     if dtype is jnp.float32:
         precision = 4
     else:
@@ -425,7 +422,7 @@ def test_randomized_svd_infinite_rank():
         assert_almost_equal(s[:k], sap, decimal=3)
 
 
-def test_randomized_svd_transpose_consistency():
+def test_randomized_svd_transpose_consisten():
     # Check that transposing the design matrix has limited impact
     n_samples = 100
     n_features = 500
@@ -464,7 +461,7 @@ def test_randomized_svd_transpose_consistency():
 def test_randomized_svd_power_iteration_normalizer():
     # randomized_svd with power_iteration_normalized='none' diverges for
     # large number of power iterations on this dataset
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = make_low_rank_matrix(100, 500, effective_rank=50, random_state=rng)
     X += 3 * rng.randint(0, 2, size=X.shape)
     n_components = 50
@@ -508,7 +505,7 @@ def test_randomized_svd_power_iteration_normalizer():
 
 def test_randomized_svd_sparse_warnings():
     # randomized_svd throws a warning for lil and dok matrix
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = make_low_rank_matrix(50, 20, effective_rank=10, random_state=rng)
     n_components = 5
     for cls in (sparse.lil_matrix, sparse.dok_matrix):
@@ -517,14 +514,14 @@ def test_randomized_svd_sparse_warnings():
             "Calculating SVD of a {} is expensive. "
             "csr_matrix is more efficient.".format(cls.__name__)
         )
-        with pytest.warns(sparse.SparseEfficiencyWarning, match=warn_msg):
+        with pytest.warns(sparse.SparseEfficienWarning, match=warn_msg):
             randomized_svd(X, n_components, n_iter=1,
                            power_iteration_normalizer="none")
 
 
 def test_svd_flip():
     # Check that svd_flip works in both situations, and reconstructs input.
-    rs = np.random.RandomState(1999)
+    rs = jax.random.RandomState(1999)
     n_samples = 20
     n_features = 10
     X = rs.randn(n_samples, n_features)
@@ -601,7 +598,7 @@ def test_randomized_svd_lapack_driver(n, m, k, seed):
     # Check that different SVD drivers provide consistent results
 
     # Matrix being compressed
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
     X = rng.rand(n, m)
 
     # Number of components
@@ -692,7 +689,7 @@ def test_logistic_sigmoid():
 
 @pytest.fixture()
 def rng():
-    return np.random.RandomState(42)
+    return jax.random.RandomState(42)
 
 
 @pytest.mark.parametrize("dtype", [jnp.float32, jnp.float64])
@@ -922,7 +919,7 @@ def test_incremental_variance_numerical_stability():
 
 def test_incremental_variance_ddof():
     # Test that degrees of freedom parameter for calculations are correct.
-    rng = np.random.RandomState(1999)
+    rng = jax.random.RandomState(1999)
     X = rng.randn(50, 10)
     n_samples, n_features = X.shape
     for batch_size in [11, 20, 37]:
@@ -955,7 +952,7 @@ def test_incremental_variance_ddof():
 
 def test_vector_sign_flip():
     # Testing that sign flip is working & largest value has positive sign
-    data = np.random.RandomState(36).randn(5, 5)
+    data = jax.random.RandomState(36).randn(5, 5)
     max_abs_rows = jnp.argmax(jnp.abs(data), axis=1)
     data_flipped = _deterministic_vector_sign_flip(data)
     max_rows = jnp.argmax(data_flipped, axis=1)
@@ -965,7 +962,7 @@ def test_vector_sign_flip():
 
 
 def test_softmax():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(3, 5)
     exp_X = jnp.exp(X)
     sum_exp_X = jnp.sum(exp_X, axis=1).reshape((-1, 1))
@@ -974,12 +971,12 @@ def test_softmax():
 
 def test_stable_cumsum():
     assert_array_equal(stable_cumsum([1, 2, 3]), jnp.cumsum([1, 2, 3]))
-    r = np.random.RandomState(0).rand(100000)
+    r = jax.random.RandomState(0).rand(100000)
     with pytest.warns(RuntimeWarning):
         stable_cumsum(r, rtol=0, atol=0)
 
     # test axis parameter
-    A = np.random.RandomState(36).randint(1000, size=(5, 5, 5))
+    A = jax.random.RandomState(36).randint(1000, size=(5, 5, 5))
     assert_array_equal(stable_cumsum(A, axis=0), jnp.cumsum(A, axis=0))
     assert_array_equal(stable_cumsum(A, axis=1), jnp.cumsum(A, axis=1))
     assert_array_equal(stable_cumsum(A, axis=2), jnp.cumsum(A, axis=2))
@@ -992,7 +989,7 @@ def test_stable_cumsum():
     "B_array_constr", [jnp.array, sparse.csr_matrix], ids=["dense", "sparse"]
 )
 def test_safe_sparse_dot_2d(A_array_constr, B_array_constr):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     A = rng.random_sample((30, 10))
     B = rng.random_sample((10, 20))
@@ -1006,7 +1003,7 @@ def test_safe_sparse_dot_2d(A_array_constr, B_array_constr):
 
 
 def test_safe_sparse_dot_nd():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     # dense ND / sparse
     A = rng.random_sample((2, 3, 4, 5, 6))
@@ -1029,7 +1026,7 @@ def test_safe_sparse_dot_nd():
     "A_array_constr", [jnp.array, sparse.csr_matrix], ids=["dense", "sparse"]
 )
 def test_safe_sparse_dot_2d_1d(A_array_constr):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     B = rng.random_sample((10))
 
@@ -1050,7 +1047,7 @@ def test_safe_sparse_dot_2d_1d(A_array_constr):
 
 @pytest.mark.parametrize("dense_output", [True, False])
 def test_safe_sparse_dot_dense_output(dense_output):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     A = sparse.random(30, 10, density=0.1, random_state=rng)
     B = sparse.random(10, 20, density=0.1, random_state=rng)

@@ -24,7 +24,7 @@ from xlearn.utils._testing import (
 )
 
 # Common random state
-rng = np.random.RandomState(0)
+rng = jax.random.RandomState(0)
 
 # Toy sample
 X = [[-2, -1], [-1, -1], [-1, -2], [1, 1], [1, 2], [2, 1]]
@@ -156,7 +156,7 @@ def test_diabetes(loss):
 @pytest.mark.parametrize("algorithm", ["SAMME", "SAMME.R"])
 def test_staged_predict(algorithm):
     # Check staged predictions.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     iris_weights = rng.randint(10, size=iris.target.shape)
     diabetes_weights = rng.randint(10, size=diabetes.target.shape)
 
@@ -480,7 +480,7 @@ def test_multidimensional_X():
     Check that the AdaBoost estimators can work with n-dimensional
     data matrix
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     X = rng.randn(50, 3, 3)
     yc = rng.choice([0, 1], 50)
@@ -510,7 +510,7 @@ def test_adaboostclassifier_without_sample_weight(algorithm):
 def test_adaboostregressor_sample_weight():
     # check that giving weight will have an influence on the error computed
     # for a weak learner
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = jnp.linspace(0, 100, num=1000)
     y = (0.8 * X + 0.2) + (rng.rand(X.shape[0]) * 0.0001)
     X = X.reshape(-1, 1)
@@ -584,7 +584,7 @@ def test_adaboost_numerically_stable_feature_importance_with_small_weights():
     Non-regression test for:
     https://github.com/jax-learn/jax-learn/issues/20320
     """
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.normal(size=(1000, 10))
     y = rng.choice([0, 1], size=1000)
     sample_weight = jnp.ones_like(y) * 1e-263
@@ -660,7 +660,7 @@ def test_base_estimator_property_deprecated(AdaBoost):
 def test_deprecated_base_estimator_parameters_can_be_set():
     """Check that setting base_estimator parameters works.
 
-    During the deprecation cycle setting "base_estimator__*" params should
+    During the deprecation cle setting "base_estimator__*" params should
     work.
 
     Non-regression test for https://github.com/jax-learn/jax-learn/issues/25470

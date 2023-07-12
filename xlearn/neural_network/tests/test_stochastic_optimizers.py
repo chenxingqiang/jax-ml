@@ -18,7 +18,7 @@ def test_base_optimizer():
 
 def test_sgd_optimizer_no_momentum():
     params = [jnp.zeros(shape) for shape in shapes]
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     for lr in [10**i for i in range(-3, 4)]:
         optimizer = SGDOptimizer(params, lr, momentum=0, nesterov=False)
@@ -33,7 +33,7 @@ def test_sgd_optimizer_no_momentum():
 def test_sgd_optimizer_momentum():
     params = [jnp.zeros(shape) for shape in shapes]
     lr = 0.1
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     for momentum in jnp.arange(0.5, 0.9, 0.1):
         optimizer = SGDOptimizer(params, lr, momentum=momentum, nesterov=False)
@@ -62,7 +62,7 @@ def test_sgd_optimizer_trigger_stopping():
 def test_sgd_optimizer_nesterovs_momentum():
     params = [jnp.zeros(shape) for shape in shapes]
     lr = 0.1
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     for momentum in jnp.arange(0.5, 0.9, 0.1):
         optimizer = SGDOptimizer(params, lr, momentum=momentum, nesterov=True)
@@ -86,7 +86,7 @@ def test_adam_optimizer():
     params = [jnp.zeros(shape) for shape in shapes]
     lr = 0.001
     epsilon = 1e-8
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     for beta_1 in jnp.arange(0.9, 1.0, 0.05):
         for beta_2 in jnp.arange(0.995, 1.0, 0.001):

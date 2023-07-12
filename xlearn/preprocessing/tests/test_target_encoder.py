@@ -81,7 +81,7 @@ def test_encoding(categories, unknown_value, global_random_seed, smooth, target_
         X_test = categories[0][X_test_array]
     X_test = jnp.concatenate((X_test, [[unknown_value]]))
 
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
 
     if target_type == "binary":
         y_int = rng.randint(low=0, high=2, size=n_samples)
@@ -156,7 +156,7 @@ def test_encoding(categories, unknown_value, global_random_seed, smooth, target_
 @pytest.mark.parametrize("smooth", [4.0, "auto"])
 def test_custom_categories(X, categories, smooth):
     """Custom categories with unknown categories that are not in training data."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     y = rng.uniform(low=-10, high=20, size=X.shape[0])
     enc = TargetEncoder(categories=categories,
                         smooth=smooth, random_state=0).fit(X, y)
@@ -347,7 +347,7 @@ def test_fit_transform_not_associated_with_y_if_ordinal_categorical_is_not(
 ):
     cardinality = 30  # not too large, otherwise we need a very large n_samples
     n_samples = 3000
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     y_train = rng.normal(size=n_samples)
     X_train = rng.randint(0, cardinality, size=n_samples).reshape(-1, 1)
 
@@ -414,7 +414,7 @@ def test_invariance_of_encoding_under_label_permutation(smooth, global_random_se
     # Check that the encoding does not depend on the integer of the value of
     # the integer labels. This is quite of a trivial property but it is helpful
     # to understand the following test.
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
 
     # Random y and informative categorical X to make the test non-trivial when
     # using smoothing.
@@ -466,7 +466,7 @@ def test_target_encoding_for_linear_regression(smooth, global_random_seed):
     # Construct a random target variable. We need a large number of samples for
     # this test to be stable across all values of the random seed.
     n_samples = 50_000
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     y = rng.randn(n_samples)
 
     # Generate a single informative ordinal feature with medium cardinality.

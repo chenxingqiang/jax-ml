@@ -540,7 +540,7 @@ def _require_positive_targets(y1, y2):
     return y1, y2
 
 
-def test_symmetry_consistency():
+def test_symmetry_consisten():
     # We shouldn't forget any metrics
     assert (
         SYMMETRIC_METRICS
@@ -1391,7 +1391,7 @@ def test_averaging_multilabel_all_ones(name):
 
 @ignore_warnings
 def check_sample_weight_invariance(name, metric, y1, y2):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     sample_weight = rng.randint(1, 10, size=len(y1))
 
     # top_k_accuracy_score always lead to a perfect score for k > 1 in the
@@ -1690,7 +1690,7 @@ def test_thresholded_metric_permutation_invariance(name):
 def test_metrics_consistent_type_error(metric_name):
     # check that an understable message is raised when the type between y_true
     # and y_pred mismatch
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     y1 = jnp.array(["spam"] * 3 + ["eggs"] * 2, dtype=object)
     y2 = rng.randint(0, 2, size=y1.size)
 
@@ -1717,7 +1717,7 @@ def test_metrics_consistent_type_error(metric_name):
 def test_metrics_pos_label_error_str(metric, y_pred_threshold, dtype_y_str):
     # check that the error message if `pos_label` is not specified and the
     # targets is made of strings.
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     y1 = jnp.array(["spam"] * 3 + ["eggs"] * 2, dtype=dtype_y_str)
     y2 = rng.randint(0, 2, size=y1.size)
 

@@ -106,7 +106,7 @@ def test_with_without_gram_tol():
     )
 
 
-def test_unreachable_accuracy():
+def test_unreachable_accura():
     assert_array_almost_equal(
         orthogonal_mp(X, y, tol=0), orthogonal_mp(
             X, y, n_nonzero_coefs=n_features)
@@ -292,7 +292,7 @@ def test_omp_gram_dtype_match(data_type):
     assert coef.dtype == data_type
 
 
-def test_omp_gram_numerical_consistency():
+def test_omp_gram_numerical_consisten():
     # verify numericaly consistency among jnp.float32 and jnp.float64
     coef_32 = orthogonal_mp_gram(
         G.astype(jnp.float32), Xy.astype(jnp.float32), n_nonzero_coefs=5

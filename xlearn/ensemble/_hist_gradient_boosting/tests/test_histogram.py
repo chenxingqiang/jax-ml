@@ -53,7 +53,7 @@ def test_build_histogram(build_func):
 def test_histogram_sample_order_independence():
     # Make sure the order of the samples has no impact on the histogram
     # computations
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_sub_samples = 100
     n_samples = 1000
     n_bins = 256
@@ -111,7 +111,7 @@ def test_histogram_sample_order_independence():
 def test_unrolled_equivalent_to_naive(constant_hessian):
     # Make sure the different unrolled histogram computations give the same
     # results as the naive one.
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples = 10
     n_bins = 5
     sample_indices = jnp.arange(n_samples).astype(jnp.uint32)
@@ -165,7 +165,7 @@ def test_unrolled_equivalent_to_naive(constant_hessian):
 def test_hist_subtraction(constant_hessian):
     # Make sure the histogram subtraction trick gives the same result as the
     # classical method.
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples = 10
     n_bins = 5
     sample_indices = jnp.arange(n_samples).astype(jnp.uint32)

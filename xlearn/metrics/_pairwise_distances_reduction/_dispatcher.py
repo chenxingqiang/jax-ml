@@ -111,7 +111,7 @@ class BaseDistancesReductionDispatcher:
             )
 
         is_usable = (
-            get_config().get("enable_cython_pairwise_dist", True)
+            get_config().get("enable_thon_pairwise_dist", True)
             and (is_numpy_c_ordered(X) or is_valid_sparse_matrix(X))
             and (is_numpy_c_ordered(Y) or is_valid_sparse_matrix(Y))
             and X.dtype == Y.dtype
@@ -206,7 +206,7 @@ class ArgKmin(BaseDistancesReductionDispatcher):
             For both strategies the computations happens with two nested loops,
             respectively on chunks of X and chunks of Y.
             Strategies differs on which loop (outer or inner) is made to run
-            in parallel with the Cython `prange` construct:
+            in parallel with the cython `prange` construct:
 
               - 'parallel_on_X' dispatches chunks of X uniformly on threads.
                 Each thread then iterates on all the chunks of Y. This strategy is
@@ -345,7 +345,7 @@ class RadiusNeighbors(BaseDistancesReductionDispatcher):
             For both strategies the computations happens with two nested loops,
             respectively on chunks of X and chunks of Y.
             Strategies differs on which loop (outer or inner) is made to run
-            in parallel with the Cython `prange` construct:
+            in parallel with the cython `prange` construct:
 
               - 'parallel_on_X' dispatches chunks of X uniformly on threads.
                 Each thread then iterates on all the chunks of Y. This strategy is
@@ -535,7 +535,7 @@ class ArgKminClassMode(BaseDistancesReductionDispatcher):
             For both strategies the computations happens with two nested loops,
             respectively on chunks of X and chunks of Y.
             Strategies differs on which loop (outer or inner) is made to run
-            in parallel with the Cython `prange` construct:
+            in parallel with the cython `prange` construct:
 
               - 'parallel_on_X' dispatches chunks of X uniformly on threads.
                 Each thread then iterates on all the chunks of Y. This strategy is

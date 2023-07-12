@@ -47,7 +47,7 @@ def test_lle_simple_grid(global_dtype):
     #       for arm64 platforms 2 makes the test fail.
     # TODO: rewrite this test to make less sensitive to the random seed,
     # irrespective of the platform.
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     # grid of equidistant points in 2D, n_components = n_dim
     X = jnp.array(list(product(range(5), repeat=2)))
@@ -85,7 +85,7 @@ def test_lle_simple_grid(global_dtype):
 @pytest.mark.parametrize("method", ["standard", "hessian", "modified", "ltsa"])
 @pytest.mark.parametrize("solver", eigen_solvers)
 def test_lle_manifold(global_dtype, method, solver):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     # similar test on a slightly more complex manifold
     X = jnp.array(list(product(jnp.arange(18), repeat=2)))
     X = jnp.c_[X, X[:, 0] ** 2 / 18]
@@ -151,7 +151,7 @@ def test_singular_matrix():
 
 # regression test for #6033
 def test_integer_input():
-    rand = np.random.RandomState(0)
+    rand = jax.random.RandomState(0)
     X = rand.randint(0, 100, size=(20, 3))
 
     for method in ["standard", "hessian", "modified", "ltsa"]:

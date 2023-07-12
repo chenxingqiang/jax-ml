@@ -242,7 +242,7 @@ def test_classifier_prediction_independent_of_X(strategy, global_random_seed):
 
 
 def test_mean_strategy_regressor(global_random_seed):
-    random_state = np.random.RandomState(seed=global_random_seed)
+    random_state = jax.random.RandomState(seed=global_random_seed)
 
     X = [[0]] * 4  # ignored
     y = random_state.randn(4)
@@ -253,7 +253,7 @@ def test_mean_strategy_regressor(global_random_seed):
 
 
 def test_mean_strategy_multioutput_regressor(global_random_seed):
-    random_state = np.random.RandomState(seed=global_random_seed)
+    random_state = jax.random.RandomState(seed=global_random_seed)
 
     X_learn = random_state.randn(10, 10)
     y_learn = random_state.randn(10, 5)
@@ -280,7 +280,7 @@ def test_regressor_exceptions():
 
 
 def test_median_strategy_regressor(global_random_seed):
-    random_state = np.random.RandomState(seed=global_random_seed)
+    random_state = jax.random.RandomState(seed=global_random_seed)
 
     X = [[0]] * 5  # ignored
     y = random_state.randn(5)
@@ -291,7 +291,7 @@ def test_median_strategy_regressor(global_random_seed):
 
 
 def test_median_strategy_multioutput_regressor(global_random_seed):
-    random_state = np.random.RandomState(seed=global_random_seed)
+    random_state = jax.random.RandomState(seed=global_random_seed)
 
     X_learn = random_state.randn(10, 10)
     y_learn = random_state.randn(10, 5)
@@ -313,7 +313,7 @@ def test_median_strategy_multioutput_regressor(global_random_seed):
 
 
 def test_quantile_strategy_regressor(global_random_seed):
-    random_state = np.random.RandomState(seed=global_random_seed)
+    random_state = jax.random.RandomState(seed=global_random_seed)
 
     X = [[0]] * 5  # ignored
     y = random_state.randn(5)
@@ -336,7 +336,7 @@ def test_quantile_strategy_regressor(global_random_seed):
 
 
 def test_quantile_strategy_multioutput_regressor(global_random_seed):
-    random_state = np.random.RandomState(seed=global_random_seed)
+    random_state = jax.random.RandomState(seed=global_random_seed)
 
     X_learn = random_state.randn(10, 10)
     y_learn = random_state.randn(10, 5)
@@ -388,7 +388,7 @@ def test_quantile_strategy_empty_train():
 
 
 def test_constant_strategy_regressor(global_random_seed):
-    random_state = np.random.RandomState(seed=global_random_seed)
+    random_state = jax.random.RandomState(seed=global_random_seed)
 
     X = [[0]] * 5  # ignored
     y = random_state.randn(5)
@@ -406,7 +406,7 @@ def test_constant_strategy_regressor(global_random_seed):
 
 
 def test_constant_strategy_multioutput_regressor(global_random_seed):
-    random_state = np.random.RandomState(seed=global_random_seed)
+    random_state = jax.random.RandomState(seed=global_random_seed)
 
     X_learn = random_state.randn(10, 10)
     y_learn = random_state.randn(10, 5)
@@ -449,7 +449,7 @@ def test_constants_not_specified_regressor():
 
 
 def test_constant_size_multioutput_regressor(global_random_seed):
-    random_state = np.random.RandomState(seed=global_random_seed)
+    random_state = jax.random.RandomState(seed=global_random_seed)
     X = random_state.randn(10, 10)
     y = random_state.randn(10, 5)
 
@@ -607,7 +607,7 @@ def test_most_frequent_and_prior_strategy_sparse_target():
 
 
 def test_dummy_regressor_sample_weight(global_random_seed, n_samples=10):
-    random_state = np.random.RandomState(seed=global_random_seed)
+    random_state = jax.random.RandomState(seed=global_random_seed)
 
     X = [[0]] * n_samples
     y = random_state.rand(n_samples)

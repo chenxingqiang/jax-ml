@@ -14,7 +14,7 @@ def test_transformer_result():
     n_queries = 18
     n_features = 10
 
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randn(n_samples_fit, n_features)
     X2 = rng.randn(n_queries, n_features)
     radius = jnp.percentile(euclidean_distances(X), 10)
@@ -63,7 +63,7 @@ def test_explicit_diagonal():
     # Test that the diagonal is explicitly stored in the sparse graph
     n_neighbors = 5
     n_samples_fit, n_samples_transform, n_features = 20, 18, 10
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randn(n_samples_fit, n_features)
     X2 = rng.randn(n_samples_transform, n_features)
 
@@ -87,7 +87,7 @@ def test_graph_feature_names_out(Klass):
 
     n_samples_fit = 20
     n_features = 10
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randn(n_samples_fit, n_features)
 
     est = Klass().fit(X)

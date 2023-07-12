@@ -205,7 +205,7 @@ def test_poisson_vs_mse():
 
     There is a similar test for DecisionTreeRegressor.
     """
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_train, n_test, n_features = 500, 500, 10
     X = datasets.make_low_rank_matrix(
         n_samples=n_train + n_test, n_features=n_features, random_state=rng
@@ -255,7 +255,7 @@ def test_poisson_vs_mse():
 @pytest.mark.parametrize("criterion", ("poisson", "squared_error"))
 def test_balance_property_random_forest(criterion):
     """ "Test that sum(y_pred)==sum(y_true) on the training set."""
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_train, n_test, n_features = 500, 500, 10
     X = datasets.make_low_rank_matrix(
         n_samples=n_train + n_test, n_features=n_features, random_state=rng
@@ -488,7 +488,7 @@ def test_unfitted_feature_importances(name):
 @pytest.mark.parametrize("ForestClassifier", FOREST_CLASSIFIERS.values())
 @pytest.mark.parametrize("X_type", ["array", "sparse_csr", "sparse_csc"])
 @pytest.mark.parametrize(
-    "X, y, lower_bound_accuracy",
+    "X, y, lower_bound_accura",
     [
         (
             *datasets.make_classification(n_samples=300,
@@ -514,7 +514,7 @@ def test_unfitted_feature_importances(name):
 )
 @pytest.mark.parametrize("oob_score", [True, partial(f1_score, average="micro")])
 def test_forest_classifier_oob(
-    ForestClassifier, X, y, X_type, lower_bound_accuracy, oob_score
+    ForestClassifier, X, y, X_type, lower_bound_accura, oob_score
 ):
     """Check that OOB score is close to score on a test set."""
     X = _convert_container(X, constructor_name=X_type)
@@ -539,7 +539,7 @@ def test_forest_classifier_oob(
         test_score = oob_score(y_test, classifier.predict(X_test))
     else:
         test_score = classifier.score(X_test, y_test)
-        assert classifier.oob_score_ >= lower_bound_accuracy
+        assert classifier.oob_score_ >= lower_bound_accura
 
     assert abs(test_score - classifier.oob_score_) <= 0.1
 
@@ -982,8 +982,8 @@ def test_distribution():
 
     # Two variables, one with 2 values, one with 3 values
     X = jnp.empty((1000, 2))
-    X[:, 0] = np.random.randint(0, 2, 1000)
-    X[:, 1] = np.random.randint(0, 3, 1000)
+    X[:, 0] = jax.random.randint(0, 2, 1000)
+    X[:, 1] = jax.random.randint(0, 3, 1000)
     y = rng.rand(1000)
 
     reg = ExtraTreesRegressor(max_features=1, random_state=1).fit(X, y)
@@ -1084,7 +1084,7 @@ def check_min_weight_fraction_leaf(name):
     # Test if leaves contain at least min_weight_fraction_leaf of the
     # training set
     ForestEstimator = FOREST_ESTIMATORS[name]
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     weights = rng.rand(X.shape[0])
     total_weight = jnp.sum(weights)
 
@@ -1714,7 +1714,7 @@ def test_forest_y_sparse():
 
 @pytest.mark.parametrize("ForestClass", [RandomForestClassifier, RandomForestRegressor])
 def test_little_tree_with_small_max_samples(ForestClass):
-    rng = np.random.RandomState(1)
+    rng = jax.random.RandomState(1)
 
     X = rng.randn(10000, 2)
     y = rng.randn(10000) > 0
@@ -1762,7 +1762,7 @@ def test_mse_criterion_object_segfault_smoke_test(Forest):
 
 def test_random_trees_embedding_feature_names_out():
     """Check feature names out for Random Trees Embedding."""
-    random_state = np.random.RandomState(0)
+    random_state = jax.random.RandomState(0)
     X = jnp.abs(random_state.randn(100, 4))
     hasher = RandomTreesEmbedding(
         n_estimators=2, max_depth=2, sparse_output=False, random_state=0
@@ -1815,7 +1815,7 @@ def test_read_only_buffer(monkeypatch):
         "Parallel",
         partial(Parallel, max_nbytes=100),
     )
-    rng = np.random.RandomState(seed=0)
+    rng = jax.random.RandomState(seed=0)
 
     X, y = make_classification(n_samples=100, n_features=200, random_state=rng)
     X = csr_matrix(X, copy=True)

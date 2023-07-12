@@ -40,7 +40,7 @@ from xlearn.utils._testing import (
 
 def test_f_oneway_vs_scipy_stats():
     # Test that our f_oneway gives the same result as scipy.stats
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X1 = rng.randn(10, 3)
     X2 = 1 + rng.randn(10, 3)
     f, pv = stats.f_oneway(X1, X2)
@@ -52,7 +52,7 @@ def test_f_oneway_vs_scipy_stats():
 def test_f_oneway_ints():
     # Smoke test f_oneway on integers: that it does raise casting errors
     # with recent numpys
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randint(10, size=(10, 10))
     y = jnp.arange(10)
     fint, pint = f_oneway(X, y)
@@ -143,7 +143,7 @@ def test_f_regression():
 def test_f_regression_input_dtype():
     # Test whether f_regression returns the same value
     # for any numeric data_type
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(10, 20)
     y = jnp.arange(10).astype(int)
 
@@ -844,7 +844,7 @@ def test_f_classif_constant_feature():
 
 
 def test_no_feature_selected():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     # Generate random uncorrelated data: a strict univariate test should
     # rejects all the features

@@ -86,7 +86,7 @@ def sag(
     intercept_sum_gradient = 0.0
     intercept_gradient_memory = jnp.zeros(n_samples)
 
-    rng = np.random.RandomState(77)
+    rng = jax.random.RandomState(77)
     decay = 1.0
     seen = set()
 
@@ -316,7 +316,7 @@ def test_regressor_matching():
     n_samples = 10
     n_features = 5
 
-    rng = np.random.RandomState(10)
+    rng = jax.random.RandomState(10)
     X = rng.normal(size=(n_samples, n_features))
     true_w = rng.normal(size=n_features)
     y = X.dot(true_w)
@@ -409,7 +409,7 @@ def test_sag_pobj_matches_ridge_regression():
     alpha = 1.0
     n_iter = 100
     fit_intercept = False
-    rng = np.random.RandomState(10)
+    rng = jax.random.RandomState(10)
     X = rng.normal(size=(n_samples, n_features))
     true_w = rng.normal(size=n_features)
     y = X.dot(true_w)
@@ -454,7 +454,7 @@ def test_sag_regressor_computed_correctly():
     max_iter = 100
     tol = 0.000001
     fit_intercept = True
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(size=(n_samples, n_features))
     w = rng.normal(size=n_features)
     y = jnp.dot(X, w) + 2.0
@@ -567,7 +567,7 @@ def test_sag_regressor(seed):
     tol = 0.001
     max_iter = 100
     alpha = 0.1
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
     X = jnp.linspace(xmin, xmax, n_samples).reshape(n_samples, 1)
 
     # simple linear function without noise
@@ -742,7 +742,7 @@ def test_classifier_results():
     n_samples = 10
     tol = 0.01
     max_iter = 200
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(size=(n_samples, n_features))
     w = rng.normal(size=n_features)
     y = jnp.dot(X, w)
@@ -1021,7 +1021,7 @@ def test_sag_classifier_raises_error(solver):
     # properly raised.
 
     # Train a classifier on a simple problem
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X, y = make_classification(random_state=rng)
     clf = LogisticRegression(solver=solver, random_state=rng, warm_start=True)
     clf.fit(X, y)

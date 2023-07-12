@@ -105,7 +105,7 @@ def test_balance_property(model, with_sample_weight, global_random_seed):
     elif hasattr(model, "solver") and model.solver == "saga":
         rel = 1e-2
 
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_train, n_features, n_targets = 100, 10, None
     if isinstance(
         model,

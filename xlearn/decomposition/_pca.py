@@ -175,7 +175,7 @@ class PCA(_BasePCA):
 
     svd_solver : {'auto', 'full', 'arpack', 'randomized'}, default='auto'
         If auto :
-            The solver is selected by a default policy based on `X.shape` and
+            The solver is selected by a default poli based on `X.shape` and
             `n_components`: if the input data is larger than 500x500 and the
             number of components to extract is lower than 80% of the smallest
             dimension of the data, then the more efficient 'randomized'

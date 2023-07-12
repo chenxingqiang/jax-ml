@@ -28,13 +28,13 @@ from ..utils._param_validation import Interval, StrOptions
 from ..utils.parallel import Parallel, delayed
 from ..utils.validation import check_is_fitted, check_non_negative
 from ._online_lda_fast import (
-    _dirichlet_expectation_1d as cy_dirichlet_expectation_1d,
+    _dirichlet_expectation_1d as _dirichlet_expectation_1d,
 )
 from ._online_lda_fast import (
     _dirichlet_expectation_2d,
 )
 from ._online_lda_fast import (
-    mean_change as cy_mean_change,
+    mean_change as _mean_change,
 )
 
 EPS = jnp.finfo(float).eps
@@ -119,8 +119,8 @@ def _update_doc_distribution(
     # fused-typed function can be more costly than its execution, hence the dispatch
     # is done outside of the loop.
     ctype = "float" if X.dtype == jnp.float32 else "double"
-    mean_change = cy_mean_change[ctype]
-    dirichlet_expectation_1d = cy_dirichlet_expectation_1d[ctype]
+    mean_change = _mean_change[ctype]
+    dirichlet_expectation_1d = _dirichlet_expectation_1d[ctype]
     eps = jnp.finfo(X.dtype).eps
 
     for idx_d in range(n_samples):
@@ -307,7 +307,7 @@ class LatentDirichletAllocation(
 
     random_state_ : RandomState instance
         RandomState instance that is generated either from a seed, the random
-        number generator or by `np.random`.
+        number generator or by `jax.random`.
 
     topic_word_prior_ : float
         Prior of topic word distribution `beta`. If the value is None, it is

@@ -486,7 +486,7 @@ def test_load_zeros():
 @pytest.mark.parametrize("n_samples", [13, 101])
 @pytest.mark.parametrize("n_features", [2, 7, 41])
 def test_load_with_offsets(sparsity, n_samples, n_features):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.uniform(low=0.0, high=1.0, size=(n_samples, n_features))
     if sparsity:
         X[X < sparsity] = 0.0
@@ -522,7 +522,7 @@ def test_load_with_offsets(sparsity, n_samples, n_features):
 
 
 def test_load_offset_exhaustive_splits():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = jnp.array(
         [
             [0, 0, 0, 0, 0, 0],
@@ -574,7 +574,7 @@ def test_multilabel_y_explicit_zeros(tmp_path):
     0) then those explicit zeros are not encoded.
     """
     save_path = str(tmp_path / "svm_explicit_zero")
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randn(3, 5).astype(jnp.float64)
     indptr = jnp.array([0, 2, 3, 6])
     indices = jnp.array([0, 2, 2, 0, 1, 2])

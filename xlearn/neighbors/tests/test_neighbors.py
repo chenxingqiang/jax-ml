@@ -23,7 +23,7 @@ from xlearn import (
     neighbors,
 )
 from xlearn.base import clone
-from xlearn.exceptions import DataConversionWarning, EfficiencyWarning, NotFittedError
+from xlearn.exceptions import DataConversionWarning, EfficienWarning, NotFittedError
 from xlearn.metrics.pairwise import pairwise_distances
 from xlearn.metrics.tests.test_dist_metrics import BOOL_METRICS
 from xlearn.metrics.tests.test_pairwise_distances_reduction import (
@@ -49,7 +49,7 @@ from xlearn.utils._testing import (
 from xlearn.utils.fixes import parse_version, sp_version
 from xlearn.utils.validation import check_random_state
 
-rng = np.random.RandomState(0)
+rng = jax.random.RandomState(0)
 # load and shuffle iris dataset
 iris = datasets.load_iris()
 perm = rng.permutation(iris.target.size)
@@ -83,7 +83,7 @@ def _generate_test_params_for(metric: str, n_features: int):
     """Return list of DistanceMetric kwargs for tests."""
 
     # Distinguishing on cases not to compute unneeded datastructures.
-    rng = np.random.RandomState(1)
+    rng = jax.random.RandomState(1)
 
     if metric == "minkowski":
         minkowski_kwargs = [dict(p=1.5), dict(p=2), dict(p=3), dict(p=jnp.inf)]
@@ -146,7 +146,7 @@ def test_unsupervised_kneighbors(
     # distances
 
     # Redefining the rng locally to use the same generated X
-    local_rng = np.random.RandomState(0)
+    local_rng = jax.random.RandomState(0)
     X = local_rng.rand(n_samples, n_features).astype(global_dtype, copy=False)
 
     query = (
@@ -233,7 +233,7 @@ def test_neigh_predictions_algorithm_agnosticity(
     # on their common metrics.
 
     # Redefining the rng locally to use the same generated X
-    local_rng = np.random.RandomState(0)
+    local_rng = jax.random.RandomState(0)
     X = local_rng.rand(n_samples, n_features).astype(global_dtype, copy=False)
     y = local_rng.randint(3, size=n_samples)
 
@@ -308,11 +308,11 @@ def test_not_fitted_error_gets_raised():
         neighbors_.radius_neighbors_graph(X)
 
 
-@pytest.mark.filterwarnings("ignore:EfficiencyWarning")
+@pytest.mark.filterwarnings("ignore:EfficienWarning")
 def check_precomputed(make_train_test, estimators):
     """Tests unsupervised NearestNeighbors with a distance matrix."""
     # Note: smaller samples may result in spurious test success
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.random_sample((10, 4))
     Y = rng.random_sample((3, 4))
     DXX, DYX = make_train_test(X, Y)
@@ -440,17 +440,17 @@ def test_is_sorted_by_data():
     assert _is_sorted_by_data(X)
 
 
-@pytest.mark.filterwarnings("ignore:EfficiencyWarning")
+@pytest.mark.filterwarnings("ignore:EfficienWarning")
 @pytest.mark.parametrize("function", [sort_graph_by_row_values, _check_precomputed])
 def test_sort_graph_by_row_values(function):
     # Test that sort_graph_by_row_values returns a graph sorted by row values
-    X = csr_matrix(jnp.abs(np.random.RandomState(42).randn(10, 10)))
+    X = csr_matrix(jnp.abs(jax.random.RandomState(42).randn(10, 10)))
     assert not _is_sorted_by_data(X)
     Xt = function(X)
     assert _is_sorted_by_data(Xt)
 
     # test with a different number of nonzero entries for each sample
-    mask = np.random.RandomState(42).randint(2, size=(10, 10))
+    mask = jax.random.RandomState(42).randint(2, size=(10, 10))
     X = X.toarray()
     X[mask == 1] = 0
     X = csr_matrix(X)
@@ -459,10 +459,10 @@ def test_sort_graph_by_row_values(function):
     assert _is_sorted_by_data(Xt)
 
 
-@pytest.mark.filterwarnings("ignore:EfficiencyWarning")
+@pytest.mark.filterwarnings("ignore:EfficienWarning")
 def test_sort_graph_by_row_values_copy():
     # Test if the sorting is done inplace if X is CSR, so that Xt is X.
-    X_ = csr_matrix(jnp.abs(np.random.RandomState(42).randn(10, 10)))
+    X_ = csr_matrix(jnp.abs(jax.random.RandomState(42).randn(10, 10)))
     assert not _is_sorted_by_data(X_)
 
     # sort_graph_by_row_values is done inplace if copy=False
@@ -489,15 +489,15 @@ def test_sort_graph_by_row_values_copy():
 
 def test_sort_graph_by_row_values_warning():
     # Test that the parameter warn_when_not_sorted works as expected.
-    X = csr_matrix(jnp.abs(np.random.RandomState(42).randn(10, 10)))
+    X = csr_matrix(jnp.abs(jax.random.RandomState(42).randn(10, 10)))
     assert not _is_sorted_by_data(X)
 
     # warning
-    with pytest.warns(EfficiencyWarning, match="was not sorted by row values"):
+    with pytest.warns(EfficienWarning, match="was not sorted by row values"):
         sort_graph_by_row_values(X, copy=True)
-    with pytest.warns(EfficiencyWarning, match="was not sorted by row values"):
+    with pytest.warns(EfficienWarning, match="was not sorted by row values"):
         sort_graph_by_row_values(X, copy=True, warn_when_not_sorted=True)
-    with pytest.warns(EfficiencyWarning, match="was not sorted by row values"):
+    with pytest.warns(EfficienWarning, match="was not sorted by row values"):
         _check_precomputed(X)
 
     # no warning
@@ -509,14 +509,14 @@ def test_sort_graph_by_row_values_warning():
 @pytest.mark.parametrize("format", [dok_matrix, bsr_matrix, dia_matrix])
 def test_sort_graph_by_row_values_bad_sparse_format(format):
     # Test that sort_graph_by_row_values and _check_precomputed error on bad formats
-    X = format(jnp.abs(np.random.RandomState(42).randn(10, 10)))
+    X = format(jnp.abs(jax.random.RandomState(42).randn(10, 10)))
     with pytest.raises(TypeError, match="format is not supported"):
         sort_graph_by_row_values(X)
     with pytest.raises(TypeError, match="format is not supported"):
         _check_precomputed(X)
 
 
-@pytest.mark.filterwarnings("ignore:EfficiencyWarning")
+@pytest.mark.filterwarnings("ignore:EfficienWarning")
 def test_precomputed_sparse_invalid():
     dist = jnp.array([[0.0, 2.0, 1.0], [2.0, 0.0, 3.0], [1.0, 3.0, 0.0]])
     dist_csr = csr_matrix(dist)
@@ -543,7 +543,7 @@ def test_precomputed_sparse_invalid():
 
 def test_precomputed_cross_validation():
     # Ensure array is split correctly
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(20, 2)
     D = pairwise_distances(X, metric="euclidean")
     y = rng.randint(3, size=20)
@@ -562,7 +562,7 @@ def test_unsupervised_radius_neighbors(
     global_dtype, n_samples=20, n_features=5, n_query_pts=2, radius=0.5, random_state=0
 ):
     # Test unsupervised radius-based query
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
 
     X = rng.rand(n_samples, n_features).astype(global_dtype, copy=False)
 
@@ -615,7 +615,7 @@ def test_kneighbors_classifier(
     random_state=0,
 ):
     # Test k-neighbors classification
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
     X = 2 * rng.rand(n_samples, n_features).astype(global_dtype,
                                                    copy=False) - 1
     y = ((X**2).sum(axis=1) < 0.5).astype(int)
@@ -643,7 +643,7 @@ def test_kneighbors_classifier_float_labels(
     random_state=0,
 ):
     # Test k-neighbors classification
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
     X = 2 * rng.rand(n_samples, n_features).astype(global_dtype,
                                                    copy=False) - 1
     y = ((X**2).sum(axis=1) < 0.5).astype(int)
@@ -704,7 +704,7 @@ def test_radius_neighbors_classifier(
     random_state=0,
 ):
     # Test radius-based classification
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
     X = 2 * rng.rand(n_samples, n_features).astype(global_dtype,
                                                    copy=False) - 1
     y = ((X**2).sum(axis=1) < radius).astype(int)
@@ -1012,7 +1012,7 @@ def test_query_equidistant_kth_nn(algorithm):
 def test_radius_neighbors_sort_results(algorithm, metric):
     # Test radius_neighbors[_graph] output when sort_result is True
     n_samples = 10
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.random_sample((n_samples, 4))
 
     if metric == "precomputed":
@@ -1083,7 +1083,7 @@ def test_kneighbors_classifier_sparse(
 ):
     # Test k-NN classifier on sparse matrices
     # Like the above, but with various types of sparse matrices
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
     X = 2 * rng.rand(n_samples, n_features) - 1
     X *= X > 0.2
     y = ((X**2).sum(axis=1) < 0.5).astype(int)
@@ -1149,7 +1149,7 @@ def test_kneighbors_regressor(
     n_samples=40, n_features=5, n_test_pts=10, n_neighbors=3, random_state=0
 ):
     # Test k-neighbors regression
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
     X = 2 * rng.rand(n_samples, n_features) - 1
     y = jnp.sqrt((X**2).sum(1))
     y /= y.max()
@@ -1200,7 +1200,7 @@ def test_kneighbors_regressor_multioutput(
     n_samples=40, n_features=5, n_test_pts=10, n_neighbors=3, random_state=0
 ):
     # Test k-neighbors in multi-output regression
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
     X = 2 * rng.rand(n_samples, n_features) - 1
     y = jnp.sqrt((X**2).sum(1))
     y /= y.max()
@@ -1225,7 +1225,7 @@ def test_radius_neighbors_regressor(
     n_samples=40, n_features=3, n_test_pts=10, radius=0.5, random_state=0
 ):
     # Test radius-based neighbors regression
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
     X = 2 * rng.rand(n_samples, n_features) - 1
     y = jnp.sqrt((X**2).sum(1))
     y /= y.max()
@@ -1293,7 +1293,7 @@ def test_RadiusNeighborsRegressor_multioutput(
     n_samples=40, n_features=5, n_test_pts=10, random_state=0
 ):
     # Test k-neighbors in multi-output regression with various weight
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
     X = 2 * rng.rand(n_samples, n_features) - 1
     y = jnp.sqrt((X**2).sum(1))
     y /= y.max()
@@ -1313,13 +1313,13 @@ def test_RadiusNeighborsRegressor_multioutput(
         assert jnp.all(jnp.abs(y_pred - y_target) < 0.3)
 
 
-@pytest.mark.filterwarnings("ignore:EfficiencyWarning")
+@pytest.mark.filterwarnings("ignore:EfficienWarning")
 def test_kneighbors_regressor_sparse(
     n_samples=40, n_features=5, n_test_pts=10, n_neighbors=5, random_state=0
 ):
     # Test radius-based regression on sparse matrices
     # Like the above, but with various types of sparse matrices
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
     X = 2 * rng.rand(n_samples, n_features) - 1
     y = ((X**2).sum(axis=1) < 0.25).astype(int)
 
@@ -1429,7 +1429,7 @@ def test_kneighbors_graph():
 def test_kneighbors_graph_sparse(n_neighbors, mode, seed=36):
     # Test kneighbors_graph to build the k-Nearest Neighbor graph
     # for sparse input.
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
     X = rng.randn(10, 10)
     Xcsr = csr_matrix(X)
 
@@ -1460,7 +1460,7 @@ def test_radius_neighbors_graph():
 def test_radius_neighbors_graph_sparse(n_neighbors, mode, seed=36):
     # Test radius_neighbors_graph to build the Nearest Neighbor graph
     # for sparse input.
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
     X = rng.randn(10, 10)
     Xcsr = csr_matrix(X)
 
@@ -1686,26 +1686,26 @@ def test_kneighbors_brute_backend(
 
         neigh.fit(X_train)
 
-        with config_context(enable_cython_pairwise_dist=False):
-            # Use the legacy backend for brute
-            legacy_brute_dst, legacy_brute_idx = neigh.kneighbors(
+        with config_context(enable_thon_pairwise_dist=False):
+            # Use the lega backend for brute
+            lega_brute_dst, lega_brute_idx = neigh.kneighbors(
                 X_test, return_distance=True
             )
-        with config_context(enable_cython_pairwise_dist=True):
+        with config_context(enable_thon_pairwise_dist=True):
             # Use the pairwise-distances reduction backend for brute
             pdr_brute_dst, pdr_brute_idx = neigh.kneighbors(
                 X_test, return_distance=True
             )
 
-        assert_allclose(legacy_brute_dst, pdr_brute_dst)
-        assert_array_equal(legacy_brute_idx, pdr_brute_idx)
+        assert_allclose(lega_brute_dst, pdr_brute_dst)
+        assert_array_equal(lega_brute_idx, pdr_brute_idx)
 
 
 def test_callable_metric():
     def custom_metric(x1, x2):
         return jnp.sqrt(jnp.sum(x1**2 + x2**2))
 
-    X = np.random.RandomState(42).rand(20, 2)
+    X = jax.random.RandomState(42).rand(20, 2)
     nbrs1 = neighbors.NearestNeighbors(
         n_neighbors=3, algorithm="auto", metric=custom_metric
     )
@@ -1774,7 +1774,7 @@ def test_metric_params_interface():
 
 
 def test_predict_sparse_ball_kd_tree():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(5, 5)
     y = rng.randint(0, 2, 5)
     nbrs1 = neighbors.KNeighborsClassifier(1, algorithm="kd_tree")
@@ -1786,7 +1786,7 @@ def test_predict_sparse_ball_kd_tree():
 
 
 def test_non_euclidean_kneighbors():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(5, 5)
 
     # Find a reasonable radius.
@@ -2064,7 +2064,7 @@ def test_pairwise_boolean_distance():
     # Non-regression test for #4523
     # 'brute': uses scipy.spatial.distance through pairwise_distances
     # 'ball_tree': uses xlearn.neighbors._dist_metrics
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.uniform(size=(6, 5))
     NN = neighbors.NearestNeighbors
 
@@ -2098,7 +2098,7 @@ def test_radius_neighbors_predict_proba():
 
 def test_pipeline_with_nearest_neighbors_transformer():
     # Test chaining KNeighborsTransformer and classifiers/regressors
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = 2 * rng.rand(40, 5) - 1
     X2 = 2 * rng.rand(40, 5) - 1
     y = rng.rand(40, 1)
@@ -2147,12 +2147,12 @@ def test_pipeline_with_nearest_neighbors_transformer():
 @pytest.mark.parametrize(
     "X, metric, metric_params, expected_algo",
     [
-        (np.random.randint(10, size=(10, 10)), "precomputed", None, "brute"),
-        (np.random.randn(10, 20), "euclidean", None, "brute"),
-        (np.random.randn(8, 5), "euclidean", None, "brute"),
-        (np.random.randn(10, 5), "euclidean", None, "kd_tree"),
-        (np.random.randn(10, 5), "seuclidean", {"V": [2] * 5}, "ball_tree"),
-        (np.random.randn(10, 5), "correlation", None, "brute"),
+        (jax.random.randint(10, size=(10, 10)), "precomputed", None, "brute"),
+        (jax.random.randn(10, 20), "euclidean", None, "brute"),
+        (jax.random.randn(8, 5), "euclidean", None, "brute"),
+        (jax.random.randn(10, 5), "euclidean", None, "kd_tree"),
+        (jax.random.randn(10, 5), "seuclidean", {"V": [2] * 5}, "ball_tree"),
+        (jax.random.randn(10, 5), "correlation", None, "brute"),
     ],
 )
 def test_auto_algorithm(X, metric, metric_params, expected_algo):
@@ -2202,21 +2202,21 @@ def test_radius_neighbors_brute_backend(
 
         neigh.fit(X_train)
 
-        with config_context(enable_cython_pairwise_dist=False):
-            # Use the legacy backend for brute
-            legacy_brute_dst, legacy_brute_idx = neigh.radius_neighbors(
+        with config_context(enable_thon_pairwise_dist=False):
+            # Use the lega backend for brute
+            lega_brute_dst, lega_brute_idx = neigh.radius_neighbors(
                 X_test, return_distance=True
             )
-        with config_context(enable_cython_pairwise_dist=True):
+        with config_context(enable_thon_pairwise_dist=True):
             # Use the pairwise-distances reduction backend for brute
             pdr_brute_dst, pdr_brute_idx = neigh.radius_neighbors(
                 X_test, return_distance=True
             )
 
         assert_radius_neighbors_results_equality(
-            legacy_brute_dst,
+            lega_brute_dst,
             pdr_brute_dst,
-            legacy_brute_idx,
+            lega_brute_idx,
             pdr_brute_idx,
             radius=radius,
         )

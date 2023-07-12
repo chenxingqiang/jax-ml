@@ -1,4 +1,5 @@
 from numbers import Integral, Real
+import jax
 
 import jax.numpy as jnp
 import pytest
@@ -381,7 +382,7 @@ def test_generate_valid_param(constraint):
         ("array-like", jnp.array([[1, 2], [3, 4]])),
         ("sparse matrix", csr_matrix([[1, 2], [3, 4]])),
         ("random_state", 0),
-        ("random_state", np.random.RandomState(0)),
+        ("random_state", jax.random.RandomState(0)),
         ("random_state", None),
         (_Class, _Class()),
         (int, 1),

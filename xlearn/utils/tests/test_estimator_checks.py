@@ -1,6 +1,3 @@
-# We can not use pytest here, because we run
-# build_tools/azure/test_pytest_soft_dependency.sh on these
-# tests to make sure estimator_checks works without pytest.
 
 import importlib
 import sys

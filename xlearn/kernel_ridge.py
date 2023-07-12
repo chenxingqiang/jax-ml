@@ -123,7 +123,7 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
     >>> from xlearn.kernel_ridge import KernelRidge
     >>> import jax.numpy as jnp
     >>> n_samples, n_features = 10, 5
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> y = rng.randn(n_samples)
     >>> X = rng.randn(n_samples, n_features)
     >>> krr = KernelRidge(alpha=1.0)

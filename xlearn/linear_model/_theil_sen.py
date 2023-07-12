@@ -212,7 +212,7 @@ class TheilSenRegressor(RegressorMixin, LinearModel):
     The algorithm calculates least square solutions on subsets with size
     n_subsamples of the samples in X. Any value of n_subsamples between the
     number of features and samples leads to an estimator with a compromise
-    between robustness and efficiency. Since the number of least square
+    between robustness and efficien. Since the number of least square
     solutions is "n_samples choose n_subsamples", it can be extremely large
     and can therefore be limited with max_subpopulation. If this limit is
     reached, the subsets are chosen randomly. In a final step, the spatial
@@ -242,8 +242,8 @@ class TheilSenRegressor(RegressorMixin, LinearModel):
         Number of samples to calculate the parameters. This is at least the
         number of features (plus 1 if fit_intercept=True) and the number of
         samples as a maximum. A lower number leads to a higher breakdown
-        point and a low efficiency while a high number leads to a low
-        breakdown point and a high efficiency. If None, take the
+        point and a low efficien while a high number leads to a low
+        breakdown point and a high efficien. If None, take the
         minimum number of subsamples leading to maximal robustness.
         If n_subsamples is set to n_samples, Theil-Sen is identical to least
         squares.

@@ -3,7 +3,6 @@ Utility methods to print system info for debugging
 
 adapted from :func:`pandas.show_versions`
 """
-# License: BSD 3 clause
 
 import platform
 import sys
@@ -50,7 +49,7 @@ def _get_deps_info():
         "setuptools",
         "numpy",
         "scipy",
-        "Cython",
+        "cython",
         "pandas",
         "matplotlib",
         "joblib",

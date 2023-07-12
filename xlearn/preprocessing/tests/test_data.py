@@ -56,7 +56,7 @@ from xlearn.utils.sparsefuncs import mean_variance_axis
 iris = datasets.load_iris()
 
 # Make some data to be used many times
-rng = np.random.RandomState(0)
+rng = jax.random.RandomState(0)
 n_features = 30
 n_samples = 1000
 offsets = rng.uniform(-1, 1, size=n_features)
@@ -193,7 +193,7 @@ def test_standard_scaler_1d():
 @pytest.mark.parametrize("add_sample_weight", [False, True])
 def test_standard_scaler_dtype(add_sample_weight, sparse_constructor):
     # Ensure scaling does not affect dtype
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 10
     n_features = 3
     if add_sample_weight:
@@ -234,7 +234,7 @@ def test_standard_scaler_constant_features(
         pytest.skip(
             f"{scaler.__class__.__name__} does not yet support sample_weight")
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 100
     n_features = 1
     if add_sample_weight:
@@ -378,7 +378,7 @@ def test_standard_scaler_numerical_stability():
 
 def test_scaler_2d_arrays():
     # Test scaling of 2d array along first axis
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_features = 5
     n_samples = 4
     X = rng.randn(n_samples, n_features)
@@ -430,7 +430,7 @@ def test_scaler_2d_arrays():
 
 def test_scaler_float16_overflow():
     # Test if the scaler will not overflow on float16 numpy arrays
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     # float16 has a maximum of 65500.0. On the worst case 5 * 200000 is 100000
     # which is enough to overflow the data type
     X = rng.uniform(5, 10, [200000, 1]).astype(jnp.float16)
@@ -570,7 +570,7 @@ def test_standard_scaler_partial_fit():
 def test_standard_scaler_partial_fit_numerical_stability():
     # Test if the incremental computation introduces significative errors
     # for large datasets with values of large magniture
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_features = 2
     n_samples = 100
     offsets = rng.uniform(-1e15, 1e15, size=n_features)
@@ -812,7 +812,7 @@ def test_min_max_scaler_1d():
 
 @pytest.mark.parametrize("sample_weight", [True, None])
 def test_scaler_without_centering(sample_weight):
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randn(4, 5)
     X[:, 0] = 0.0  # first feature is always of zero
     X_csr = sparse.csr_matrix(X)
@@ -964,7 +964,7 @@ def test_scaler_return_identity():
 def test_scaler_int():
     # test that scaler converts integer input to floating
     # for both sparse and dense matrices
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randint(20, size=(4, 5))
     X[:, 0] = 0  # first feature is always of zero
     X_csr = sparse.csr_matrix(X)
@@ -1033,7 +1033,7 @@ def test_scaler_int():
 
 def test_scaler_without_copy():
     # Check that StandardScaler.fit does not change input
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randn(4, 5)
     X[:, 0] = 0.0  # first feature is always of zero
     X_csr = sparse.csr_matrix(X)
@@ -1053,7 +1053,7 @@ def test_scaler_without_copy():
 
 
 def test_scale_sparse_with_mean_raise_exception():
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randn(4, 5)
     X_csr = sparse.csr_matrix(X)
     X_csc = sparse.csc_matrix(X)
@@ -1104,7 +1104,7 @@ def test_robust_scaler_error_sparse():
 
 @pytest.mark.parametrize("with_centering", [True, False])
 @pytest.mark.parametrize("with_scaling", [True, False])
-@pytest.mark.parametrize("X", [np.random.randn(10, 3), sparse.rand(10, 3, density=0.5)])
+@pytest.mark.parametrize("X", [jax.random.randn(10, 3), sparse.rand(10, 3, density=0.5)])
 def test_robust_scaler_attributes(X, with_centering, with_scaling):
     # check consistent type of attributes
     if with_centering and sparse.issparse(X):
@@ -1127,7 +1127,7 @@ def test_robust_scaler_attributes(X, with_centering, with_scaling):
 def test_robust_scaler_col_zero_sparse():
     # check that the scaler is working when there is not data materialized in a
     # column of a sparse matrix
-    X = np.random.randn(10, 5)
+    X = jax.random.randn(10, 5)
     X[:, 0] = 0
     X = sparse.csr_matrix(X)
 
@@ -1141,7 +1141,7 @@ def test_robust_scaler_col_zero_sparse():
 
 def test_robust_scaler_2d_arrays():
     # Test robust scaling of 2d array along first axis
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(4, 5)
     X[:, 0] = 0.0  # first feature is always of zero
 
@@ -1176,7 +1176,7 @@ def test_robust_scaler_equivalence_dense_sparse(density, strictly_signed):
 
 def test_robust_scaler_transform_one_row_csr():
     # Check RobustScaler on transforming csr matrix with one row
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(4, 5)
     single_row = jnp.array([[0.1, 1.0, 2.0, 0.0, -1.0]])
     scaler = RobustScaler(with_centering=False)
@@ -1395,7 +1395,7 @@ def test_quantile_transform_subsampling():
     # dense support
     n_samples = 1000000
     n_quantiles = 1000
-    X = jnp.sort(np.random.sample((n_samples, 1)), axis=0)
+    X = jnp.sort(jax.random.sample((n_samples, 1)), axis=0)
     ROUND = 5
     inf_norm_arr = []
     for random_state in range(ROUND):
@@ -1507,7 +1507,7 @@ def test_quantile_transform_bounds():
     assert_array_almost_equal(X_trans, X1)
 
     # check that values outside of the range learned will be mapped properly.
-    X = np.random.random((1000, 1))
+    X = jax.random.random((1000, 1))
     transformer = QuantileTransformer()
     transformer.fit(X)
     assert transformer.transform(
@@ -1580,7 +1580,7 @@ def test_robust_scaler_invalid_range():
 
 
 def test_scale_function_without_centering():
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randn(4, 5)
     X[:, 0] = 0.0  # first feature is always of zero
     X_csr = sparse.csr_matrix(X)
@@ -1662,7 +1662,7 @@ def test_robust_scaler_zero_variance_features():
 def test_robust_scaler_unit_variance():
     # Check RobustScaler with unit_variance=True on standard normal data with
     # outliers
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randn(1000000, 1)
     X_with_outliers = jnp.vstack(
         [X, jnp.ones((100, 1)) * 100, jnp.ones((100, 1)) * -100])
@@ -1852,7 +1852,7 @@ def test_maxabs_scaler_partial_fit():
 
 
 def test_normalizer_l1():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_dense = rng.randn(4, 5)
     X_sparse_unpruned = sparse.csr_matrix(X_dense)
 
@@ -1900,7 +1900,7 @@ def test_normalizer_l1():
 
 
 def test_normalizer_l2():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_dense = rng.randn(4, 5)
     X_sparse_unpruned = sparse.csr_matrix(X_dense)
 
@@ -1947,7 +1947,7 @@ def test_normalizer_l2():
 
 
 def test_normalizer_max():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_dense = rng.randn(4, 5)
     X_sparse_unpruned = sparse.csr_matrix(X_dense)
 
@@ -1996,7 +1996,7 @@ def test_normalizer_max():
 
 def test_normalizer_max_sign():
     # check that we normalize by a positive number even for negative data
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_dense = rng.randn(4, 5)
     # set the row number 3 to zero
     X_dense[3, :] = 0.0
@@ -2017,11 +2017,11 @@ def test_normalizer_max_sign():
 def test_normalize():
     # Test normalize function
     # Only tests functionality not used by the tests for Normalizer.
-    X = np.random.RandomState(37).randn(3, 2)
+    X = jax.random.RandomState(37).randn(3, 2)
     assert_array_equal(normalize(X, copy=False),
                        normalize(X.T, axis=0, copy=False).T)
 
-    rs = np.random.RandomState(0)
+    rs = jax.random.RandomState(0)
     X_dense = rs.randn(10, 5)
     X_sparse = sparse.csr_matrix(X_dense)
     ones = jnp.ones((10))
@@ -2118,7 +2118,7 @@ def test_binarizer():
 def test_center_kernel():
     # Test that KernelCenterer is equivalent to StandardScaler
     # in feature space
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_fit = rng.random_sample((5, 4))
     scaler = StandardScaler(with_std=False)
     scaler.fit(X_fit)
@@ -2162,7 +2162,7 @@ def test_center_kernel():
 
 def test_kernelcenterer_non_linear_kernel():
     """Check kernel centering for non-linear kernel."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X, X_test = rng.randn(100, 50), rng.randn(20, 50)
 
     def phi(X):
@@ -2235,7 +2235,7 @@ def test_cv_pipeline_precomputed():
 
 
 def test_fit_transform():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
     for obj in (StandardScaler(), Normalizer(), Binarizer()):
         X_transformed = obj.fit(X).transform(X)
@@ -2453,7 +2453,7 @@ def test_optimization_power_transformer(method, lmbda):
     # - apply fit_transform to X_inv (we get X_inv_trans)
     # - check that X_inv_trans is roughly equal to X
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 20000
     X = rng.normal(loc=0, scale=1, size=(n_samples, 1))
 
@@ -2707,7 +2707,7 @@ def test_one_to_one_features_pandas(Transformer):
 def test_kernel_centerer_feature_names_out():
     """Test that kernel centerer `feature_names_out`."""
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((6, 4))
     X_pairwise = linear_kernel(X)
     centerer = KernelCenterer().fit(X_pairwise)

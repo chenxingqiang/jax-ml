@@ -15,7 +15,7 @@ from xlearn.utils._testing import (
 
 
 def test_elliptic_envelope(global_random_seed):
-    rnd = np.random.RandomState(global_random_seed)
+    rnd = jax.random.RandomState(global_random_seed)
     X = rnd.randn(100, 10)
     clf = EllipticEnvelope(contamination=0.1)
     with pytest.raises(NotFittedError):

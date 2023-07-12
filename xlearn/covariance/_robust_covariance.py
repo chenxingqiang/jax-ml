@@ -693,7 +693,7 @@ class MinCovDet(EmpiricalCovariance):
     >>> from xlearn.datasets import make_gaussian_quantiles
     >>> real_cov = jnp.array([[.8, .3],
     ...                      [.3, .4]])
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> X = rng.multivariate_normal(mean=[0, 0],
     ...                                   cov=real_cov,
     ...                                   size=500)

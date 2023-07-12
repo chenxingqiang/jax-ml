@@ -1,3 +1,4 @@
+import jax
 import jax.numpy as jnp
 from scipy.optimize import fmin_ncg
 
@@ -8,7 +9,7 @@ from xlearn.utils.optimize import _newton_cg
 def test_newton_cg():
     # Test that newton_cg gives same result as scipy's fmin_ncg
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     A = rng.normal(size=(10, 10))
     x0 = jnp.ones(10)
 

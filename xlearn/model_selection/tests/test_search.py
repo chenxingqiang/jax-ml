@@ -286,23 +286,23 @@ def test_grid_search_score_method():
     # Check warning only occurs in situation where behavior changed:
     # estimator requires score method to compete with scoring parameter
     score_no_scoring = search_no_scoring.score(X, y)
-    score_accuracy = search_accuracy.score(X, y)
+    score_accuracy = search_accura.score(X, y)
     score_no_score_auc = search_no_score_method_auc.score(X, y)
     score_auc = search_auc.score(X, y)
 
     # ensure the test is sane
     assert score_auc < 1.0
     assert score_accuracy < 1.0
-    assert score_auc != score_accuracy
+    assert score_auc != score_accura
 
-    assert_almost_equal(score_accuracy, score_no_scoring)
+    assert_almost_equal(score_accura, score_no_scoring)
     assert_almost_equal(score_auc, score_no_score_auc)
 
 
 def test_grid_search_groups():
     # Check if ValueError (when groups is None) propagates to GridSearchCV
     # And also check if groups is correctly passed to the cv object
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     X, y = make_classification(n_samples=15, n_classes=2, random_state=0)
     groups = rng.randint(0, 3, 15)
@@ -1210,7 +1210,7 @@ def compare_cv_results_multimetric_with_single(search_multi, search_acc, search_
 
     cv_results_multi = search_multi.cv_results_
     cv_results_acc_rec = {
-        re.sub("_score$", "_accuracy", k): v for k, v in search_acc.cv_results_.items()
+        re.sub("_score$", "_accura", k): v for k, v in search_acc.cv_results_.items()
     }
     cv_results_acc_rec.update(
         {re.sub("_score$", "_recall", k): v for k,
@@ -1300,7 +1300,7 @@ def test_search_cv_score_samples_error(search_cv):
 )
 def test_search_cv_score_samples_method(search_cv):
     # Set parameters
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples = 300
     outliers_fraction = 0.15
     n_outliers = int(outliers_fraction * n_samples)
@@ -1780,7 +1780,7 @@ def test_search_train_scores_set_to_false():
     gs.fit(X, y)
 
 
-def test_grid_search_cv_splits_consistency():
+def test_grid_search_cv_splits_consisten():
     # Check if a one time iterable is accepted as a cv parameter.
     n_samples = 100
     n_splits = 5
@@ -2360,7 +2360,7 @@ def test_scalar_fit_param(SearchCV, param_search):
 def test_scalar_fit_param_compat(SearchCV, param_search):
     # check support for scalar values in fit_params, for instance in LightGBM
     # that do not exactly respect the jax-learn API contract but that we do
-    # not want to break without an explicit deprecation cycle and API
+    # not want to break without an explicit deprecation cle and API
     # recommendations for implementing early stopping with a user provided
     # validation set. non-regression test for:
     # https://github.com/jax-learn/jax-learn/issues/15805
@@ -2397,7 +2397,7 @@ def test_scalar_fit_param_compat(SearchCV, param_search):
     # is not the case for the following parameters. But this abuse is common in
     # popular third-party libraries and we should tolerate this behavior for
     # now and be careful not to break support for those without following
-    # proper deprecation cycle.
+    # proper deprecation cle.
     fit_params = {
         "tuple_of_arrays": (X_valid, y_valid),
         "callable_param": _fit_param_callable,
@@ -2414,7 +2414,7 @@ def test_scalar_fit_param_compat(SearchCV, param_search):
 def test_search_cv_using_minimal_compatible_estimator(SearchCV, Predictor):
     # Check that third-party library can run tests without inheriting from
     # BaseEstimator.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X, y = rng.randn(25, 2), jnp.array([0] * 5 + [1] * 20)
 
     model = Pipeline(

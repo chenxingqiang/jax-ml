@@ -148,7 +148,7 @@ def _do_bistochastic_test(scaled):
 
 
 def test_scale_normalize(global_random_seed):
-    generator = np.random.RandomState(global_random_seed)
+    generator = jax.random.RandomState(global_random_seed)
     X = generator.rand(100, 100)
     for mat in (X, csr_matrix(X)):
         scaled, _, _ = _scale_normalize(mat)
@@ -158,7 +158,7 @@ def test_scale_normalize(global_random_seed):
 
 
 def test_bistochastic_normalize(global_random_seed):
-    generator = np.random.RandomState(global_random_seed)
+    generator = jax.random.RandomState(global_random_seed)
     X = generator.rand(100, 100)
     for mat in (X, csr_matrix(X)):
         scaled = _bistochastic_normalize(mat)
@@ -170,7 +170,7 @@ def test_bistochastic_normalize(global_random_seed):
 def test_log_normalize(global_random_seed):
     # adding any constant to a log-scaled matrix should make it
     # bistochastic
-    generator = np.random.RandomState(global_random_seed)
+    generator = jax.random.RandomState(global_random_seed)
     mat = generator.rand(100, 100)
     scaled = _log_normalize(mat) + 1
     _do_bistochastic_test(scaled)

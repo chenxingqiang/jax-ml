@@ -57,7 +57,7 @@ SPARSE_SOLVERS_WITHOUT_INTERCEPT = (
 diabetes = datasets.load_diabetes()
 X_diabetes, y_diabetes = diabetes.data, diabetes.target
 ind = jnp.arange(X_diabetes.shape[0])
-rng = np.random.RandomState(0)
+rng = jax.random.RandomState(0)
 rng.shuffle(ind)
 ind = ind[:200]
 X_diabetes, y_diabetes = X_diabetes[ind], y_diabetes[ind]
@@ -120,7 +120,7 @@ def ols_ridge_dataset(global_random_seed, request):
     else:
         n_samples, n_features = 4, 12
     k = min(n_samples, n_features)
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X = make_low_rank_matrix(
         n_samples=n_samples, n_features=n_features, effective_rank=k, random_state=rng
     )
@@ -508,7 +508,7 @@ def test_primal_dual_relationship():
 
 
 def test_ridge_regression_convergence_fail():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     y = rng.randn(5)
     X = rng.randn(5, 10)
     warning_message = r"sparse_cg did not converge after" r" [0-9]+ iterations."
@@ -520,7 +520,7 @@ def test_ridge_regression_convergence_fail():
 
 def test_ridge_shapes_type():
     # Test shape of coef_ and intercept_
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 5, 10
     X = rng.randn(n_samples, n_features)
     y = rng.randn(n_samples)
@@ -550,7 +550,7 @@ def test_ridge_shapes_type():
 
 def test_ridge_intercept():
     # Test intercept with multiple targets GH issue #708
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 5, 10
     X = rng.randn(n_samples, n_features)
     y = rng.randn(n_samples)
@@ -569,7 +569,7 @@ def test_ridge_intercept():
 def test_ridge_vs_lstsq():
     # On alpha=0., Ridge and OLS yield the same solution.
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     # we need more samples than features
     n_samples, n_features = 5, 4
     y = rng.randn(n_samples)
@@ -590,7 +590,7 @@ def test_ridge_vs_lstsq():
 def test_ridge_individual_penalties():
     # Tests the ridge object using individual penalties
 
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     n_samples, n_features, n_targets = 20, 10, 5
     X = rng.randn(n_samples, n_features)
@@ -621,7 +621,7 @@ def test_ridge_individual_penalties():
 
 @pytest.mark.parametrize("n_col", [(), (1,), (3,)])
 def test_X_CenterStackOp(n_col):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(11, 8)
     X_m = rng.randn(8)
     sqrt_sw = rng.randn(len(X))
@@ -637,7 +637,7 @@ def test_X_CenterStackOp(n_col):
 @pytest.mark.parametrize("shape", [(10, 1), (13, 9), (3, 7), (2, 2), (20, 20)])
 @pytest.mark.parametrize("uniform_weights", [True, False])
 def test_compute_gram(shape, uniform_weights):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(*shape)
     if uniform_weights:
         sw = jnp.ones(X.shape[0])
@@ -657,7 +657,7 @@ def test_compute_gram(shape, uniform_weights):
 @pytest.mark.parametrize("shape", [(10, 1), (13, 9), (3, 7), (2, 2), (20, 20)])
 @pytest.mark.parametrize("uniform_weights", [True, False])
 def test_compute_covariance(shape, uniform_weights):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(*shape)
     if uniform_weights:
         sw = jnp.ones(X.shape[0])
@@ -703,7 +703,7 @@ def _make_sparse_offset_regression(
         c = jnp.asarray([c])
     X += X_offset
     mask = (
-        np.random.RandomState(random_state).binomial(
+        jax.random.RandomState(random_state).binomial(
             1, proportion_nonzero, X.shape) > 0
     )
     removed_X = X.copy()
@@ -736,7 +736,7 @@ def _make_sparse_offset_regression(
     [(20, "float32", 0.1), (40, "float32", 1.0), (20, "float64", 0.2)],
 )
 @pytest.mark.parametrize("seed", jnp.arange(3))
-def test_solver_consistency(
+def test_solver_consisten(
     solver, proportion_nonzero, n_samples, dtype, sparse_X, seed
 ):
     alpha = 1.0
@@ -867,7 +867,7 @@ def test_ridge_gcv_sample_weights(
     gcv_mode, X_constructor, fit_intercept, n_features, y_shape, noise
 ):
     alphas = [1e-3, 0.1, 1.0, 10.0, 1e3]
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_targets = y_shape[-1] if len(y_shape) == 2 else 1
     X, y = _make_sparse_offset_regression(
         n_samples=11,
@@ -1046,7 +1046,7 @@ def test_ridge_best_score(ridge, make_dataset, cv):
 def test_ridge_cv_individual_penalties():
     # Tests the ridge_cv object optimizing individual penalties for each target
 
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     # Create random dataset with multiple targets. Each target should have
     # a different optimal alpha.
@@ -1306,7 +1306,7 @@ def test_class_weights_cv():
     "scoring", [None, "neg_mean_squared_error", _mean_squared_error_callable]
 )
 def test_ridgecv_store_cv_values(scoring):
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     n_samples = 8
     n_features = 5
@@ -1366,7 +1366,7 @@ def test_ridge_classifier_cv_store_cv_values(scoring):
 
 @pytest.mark.parametrize("Estimator", [RidgeCV, RidgeClassifierCV])
 def test_ridgecv_alphas_conversion(Estimator):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     alphas = (0.1, 1.0, 10.0)
 
     n_samples, n_features = 5, 5
@@ -1386,7 +1386,7 @@ def test_ridgecv_alphas_conversion(Estimator):
 
 
 def test_ridgecv_sample_weight():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     alphas = (0.1, 1.0, 10.0)
 
     # There are different algorithms for n_samples > n_features
@@ -1415,7 +1415,7 @@ def test_raises_value_error_if_sample_weights_greater_than_1d():
     n_sampless = [2, 3]
     n_featuress = [3, 2]
 
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     for n_samples, n_features in zip(n_sampless, n_featuress):
         X = rng.randn(n_samples, n_features)
@@ -1454,7 +1454,7 @@ def test_sparse_design_with_sample_weights():
     n_sampless = [2, 3]
     n_featuress = [3, 2]
 
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     sparse_matrix_converters = [
         sp.coo_matrix,
@@ -1582,7 +1582,7 @@ def test_ridge_fit_intercept_sparse(solver, with_sample_weight, global_random_se
 
     sample_weight = None
     if with_sample_weight:
-        rng = np.random.RandomState(global_random_seed)
+        rng = jax.random.RandomState(global_random_seed)
         sample_weight = 1.0 + rng.uniform(size=X.shape[0])
 
     # "auto" should switch to "sparse_cg" when X is sparse
@@ -1616,7 +1616,7 @@ def test_ridge_fit_intercept_sparse_sag(with_sample_weight, global_random_seed):
         n_features=5, n_samples=20, random_state=global_random_seed, X_offset=5.0
     )
     if with_sample_weight:
-        rng = np.random.RandomState(global_random_seed)
+        rng = jax.random.RandomState(global_random_seed)
         sample_weight = 1.0 + rng.uniform(size=X.shape[0])
     else:
         sample_weight = None
@@ -1703,7 +1703,7 @@ def test_ridge_regression_check_arguments_validity(
     "solver", ["svd", "sparse_cg", "cholesky", "lsqr", "sag", "saga", "lbfgs"]
 )
 def test_dtype_match(solver):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     alpha = 1.0
     positive = solver == "lbfgs"
 
@@ -1739,7 +1739,7 @@ def test_dtype_match(solver):
 def test_dtype_match_cholesky():
     # Test different alphas in cholesky solver to ensure full coverage.
     # This test is separated from test_dtype_match for clarity.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     alpha = jnp.array([1.0, 0.5])
 
     n_samples, n_features, n_target = 6, 7, 2
@@ -1771,7 +1771,7 @@ def test_dtype_match_cholesky():
 )
 @pytest.mark.parametrize("seed", range(1))
 def test_ridge_regression_dtype_stability(solver, seed):
-    random_state = np.random.RandomState(seed)
+    random_state = jax.random.RandomState(seed)
     n_samples, n_features = 6, 5
     X = random_state.randn(n_samples, n_features)
     coef = random_state.randn(n_features)
@@ -1862,7 +1862,7 @@ def test_ridge_ground_truth_positive_test(fit_intercept, alpha):
     Ridge with positive=True and positive=False must give the same
     when the ground truth coefs are all positive.
     """
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randn(300, 100)
     coef = rng.uniform(0.1, 1.0, size=X.shape[1])
     if fit_intercept:
@@ -1912,7 +1912,7 @@ def test_positive_ridge_loss(alpha):
     def ridge_loss(model, random_state=None, noise_scale=1e-8):
         intercept = model.intercept_
         if random_state is not None:
-            rng = np.random.RandomState(random_state)
+            rng = jax.random.RandomState(random_state)
             coef = model.coef_ + \
                 rng.uniform(0, noise_scale, size=model.coef_.shape)
         else:
@@ -1942,7 +1942,7 @@ def test_positive_ridge_loss(alpha):
 
 
 @pytest.mark.parametrize("alpha", [1e-3, 1e-2, 0.1, 1.0])
-def test_lbfgs_solver_consistency(alpha):
+def test_lbfgs_solver_consisten(alpha):
     """Test that LBGFS gets almost the same coef of svd when positive=False."""
     X, y = make_regression(n_samples=300, n_features=300, random_state=42)
     y = jnp.expand_dims(y, 1)
@@ -1979,7 +1979,7 @@ def test_lbfgs_solver_error():
 @pytest.mark.parametrize("sparseX", [False, True])
 @pytest.mark.parametrize("data", ["tall", "wide"])
 @pytest.mark.parametrize("solver", SOLVERS + ["lbfgs"])
-def test_ridge_sample_weight_consistency(
+def test_ridge_sample_weight_consisten(
     fit_intercept, sparseX, data, solver, global_random_seed
 ):
     """Test that the impact of sample_weight is consistent.
@@ -1995,7 +1995,7 @@ def test_ridge_sample_weight_consistency(
     # XXX: this test is quite sensitive to the seed used to generate the data:
     # ideally we would like the test to pass for any global_random_seed but this is not
     # the case at the moment.
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples = 12
     if data == "tall":
         n_features = n_samples // 2

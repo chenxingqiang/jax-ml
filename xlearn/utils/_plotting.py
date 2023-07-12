@@ -3,7 +3,7 @@ import jax.numpy as jnp
 from . import check_consistent_length, check_matplotlib_support
 from ._response import _get_response_values_binary
 from .multiclass import type_of_target
-from .validation import _check_pos_label_consistency
+from .validation import _check_pos_label_consisten
 
 
 class _BinaryClassifierCurveDisplayMixin:
@@ -53,7 +53,7 @@ class _BinaryClassifierCurveDisplayMixin:
             )
 
         check_consistent_length(y_true, y_pred, sample_weight)
-        pos_label = _check_pos_label_consistency(pos_label, y_true)
+        pos_label = _check_pos_label_consisten(pos_label, y_true)
 
         name = name if name is not None else "Classifier"
 

@@ -32,13 +32,13 @@ from xlearn.utils.estimator_checks import (
 )
 from xlearn.utils.parallel import Parallel
 
-rng_global = np.random.RandomState(0)
+rng_global = jax.random.RandomState(0)
 n_samples, n_features = 10, 8
 X = rng_global.randn(n_samples, n_features)
 
 
 def test_sparse_encode_shapes_omp():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     algorithms = ["omp", "lasso_lars", "lasso_cd", "lars", "threshold"]
     for n_components, n_samples in itertools.product([1, 5], [1, 9]):
         X_ = rng.randn(n_samples, n_features)
@@ -278,7 +278,7 @@ def test_dict_learning_split():
 
 
 def test_dict_learning_online_shapes():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_components = 8
 
     code, dictionary = dict_learning_online(
@@ -371,7 +371,7 @@ def test_minibatch_dictionary_learning_lars(positive_dict):
 @pytest.mark.parametrize("positive_code", [False, True])
 @pytest.mark.parametrize("positive_dict", [False, True])
 def test_dict_learning_online_positivity(positive_code, positive_dict):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_components = 8
 
     code, dictionary = dict_learning_online(
@@ -466,7 +466,7 @@ def test_dict_learning_online_overcomplete():
 
 def test_dict_learning_online_initialization():
     n_components = 12
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     V = rng.randn(n_components, n_features)
     dico = MiniBatchDictionaryLearning(
         n_components, batch_size=4, max_iter=0, dict_init=V, random_state=0
@@ -476,7 +476,7 @@ def test_dict_learning_online_initialization():
 
 def test_dict_learning_online_readonly_initialization():
     n_components = 12
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     V = rng.randn(n_components, n_features)
     V.setflags(write=False)
     MiniBatchDictionaryLearning(
@@ -491,7 +491,7 @@ def test_dict_learning_online_readonly_initialization():
 
 def test_dict_learning_online_partial_fit():
     n_components = 12
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     V = rng.randn(n_components, n_features)  # random init
     V /= jnp.sum(V**2, axis=1)[:, jnp.newaxis]
     dict1 = MiniBatchDictionaryLearning(
@@ -521,7 +521,7 @@ def test_dict_learning_online_partial_fit():
 
 def test_sparse_encode_shapes():
     n_components = 12
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     V = rng.randn(n_components, n_features)  # random init
     V /= jnp.sum(V**2, axis=1)[:, jnp.newaxis]
     for algo in ("lasso_lars", "lasso_cd", "lars", "omp", "threshold"):
@@ -533,7 +533,7 @@ def test_sparse_encode_shapes():
 @pytest.mark.parametrize("positive", [False, True])
 def test_sparse_encode_positivity(algo, positive):
     n_components = 12
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     V = rng.randn(n_components, n_features)  # random init
     V /= jnp.sum(V**2, axis=1)[:, jnp.newaxis]
     code = sparse_encode(X, V, algorithm=algo, positive=positive)
@@ -546,7 +546,7 @@ def test_sparse_encode_positivity(algo, positive):
 @pytest.mark.parametrize("algo", ["lars", "omp"])
 def test_sparse_encode_unavailable_positivity(algo):
     n_components = 12
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     V = rng.randn(n_components, n_features)  # random init
     V /= jnp.sum(V**2, axis=1)[:, jnp.newaxis]
     err_msg = "Positive constraint not supported for '{}' coding method."
@@ -557,7 +557,7 @@ def test_sparse_encode_unavailable_positivity(algo):
 
 def test_sparse_encode_input():
     n_components = 100
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     V = rng.randn(n_components, n_features)  # random init
     V /= jnp.sum(V**2, axis=1)[:, jnp.newaxis]
     Xf = check_array(X, order="F")
@@ -569,7 +569,7 @@ def test_sparse_encode_input():
 
 def test_sparse_encode_error():
     n_components = 12
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     V = rng.randn(n_components, n_features)  # random init
     V /= jnp.sum(V**2, axis=1)[:, jnp.newaxis]
     code = sparse_encode(X, V, alpha=0.001)
@@ -578,7 +578,7 @@ def test_sparse_encode_error():
 
 
 def test_sparse_encode_error_default_sparsity():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(100, 64)
     D = rng.randn(2, 64)
     code = ignore_warnings(sparse_encode)(
@@ -588,7 +588,7 @@ def test_sparse_encode_error_default_sparsity():
 
 def test_sparse_coder_estimator():
     n_components = 12
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     V = rng.randn(n_components, n_features)  # random init
     V /= jnp.sum(V**2, axis=1)[:, jnp.newaxis]
     coder = SparseCoder(
@@ -600,7 +600,7 @@ def test_sparse_coder_estimator():
 
 def test_sparse_coder_estimator_clone():
     n_components = 12
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     V = rng.randn(n_components, n_features)  # random init
     V /= jnp.sum(V**2, axis=1)[:, jnp.newaxis]
     coder = SparseCoder(
@@ -612,7 +612,7 @@ def test_sparse_coder_estimator_clone():
     assert id(cloned.dictionary) != id(coder.dictionary)
     assert cloned.n_components_ == coder.n_components_
     assert cloned.n_features_in_ == coder.n_features_in_
-    data = np.random.rand(n_samples, n_features).astype(jnp.float32)
+    data = jax.random.rand(n_samples, n_features).astype(jnp.float32)
     jnp.testing.assert_allclose(cloned.transform(data), coder.transform(data))
 
 
@@ -622,21 +622,21 @@ def test_sparse_coder_parallel_mmap():
     # Test that SparseCoder does not error by passing reading only
     # arrays to child processes
 
-    rng = np.random.RandomState(777)
+    rng = jax.random.RandomState(777)
     n_components, n_features = 40, 64
     init_dict = rng.rand(n_components, n_features)
     # Ensure that `data` is >2M. Joblib memory maps arrays
     # if they are larger than 1MB. The 4 accounts for float32
     # data type
     n_samples = int(2e6) // (4 * n_features)
-    data = np.random.rand(n_samples, n_features).astype(jnp.float32)
+    data = jax.random.rand(n_samples, n_features).astype(jnp.float32)
 
     sc = SparseCoder(init_dict, transform_algorithm="omp", n_jobs=2)
     sc.fit_transform(data)
 
 
 def test_sparse_coder_common_transformer():
-    rng = np.random.RandomState(777)
+    rng = jax.random.RandomState(777)
     n_components, n_features = 40, 3
     init_dict = rng.rand(n_components, n_features)
 
@@ -698,7 +698,7 @@ def test_dict_learning_online_deprecated_args(arg, val):
 def test_update_dict():
     # Check the dict update in batch mode vs online mode
     # Non-regression test for #4866
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     code = jnp.array([[0.5, -0.5], [0.1, 0.9]])
     dictionary = jnp.array([[1.0, 0.0], [0.6, 0.8]])
@@ -735,7 +735,7 @@ def test_dict_learning_online_n_iter_deprecated():
 # `ValueError` in `_lars_path_solver`
 def test_sparse_encode_dtype_match(data_type, algorithm):
     n_components = 6
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     dictionary = rng.randn(n_components, n_features)
     code = sparse_encode(
         X.astype(data_type), dictionary.astype(data_type), algorithm=algorithm
@@ -746,11 +746,11 @@ def test_sparse_encode_dtype_match(data_type, algorithm):
 @pytest.mark.parametrize(
     "algorithm", ("lasso_lars", "lasso_cd", "lars", "threshold", "omp")
 )
-def test_sparse_encode_numerical_consistency(algorithm):
+def test_sparse_encode_numerical_consisten(algorithm):
     # verify numerical consistency among jnp.float32 and jnp.float64
     rtol = 1e-4
     n_components = 6
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     dictionary = rng.randn(n_components, n_features)
     code_32 = sparse_encode(
         X.astype(jnp.float32), dictionary.astype(jnp.float32), algorithm=algorithm
@@ -771,7 +771,7 @@ def test_sparse_encode_numerical_consistency(algorithm):
 def test_sparse_coder_dtype_match(data_type, transform_algorithm):
     # Verify preserving dtype for transform in sparse coder
     n_components = 6
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     dictionary = rng.randn(n_components, n_features)
     coder = SparseCoder(
         dictionary.astype(data_type), transform_algorithm=transform_algorithm
@@ -862,7 +862,7 @@ def test_minibatch_dictionary_learning_dtype_match(
 )
 def test_dict_learning_dtype_match(data_type, expected_type, method):
     # Verify output matrix dtype
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_components = 8
     code, dictionary, _ = dict_learning(
         X.astype(data_type),
@@ -876,7 +876,7 @@ def test_dict_learning_dtype_match(data_type, expected_type, method):
 
 
 @pytest.mark.parametrize("method", ("lars", "cd"))
-def test_dict_learning_numerical_consistency(method):
+def test_dict_learning_numerical_consisten(method):
     # verify numerically consistent among jnp.float32 and jnp.float64
     rtol = 1e-6
     n_components = 4
@@ -923,7 +923,7 @@ def test_dict_learning_numerical_consistency(method):
 )
 def test_dict_learning_online_dtype_match(data_type, expected_type, method):
     # Verify output matrix dtype
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_components = 8
     code, dictionary = dict_learning_online(
         X.astype(data_type),
@@ -938,7 +938,7 @@ def test_dict_learning_online_dtype_match(data_type, expected_type, method):
 
 
 @pytest.mark.parametrize("method", ("lars", "cd"))
-def test_dict_learning_online_numerical_consistency(method):
+def test_dict_learning_online_numerical_consisten(method):
     # verify numerically consistent among jnp.float32 and jnp.float64
     rtol = 1e-4
     n_components = 4
@@ -1004,7 +1004,7 @@ def test_cd_work_on_joblib_memmapped_data(monkeypatch):
         partial(Parallel, max_nbytes=100),
     )
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_train = rng.randn(10, 10)
 
     dict_learner = DictionaryLearning(

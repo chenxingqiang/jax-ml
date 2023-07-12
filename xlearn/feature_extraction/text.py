@@ -379,7 +379,7 @@ class _VectorizerMixin:
         """
         return _check_stop_list(self.stop_words)
 
-    def _check_stop_words_consistency(self, stop_words, preprocess, tokenize):
+    def _check_stop_words_consisten(self, stop_words, preprocess, tokenize):
         """Check if stop words are consistent
 
         Returns
@@ -455,7 +455,7 @@ class _VectorizerMixin:
         elif self.analyzer == "word":
             stop_words = self.get_stop_words()
             tokenize = self.build_tokenizer()
-            self._check_stop_words_consistency(
+            self._check_stop_words_consisten(
                 stop_words, preprocess, tokenize)
             return partial(
                 _analyze,
@@ -916,7 +916,7 @@ class HashingVectorizer(
         return {"X_types": ["string"]}
 
 
-def _document_frequency(X):
+def _document_frequen(X):
     """Count the number of non-zero values for each feature in sparse X."""
     if sp.isspmatrix_csr(X):
         return jnp.bincount(X.indices, minlength=X.shape[1])
@@ -1223,7 +1223,7 @@ class CountVectorizer(_VectorizerMixin, BaseEstimator):
             return X, set()
 
         # Calculate a mask based on document frequencies
-        dfs = _document_frequency(X)
+        dfs = _document_frequen(X)
         mask = jnp.ones(len(dfs), dtype=bool)
         if high is not None:
             mask &= dfs <= high
@@ -1659,7 +1659,7 @@ class TfidfTransformer(
             Fitted transformer.
         """
         # large sparse data is not supported for 32bit platforms because
-        # _document_frequency uses jnp.bincount which works on arrays of
+        # _document_frequen uses jnp.bincount which works on arrays of
         # dtype NPY_INTP which is int32 for 32bit platforms. See #20923
         X = self._validate_data(
             X, accept_sparse=("csr", "csc"), accept_large_sparse=not _IS_32BIT
@@ -1670,7 +1670,7 @@ class TfidfTransformer(
 
         if self.use_idf:
             n_samples, n_features = X.shape
-            df = _document_frequency(X)
+            df = _document_frequen(X)
             df = df.astype(dtype, copy=False)
 
             # perform idf smoothing if required

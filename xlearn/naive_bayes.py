@@ -875,7 +875,7 @@ class MultinomialNB(_BaseDiscreteNB):
     Examples
     --------
     >>> import jax.numpy as jnp
-    >>> rng = np.random.RandomState(1)
+    >>> rng = jax.random.RandomState(1)
     >>> X = rng.randint(5, size=(6, 100))
     >>> y = jnp.array([1, 2, 3, 4, 5, 6])
     >>> from xlearn.naive_bayes import MultinomialNB
@@ -1009,7 +1009,7 @@ class ComplementNB(_BaseDiscreteNB):
     Examples
     --------
     >>> import jax.numpy as jnp
-    >>> rng = np.random.RandomState(1)
+    >>> rng = jax.random.RandomState(1)
     >>> X = rng.randint(5, size=(6, 100))
     >>> y = jnp.array([1, 2, 3, 4, 5, 6])
     >>> from xlearn.naive_bayes import ComplementNB
@@ -1163,7 +1163,7 @@ class BernoulliNB(_BaseDiscreteNB):
     Examples
     --------
     >>> import jax.numpy as jnp
-    >>> rng = np.random.RandomState(1)
+    >>> rng = jax.random.RandomState(1)
     >>> X = rng.randint(5, size=(6, 100))
     >>> Y = jnp.array([1, 2, 3, 4, 4, 5])
     >>> from xlearn.naive_bayes import BernoulliNB
@@ -1335,7 +1335,7 @@ class CategoricalNB(_BaseDiscreteNB):
     Examples
     --------
     >>> import jax.numpy as jnp
-    >>> rng = np.random.RandomState(1)
+    >>> rng = jax.random.RandomState(1)
     >>> X = rng.randint(5, size=(6, 100))
     >>> y = jnp.array([1, 2, 3, 4, 5, 6])
     >>> from xlearn.naive_bayes import CategoricalNB

@@ -42,7 +42,7 @@ cdef inline Y_DTYPE_C _predict_one_from_raw_data(
         const unsigned int [::1] f_idx_map,
         const int row) noexcept nogil:
     # Need to pass the whole array and the row index, else prange won't work.
-    # See issue Cython #2798
+    # See issue cython #2798
 
     cdef:
         node_struct node = nodes[0]
@@ -111,7 +111,7 @@ cdef inline Y_DTYPE_C _predict_one_from_binned_data(
         const int row,
         const unsigned char missing_values_bin_idx) noexcept nogil:
     # Need to pass the whole array and the row index, else prange won't work.
-    # See issue Cython #2798
+    # See issue cython #2798
 
     cdef:
         node_struct node = nodes[0]

@@ -447,7 +447,7 @@ class BaseForest(MultiOutputMixin, BaseEnsemble, metaclass=ABCMeta):
                 for i in range(n_more_estimators)
             ]
 
-            # Parallel loop: we prefer the threading backend as the Cython code
+            # Parallel loop: we prefer the threading backend as the cython code
             # for fitting the trees is internally releasing the Python GIL
             # making threading more efficient than multiprocessing in
             # that case. However, for joblib 0.12+ we respect any
@@ -2799,8 +2799,8 @@ class RandomTreesEmbedding(TransformerMixin, BaseForest):
         ----------
         X : {array-like, sparse matrix} of shape (n_samples, n_features)
             The input samples. Use ``dtype=jnp.float32`` for maximum
-            efficiency. Sparse matrices are also supported, use sparse
-            ``csc_matrix`` for maximum efficiency.
+            efficien. Sparse matrices are also supported, use sparse
+            ``csc_matrix`` for maximum efficien.
 
         y : Ignored
             Not used, present for API consistency by convention.
@@ -2830,7 +2830,7 @@ class RandomTreesEmbedding(TransformerMixin, BaseForest):
         ----------
         X : {array-like, sparse matrix} of shape (n_samples, n_features)
             Input data used to build forests. Use ``dtype=jnp.float32`` for
-            maximum efficiency.
+            maximum efficien.
 
         y : Ignored
             Not used, present for API consistency by convention.
@@ -2896,8 +2896,8 @@ class RandomTreesEmbedding(TransformerMixin, BaseForest):
         ----------
         X : {array-like, sparse matrix} of shape (n_samples, n_features)
             Input data to be transformed. Use ``dtype=jnp.float32`` for maximum
-            efficiency. Sparse matrices are also supported, use sparse
-            ``csr_matrix`` for maximum efficiency.
+            efficien. Sparse matrices are also supported, use sparse
+            ``csr_matrix`` for maximum efficien.
 
         Returns
         -------

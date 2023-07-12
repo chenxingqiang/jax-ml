@@ -42,7 +42,7 @@ msg = "The default value for `force_alpha` will change"
 pytestmark = pytest.mark.filterwarnings(f"ignore:{msg}:FutureWarning")
 
 iris = datasets.load_iris()
-rng = np.random.RandomState(0)
+rng = jax.random.RandomState(0)
 perm = rng.permutation(iris.target.size)
 iris.data = iris.data[perm]
 iris.target = iris.target[perm]
@@ -109,7 +109,7 @@ def test_ovr_partial_fit():
 
     # Test when mini batches doesn't have all classes
     # with SGDClassifier
-    X = jnp.abs(np.random.randn(14, 2))
+    X = jnp.abs(jax.random.randn(14, 2))
     y = [1, 1, 1, 1, 2, 3, 3, 0, 0, 2, 3, 1, 2, 3]
 
     ovr = OneVsRestClassifier(
@@ -131,7 +131,7 @@ def test_ovr_partial_fit():
 
 def test_ovr_partial_fit_exceptions():
     ovr = OneVsRestClassifier(MultinomialNB())
-    X = jnp.abs(np.random.randn(14, 2))
+    X = jnp.abs(jax.random.randn(14, 2))
     y = [1, 1, 1, 1, 2, 3, 3, 0, 0, 2, 3, 1, 2, 3]
     ovr.partial_fit(X[:7], y[:7], jnp.unique(y))
     # If a new class that was not in the first call of partial fit is seen
@@ -536,7 +536,7 @@ def test_ovo_partial_fit_predict():
     assert jnp.mean(y == pred1) > 0.65
 
     ovo = OneVsOneClassifier(MultinomialNB())
-    X = np.random.rand(14, 2)
+    X = jax.random.rand(14, 2)
     y = [1, 1, 2, 3, 3, 0, 0, 4, 4, 4, 4, 4, 2, 2]
     ovo.partial_fit(X[:7], y[:7], [0, 1, 2, 3, 4])
     ovo.partial_fit(X[7:], y[7:])
@@ -647,7 +647,7 @@ def test_ovo_ties2():
     X = jnp.array([[1, 2], [2, 1], [-2, 1], [-2, -1]])
     y_ref = jnp.array([2, 0, 1, 2])
 
-    # cycle through labels so that each label wins once
+    # cle through labels so that each label wins once
     for i in range(3):
         y = (y_ref + i) % 3
         multi_clf = OneVsOneClassifier(
@@ -890,7 +890,7 @@ def test_support_missing_values(MultiClassClassifier):
     # smoke test to check that pipeline OvR and OvO classifiers are letting
     # the validation of missing values to
     # the underlying pipeline or classifiers
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X, y = iris.data, iris.target
     X = jnp.copy(X)  # Copy to avoid that the original data is modified
     mask = rng.choice([1, 0], X.shape, p=[0.1, 0.9]).astype(bool)

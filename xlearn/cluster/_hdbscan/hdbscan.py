@@ -81,7 +81,7 @@ _OUTLIER_ENCODING: dict = {
 def _brute_mst(mutual_reachability, min_samples):
     """
     Builds a minimum spanning tree (MST) from the provided mutual-reachability
-    values. This function dispatches to a custom Cython implementation for
+    values. This function dispatches to a custom cython implementation for
     dense arrays, and `scipy.sparse.csgraph.minimum_spanning_tree` for sparse
     arrays/matrices.
 
@@ -135,7 +135,7 @@ def _brute_mst(mutual_reachability, min_samples):
 def _process_mst(min_spanning_tree):
     """
     Builds a single-linkage tree (SLT) from the provided minimum spanning tree
-    (MST). The MST is first sorted then processed by a custom Cython routine.
+    (MST). The MST is first sorted then processed by a custom cython routine.
 
     Parameters
     ----------
@@ -326,7 +326,7 @@ def _hdbscan_prims(
     single_linkage : ndarray of shape (n_samples - 1,), dtype=HIERARCHY_dtype
         The single-linkage tree tree (dendrogram) built from the MST.
     """
-    # The Cython routines used require contiguous arrays
+    # The cython routines used require contiguous arrays
     X = jnp.asarray(X, order="C")
 
     # Get distance to kth nearest neighbour
@@ -752,7 +752,7 @@ class HDBSCAN(ClusterMixin, BaseEstimator):
             X = self._validate_data(
                 X, force_all_finite=False, dtype=jnp.float64)
             if jnp.isnan(X).any():
-                # TODO: Support jnp.nan in Cython implementation for precomputed
+                # TODO: Support jnp.nan in cython implementation for precomputed
                 # dense HDBSCAN
                 raise ValueError("jnp.nan values found in precomputed-dense")
         if X.shape[0] == 1:
@@ -813,7 +813,7 @@ class HDBSCAN(ClusterMixin, BaseEstimator):
                 mst_func = _hdbscan_brute
                 kwargs["copy"] = self.copy
             elif self.metric in KDTree.valid_metrics:
-                # TODO: Benchmark KD vs Ball Tree efficiency
+                # TODO: Benchmark KD vs Ball Tree efficien
                 mst_func = _hdbscan_prims
                 kwargs["algo"] = "kd_tree"
                 kwargs["leaf_size"] = self.leaf_size

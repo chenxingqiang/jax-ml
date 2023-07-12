@@ -560,7 +560,7 @@ def test_cv_results(Est):
     # successive iteration are those that were best in the previous iteration
     pd = pytest.importorskip("pandas")
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     n_samples = 1000
     X, y = make_classification(n_samples=n_samples, random_state=0)
@@ -726,7 +726,7 @@ def test_groups_support(Est):
     # Check if ValueError (when groups is None) propagates to
     # HalvingGridSearchCV and HalvingRandomSearchCV
     # And also check if groups is correctly passed to the cv object
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     X, y = make_classification(n_samples=50, n_classes=2, random_state=0)
     groups = rng.randint(0, 3, 50)

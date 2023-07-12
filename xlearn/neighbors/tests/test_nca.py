@@ -60,7 +60,7 @@ def test_toy_example_collapse_points():
     with an objective equal to 1 (loss=-1.).
 
     """
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     input_dim = 5
     two_points = rng.randn(2, input_dim)
     X = jnp.vstack([two_points, two_points.mean(axis=0)[jnp.newaxis, :]])
@@ -100,7 +100,7 @@ def test_finite_differences(global_random_seed):
     approximation.
     """
     # Initialize the transformation `M`, as well as `X` and `y` and `NCA`
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X, y = make_classification(random_state=global_random_seed)
     M = rng.randn(rng.randint(1, X.shape[1] + 1), X.shape[1])
     nca = NeighborhoodComponentsAnalysis()
@@ -123,7 +123,7 @@ def test_params_validation():
     X = jnp.arange(12).reshape(4, 3)
     y = [1, 1, 2, 2]
     NCA = NeighborhoodComponentsAnalysis
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     init = rng.rand(5, 3)
     msg = (
@@ -165,7 +165,7 @@ def test_transformation_dimensions():
 
 
 def test_n_components():
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = jnp.arange(12).reshape(4, 3)
     y = [1, 1, 2, 2]
 
@@ -200,7 +200,7 @@ def test_n_components():
 
 
 def test_init_transformation():
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X, y = make_blobs(n_samples=30, centers=6, n_features=5, random_state=0)
 
     # Start learning from scratch
@@ -270,7 +270,7 @@ def test_init_transformation():
 def test_auto_init(n_samples, n_features, n_classes, n_components):
     # Test that auto choose the init as expected with every configuration
     # of order of n_samples, n_features, n_classes and n_components.
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     nca_base = NeighborhoodComponentsAnalysis(
         init="auto", n_components=n_components, max_iter=1, random_state=rng
     )
@@ -368,7 +368,7 @@ def test_warm_start_effectiveness():
 def test_verbose(init_name, capsys):
     # assert there is proper output when verbose = 1, for every initialization
     # except auto because auto will call one of the others
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X, y = make_blobs(n_samples=30, centers=6, n_features=5, random_state=0)
     regexp_init = r"... done in \ *\d+\.\d{2}s"
     msgs = {

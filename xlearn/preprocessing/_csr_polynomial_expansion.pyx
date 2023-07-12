@@ -43,7 +43,7 @@ ctypedef fused DATA_t:
     int
     long long
 # INDEX_{A,B}_t are defined to generate a proper Cartesian product
-# of types through Cython fused-type expansion.
+# of types through cython fused-type expansion.
 ctypedef fused INDEX_A_t:
     signed int
     signed long long

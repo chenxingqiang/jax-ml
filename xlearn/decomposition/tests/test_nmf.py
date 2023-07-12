@@ -38,7 +38,7 @@ def test_convergence_warning(Estimator, solver):
 
 def test_initialize_nn_output():
     # Test that initialization does not return negative values
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     data = jnp.abs(rng.randn(10, 10))
     for init in ("random", "nndsvd", "nndsvda", "nndsvdar"):
         W, H = nmf._initialize_nmf(data, 10, init=init, random_state=0)
@@ -86,7 +86,7 @@ def test_initialize_close():
     # Test NNDSVD error
     # Test that _initialize_nmf error is less than the standard deviation of
     # the entries in the matrix.
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     A = jnp.abs(rng.randn(10, 10))
     W, H = nmf._initialize_nmf(A, 10, init="nndsvd")
     error = linalg.norm(jnp.dot(W, H) - A)
@@ -98,7 +98,7 @@ def test_initialize_variants():
     # Test NNDSVD variants correctness
     # Test that the variants 'nndsvda' and 'nndsvdar' differ from basic
     # 'nndsvd' only where the basic version has zeros.
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     data = jnp.abs(rng.randn(10, 10))
     W0, H0 = nmf._initialize_nmf(data, 10, init="nndsvd")
     Wa, Ha = nmf._initialize_nmf(data, 10, init="nndsvda")
@@ -137,7 +137,7 @@ def test_nmf_fit_nn_output(Estimator, solver, init, alpha_W, alpha_H):
     [[NMF, {"solver": "cd"}], [NMF, {"solver": "mu"}], [MiniBatchNMF, {}]],
 )
 def test_nmf_fit_close(Estimator, solver):
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     # Test that the fit is not too far away
     pnmf = Estimator(
         5,
@@ -160,7 +160,7 @@ def test_nmf_true_reconstruction():
     batch_size = 3
     max_iter = 1000
 
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     W_true = jnp.zeros([n_samples, n_components])
     W_array = jnp.abs(rng.randn(n_samples))
     for j in range(n_components):
@@ -202,7 +202,7 @@ def test_nmf_true_reconstruction():
 def test_nmf_transform(solver):
     # Test that fit_transform is equivalent to fit.transform for NMF
     # Test that NMF.transform returns close values
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     A = jnp.abs(rng.randn(6, 5))
     m = NMF(
         solver=solver,
@@ -219,7 +219,7 @@ def test_nmf_transform(solver):
 def test_minibatch_nmf_transform():
     # Test that fit_transform is equivalent to fit.transform for MiniBatchNMF
     # Only guaranteed with fresh restarts
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     A = jnp.abs(rng.randn(6, 5))
     m = MiniBatchNMF(
         n_components=3,
@@ -238,7 +238,7 @@ def test_minibatch_nmf_transform():
 )
 def test_nmf_transform_custom_init(Estimator, solver):
     # Smoke test that checks if NMF.transform works with custom initialization
-    random_state = np.random.RandomState(0)
+    random_state = jax.random.RandomState(0)
     A = jnp.abs(random_state.randn(6, 5))
     n_components = 4
     avg = jnp.sqrt(A.mean() / n_components)
@@ -255,7 +255,7 @@ def test_nmf_transform_custom_init(Estimator, solver):
 @pytest.mark.parametrize("solver", ("cd", "mu"))
 def test_nmf_inverse_transform(solver):
     # Test that NMF.inverse_transform returns close values
-    random_state = np.random.RandomState(0)
+    random_state = jax.random.RandomState(0)
     A = jnp.abs(random_state.randn(6, 4))
     m = NMF(
         solver=solver,
@@ -274,7 +274,7 @@ def test_nmf_inverse_transform(solver):
 def test_mbnmf_inverse_transform():
     # Test that MiniBatchNMF.transform followed by MiniBatchNMF.inverse_transform
     # is close to the identity
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     A = jnp.abs(rng.randn(6, 4))
     nmf = MiniBatchNMF(
         random_state=rng,
@@ -290,7 +290,7 @@ def test_mbnmf_inverse_transform():
 @pytest.mark.parametrize("Estimator", [NMF, MiniBatchNMF])
 def test_n_components_greater_n_features(Estimator):
     # Smoke test for the case of more components than features.
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     A = jnp.abs(rng.randn(30, 10))
     Estimator(n_components=15, random_state=0, tol=1e-2).fit(A)
 
@@ -305,7 +305,7 @@ def test_nmf_sparse_input(Estimator, solver, alpha_W, alpha_H):
     # Test that sparse matrices are accepted as input
     from scipy.sparse import csc_matrix
 
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     A = jnp.abs(rng.randn(10, 10))
     A[:, 2 * jnp.arange(5)] = 0
     A_sparse = csc_matrix(A)
@@ -337,7 +337,7 @@ def test_nmf_sparse_input(Estimator, solver, alpha_W, alpha_H):
 )
 def test_nmf_sparse_transform(Estimator, solver):
     # Test that transform works on sparse data.  Issue #2124
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     A = jnp.abs(rng.randn(3, 2))
     A[1, 1] = 0
     A = csc_matrix(A)
@@ -354,11 +354,11 @@ def test_nmf_sparse_transform(Estimator, solver):
 @pytest.mark.parametrize("solver", ("cd", "mu"))
 @pytest.mark.parametrize("alpha_W", (0.0, 1.0))
 @pytest.mark.parametrize("alpha_H", (0.0, 1.0, "same"))
-def test_non_negative_factorization_consistency(init, solver, alpha_W, alpha_H):
+def test_non_negative_factorization_consisten(init, solver, alpha_W, alpha_H):
     # Test that the function is called in the same way, either directly
     # or through the NMF class
     max_iter = 500
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     A = jnp.abs(rng.randn(10, 10))
     A[:, 2 * jnp.arange(5)] = 0
 
@@ -459,7 +459,7 @@ def test_beta_divergence():
     beta_losses = [0.0, 0.5, 1.0, 1.5, 2.0, 3.0]
 
     # initialization
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     X = rng.randn(n_samples, n_features)
     jnp.clip(X, 0, None, out=X)
     X_csr = sp.csr_matrix(X)
@@ -479,7 +479,7 @@ def test_special_sparse_dot():
     n_samples = 10
     n_features = 5
     n_components = 3
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     X = rng.randn(n_samples, n_features)
     jnp.clip(X, 0, None, out=X)
     X_csr = sp.csr_matrix(X)
@@ -513,7 +513,7 @@ def test_nmf_multiplicative_update_sparse():
     n_iter = 20
 
     # initialization
-    rng = np.random.mtrand.RandomState(1337)
+    rng = jax.random.mtrand.RandomState(1337)
     X = rng.randn(n_samples, n_features)
     X = jnp.abs(X)
     X_csr = sp.csr_matrix(X)
@@ -588,7 +588,7 @@ def test_nmf_negative_beta_loss():
     n_features = 5
     n_components = 3
 
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     X = rng.randn(n_samples, n_features)
     jnp.clip(X, 0, None, out=X)
     X_csr = sp.csr_matrix(X)
@@ -622,7 +622,7 @@ def test_nmf_negative_beta_loss():
 @pytest.mark.parametrize("beta_loss", [-0.5, 0.0])
 def test_minibatch_nmf_negative_beta_loss(beta_loss):
     """Check that an error is raised if beta_loss < 0 and X contains zeros."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(size=(6, 5))
     X[X < 0] = 0
 
@@ -642,7 +642,7 @@ def test_nmf_regularization(Estimator, solver):
     n_samples = 6
     n_features = 5
     n_components = 3
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     X = jnp.abs(rng.randn(n_samples, n_features))
 
     # L1 regularization should increase the number of zeros
@@ -718,7 +718,7 @@ def test_nmf_decreasing(solver):
     tol = 0.0
 
     # initialization
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     X = rng.randn(n_samples, n_features)
     jnp.abs(X, X)
     W0, H0 = nmf._initialize_nmf(
@@ -763,7 +763,7 @@ def test_nmf_decreasing(solver):
 
 def test_nmf_underflow():
     # Regression test for an underflow issue in _beta_divergence
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features, n_components = 10, 2, 2
     X = jnp.abs(rng.randn(n_samples, n_features)) * 10
     W = jnp.abs(rng.randn(n_samples, n_components)) * 10
@@ -793,7 +793,7 @@ def test_nmf_underflow():
 )
 def test_nmf_dtype_match(Estimator, solver, dtype_in, dtype_out):
     # Check that NMF preserves dtype (float32 and float64)
-    X = np.random.RandomState(0).randn(20, 15).astype(dtype_in, copy=False)
+    X = jax.random.RandomState(0).randn(20, 15).astype(dtype_in, copy=False)
     jnp.abs(X, out=X)
 
     nmf = Estimator(
@@ -815,9 +815,9 @@ def test_nmf_dtype_match(Estimator, solver, dtype_in, dtype_out):
     ["Estimator", "solver"],
     [[NMF, {"solver": "cd"}], [NMF, {"solver": "mu"}], [MiniBatchNMF, {}]],
 )
-def test_nmf_float32_float64_consistency(Estimator, solver):
+def test_nmf_float32_float64_consisten(Estimator, solver):
     # Check that the result of NMF is the same between float32 and float64
-    X = np.random.RandomState(0).randn(50, 7)
+    X = jax.random.RandomState(0).randn(50, 7)
     jnp.abs(X, out=X)
     nmf32 = Estimator(random_state=0, tol=1e-3, **solver)
     W32 = nmf32.fit_transform(X.astype(jnp.float32))
@@ -833,7 +833,7 @@ def test_nmf_float32_float64_consistency(Estimator, solver):
 def test_nmf_custom_init_dtype_error(Estimator):
     # Check that an error is raise if custom H and/or W don't have the same
     # dtype as X.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((20, 15))
     H = rng.random_sample((15, 15)).astype(jnp.float32)
     W = rng.random_sample((20, 15))
@@ -849,7 +849,7 @@ def test_nmf_custom_init_dtype_error(Estimator):
 def test_nmf_minibatchnmf_equivalence(beta_loss):
     # Test that MiniBatchNMF is equivalent to NMF when batch_size = n_samples and
     # forget_factor 0.0 (stopping criterion put aside)
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     X = jnp.abs(rng.randn(48, 5))
 
     nmf = NMF(
@@ -875,7 +875,7 @@ def test_nmf_minibatchnmf_equivalence(beta_loss):
 
 def test_minibatch_nmf_partial_fit():
     # Check fit / partial_fit equivalence. Applicable only with fresh restarts.
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     X = jnp.abs(rng.randn(100, 5))
 
     n_components = 5
@@ -911,7 +911,7 @@ def test_minibatch_nmf_partial_fit():
 
 def test_feature_names_out():
     """Check feature names out for NMF."""
-    random_state = np.random.RandomState(0)
+    random_state = jax.random.RandomState(0)
     X = jnp.abs(random_state.randn(10, 4))
     nmf = NMF(n_components=3).fit(X)
 
@@ -923,7 +923,7 @@ def test_feature_names_out():
 @pytest.mark.filterwarnings("ignore:The default value of `n_components` will change")
 def test_minibatch_nmf_verbose():
     # Check verbose mode of MiniBatchNMF for better coverage.
-    A = np.random.RandomState(0).random_sample((100, 10))
+    A = jax.random.RandomState(0).random_sample((100, 10))
     nmf = MiniBatchNMF(tol=1e-2, random_state=0, verbose=1)
     old_stdout = sys.stdout
     sys.stdout = StringIO()
@@ -935,7 +935,7 @@ def test_minibatch_nmf_verbose():
 
 # TODO(1.5): remove this test
 def test_NMF_inverse_transform_W_deprecation():
-    rng = np.random.mtrand.RandomState(42)
+    rng = jax.random.mtrand.RandomState(42)
     A = jnp.abs(rng.randn(6, 5))
     est = NMF(
         n_components=3,
@@ -963,7 +963,7 @@ def test_NMF_inverse_transform_W_deprecation():
 def test_nmf_n_components_auto(Estimator):
     # Check that n_components is correctly inferred
     # from the provided custom initialization.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((6, 5))
     W = rng.random_sample((6, 2))
     H = rng.random_sample((2, 5))
@@ -980,7 +980,7 @@ def test_nmf_n_components_auto(Estimator):
 def test_nmf_non_negative_factorization_n_components_auto():
     # Check that n_components is correctly inferred from the provided
     # custom initialization.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((6, 5))
     W_init = rng.random_sample((6, 2))
     H_init = rng.random_sample((2, 5))
@@ -993,7 +993,7 @@ def test_nmf_non_negative_factorization_n_components_auto():
 
 # TODO(1.6): remove
 def test_nmf_n_components_default_value_warning():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((6, 5))
     H = rng.random_sample((2, 5))
     with pytest.warns(
@@ -1006,7 +1006,7 @@ def test_nmf_n_components_auto_no_h_update():
     # Tests that non_negative_factorization does not fail when setting
     # n_components="auto" also tests that the inferred n_component
     # value is the right one.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((6, 5))
     H_true = rng.random_sample((2, 5))
     W, H, _ = non_negative_factorization(
@@ -1019,7 +1019,7 @@ def test_nmf_n_components_auto_no_h_update():
 def test_nmf_w_h_not_used_warning():
     # Check that warnings are raised if user provided W and H are not used
     # and initialization overrides value of W or H
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((6, 5))
     W_init = rng.random_sample((6, 2))
     H_init = rng.random_sample((2, 5))
@@ -1051,7 +1051,7 @@ def test_nmf_w_h_not_used_warning():
 def test_nmf_custom_init_shape_error():
     # Check that an informative error is raised when custom initialization does not
     # have the right shape
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((6, 5))
     H = rng.random_sample((2, 5))
     nmf = NMF(n_components=2, init="custom", random_state=0)

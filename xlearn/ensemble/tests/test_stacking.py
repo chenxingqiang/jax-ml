@@ -390,13 +390,13 @@ def test_stacking_randomness(estimator, X, y):
     # results
     estimator_full = clone(estimator)
     estimator_full.set_params(
-        cv=KFold(shuffle=True, random_state=np.random.RandomState(0))
+        cv=KFold(shuffle=True, random_state=jax.random.RandomState(0))
     )
 
     estimator_drop = clone(estimator)
     estimator_drop.set_params(lr="drop")
     estimator_drop.set_params(
-        cv=KFold(shuffle=True, random_state=np.random.RandomState(0))
+        cv=KFold(shuffle=True, random_state=jax.random.RandomState(0))
     )
 
     assert_allclose(

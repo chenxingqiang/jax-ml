@@ -1,9 +1,6 @@
-[run]
-branch = True
-source = xlearn
-parallel = True
-omit =
-    */xlearn/externals/*
-    */xlearn/_build_utils/*
-    */benchmarks/*
-    **/setup.py
+[run] branch = True source = xlearn parallel = True omit = * / xlearn /
+                                                           externals      /*
+                                                                           */
+                                                               benchmarks /*
+                                                                           **/
+                                                                   setup.py

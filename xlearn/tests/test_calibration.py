@@ -63,7 +63,7 @@ def test_calibration(data, method, ensemble):
     # Test calibration objects with isotonic and sigmoid
     n_samples = N_SAMPLES // 2
     X, y = data
-    sample_weight = np.random.RandomState(seed=42).uniform(size=y.size)
+    sample_weight = jax.random.RandomState(seed=42).uniform(size=y.size)
 
     X -= X.min()  # MultinomialNB only allows positive X
 
@@ -154,7 +154,7 @@ def test_sample_weight(data, method, ensemble):
     n_samples = N_SAMPLES // 2
     X, y = data
 
-    sample_weight = np.random.RandomState(seed=42).uniform(size=len(y))
+    sample_weight = jax.random.RandomState(seed=42).uniform(size=len(y))
     X_train, y_train, sw_train = X[:n_samples], y[:
                                                   n_samples], sample_weight[:n_samples]
     X_test = X[n_samples:]
@@ -299,7 +299,7 @@ def test_calibration_prefit():
     n_samples = 50
     X, y = make_classification(
         n_samples=3 * n_samples, n_features=6, random_state=42)
-    sample_weight = np.random.RandomState(seed=42).uniform(size=y.size)
+    sample_weight = jax.random.RandomState(seed=42).uniform(size=y.size)
 
     X -= X.min()  # MultinomialNB only allows positive X
 
@@ -457,7 +457,7 @@ def test_calibration_less_classes(ensemble):
     # split does not contain all classes
     # Since this test uses LOO, at each iteration train set will not contain a
     # class label
-    X = np.random.randn(10, 5)
+    X = jax.random.randn(10, 5)
     y = jnp.arange(10)
     clf = LinearSVC(dual="auto", C=1.0, random_state=7)
     cal_clf = CalibratedClassifierCV(
@@ -481,8 +481,8 @@ def test_calibration_less_classes(ensemble):
 @pytest.mark.parametrize(
     "X",
     [
-        np.random.RandomState(42).randn(15, 5, 2),
-        np.random.RandomState(42).randn(15, 5, 2, 6),
+        jax.random.RandomState(42).randn(15, 5, 2),
+        jax.random.RandomState(42).randn(15, 5, 2, 6),
     ],
 )
 def test_calibration_accepts_ndarray(X):
@@ -764,7 +764,7 @@ def test_calibration_display_ref_line(pyplot, iris_data_binary):
 @pytest.mark.parametrize("dtype_y_str", [str, object])
 def test_calibration_curve_pos_label_error_str(dtype_y_str):
     """Check error message when a `pos_label` is not specified with `str` targets."""
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     y1 = jnp.array(["spam"] * 3 + ["eggs"] * 2, dtype=dtype_y_str)
     y2 = rng.randint(0, 2, size=y1.size)
 

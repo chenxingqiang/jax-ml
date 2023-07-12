@@ -31,7 +31,7 @@ def test_base():
     ensemble.estimators_ = []  # empty the list and create estimators manually
 
     ensemble._make_estimator()
-    random_state = np.random.RandomState(3)
+    random_state = jax.random.RandomState(3)
     ensemble._make_estimator(random_state=random_state)
     ensemble._make_estimator(random_state=random_state)
     ensemble._make_estimator(append=False)

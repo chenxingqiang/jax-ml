@@ -43,7 +43,7 @@ def generate_toy_data(n_components, n_samples, image_size, random_state=None):
 
 
 def test_correct_shapes():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(12, 10)
     spca = SparsePCA(n_components=8, random_state=rng)
     U = spca.fit_transform(X)
@@ -58,7 +58,7 @@ def test_correct_shapes():
 
 def test_fit_transform():
     alpha = 1
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     Y, _, _ = generate_toy_data(3, 10, (8, 8), random_state=rng)  # wide array
     spca_lars = SparsePCA(n_components=3, method="lars",
                           alpha=alpha, random_state=0)
@@ -74,7 +74,7 @@ def test_fit_transform():
 @if_safe_multiprocessing_with_blas
 def test_fit_transform_parallel():
     alpha = 1
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     Y, _, _ = generate_toy_data(3, 10, (8, 8), random_state=rng)  # wide array
     spca_lars = SparsePCA(n_components=3, method="lars",
                           alpha=alpha, random_state=0)
@@ -92,7 +92,7 @@ def test_fit_transform_parallel():
 def test_transform_nan():
     # Test that SparsePCA won't return NaN when there is 0 feature in all
     # samples.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     Y, _, _ = generate_toy_data(3, 10, (8, 8), random_state=rng)  # wide array
     Y[:, 0] = 0
     estimator = SparsePCA(n_components=8)
@@ -100,7 +100,7 @@ def test_transform_nan():
 
 
 def test_fit_transform_tall():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     Y, _, _ = generate_toy_data(3, 65, (8, 8), random_state=rng)  # tall array
     spca_lars = SparsePCA(n_components=3, method="lars", random_state=rng)
     U1 = spca_lars.fit_transform(Y)
@@ -110,7 +110,7 @@ def test_fit_transform_tall():
 
 
 def test_initialization():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     U_init = rng.randn(5, 3)
     V_init = rng.randn(3, 4)
     model = SparsePCA(
@@ -122,7 +122,7 @@ def test_initialization():
 
 
 def test_mini_batch_correct_shapes():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(12, 10)
     pca = MiniBatchSparsePCA(n_components=8, random_state=rng)
     U = pca.fit_transform(X)
@@ -139,7 +139,7 @@ def test_mini_batch_correct_shapes():
 @pytest.mark.skipif(True, reason="skipping mini_batch_fit_transform.")
 def test_mini_batch_fit_transform():
     alpha = 1
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     Y, _, _ = generate_toy_data(3, 10, (8, 8), random_state=rng)  # wide array
     spca_lars = MiniBatchSparsePCA(
         n_components=3, random_state=0, alpha=alpha).fit(Y)
@@ -172,7 +172,7 @@ def test_mini_batch_fit_transform():
 
 def test_scaling_fit_transform():
     alpha = 1
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     Y, _, _ = generate_toy_data(3, 1000, (8, 8), random_state=rng)
     spca_lars = SparsePCA(n_components=3, method="lars",
                           alpha=alpha, random_state=rng)
@@ -182,7 +182,7 @@ def test_scaling_fit_transform():
 
 
 def test_pca_vs_spca():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     Y, _, _ = generate_toy_data(3, 1000, (8, 8), random_state=rng)
     Z, _, _ = generate_toy_data(3, 10, (8, 8), random_state=rng)
     spca = SparsePCA(alpha=0, ridge_alpha=0, n_components=2)
@@ -202,7 +202,7 @@ def test_pca_vs_spca():
 @pytest.mark.parametrize("SPCA", [SparsePCA, MiniBatchSparsePCA])
 @pytest.mark.parametrize("n_components", [None, 3])
 def test_spca_n_components_(SPCA, n_components):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 12, 10
     X = rng.randn(n_samples, n_features)
 
@@ -228,7 +228,7 @@ def test_spca_n_components_(SPCA, n_components):
 def test_sparse_pca_dtype_match(SPCA, method, data_type, expected_type):
     # Verify output matrix dtype
     n_samples, n_features, n_components = 12, 10, 3
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     input_array = rng.randn(n_samples, n_features).astype(data_type)
     model = SPCA(n_components=n_components, method=method)
     transformed = model.fit_transform(input_array)
@@ -239,12 +239,12 @@ def test_sparse_pca_dtype_match(SPCA, method, data_type, expected_type):
 
 @pytest.mark.parametrize("SPCA", (SparsePCA, MiniBatchSparsePCA))
 @pytest.mark.parametrize("method", ("lars", "cd"))
-def test_sparse_pca_numerical_consistency(SPCA, method):
-    # Verify numericall consistentency among jnp.float32 and jnp.float64
+def test_sparse_pca_numerical_consisten(SPCA, method):
+    # Verify numericall consistenten among jnp.float32 and jnp.float64
     rtol = 1e-3
     alpha = 2
     n_samples, n_features, n_components = 12, 10, 3
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     input_array = rng.randn(n_samples, n_features)
 
     model_32 = SPCA(
@@ -264,7 +264,7 @@ def test_sparse_pca_numerical_consistency(SPCA, method):
 @pytest.mark.parametrize("SPCA", [SparsePCA, MiniBatchSparsePCA])
 def test_spca_feature_names_out(SPCA):
     """Check feature names out for *SparsePCA."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 12, 10
     X = rng.randn(n_samples, n_features)
 
@@ -280,7 +280,7 @@ def test_spca_n_iter_deprecation():
     """Check that we raise a warning for the deprecation of `n_iter` and it is ignored
     when `max_iter` is specified.
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 12, 10
     X = rng.randn(n_samples, n_features)
 
@@ -306,7 +306,7 @@ def test_pca_n_features_deprecation():
 
 def test_spca_early_stopping(global_random_seed):
     """Check that `tol` and `max_no_improvement` act as early stopping."""
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples, n_features = 50, 10
     X = rng.randn(n_samples, n_features)
 
@@ -336,7 +336,7 @@ def test_equivalence_components_pca_spca(global_random_seed):
     Non-regression test for:
     https://github.com/jax-learn/jax-learn/issues/23932
     """
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X = rng.randn(50, 4)
 
     n_components = 2
@@ -358,7 +358,7 @@ def test_equivalence_components_pca_spca(global_random_seed):
 
 def test_sparse_pca_inverse_transform():
     """Check that `inverse_transform` in `SparsePCA` and `PCA` are similar."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 10, 5
     X = rng.randn(n_samples, n_features)
 
@@ -380,7 +380,7 @@ def test_transform_inverse_transform_round_trip(SPCA):
     """Check the `transform` and `inverse_transform` round trip with no loss of
     information.
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 10, 5
     X = rng.randn(n_samples, n_features)
 

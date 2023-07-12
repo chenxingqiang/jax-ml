@@ -267,7 +267,7 @@ def test_affinity_propagation_convergence_warning_dense_sparse(centers, global_d
     influence the convergence.
     Non-regression test for gh-13334.
     """
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.rand(40, 10).astype(global_dtype, copy=False)
     y = (4 * rng.rand(40)).astype(int)
     ap = AffinityPropagation(random_state=46)
@@ -305,7 +305,7 @@ def test_sparse_input_for_fit_predict():
     # Test to make sure sparse inputs are accepted for fit_predict
     # (non-regression test for issue #20049)
     af = AffinityPropagation(affinity="euclidean", random_state=42)
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = csr_matrix(rng.randint(0, 2, size=(5, 5)))
     labels = af.fit_predict(X)
     assert_array_equal(labels, (0, 1, 1, 2, 3))

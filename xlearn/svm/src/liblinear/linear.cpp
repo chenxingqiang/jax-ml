@@ -1,36 +1,3 @@
-/*
-   Modified 2011:
-
-   - Make labels sorted in group_classes, Dan Yamins.
-
-   Modified 2012:
-
-   - Changes roles of +1 and -1 to match jax API, Andreas Mueller
-        See issue 546: https://github.com/jax-learn/jax-learn/pull/546
-   - Also changed roles for pairwise class weights, Andreas Mueller
-        See issue 1491: https://github.com/jax-learn/jax-learn/pull/1491
-
-   Modified 2014:
-
-   - Remove the hard-coded value of max_iter (1000), that allows max_iter
-     to be passed as a parameter from the classes LogisticRegression and
-     LinearSVC, Manoj Kumar
-   - Added function get_n_iter that exposes the number of iterations.
-        See issue 3499: https://github.com/jax-learn/jax-learn/issues/3499
-        See pull 3501: https://github.com/jax-learn/jax-learn/pull/3501
-
-   Modified 2015:
-   - Patched liblinear for sample_weights - Manoj Kumar
-     See https://github.com/jax-learn/jax-learn/pull/5274
-
-   Modified 2020:
-   - Improved random number generator by using a mersenne twister + tweaked
-     lemire postprocessor. This fixed a convergence issue on windows targets.
-     Sylvain Marie, Schneider Electric
-     See
-   <https://github.com/jax-learn/jax-learn/pull/13511#issuecomment-481729756>
-
- */
 
 #include "linear.h"
 #include "../newrand/newrand.h"
@@ -44,119 +11,81 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef signed char schar;
-template <class T> static inline void swap(T &x, T &y) {
-  T t = x;
-  x = y;
-  y = t;
+import jax import jax.numpy as jnp
+
+    def swap(x, y) :t = x x = y y = t return x, y
+
+             def min(x, y) : return x if x < y else y
+
+def max(x, y):
+    return x if x > y else y
+
+                 def clone(src, n) :dst = jnp.zeros(n) dst = jax.ops.index_update(dst, jax.ops.index[ : ], src) return dst
+
+                                                                                       def Malloc(n) : return jnp.zeros(n)
+
+                                                                                                      INF = float('inf')
+
+                                                                                                          def print_string_stdout(s) :print(s, end ='') print()
+
+                                                                                                                                                liblinear_print_string = print_string_stdout
+
+                                                                                                                                            def info(fmt, * args) :buf = fmt % args liblinear_print_string(buf)
+
+                                                                                                                                                         class l2r_lr_fun:def __init__(self, prob, C) :l = prob['l'] self.prob = prob self.z = jnp.zeros(l) self.D = jnp.zeros(l) self.C = C
+
+                                                                                                                                                                                                                                                                               def fun(self, w) :f = 0 y = self.prob['y'] l = self.prob['l'] w_size = self.get_nr_variable()
+
+                                                                                                                                                                                                                                                                                                                                                                               self.Xv(w, self.z)
+
+                                                                                                                                                                                                                                                                                                                                                                                              f += jnp.sum(w ** 2) / 2.0 for i in range(l) :yz = y[i] * self.z[i] if yz >= 0 :f += self.C[i] * jnp.log(1 + jnp.exp(- yz)) else :f += self.C[i] *(- yz + jnp.log(1 + jnp.exp(yz)))
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     return f
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 def get_nr_variable(self) : return self.prob['n']
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     def Xv(self, v, Xv) :X = self.prob['X'] for i in range(self.prob['l']) :Xv[i] = jnp.dot(X[i], v)
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 def grad(self, w) :g = jnp.zeros_like(w) X = self.prob['X'] y = self.prob['y'] l = self.prob['l'] w_size = self.get_nr_variable()
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     self.Xv(w, self.z)
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    for i in range(w_size) :g[i] = w[i]
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             for i in range(l) :yz = y[i] * self.z[i] c = self.C[i] if yz >= 0 :c = c /(1 + jnp.exp(- yz)) else :c = c /(1 + jnp.exp(yz)) g += c * X[i] * y[i]
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         return g
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         def Hv(self, s, Hs) :X = self.prob['X'] y = self.prob['y'] l = self.prob['l'] w_size = self.get_nr_variable()
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         wa = jnp.zeros_like(s) self.Xv(s, wa)
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            for i in range(w_size) :Hs[i] = s[i]
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        for i in range(l) :wa[i] = self.C[i] * wa[i] * y[i] /(1 + jnp.exp(y[i] * self.z[i])) wa[i] = wa[i] * X[i]
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               self.XTv(wa, Hs)
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            for i in range(w_size) :Hs[i] = s[i] + Hs[i]
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        def XTv(self, v, XTv) :X = self.prob['X'] l = self.prob['l'] w_size = self.get_nr_variable()
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    for i in range(w_size) :XTv[i] = jnp.dot(X[ :, i], v)
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 void l2r_lr_fun::grad(double * w, double * g){int i;
+double *y = prob->y;
+int l = prob->l;
+int w_size = get_nr_variable();
+
+for (i = 0; i < l; i++) {
+  z[i] = 1 / (1 + exp(-y[i] * z[i]));
+  D[i] = z[i] * (1 - z[i]);
+  z[i] = C[i] * (z[i] - 1) * y[i];
 }
-#ifndef min
-template <class T> static inline T min(T x, T y) { return (x < y) ? x : y; }
-#endif
-#ifndef max
-template <class T> static inline T max(T x, T y) { return (x > y) ? x : y; }
-#endif
-template <class S, class T> static inline void clone(T *&dst, S *src, int n) {
-  dst = new T[n];
-  memcpy((void *)dst, (void *)src, sizeof(T) * n);
-}
-#define Malloc(type, n) (type *)malloc((n) * sizeof(type))
-#define INF HUGE_VAL
+XTv(z, g);
 
-static void print_string_stdout(const char *s) {
-  fputs(s, stdout);
-  fflush(stdout);
-}
-
-static void (*liblinear_print_string)(const char *) = &print_string_stdout;
-
-#if 1
-static void info(const char *fmt, ...) {
-  char buf[BUFSIZ];
-  va_list ap;
-  va_start(ap, fmt);
-  vsprintf(buf, fmt, ap);
-  va_end(ap);
-  (*liblinear_print_string)(buf);
-}
-#else
-static void info(const char *fmt, ...) {}
-#endif
-
-class l2r_lr_fun : public function {
-public:
-  l2r_lr_fun(const problem *prob, double *C);
-  ~l2r_lr_fun();
-
-  double fun(double *w);
-  void grad(double *w, double *g);
-  void Hv(double *s, double *Hs);
-
-  int get_nr_variable(void);
-
-private:
-  void Xv(double *v, double *Xv);
-  void XTv(double *v, double *XTv);
-
-  double *C;
-  double *z;
-  double *D;
-  const problem *prob;
-};
-
-l2r_lr_fun::l2r_lr_fun(const problem *prob, double *C) {
-  int l = prob->l;
-
-  this->prob = prob;
-
-  z = new double[l];
-  D = new double[l];
-  this->C = C;
-}
-
-l2r_lr_fun::~l2r_lr_fun() {
-  delete[] z;
-  delete[] D;
-}
-
-double l2r_lr_fun::fun(double *w) {
-  int i;
-  double f = 0;
-  double *y = prob->y;
-  int l = prob->l;
-  int w_size = get_nr_variable();
-
-  Xv(w, z);
-
-  for (i = 0; i < w_size; i++)
-    f += w[i] * w[i];
-  f /= 2.0;
-  for (i = 0; i < l; i++) {
-    double yz = y[i] * z[i];
-    if (yz >= 0)
-      f += C[i] * log(1 + exp(-yz));
-    else
-      f += C[i] * (-yz + log(1 + exp(yz)));
-  }
-
-  return (f);
-}
-
-void l2r_lr_fun::grad(double *w, double *g) {
-  int i;
-  double *y = prob->y;
-  int l = prob->l;
-  int w_size = get_nr_variable();
-
-  for (i = 0; i < l; i++) {
-    z[i] = 1 / (1 + exp(-y[i] * z[i]));
-    D[i] = z[i] * (1 - z[i]);
-    z[i] = C[i] * (z[i] - 1) * y[i];
-  }
-  XTv(z, g);
-
-  for (i = 0; i < w_size; i++)
-    g[i] = w[i] + g[i];
+for (i = 0; i < w_size; i++)
+  g[i] = w[i] + g[i];
 }
 
 int l2r_lr_fun::get_nr_variable(void) { return prob->n; }
@@ -421,26 +350,6 @@ void l2r_l2_svr_fun::grad(double *w, double *g) {
     g[i] = w[i] + 2 * g[i];
 }
 
-// A coordinate descent algorithm for
-// multi-class support vector machines by Crammer and Singer
-//
-//  min_{\alpha}  0.5 \sum_m ||w_m(\alpha)||^2 + \sum_i \sum_m e^m_i alpha^m_i
-//    s.t.     \alpha^m_i <= C^m_i \forall m,i , \sum_m \alpha^m_i=0 \forall i
-//
-//  where e^m_i = 0 if y_i  = m,
-//        e^m_i = 1 if y_i != m,
-//  C^m_i = C if m  = y_i,
-//  C^m_i = 0 if m != y_i,
-//  and w_m(\alpha) = \sum_i \alpha^m_i x_i
-//
-// Given:
-// x, y, C
-// eps is the stopping tolerance
-//
-// solution will be put in w
-//
-// See Appendix of LIBLINEAR paper, Fan et al. (2008)
-
 #define GETI(i) (i)
 // To support weights for instances, use GETI(i) (i)
 
@@ -542,11 +451,6 @@ int Solver_MCSVM_CS::Solve(double *w) {
   double eps_shrink = max(10.0 * eps, 1.0); // stopping tolerance for shrinking
   bool start_from_all = true;
 
-  // Initial alpha can be set here. Note that
-  // sum_m alpha[i*nr_class+m] = 0, for all i=1,...,l-1
-  // alpha[i*nr_class+m] <= C[GETI(i)] if prob->y[i] == m
-  // alpha[i*nr_class+m] <= 0 if prob->y[i] != m
-  // If initial alpha isn't zero, uncomment the for loop below to initialize w
   for (i = 0; i < l * nr_class; i++)
     alpha[i] = 0;
 
@@ -717,32 +621,6 @@ int Solver_MCSVM_CS::Solve(double *w) {
   delete[] active_size_i;
   return iter;
 }
-
-// A coordinate descent algorithm for
-// L1-loss and L2-loss SVM dual problems
-//
-//  min_\alpha  0.5(\alpha^T (Q + D)\alpha) - e^T \alpha,
-//    s.t.      0 <= \alpha_i <= upper_bound_i,
-//
-//  where Qij = yi yj xi^T xj and
-//  D is a diagonal matrix
-//
-// In L1-SVM case:
-// 		upper_bound_i = Cp if y_i = 1
-// 		upper_bound_i = Cn if y_i = -1
-// 		D_ii = 0
-// In L2-SVM case:
-// 		upper_bound_i = INF
-// 		D_ii = 1/(2*Cp)	if y_i = 1
-// 		D_ii = 1/(2*Cn)	if y_i = -1
-//
-// Given:
-// x, y, Cp, Cn
-// eps is the stopping tolerance
-//
-// solution will be put in w
-//
-// See Algorithm 3 of Hsieh et al., ICML 2008
 
 #undef GETI
 #define GETI(i) (i)
@@ -1903,7 +1781,7 @@ static int solve_l1r_lr(const problem *prob_col, double *w, double eps,
     newton_iter++;
     Gmax_old = Gmax_new;
 
-    info("iter %3d  #CD cycles %d\n", newton_iter, iter);
+    info("iter %3d  #CD cles %d\n", newton_iter, iter);
   }
 
   info("=========================\n");

@@ -725,7 +725,7 @@ cdef class DistanceMetric{{name_suffix}}(DistanceMetric):
             # achieved via the PairwiseDistances class instead. The latter
             # internally calls into vector-wise distance computation from
             # the DistanceMetric subclass while benefiting from the generic
-            # Cython/OpenMP parallelization template for the generic pairwise
+            # cython/OpenMP parallelization template for the generic pairwise
             # distance + reduction computational pattern.
             for i1 in range(n_X):
                 x1_start = X_indptr[i1]
@@ -791,7 +791,7 @@ cdef class DistanceMetric{{name_suffix}}(DistanceMetric):
             # achieved via the PairwiseDistances class instead. The latter
             # internally calls into vector-wise distance computation from
             # the DistanceMetric subclass while benefiting from the generic
-            # Cython/OpenMP parallelization template for the generic pairwise
+            # cython/OpenMP parallelization template for the generic pairwise
             # distance + reduction computational pattern.
             for i1 in range(n_X):
                 x1_data = &X_data[0, 0] + i1 * n_features
@@ -2659,7 +2659,7 @@ cdef class PyFuncDistance{{name_suffix}}(DistanceMetric{{name_suffix}}):
             object x2arr = _buffer_to_ndarray{{name_suffix}}(x2, size)
         d = self.func(x1arr, x2arr, **self.kwargs)
         try:
-            # Cython generates code here that results in a TypeError
+            # cython generates code here that results in a TypeError
             # if d is the wrong type.
             return d
         except TypeError:

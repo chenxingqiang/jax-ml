@@ -167,7 +167,7 @@ def test_nodes_values(monotonic_cst, seed):
     #
     # The last one is a consequence of the others, but can't hurt to check
 
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
     n_samples = 1000
     n_features = 1
     X_binned = rng.randint(0, 255, size=(n_samples, n_features), dtype=jnp.uint8)
@@ -212,7 +212,7 @@ def test_predictions(global_random_seed, use_feature_names):
     # test adapted from lightgbm's test_monotone_constraint(), itself inspired
     # by https://xgboost.readthedocs.io/en/latest/tutorials/monotonic.html
 
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
 
     n_samples = 1000
     f_0 = rng.rand(n_samples)  # positive correlation with y

@@ -23,17 +23,17 @@ from scipy.special import xlogy
 from ..utils import check_scalar
 from ..utils.stats import _weighted_percentile
 from ._loss import (
-    CyAbsoluteError,
-    CyExponentialLoss,
-    CyHalfBinomialLoss,
-    CyHalfGammaLoss,
-    CyHalfMultinomialLoss,
-    CyHalfPoissonLoss,
-    CyHalfSquaredError,
-    CyHalfTweedieLoss,
-    CyHalfTweedieLossIdentity,
-    CyHuberLoss,
-    CyPinballLoss,
+    AbsoluteError,
+    ExponentialLoss,
+    HalfBinomialLoss,
+    HalfGammaLoss,
+    HalfMultinomialLoss,
+    HalfPoissonLoss,
+    HalfSquaredError,
+    HalfTweedieLoss,
+    HalfTweedieLossIdentity,
+    HuberLoss,
+    PinballLoss,
 )
 from .link import (
     HalfLogitLink,
@@ -51,17 +51,17 @@ from .link import (
 #
 # Note: Instead of inheritance like
 #
-#    class BaseLoss(BaseLink, CyLossFunction):
+#    class BaseLoss(BaseLink, LossFunction):
 #    ...
 #
 #    # Note: Naturally, we would inherit in the following order
-#    #     class HalfSquaredError(IdentityLink, CyHalfSquaredError, BaseLoss)
+#    #     class HalfSquaredError(IdentityLink, HalfSquaredError, BaseLoss)
 #    #   But because of https://github.com/cython/cython/issues/4350 we set BaseLoss as
 #    #   the last one. This, of course, changes the MRO.
-#    class HalfSquaredError(IdentityLink, CyHalfSquaredError, BaseLoss):
+#    class HalfSquaredError(IdentityLink, HalfSquaredError, BaseLoss):
 #
 # we use composition. This way we improve maintainability by avoiding the above
-# mentioned Cython edge case and have easier to understand code (which method calls
+# mentioned cython edge case and have easier to understand code (which method calls
 # which code).
 class BaseLoss:
     """Base class for a loss function of 1-dimensional targets.
@@ -92,7 +92,7 @@ class BaseLoss:
 
     Attributes
     ----------
-    closs: CyLossFunction
+    closs: LossFunction
     link : BaseLink
     interval_y_true : Interval
         Valid interval for y_true
@@ -505,7 +505,7 @@ class BaseLoss:
 
 
 # Note: Naturally, we would inherit in the following order
-#         class HalfSquaredError(IdentityLink, CyHalfSquaredError, BaseLoss)
+#         class HalfSquaredError(IdentityLink, HalfSquaredError, BaseLoss)
 #       But because of https://github.com/cython/cython/issues/4350 we
 #       set BaseLoss as the last one. This, of course, changes the MRO.
 class HalfSquaredError(BaseLoss):
@@ -527,7 +527,7 @@ class HalfSquaredError(BaseLoss):
     """
 
     def __init__(self, sample_weight=None):
-        super().__init__(closs=CyHalfSquaredError(), link=IdentityLink())
+        super().__init__(closs=HalfSquaredError(), link=IdentityLink())
         self.constant_hessian = sample_weight is None
 
 
@@ -549,7 +549,7 @@ class AbsoluteError(BaseLoss):
     need_update_leaves_values = True
 
     def __init__(self, sample_weight=None):
-        super().__init__(closs=CyAbsoluteError(), link=IdentityLink())
+        super().__init__(closs=AbsoluteError(), link=IdentityLink())
         self.approx_hessian = True
         self.constant_hessian = sample_weight is None
 
@@ -604,7 +604,7 @@ class PinballLoss(BaseLoss):
             include_boundaries="neither",
         )
         super().__init__(
-            closs=CyPinballLoss(quantile=float(quantile)),
+            closs=PinballLoss(quantile=float(quantile)),
             link=IdentityLink(),
         )
         self.approx_hessian = True
@@ -670,9 +670,9 @@ class HuberLoss(BaseLoss):
             max_val=1,
             include_boundaries="neither",
         )
-        self.quantile = quantile  # This is better stored outside of Cython.
+        self.quantile = quantile  # This is better stored outside of cython.
         super().__init__(
-            closs=CyHuberLoss(delta=float(delta)),
+            closs=HuberLoss(delta=float(delta)),
             link=IdentityLink(),
         )
         self.approx_hessian = True
@@ -719,7 +719,7 @@ class HalfPoissonLoss(BaseLoss):
     """
 
     def __init__(self, sample_weight=None):
-        super().__init__(closs=CyHalfPoissonLoss(), link=LogLink())
+        super().__init__(closs=HalfPoissonLoss(), link=LogLink())
         self.interval_y_true = Interval(0, jnp.inf, True, False)
 
     def constant_to_optimal_zero(self, y_true, sample_weight=None):
@@ -750,7 +750,7 @@ class HalfGammaLoss(BaseLoss):
     """
 
     def __init__(self, sample_weight=None):
-        super().__init__(closs=CyHalfGammaLoss(), link=LogLink())
+        super().__init__(closs=HalfGammaLoss(), link=LogLink())
         self.interval_y_true = Interval(0, jnp.inf, False, False)
 
     def constant_to_optimal_zero(self, y_true, sample_weight=None):
@@ -793,7 +793,7 @@ class HalfTweedieLoss(BaseLoss):
 
     def __init__(self, sample_weight=None, power=1.5):
         super().__init__(
-            closs=CyHalfTweedieLoss(power=float(power)),
+            closs=HalfTweedieLoss(power=float(power)),
             link=LogLink(),
         )
         if self.closs.power <= 0:
@@ -854,7 +854,7 @@ class HalfTweedieLossIdentity(BaseLoss):
 
     def __init__(self, sample_weight=None, power=1.5):
         super().__init__(
-            closs=CyHalfTweedieLossIdentity(power=float(power)),
+            closs=HalfTweedieLossIdentity(power=float(power)),
             link=IdentityLink(),
         )
         if self.closs.power <= 0:
@@ -904,7 +904,7 @@ class HalfBinomialLoss(BaseLoss):
 
     def __init__(self, sample_weight=None):
         super().__init__(
-            closs=CyHalfBinomialLoss(),
+            closs=HalfBinomialLoss(),
             link=LogitLink(),
             n_classes=2,
         )
@@ -978,7 +978,7 @@ class HalfMultinomialLoss(BaseLoss):
 
     def __init__(self, sample_weight=None, n_classes=3):
         super().__init__(
-            closs=CyHalfMultinomialLoss(),
+            closs=HalfMultinomialLoss(),
             link=MultinomialLogit(),
             n_classes=n_classes,
         )
@@ -1115,7 +1115,7 @@ class ExponentialLoss(BaseLoss):
 
     def __init__(self, sample_weight=None):
         super().__init__(
-            closs=CyExponentialLoss(),
+            closs=ExponentialLoss(),
             link=HalfLogitLink(),
             n_classes=2,
         )

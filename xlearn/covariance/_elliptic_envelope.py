@@ -127,7 +127,7 @@ class EllipticEnvelope(OutlierMixin, MinCovDet):
     >>> from xlearn.covariance import EllipticEnvelope
     >>> true_cov = jnp.array([[.8, .3],
     ...                      [.3, .4]])
-    >>> X = np.random.RandomState(0).multivariate_normal(mean=[0, 0],
+    >>> X = jax.random.RandomState(0).multivariate_normal(mean=[0, 0],
     ...                                                  cov=true_cov,
     ...                                                  size=500)
     >>> cov = EllipticEnvelope(random_state=0).fit(X)

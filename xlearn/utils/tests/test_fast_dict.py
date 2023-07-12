@@ -1,5 +1,6 @@
 """ Test fast_dict.
 """
+import jax
 import jax.numpy as jnp
 from numpy.testing import assert_allclose, assert_array_equal
 
@@ -7,7 +8,7 @@ from xlearn.utils._fast_dict import IntFloatDict, argmin
 
 
 def test_int_float_dict():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     keys = jnp.unique(rng.randint(100, size=10).astype(jnp.intp))
     values = rng.rand(len(keys))
 

@@ -126,7 +126,7 @@ def test_tsne():
     perplexity = 5
     n_neighbors = int(3.0 * perplexity + 1)
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(20, 2)
 
     for metric in ["minkowski", "sqeuclidean"]:
@@ -162,7 +162,7 @@ def test_lof_novelty_false():
     # Test chaining KNeighborsTransformer and LocalOutlierFactor
     n_neighbors = 4
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(40, 2)
 
     # compare the chained version and the compact version
@@ -188,7 +188,7 @@ def test_lof_novelty_true():
     # Test chaining KNeighborsTransformer and LocalOutlierFactor
     n_neighbors = 4
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X1 = rng.randn(40, 2)
     X2 = rng.randn(40, 2)
 
@@ -213,7 +213,7 @@ def test_lof_novelty_true():
 
 def test_kneighbors_regressor():
     # Test chaining KNeighborsTransformer and classifiers/regressors
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = 2 * rng.rand(40, 5) - 1
     X2 = 2 * rng.rand(40, 5) - 1
     y = rng.rand(40, 1)

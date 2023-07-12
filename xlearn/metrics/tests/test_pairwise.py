@@ -68,7 +68,7 @@ from xlearn.utils.parallel import Parallel, delayed
 
 def test_pairwise_distances(global_dtype):
     # Test the pairwise_distance helper function.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     # Euclidean distance should be equivalent to calling the function.
     X = rng.random_sample((5, 4)).astype(global_dtype, copy=False)
@@ -221,7 +221,7 @@ def test_manhattan_distances_deprecated_sum_over_features(sum_over_features):
 @pytest.mark.parametrize("metric", PAIRWISE_BOOLEAN_FUNCTIONS)
 def test_pairwise_boolean_distance(metric):
     # test that we convert to boolean arrays for boolean distances
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(5, 4)
     Y = X.copy()
     Y[0, 0] = 1 - Y[0, 0]
@@ -251,7 +251,7 @@ def test_pairwise_boolean_distance(metric):
 
 def test_no_data_conversion_warning():
     # No warnings issued if metric is not a boolean distance function
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(5, 4)
     with warnings.catch_warnings():
         warnings.simplefilter("error", DataConversionWarning)
@@ -343,7 +343,7 @@ def callable_rbf_kernel(x, y, **kwds):
 )
 @pytest.mark.parametrize("dtype", [jnp.float64, jnp.float32, int])
 def test_pairwise_parallel(func, metric, kwds, dtype):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = jnp.array(5 * rng.random_sample((5, 4)), dtype=dtype)
     Y = jnp.array(5 * rng.random_sample((3, 4)), dtype=dtype)
 
@@ -372,7 +372,7 @@ def test_pairwise_callable_nonstrict_metric():
 def test_pairwise_kernels(metric):
     # Test the pairwise_kernels helper function.
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
     Y = rng.random_sample((2, 4))
     function = PAIRWISE_KERNEL_FUNCTIONS[metric]
@@ -403,7 +403,7 @@ def test_pairwise_kernels(metric):
 def test_pairwise_kernels_callable():
     # Test the pairwise_kernels helper function
     # with a callable function, with given keywords.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
     Y = rng.random_sample((2, 4))
 
@@ -420,7 +420,7 @@ def test_pairwise_kernels_callable():
 
 
 def test_pairwise_kernels_filter_param():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
     Y = rng.random_sample((2, 4))
     K = rbf_kernel(X, Y, gamma=0.1)
@@ -435,7 +435,7 @@ def test_pairwise_kernels_filter_param():
 @pytest.mark.parametrize("metric, func", PAIRED_DISTANCES.items())
 def test_paired_distances(metric, func):
     # Test the pairwise_distance helper function.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     # Euclidean distance should be equivalent to calling the function.
     X = rng.random_sample((5, 4))
     # Euclidean distance, with Y != X.
@@ -457,7 +457,7 @@ def test_paired_distances(metric, func):
 def test_paired_distances_callable(global_dtype):
     # Test the paired_distance helper function
     # with the callable implementation
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     # Euclidean distance should be equivalent to calling the function.
     X = rng.random_sample((5, 4)).astype(global_dtype, copy=False)
     # Euclidean distance, with Y != X.
@@ -548,7 +548,7 @@ def test_pairwise_distances_argmin_min(global_dtype):
     assert_allclose(vals, expected_vals)
 
     # Compare with naive implementation
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(97, 149)
     Y = rng.randn(111, 149)
 
@@ -600,7 +600,7 @@ def _reduce_func(dist, start):
 
 
 def test_pairwise_distances_chunked_reduce(global_dtype):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((400, 4)).astype(global_dtype, copy=False)
     # Reduced Euclidean distance
     S = pairwise_distances(X)[:, :100]
@@ -618,7 +618,7 @@ def test_pairwise_distances_chunked_reduce(global_dtype):
 
 def test_pairwise_distances_chunked_reduce_none(global_dtype):
     # check that the reduce func is allowed to return None
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((10, 4)).astype(global_dtype, copy=False)
     S_chunks = pairwise_distances_chunked(
         X, None, reduce_func=lambda dist, start: None, working_memory=2**-16
@@ -709,7 +709,7 @@ def check_pairwise_distances_chunked(X, Y, working_memory, metric="euclidean"):
 
 @pytest.mark.parametrize("metric", ("euclidean", "l2", "sqeuclidean"))
 def test_pairwise_distances_chunked_diagonal(metric, global_dtype):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(size=(1000, 10), scale=1e10).astype(
         global_dtype, copy=False)
     chunks = list(pairwise_distances_chunked(
@@ -720,7 +720,7 @@ def test_pairwise_distances_chunked_diagonal(metric, global_dtype):
 
 @pytest.mark.parametrize("metric", ("euclidean", "l2", "sqeuclidean"))
 def test_parallel_pairwise_distances_diagonal(metric, global_dtype):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.normal(size=(1000, 10), scale=1e10).astype(
         global_dtype, copy=False)
     distances = pairwise_distances(X, metric=metric, n_jobs=2)
@@ -730,7 +730,7 @@ def test_parallel_pairwise_distances_diagonal(metric, global_dtype):
 @ignore_warnings
 def test_pairwise_distances_chunked(global_dtype):
     # Test the pairwise_distance helper function.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     # Euclidean distance should be equivalent to calling the function.
     X = rng.random_sample((200, 4)).astype(global_dtype, copy=False)
     check_pairwise_distances_chunked(
@@ -789,7 +789,7 @@ def test_euclidean_distances_known_result(x_array_constr, y_array_constr):
 def test_euclidean_distances_with_norms(global_dtype, y_array_constr):
     # check that we still get the right answers with {X,Y}_norm_squared
     # and that we get a wrong answer with wrong {X,Y}_norm_squared
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((10, 10)).astype(global_dtype, copy=False)
     Y = rng.random_sample((20, 10)).astype(global_dtype, copy=False)
 
@@ -821,7 +821,7 @@ def test_euclidean_distances_with_norms(global_dtype, y_array_constr):
 
 def test_euclidean_distances_norm_shapes():
     # Check all accepted shapes for the norms or appropriate error messages.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((10, 10))
     Y = rng.random_sample((20, 10))
 
@@ -862,7 +862,7 @@ def test_euclidean_distances_norm_shapes():
 def test_euclidean_distances(global_dtype, x_array_constr, y_array_constr):
     # check that euclidean distances gives same result as scipy cdist
     # when X and Y != X are provided
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((100, 10)).astype(global_dtype, copy=False)
     X[X < 0.8] = 0
     Y = rng.random_sample((10, 10)).astype(global_dtype, copy=False)
@@ -886,7 +886,7 @@ def test_euclidean_distances(global_dtype, x_array_constr, y_array_constr):
 def test_euclidean_distances_sym(global_dtype, x_array_constr):
     # check that euclidean distances gives same result as scipy pdist
     # when only X is provided
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((100, 10)).astype(global_dtype, copy=False)
     X[X < 0.8] = 0
 
@@ -910,7 +910,7 @@ def test_euclidean_distances_sym(global_dtype, x_array_constr):
 )
 def test_euclidean_distances_upcast(batch_size, x_array_constr, y_array_constr):
     # check batches handling when Y != X (#13910)
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((100, 10)).astype(jnp.float32)
     X[X < 0.8] = 0
     Y = rng.random_sample((10, 10)).astype(jnp.float32)
@@ -934,7 +934,7 @@ def test_euclidean_distances_upcast(batch_size, x_array_constr, y_array_constr):
 )
 def test_euclidean_distances_upcast_sym(batch_size, x_array_constr):
     # check batches handling when X is Y (#13910)
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((100, 10)).astype(jnp.float32)
     X[X < 0.8] = 0
 
@@ -977,7 +977,7 @@ def test_euclidean_distances_extreme_values(dtype, eps, rtol, dim):
 @pytest.mark.parametrize("squared", [True, False])
 def test_nan_euclidean_distances_equal_to_euclidean_distance(squared):
     # with no nan values
-    rng = np.random.RandomState(1337)
+    rng = jax.random.RandomState(1337)
     X = rng.randn(3, 4)
     Y = rng.randn(4, 4)
 
@@ -1119,7 +1119,7 @@ def test_nan_euclidean_distances_one_feature_match_positive(missing_value):
 
 def test_cosine_distances():
     # Check the pairwise Cosine distances computation
-    rng = np.random.RandomState(1337)
+    rng = jax.random.RandomState(1337)
     x = jnp.abs(rng.rand(910))
     XA = jnp.vstack([x, x])
     D = cosine_distances(XA)
@@ -1158,7 +1158,7 @@ def test_haversine_distances():
         c = 2 * jnp.arcsin(jnp.sqrt(a))
         return c
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 2))
     Y = rng.random_sample((10, 2))
     D1 = jnp.array([[slow_haversine_distances(x, y) for y in Y] for x in X])
@@ -1199,7 +1199,7 @@ def test_paired_cosine_distances():
 
 
 def test_chi_square_kernel():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
     Y = rng.random_sample((10, 4))
     K_add = additive_chi2_kernel(X, Y)
@@ -1265,7 +1265,7 @@ def test_chi_square_kernel():
 )
 def test_kernel_symmetry(kernel):
     # Valid kernels should be symmetric
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
     K = kernel(X, X)
     assert_allclose(K, K.T, 15)
@@ -1283,7 +1283,7 @@ def test_kernel_symmetry(kernel):
     ),
 )
 def test_kernel_sparse(kernel):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
     X_sparse = csr_matrix(X)
     K = kernel(X, X)
@@ -1292,7 +1292,7 @@ def test_kernel_sparse(kernel):
 
 
 def test_linear_kernel():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
     K = linear_kernel(X, X)
     # the diagonal elements of a linear kernel are their squared norm
@@ -1300,7 +1300,7 @@ def test_linear_kernel():
 
 
 def test_rbf_kernel():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
     K = rbf_kernel(X, X)
     # the diagonal elements of a rbf kernel are 1
@@ -1308,7 +1308,7 @@ def test_rbf_kernel():
 
 
 def test_laplacian_kernel():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
     K = laplacian_kernel(X, X)
     # the diagonal elements of a laplacian kernel are 1
@@ -1324,7 +1324,7 @@ def test_laplacian_kernel():
         ("linear", linear_kernel), ("cosine", cosine_similarity)]
 )
 def test_pairwise_similarity_sparse_output(metric, pairwise_func):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
     Y = rng.random_sample((3, 4))
     Xcsr = csr_matrix(X)
@@ -1347,7 +1347,7 @@ def test_pairwise_similarity_sparse_output(metric, pairwise_func):
 def test_cosine_similarity():
     # Test the cosine_similarity.
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((5, 4))
     Y = rng.random_sample((3, 4))
     Xcsr = csr_matrix(X)
@@ -1417,7 +1417,7 @@ def test_check_invalid_dimensions():
 
 def test_check_sparse_arrays():
     # Ensures that checks return valid sparse matrices.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     XA = rng.random_sample((5, 4))
     XA_sparse = csr_matrix(XA)
     XB = rng.random_sample((5, 4))
@@ -1450,7 +1450,7 @@ def tuplify(X):
 
 def test_check_tuple_input():
     # Ensures that checks return valid tuples.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     XA = rng.random_sample((5, 4))
     XA_tuples = tuplify(XA)
     XB = rng.random_sample((5, 4))
@@ -1493,7 +1493,7 @@ def test_pairwise_distances_data_derived_params(n_jobs, metric, dist_function):
     # check that pairwise_distances give the same result in sequential and
     # parallel, when metric has data-derived parameters.
     with config_context(working_memory=0.1):  # to have more than 1 chunk
-        rng = np.random.RandomState(0)
+        rng = jax.random.RandomState(0)
         X = rng.random_sample((100, 10))
 
         expected_dist = squareform(pdist(X, metric=metric))
@@ -1506,7 +1506,7 @@ def test_pairwise_distances_data_derived_params(n_jobs, metric, dist_function):
 def test_pairwise_distances_data_derived_params_error(metric):
     # check that pairwise_distances raises an error when Y is passed but
     # metric has data-derived params that are not provided by the user.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample((100, 10))
     Y = rng.random_sample((100, 10))
 
@@ -1544,7 +1544,7 @@ def test_numeric_pairwise_distances_datatypes(metric, global_dtype, y_is_x):
     # error when using metric='seuclidean' and the input data was not
     # of type jnp.float64 (#15730)
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     X = rng.random_sample((5, 4)).astype(global_dtype, copy=False)
 

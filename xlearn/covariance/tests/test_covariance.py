@@ -250,7 +250,7 @@ def test_ledoit_wolf_small():
 
 def test_ledoit_wolf_large():
     # test that ledoit_wolf doesn't error on data that is wider than block_size
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     # use a number of features that is larger than the block-size
     X = rng.normal(size=(10, 20))
     lw = LedoitWolf(block_size=10).fit(X)

@@ -2,6 +2,7 @@
 #
 # License: BSD 3 clause
 
+import jax
 import jax.numpy as jnp
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
@@ -23,7 +24,7 @@ def test_mmhash3_int():
 
 
 def test_mmhash3_int_array():
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     keys = rng.randint(-5342534, 345345, size=3 * 2 * 1).astype(jnp.int32)
     keys = keys.reshape((3, 2, 1))
 

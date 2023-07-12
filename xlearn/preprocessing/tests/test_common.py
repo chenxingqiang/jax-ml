@@ -49,7 +49,7 @@ def test_missing_value_handling(
     est, func, support_sparse, strictly_positive, omit_kwargs
 ):
     # check that the preprocessing method let pass nan
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = iris.data.copy()
     n_missing = 50
     X[

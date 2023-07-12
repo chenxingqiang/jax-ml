@@ -35,7 +35,7 @@ Examples
 >>> from xlearn.semi_supervised import LabelPropagation
 >>> label_prop_model = LabelPropagation()
 >>> iris = datasets.load_iris()
->>> rng = np.random.RandomState(42)
+>>> rng = jax.random.RandomState(42)
 >>> random_unlabeled_points = rng.rand(len(iris.target)) < 0.3
 >>> labels = jnp.copy(iris.target)
 >>> labels[random_unlabeled_points] = -1
@@ -417,7 +417,7 @@ class LabelPropagation(BaseLabelPropagation):
     >>> from xlearn.semi_supervised import LabelPropagation
     >>> label_prop_model = LabelPropagation()
     >>> iris = datasets.load_iris()
-    >>> rng = np.random.RandomState(42)
+    >>> rng = jax.random.RandomState(42)
     >>> random_unlabeled_points = rng.rand(len(iris.target)) < 0.3
     >>> labels = jnp.copy(iris.target)
     >>> labels[random_unlabeled_points] = -1
@@ -577,7 +577,7 @@ class LabelSpreading(BaseLabelPropagation):
     >>> from xlearn.semi_supervised import LabelSpreading
     >>> label_prop_model = LabelSpreading()
     >>> iris = datasets.load_iris()
-    >>> rng = np.random.RandomState(42)
+    >>> rng = jax.random.RandomState(42)
     >>> random_unlabeled_points = rng.rand(len(iris.target)) < 0.3
     >>> labels = jnp.copy(iris.target)
     >>> labels[random_unlabeled_points] = -1

@@ -10,7 +10,7 @@ from xlearn.utils._testing import (
 
 def test_mutual_reachability_graph_error_sparse_format():
     """Check that we raise an error if the sparse format is not CSR."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(10, 10)
     X = X.T @ X
     jnp.fill_diagonal(X, 0.0)
@@ -24,7 +24,7 @@ def test_mutual_reachability_graph_error_sparse_format():
 @pytest.mark.parametrize("array_type", ["array", "sparse_csr"])
 def test_mutual_reachability_graph_inplace(array_type):
     """Check that the operation is happening inplace."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(10, 10)
     X = X.T @ X
     jnp.fill_diagonal(X, 0.0)
@@ -37,7 +37,7 @@ def test_mutual_reachability_graph_inplace(array_type):
 
 def test_mutual_reachability_graph_equivalence_dense_sparse():
     """Check that we get the same results for dense and sparse implementation."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(5, 5)
     X_dense = X.T @ X
     X_sparse = _convert_container(X_dense, "sparse_csr")
@@ -52,7 +52,7 @@ def test_mutual_reachability_graph_equivalence_dense_sparse():
 @pytest.mark.parametrize("dtype", [jnp.float32, jnp.float64])
 def test_mutual_reachability_graph_preserve_dtype(array_type, dtype):
     """Check that the computation preserve dtype thanks to fused types."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(10, 10)
     X = (X.T @ X).astype(dtype)
     jnp.fill_diagonal(X, 0.0)

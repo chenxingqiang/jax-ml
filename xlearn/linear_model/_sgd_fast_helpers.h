@@ -4,13 +4,13 @@
 // specific for each parameter input type, it needs to be 2 different functions
 // as cython doesn't support function overloading.
 #ifdef _MSC_VER
-# include <float.h>
-# define skl_isfinite _finite
-# define skl_isfinite32 _finite
-# define skl_isfinite64 _finite
+#include <float.h>
+#define skl_isfinite _finite
+#define skl_isfinite32 _finite
+#define skl_isfinite64 _finite
 #else
-# include <numpy/npy_math.h>
-# define skl_isfinite npy_isfinite
-# define skl_isfinite32 npy_isfinite
-# define skl_isfinite64 npy_isfinite
+#include <numpy/npy_math.h>
+#define skl_isfinite npy_isfinite
+#define skl_isfinite32 npy_isfinite
+#define skl_isfinite64 npy_isfinite
 #endif

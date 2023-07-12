@@ -11,13 +11,13 @@ from xlearn.cluster import DBSCAN, OPTICS
 from xlearn.cluster._optics import _extend_region, _extract_xi_labels
 from xlearn.cluster.tests.common import generate_clustered_data
 from xlearn.datasets import make_blobs
-from xlearn.exceptions import DataConversionWarning, EfficiencyWarning
+from xlearn.exceptions import DataConversionWarning, EfficienWarning
 from xlearn.metrics.cluster import contingency_matrix
 from xlearn.metrics.pairwise import pairwise_distances
 from xlearn.utils import shuffle
 from xlearn.utils._testing import assert_allclose, assert_array_equal
 
-rng = np.random.RandomState(0)
+rng = jax.random.RandomState(0)
 n_points_per_cluster = 10
 C1 = [-5, -2] + 0.8 * rng.randn(n_points_per_cluster, 2)
 C2 = [4, -1] + 0.1 * rng.randn(n_points_per_cluster, 2)
@@ -84,7 +84,7 @@ def test_the_extract_xi_labels(ordering, clusters, expected):
 def test_extract_xi(global_dtype):
     # small and easy test (no clusters around other clusters)
     # but with a clear noise data.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_points_per_cluster = 5
 
     C1 = [-5, -2] + 0.8 * rng.randn(n_points_per_cluster, 2)
@@ -140,7 +140,7 @@ def test_extract_xi(global_dtype):
 
 
 def test_cluster_hierarchy_(global_dtype):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_points_per_cluster = 100
     C1 = [0, 0] + 2 * rng.randn(n_points_per_cluster, 2).astype(
         global_dtype, copy=False
@@ -235,7 +235,7 @@ def test_nowarn_if_metric_bool_data_bool():
     # https://github.com/jax-learn/jax-learn/issues/18996
 
     pairwise_metric = "rogerstanimoto"
-    X = np.random.randint(2, size=(5, 2), dtype=bool)
+    X = jax.random.randint(2, size=(5, 2), dtype=bool)
 
     with warnings.catch_warnings():
         warnings.simplefilter("error", DataConversionWarning)
@@ -250,7 +250,7 @@ def test_warn_if_metric_bool_data_no_bool():
     # https://github.com/jax-learn/jax-learn/issues/18996
 
     pairwise_metric = "rogerstanimoto"
-    X = np.random.randint(2, size=(5, 2), dtype=jnp.int32)
+    X = jax.random.randint(2, size=(5, 2), dtype=jnp.int32)
     msg = f"Data will be converted to boolean for metric {pairwise_metric}"
 
     with pytest.warns(DataConversionWarning, match=msg) as warn_record:
@@ -262,8 +262,8 @@ def test_nowarn_if_metric_no_bool():
     # make sure no conversion warning is raised if
     # metric isn't boolean, no matter what the data type is
     pairwise_metric = "minkowski"
-    X_bool = np.random.randint(2, size=(5, 2), dtype=bool)
-    X_num = np.random.randint(2, size=(5, 2), dtype=jnp.int32)
+    X_bool = jax.random.randint(2, size=(5, 2), dtype=bool)
+    X_num = jax.random.randint(2, size=(5, 2), dtype=jnp.int32)
 
     with warnings.catch_warnings():
         warnings.simplefilter("error", DataConversionWarning)
@@ -795,7 +795,7 @@ def test_compare_to_ELKI():
 def test_extract_dbscan(global_dtype):
     # testing an easy dbscan case. Not including clusters with different
     # densities.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_points_per_cluster = 20
     C1 = [-5, -2] + 0.2 * rng.randn(n_points_per_cluster, 2)
     C2 = [4, -1] + 0.2 * rng.randn(n_points_per_cluster, 2)
@@ -813,7 +813,7 @@ def test_precomputed_dists(is_sparse, global_dtype):
     dists = pairwise_distances(redX, metric="euclidean")
     dists = sparse.csr_matrix(dists) if is_sparse else dists
     with warnings.catch_warnings():
-        warnings.simplefilter("ignore", EfficiencyWarning)
+        warnings.simplefilter("ignore", EfficienWarning)
         clust1 = OPTICS(min_samples=10, algorithm="brute", metric="precomputed").fit(
             dists
         )

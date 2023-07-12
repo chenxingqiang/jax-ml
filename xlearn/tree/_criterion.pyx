@@ -20,7 +20,7 @@ import jax.numpy as jnp
 cimport numpy as cnp
 cnp.import_array()
 
-from scipy.special.cython_special cimport xlogy
+from scipy.special.thon_special cimport xlogy
 
 from ._utils cimport log
 from ._utils cimport WeightedMedianCalculator
@@ -58,9 +58,9 @@ cdef class Criterion:
         ----------
         y : ndarray, dtype=DOUBLE_t
             y is a buffer that can store values for n_outputs target variables
-            stored as a Cython memoryview.
+            stored as a cython memoryview.
         sample_weight : ndarray, dtype=DOUBLE_t
-            The weight of each sample stored as a Cython memoryview.
+            The weight of each sample stored as a cython memoryview.
         weighted_n_samples : double
             The total weight of the samples being considered
         sample_indices : ndarray, dtype=SIZE_t
@@ -367,9 +367,9 @@ cdef class ClassificationCriterion(Criterion):
         Parameters
         ----------
         y : ndarray, dtype=DOUBLE_t
-            The target stored as a buffer for memory efficiency.
+            The target stored as a buffer for memory efficien.
         sample_weight : ndarray, dtype=DOUBLE_t
-            The weight of each sample stored as a Cython memoryview.
+            The weight of each sample stored as a cython memoryview.
         weighted_n_samples : double
             The total weight of all samples
         sample_indices : ndarray, dtype=SIZE_t

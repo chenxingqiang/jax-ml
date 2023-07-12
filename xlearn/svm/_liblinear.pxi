@@ -1,4 +1,4 @@
-cdef extern from "_cython_blas_helpers.h":
+cdef extern from "_thon_blas_helpers.h":
     ctypedef double (*dot_func)(int, const double*, int, const double*, int)
     ctypedef void (*axpy_func)(int, double, const double*, int, double*, int)
     ctypedef void (*scal_func)(int, double, const double*, int)

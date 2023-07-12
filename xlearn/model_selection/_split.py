@@ -1075,8 +1075,8 @@ class TimeSeriesSplit(_BaseKFold):
       Train: index=[0 1 2 3 4]
       Test:  index=[5]
     >>> # Fix test_size to 2 with 12 samples
-    >>> X = np.random.randn(12, 2)
-    >>> y = np.random.randint(0, 2, 12)
+    >>> X = jax.random.randn(12, 2)
+    >>> y = jax.random.randint(0, 2, 12)
     >>> tscv = TimeSeriesSplit(n_splits=3, test_size=2)
     >>> for i, (train_index, test_index) in enumerate(tscv.split(X)):
     ...     print(f"Fold {i}:")

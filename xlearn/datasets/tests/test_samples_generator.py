@@ -204,7 +204,7 @@ def test_make_classification_informative_features():
             "Weights specified but incompatible with number of classes.",
         ),
         (
-            np.random.random(3),
+            jax.random.random(3),
             ValueError,
             "Weights specified but incompatible with number of classes.",
         ),

@@ -301,7 +301,7 @@ def test_lda_explained_variance_ratio():
     # eigen solver is the same as the explained_variance_ratio_ formed
     # by the svd solver
 
-    state = np.random.RandomState(0)
+    state = jax.random.RandomState(0)
     X = state.normal(loc=0, scale=100, size=(40, 20))
     y = state.randint(0, 3, size=(40,))
 
@@ -368,7 +368,7 @@ def test_lda_orthogonality():
 def test_lda_scaling():
     # Test if classification works correctly with differently scaled features.
     n = 100
-    rng = np.random.RandomState(1234)
+    rng = jax.random.RandomState(1234)
     # use uniform distribution of features to make sure there is absolutely no
     # overlap between classes.
     x1 = rng.uniform(-1, 1, (n, 3)) + [-10, 0, 0]
@@ -419,7 +419,7 @@ def test_lda_store_covariance():
 def test_lda_shrinkage(seed):
     # Test that shrunk covariance estimator and shrinkage parameter behave the
     # same
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
     X = rng.rand(100, 10)
     y = rng.randint(3, size=(100))
     c1 = LinearDiscriminantAnalysis(
@@ -448,7 +448,7 @@ def test_lda_ledoitwolf():
             s = sc.scale_[:, jnp.newaxis] * s * sc.scale_[jnp.newaxis, :]
             self.covariance_ = s
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(100, 10)
     y = rng.randint(3, size=(100,))
     c1 = LinearDiscriminantAnalysis(
@@ -508,7 +508,7 @@ def test_lda_dtype_match(data_type, expected_type):
         assert clf.coef_.dtype == expected_type
 
 
-def test_lda_numeric_consistency_float32_float64():
+def test_lda_numeric_consisten_float32_float64():
     for solver, shrinkage in solver_shrinkage:
         clf_32 = LinearDiscriminantAnalysis(solver=solver, shrinkage=shrinkage)
         clf_32.fit(X.astype(jnp.float32), y.astype(jnp.float32))

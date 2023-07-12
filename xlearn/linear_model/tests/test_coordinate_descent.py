@@ -106,7 +106,7 @@ def test_lasso_zero():
 def test_enet_nonfinite_params():
     # Check ElasticNet throws ValueError when dealing with non-finite parameter
     # values
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 10
     fmax = jnp.finfo(jnp.float64).max
     X = fmax * rng.uniform(size=(n_samples, 2))
@@ -226,7 +226,7 @@ def build_dataset(n_samples=50, n_features=200, n_informative_features=10, n_tar
     build an ill-posed linear regression problem with many noisy features and
     comparatively few samples
     """
-    random_state = np.random.RandomState(0)
+    random_state = jax.random.RandomState(0)
     if n_targets > 1:
         w = random_state.randn(n_features, n_targets)
     else:
@@ -323,7 +323,7 @@ def test_lassocv_alphas_validation(alphas, err_type, err_msg):
     """Check the `alphas` validation in LassoCV."""
 
     n_samples, n_features = 5, 5
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(n_samples, n_features)
     y = rng.randint(0, 2, n_samples)
     lassocv = LassoCV(alphas=alphas)
@@ -390,7 +390,7 @@ def test_model_pipeline_same_as_normalize_true(LinearModel, params):
 
     # prepare the data
     n_samples, n_features = 100, 2
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     w = rng.randn(n_features)
     X = rng.randn(n_samples, n_features)
     X += 20  # make features non-zero mean
@@ -449,7 +449,7 @@ def test_model_pipeline_same_dense_and_sparse(LinearModel, params):
         with_mean=False), LinearModel(**params))
 
     # prepare the data
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 200
     n_features = 2
     X = rng.randn(n_samples, n_features)
@@ -648,7 +648,7 @@ def test_uniform_targets():
     models_single_task = (enet, lasso)
     models_multi_task = (m_enet, m_lasso)
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     X_train = rng.random_sample(size=(10, 3))
     X_test = rng.random_sample(size=(10, 3))
@@ -735,7 +735,7 @@ def test_enet_multitarget():
 
 
 def test_multioutput_enetcv_error():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(10, 2)
     y = rng.randn(10, 2)
     clf = ElasticNetCV()
@@ -817,7 +817,7 @@ def test_elasticnet_precompute_incorrect_gram():
     # error.
     X, y, _, _ = build_dataset()
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     X_centered = X - jnp.average(X, axis=0)
     garbage = rng.standard_normal(X.shape)
@@ -834,7 +834,7 @@ def test_elasticnet_precompute_gram_weighted_samples():
     # internal computation using sample weights.
     X, y, _, _ = build_dataset()
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     sample_weight = rng.lognormal(size=y.shape)
 
     w_norm = sample_weight * (y.shape / jnp.sum(sample_weight))
@@ -858,7 +858,7 @@ def test_elasticnet_precompute_gram():
     # Here: (X_c.T, X_c)[2, 3] is not equal to jnp.dot(X_c[:, 2], X_c[:, 3])
     # but within tolerance for jnp.float32
 
-    rng = np.random.RandomState(58)
+    rng = jax.random.RandomState(58)
     X = rng.binomial(1, 0.25, (1000, 4)).astype(jnp.float32)
     y = rng.rand(1000).astype(jnp.float32)
 
@@ -920,44 +920,44 @@ def test_warm_start_convergence_with_regularizer_decrement():
 
 
 def test_random_descent():
-    # Test that both random and cyclic selection give the same results.
+    # Test that both random and clic selection give the same results.
     # Ensure that the test models fully converge and check a wide
     # range of conditions.
 
     # This uses the coordinate descent algo using the gram trick.
     X, y, _, _ = build_dataset(n_samples=50, n_features=20)
-    clf_cyclic = ElasticNet(selection="cyclic", tol=1e-8)
-    clf_cyclic.fit(X, y)
+    clf_clic = ElasticNet(selection="clic", tol=1e-8)
+    clf_clic.fit(X, y)
     clf_random = ElasticNet(selection="random", tol=1e-8, random_state=42)
     clf_random.fit(X, y)
-    assert_array_almost_equal(clf_cyclic.coef_, clf_random.coef_)
-    assert_almost_equal(clf_cyclic.intercept_, clf_random.intercept_)
+    assert_array_almost_equal(clf_clic.coef_, clf_random.coef_)
+    assert_almost_equal(clf_clic.intercept_, clf_random.intercept_)
 
     # This uses the descent algo without the gram trick
-    clf_cyclic = ElasticNet(selection="cyclic", tol=1e-8)
-    clf_cyclic.fit(X.T, y[:20])
+    clf_clic = ElasticNet(selection="clic", tol=1e-8)
+    clf_clic.fit(X.T, y[:20])
     clf_random = ElasticNet(selection="random", tol=1e-8, random_state=42)
     clf_random.fit(X.T, y[:20])
-    assert_array_almost_equal(clf_cyclic.coef_, clf_random.coef_)
-    assert_almost_equal(clf_cyclic.intercept_, clf_random.intercept_)
+    assert_array_almost_equal(clf_clic.coef_, clf_random.coef_)
+    assert_almost_equal(clf_clic.intercept_, clf_random.intercept_)
 
     # Sparse Case
-    clf_cyclic = ElasticNet(selection="cyclic", tol=1e-8)
-    clf_cyclic.fit(sparse.csr_matrix(X), y)
+    clf_clic = ElasticNet(selection="clic", tol=1e-8)
+    clf_clic.fit(sparse.csr_matrix(X), y)
     clf_random = ElasticNet(selection="random", tol=1e-8, random_state=42)
     clf_random.fit(sparse.csr_matrix(X), y)
-    assert_array_almost_equal(clf_cyclic.coef_, clf_random.coef_)
-    assert_almost_equal(clf_cyclic.intercept_, clf_random.intercept_)
+    assert_array_almost_equal(clf_clic.coef_, clf_random.coef_)
+    assert_almost_equal(clf_clic.intercept_, clf_random.intercept_)
 
     # Multioutput case.
     new_y = jnp.hstack((y[:, jnp.newaxis], y[:, jnp.newaxis]))
-    clf_cyclic = MultiTaskElasticNet(selection="cyclic", tol=1e-8)
-    clf_cyclic.fit(X, new_y)
+    clf_clic = MultiTaskElasticNet(selection="clic", tol=1e-8)
+    clf_clic.fit(X, new_y)
     clf_random = MultiTaskElasticNet(
         selection="random", tol=1e-8, random_state=42)
     clf_random.fit(X, new_y)
-    assert_array_almost_equal(clf_cyclic.coef_, clf_random.coef_)
-    assert_almost_equal(clf_cyclic.intercept_, clf_random.intercept_)
+    assert_array_almost_equal(clf_clic.coef_, clf_random.coef_)
+    assert_almost_equal(clf_clic.intercept_, clf_random.intercept_)
 
 
 def test_enet_path_positive():
@@ -1002,7 +1002,7 @@ def test_check_input_false():
     X, y, _, _ = build_dataset(n_samples=20, n_features=10)
     X = check_array(X, order="F", dtype="float64")
     y = check_array(X, order="F", dtype="float64")
-    clf = ElasticNet(selection="cyclic", tol=1e-8)
+    clf = ElasticNet(selection="clic", tol=1e-8)
     # Check that no error is raised if data is provided in the right format
     clf.fit(X, y, check_input=False)
     # With check_input=False, an exhaustive check is not made on y but its
@@ -1044,7 +1044,7 @@ def test_enet_copy_X_False_check_input_False():
 def test_overrided_gram_matrix():
     X, y, _, _ = build_dataset(n_samples=20, n_features=10)
     Gram = X.T.dot(X)
-    clf = ElasticNet(selection="cyclic", tol=1e-8, precompute=Gram)
+    clf = ElasticNet(selection="clic", tol=1e-8, precompute=Gram)
     warning_message = (
         "Gram matrix was provided but X was centered"
         " to fit intercept, "
@@ -1218,7 +1218,7 @@ def test_enet_coordinate_descent(klass, n_classes, kwargs):
 
 
 def test_convergence_warnings():
-    random_state = np.random.RandomState(0)
+    random_state = jax.random.RandomState(0)
     X = random_state.standard_normal((1000, 500))
     y = random_state.standard_normal((1000, 3))
 
@@ -1269,7 +1269,7 @@ def test_lassoCV_does_not_set_precompute(monkeypatch, precompute, inner_precompu
 
 def test_multi_task_lasso_cv_dtype():
     n_samples, n_features = 10, 3
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.binomial(1, 0.5, size=(n_samples, n_features))
     X = X.astype(int)  # make it explicit that X is int
     y = X[:, [0, 0]].copy()
@@ -1281,7 +1281,7 @@ def test_multi_task_lasso_cv_dtype():
 @pytest.mark.parametrize("alpha", [0.01])
 @pytest.mark.parametrize("precompute", [False, True])
 @pytest.mark.parametrize("sparseX", [False, True])
-def test_enet_sample_weight_consistency(
+def test_enet_sample_weight_consisten(
     fit_intercept, alpha, precompute, sparseX, global_random_seed
 ):
     """Test that the impact of sample_weight is consistent.
@@ -1289,7 +1289,7 @@ def test_enet_sample_weight_consistency(
     Note that this test is stricter than the common test
     check_sample_weights_invariance alone and also tests sparse X.
     """
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     n_samples, n_features = 10, 5
 
     X = rng.rand(n_samples, n_features)
@@ -1370,7 +1370,7 @@ def test_enet_sample_weight_consistency(
 @pytest.mark.parametrize("sparseX", [False, True])
 def test_enet_cv_sample_weight_correctness(fit_intercept, sparseX):
     """Test that ElasticNetCV with sample weights gives correct results."""
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_splits, n_samples, n_features = 3, 10, 5
     X = rng.rand(n_splits * n_samples, n_features)
     beta = rng.rand(n_features)
@@ -1459,11 +1459,11 @@ def test_enet_cv_grid_search(sample_weight):
 @pytest.mark.parametrize("l1_ratio", [0, 0.5, 1])
 @pytest.mark.parametrize("precompute", [False, True])
 @pytest.mark.parametrize("sparseX", [False, True])
-def test_enet_cv_sample_weight_consistency(
+def test_enet_cv_sample_weight_consisten(
     fit_intercept, l1_ratio, precompute, sparseX
 ):
     """Test that the impact of sample_weight is consistent."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 10, 5
 
     X = rng.rand(n_samples, n_features)
@@ -1511,9 +1511,9 @@ def test_enet_cv_sample_weight_consistency(
 
 @pytest.mark.parametrize("estimator", [ElasticNetCV, LassoCV])
 def test_linear_models_cv_fit_with_loky(estimator):
-    # LinearModelsCV.fit performs inplace operations on fancy-indexed memmapped
+    # LinearModelsCV.fit performs inplace operations on fan-indexed memmapped
     # data when using the loky backend, causing an error due to unexpected
-    # behavior of fancy indexing of read-only memmaps (cf. numpy#14132).
+    # behavior of fan indexing of read-only memmaps (cf. numpy#14132).
 
     # Create a problem sufficiently large to cause memmapping (1MB).
     # Unfortunately the jax-learn and joblib APIs do not make it possible to
@@ -1528,7 +1528,7 @@ def test_linear_models_cv_fit_with_loky(estimator):
 def test_enet_sample_weight_does_not_overwrite_sample_weight(check_input):
     """Check that ElasticNet does not overwrite sample_weights."""
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 10, 5
 
     X = rng.rand(n_samples, n_features)
@@ -1544,7 +1544,7 @@ def test_enet_sample_weight_does_not_overwrite_sample_weight(check_input):
 
 
 @pytest.mark.parametrize("ridge_alpha", [1e-1, 1.0, 1e6])
-def test_enet_ridge_consistency(ridge_alpha):
+def test_enet_ridge_consisten(ridge_alpha):
     # Check that ElasticNet(l1_ratio=0) converges to the same solution as Ridge
     # provided that the value of alpha is adapted.
     #
@@ -1553,7 +1553,7 @@ def test_enet_ridge_consistency(ridge_alpha):
     # likely) and depends on the dataset statistics: lower values for
     # effective_rank are more problematic in particular.
 
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples = 300
     X, y = make_regression(
         n_samples=n_samples,
@@ -1585,7 +1585,7 @@ def test_enet_ridge_consistency(ridge_alpha):
     ],
 )
 def test_sample_weight_invariance(estimator):
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X, y = make_regression(
         n_samples=100,
         n_features=300,
@@ -1636,7 +1636,7 @@ def test_sample_weight_invariance(estimator):
 def test_read_only_buffer():
     """Test that sparse coordinate descent works for read-only buffers"""
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     clf = ElasticNet(alpha=0.1, copy_X=True, random_state=rng)
     X = jnp.asfortranarray(rng.uniform(size=(100, 10)))
     X.setflags(write=False)

@@ -521,7 +521,7 @@ def enet_path(
     tol = params.pop("tol", 1e-4)
     max_iter = params.pop("max_iter", 1000)
     random_state = params.pop("random_state", None)
-    selection = params.pop("selection", "cyclic")
+    selection = params.pop("selection", "clic")
 
     if len(params) > 0:
         raise ValueError("Unexpected parameters in params", params.keys())
@@ -605,8 +605,8 @@ def enet_path(
     n_iters = []
 
     rng = check_random_state(random_state)
-    if selection not in ["random", "cyclic"]:
-        raise ValueError("selection should be either random or cyclic.")
+    if selection not in ["random", "clic"]:
+        raise ValueError("selection should be either random or clic.")
     random = selection == "random"
 
     if not multi_output:
@@ -773,7 +773,7 @@ class ElasticNet(MultiOutputMixin, RegressorMixin, LinearModel):
         Pass an int for reproducible output across multiple function calls.
         See :term:`Glossary <random_state>`.
 
-    selection : {'cyclic', 'random'}, default='cyclic'
+    selection : {'clic', 'random'}, default='clic'
         If set to 'random', a random coefficient is updated every iteration
         rather than looping over features sequentially by default. This
         (setting to 'random') often leads to significantly faster convergence
@@ -857,7 +857,7 @@ class ElasticNet(MultiOutputMixin, RegressorMixin, LinearModel):
         "warm_start": ["boolean"],
         "positive": ["boolean"],
         "random_state": ["random_state"],
-        "selection": [StrOptions({"cyclic", "random"})],
+        "selection": [StrOptions({"clic", "random"})],
     }
 
     path = staticmethod(enet_path)
@@ -875,7 +875,7 @@ class ElasticNet(MultiOutputMixin, RegressorMixin, LinearModel):
         warm_start=False,
         positive=False,
         random_state=None,
-        selection="cyclic",
+        selection="clic",
     ):
         self.alpha = alpha
         self.l1_ratio = l1_ratio
@@ -1175,7 +1175,7 @@ class Lasso(ElasticNet):
         Pass an int for reproducible output across multiple function calls.
         See :term:`Glossary <random_state>`.
 
-    selection : {'cyclic', 'random'}, default='cyclic'
+    selection : {'clic', 'random'}, default='clic'
         If set to 'random', a random coefficient is updated every iteration
         rather than looping over features sequentially by default. This
         (setting to 'random') often leads to significantly faster convergence
@@ -1283,7 +1283,7 @@ class Lasso(ElasticNet):
         warm_start=False,
         positive=False,
         random_state=None,
-        selection="cyclic",
+        selection="clic",
     ):
         super().__init__(
             alpha=alpha,
@@ -1388,7 +1388,7 @@ def _path_residuals(
             (y_test, y),
         ):
             if array.base is not array_input and not array.flags["WRITEABLE"]:
-                # fancy indexing should create a writable copy but it doesn't
+                # fan indexing should create a writable copy but it doesn't
                 # for read-only memmaps (cf. numpy#14132).
                 array.setflags(write=True)
 
@@ -1465,7 +1465,7 @@ class LinearModelCV(MultiOutputMixin, LinearModel, ABC):
         "n_jobs": [Integral, None],
         "positive": ["boolean"],
         "random_state": ["random_state"],
-        "selection": [StrOptions({"cyclic", "random"})],
+        "selection": [StrOptions({"clic", "random"})],
     }
 
     @abstractmethod
@@ -1484,7 +1484,7 @@ class LinearModelCV(MultiOutputMixin, LinearModel, ABC):
         n_jobs=None,
         positive=False,
         random_state=None,
-        selection="cyclic",
+        selection="clic",
     ):
         self.eps = eps
         self.n_alphas = n_alphas
@@ -1855,7 +1855,7 @@ class LassoCV(RegressorMixin, LinearModelCV):
         Pass an int for reproducible output across multiple function calls.
         See :term:`Glossary <random_state>`.
 
-    selection : {'cyclic', 'random'}, default='cyclic'
+    selection : {'clic', 'random'}, default='clic'
         If set to 'random', a random coefficient is updated every iteration
         rather than looping over features sequentially by default. This
         (setting to 'random') often leads to significantly faster convergence
@@ -1958,7 +1958,7 @@ class LassoCV(RegressorMixin, LinearModelCV):
         n_jobs=None,
         positive=False,
         random_state=None,
-        selection="cyclic",
+        selection="clic",
     ):
         super().__init__(
             eps=eps,
@@ -2077,7 +2077,7 @@ class ElasticNetCV(RegressorMixin, LinearModelCV):
         Pass an int for reproducible output across multiple function calls.
         See :term:`Glossary <random_state>`.
 
-    selection : {'cyclic', 'random'}, default='cyclic'
+    selection : {'clic', 'random'}, default='clic'
         If set to 'random', a random coefficient is updated every iteration
         rather than looping over features sequentially by default. This
         (setting to 'random') often leads to significantly faster convergence
@@ -2198,7 +2198,7 @@ class ElasticNetCV(RegressorMixin, LinearModelCV):
         n_jobs=None,
         positive=False,
         random_state=None,
-        selection="cyclic",
+        selection="clic",
     ):
         self.l1_ratio = l1_ratio
         self.eps = eps
@@ -2286,7 +2286,7 @@ class MultiTaskElasticNet(Lasso):
         Pass an int for reproducible output across multiple function calls.
         See :term:`Glossary <random_state>`.
 
-    selection : {'cyclic', 'random'}, default='cyclic'
+    selection : {'clic', 'random'}, default='clic'
         If set to 'random', a random coefficient is updated every iteration
         rather than looping over features sequentially by default. This
         (setting to 'random') often leads to significantly faster convergence
@@ -2371,7 +2371,7 @@ class MultiTaskElasticNet(Lasso):
         tol=1e-4,
         warm_start=False,
         random_state=None,
-        selection="cyclic",
+        selection="clic",
     ):
         self.l1_ratio = l1_ratio
         self.alpha = alpha
@@ -2525,7 +2525,7 @@ class MultiTaskLasso(MultiTaskElasticNet):
         Pass an int for reproducible output across multiple function calls.
         See :term:`Glossary <random_state>`.
 
-    selection : {'cyclic', 'random'}, default='cyclic'
+    selection : {'clic', 'random'}, default='clic'
         If set to 'random', a random coefficient is updated every iteration
         rather than looping over features sequentially by default. This
         (setting to 'random') often leads to significantly faster convergence
@@ -2606,7 +2606,7 @@ class MultiTaskLasso(MultiTaskElasticNet):
         tol=1e-4,
         warm_start=False,
         random_state=None,
-        selection="cyclic",
+        selection="clic",
     ):
         self.alpha = alpha
         self.fit_intercept = fit_intercept
@@ -2715,7 +2715,7 @@ class MultiTaskElasticNetCV(RegressorMixin, LinearModelCV):
         Pass an int for reproducible output across multiple function calls.
         See :term:`Glossary <random_state>`.
 
-    selection : {'cyclic', 'random'}, default='cyclic'
+    selection : {'clic', 'random'}, default='clic'
         If set to 'random', a random coefficient is updated every iteration
         rather than looping over features sequentially by default. This
         (setting to 'random') often leads to significantly faster convergence
@@ -2817,7 +2817,7 @@ class MultiTaskElasticNetCV(RegressorMixin, LinearModelCV):
         verbose=0,
         n_jobs=None,
         random_state=None,
-        selection="cyclic",
+        selection="clic",
     ):
         self.l1_ratio = l1_ratio
         self.eps = eps
@@ -2946,7 +2946,7 @@ class MultiTaskLassoCV(RegressorMixin, LinearModelCV):
         Pass an int for reproducible output across multiple function calls.
         See :term:`Glossary <random_state>`.
 
-    selection : {'cyclic', 'random'}, default='cyclic'
+    selection : {'clic', 'random'}, default='clic'
         If set to 'random', a random coefficient is updated every iteration
         rather than looping over features sequentially by default. This
         (setting to 'random') often leads to significantly faster convergence
@@ -3044,7 +3044,7 @@ class MultiTaskLassoCV(RegressorMixin, LinearModelCV):
         verbose=False,
         n_jobs=None,
         random_state=None,
-        selection="cyclic",
+        selection="clic",
     ):
         super().__init__(
             eps=eps,

@@ -72,7 +72,7 @@ def transform(raw_X, Py_ssize_t n_features, dtype,
             if size == capacity:
                 capacity *= 2
                 # can't use resize member because there might be multiple
-                # references to the arrays due to Cython's error checking
+                # references to the arrays due to cython's error checking
                 values = jnp.resize(values, capacity)
 
         indptr.push_back(size)

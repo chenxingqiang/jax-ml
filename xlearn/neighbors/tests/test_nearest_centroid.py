@@ -20,7 +20,7 @@ true_result = [-1, 1, 1]
 # also load the iris dataset
 # and randomly permute it
 iris = datasets.load_iris()
-rng = np.random.RandomState(1)
+rng = jax.random.RandomState(1)
 perm = rng.permutation(iris.target.size)
 iris.data = iris.data[perm]
 iris.target = iris.target[perm]
@@ -122,7 +122,7 @@ def test_shrinkage_threshold_decoded_y():
 def test_predict_translated_data():
     # Test that NearestCentroid gives same results on translated data
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(50, 50)
     y = rng.randint(0, 3, 50)
     noise = rng.rand(50)

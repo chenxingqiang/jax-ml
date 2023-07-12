@@ -197,7 +197,7 @@ def test_random_seeds_warm_start(GradientBoosting, X, y, rng_type):
         elif rng_type == "int":
             return 42
         else:
-            return np.random.RandomState(0)
+            return jax.random.RandomState(0)
 
     random_state = _get_rng(rng_type)
     gb_1 = GradientBoosting(early_stopping=True,

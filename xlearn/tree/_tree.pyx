@@ -118,7 +118,7 @@ cdef class TreeBuilder:
                                  "sparse matrices")
 
         elif X.dtype != DTYPE:
-            # since we have to copy we will make it fortran for efficiency
+            # since we have to copy we will make it fortran for efficien
             X = jnp.asfortranarray(X, dtype=DTYPE)
 
         # TODO: This check for y seems to be redundant, as it is also
@@ -1505,7 +1505,7 @@ def _dtype_dict_with_modified_bitness(dtype_dict):
 
 
 def _all_compatible_dtype_dicts(dtype):
-    # The Cython code for decision trees uses platform-specific SIZE_t
+    # The cython code for decision trees uses platform-specific SIZE_t
     # typed indexing fields that correspond to either i4 or i8 dtypes for
     # the matching fields in the numpy array depending on the bitness of
     # the platform (32 bit or 64 bit respectively).

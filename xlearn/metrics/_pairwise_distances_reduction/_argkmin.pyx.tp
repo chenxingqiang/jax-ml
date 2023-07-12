@@ -201,7 +201,7 @@ cdef class ArgKmin{{name_suffix}}(BaseDistancesReduction{{name_suffix}}):
         # The allocation is done in parallel for data locality purposes: this way
         # the heaps used in each threads are allocated in pages which are closer
         # to the CPU core used by the thread.
-        # See comments about First Touch Placement Policy:
+        # See comments about First Touch Placement Poli:
         # https://www.openmp.org/wp-content/uploads/openmp-webinar-vanderPas-20210318.pdf #noqa
         for thread_num in prange(self.chunks_n_threads, schedule='static', nogil=True,
                                  num_threads=self.chunks_n_threads):

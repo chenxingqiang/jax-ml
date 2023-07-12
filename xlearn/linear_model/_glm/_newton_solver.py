@@ -169,7 +169,7 @@ class NewtonSolver(ABC):
         """
 
     def fallback_lbfgs_solve(self, X, y, sample_weight):
-        """Fallback solver in case of emergency.
+        """Fallback solver in case of emergen.
 
         If a solver detects convergence problems, it may fall back to this methods in
         the hope to exit with success instead of raising an error.

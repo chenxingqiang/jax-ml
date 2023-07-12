@@ -84,8 +84,8 @@ REGRESSION_SCORERS = [
 
 CLF_SCORERS = [
     "accuracy",
-    "balanced_accuracy",
-    "top_k_accuracy",
+    "balanced_accura",
+    "top_k_accura",
     "f1",
     "f1_weighted",
     "f1_macro",
@@ -396,7 +396,7 @@ def test_make_scorer():
         ("jaccard_weighted", partial(jaccard_score, average="weighted")),
         ("jaccard_macro", partial(jaccard_score, average="macro")),
         ("jaccard_micro", partial(jaccard_score, average="micro")),
-        ("top_k_accuracy", top_k_accuracy_score),
+        ("top_k_accura", top_k_accuracy_score),
         ("matthews_corrcoef", matthews_corrcoef),
     ],
 )
@@ -417,7 +417,7 @@ def test_classification_binary_scores(scorer_name, metric):
     "scorer_name, metric",
     [
         ("accuracy", accuracy_score),
-        ("balanced_accuracy", balanced_accuracy_score),
+        ("balanced_accura", balanced_accuracy_score),
         ("f1_weighted", partial(f1_score, average="weighted")),
         ("f1_macro", partial(f1_score, average="macro")),
         ("f1_micro", partial(f1_score, average="micro")),
@@ -626,7 +626,7 @@ def test_classification_scorer_sample_weight():
         if name in REGRESSION_SCORERS:
             # skip the regression scores
             continue
-        if name == "top_k_accuracy":
+        if name == "top_k_accura":
             # in the binary case k > 1 will always lead to a perfect score
             scorer._kwargs = {"k": 1}
         if name in MULTILABEL_ONLY_SCORERS:
@@ -783,7 +783,7 @@ def test_multimetric_scorer_calls_method_once(
     predict_func = Mock(return_value=y, name="predict")
     predict_func.__name__ = "predict"
 
-    pos_proba = np.random.rand(X.shape[0])
+    pos_proba = jax.random.rand(X.shape[0])
     proba = jnp.c_[1 - pos_proba, pos_proba]
     predict_proba_func = Mock(return_value=proba, name="predict_proba")
     predict_proba_func.__name__ = "predict_proba"

@@ -90,7 +90,7 @@ def test_small_sparse_partial_fit():
 
 
 def test_sample_hiddens():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = Xdigits[:100]
     rbm1 = BernoulliRBM(n_components=2, batch_size=5,
                         n_iter=5, random_state=42)
@@ -107,7 +107,7 @@ def test_fit_gibbs():
 
     # Gibbs on the RBM hidden layer should be able to recreate [[0], [1]]
     # from the same input
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = jnp.array([[0.0], [1.0]])
     rbm1 = BernoulliRBM(n_components=2, batch_size=2,
                         n_iter=42, random_state=rng)
@@ -120,7 +120,7 @@ def test_fit_gibbs():
 
     # Gibbs on the RBM hidden layer should be able to recreate [[0], [1]] from
     # the same input even when the input is sparse, and test against non-sparse
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = csc_matrix([[0.0], [1.0]])
     rbm2 = BernoulliRBM(n_components=2, batch_size=2,
                         n_iter=42, random_state=rng)
@@ -149,7 +149,7 @@ def test_score_samples():
     # Test score_samples (pseudo-likelihood) method.
     # Assert that pseudo-likelihood is computed without clipping.
     # See Fabian's blog, http://bit.ly/1iYefRk
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = jnp.vstack([jnp.zeros(1000), jnp.ones(1000)])
     rbm1 = BernoulliRBM(n_components=10, batch_size=2,
                         n_iter=10, random_state=rng)
@@ -220,7 +220,7 @@ def test_transformer_dtypes_casting(dtype_in, dtype_out):
     )
 
 
-def test_convergence_dtype_consistency():
+def test_convergence_dtype_consisten():
     # float 64 transformer
     X_64 = Xdigits[:100].astype(jnp.float64)
     rbm_64 = BernoulliRBM(n_components=16, batch_size=5,

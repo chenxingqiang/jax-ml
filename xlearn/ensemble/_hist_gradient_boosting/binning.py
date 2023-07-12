@@ -313,7 +313,7 @@ class _BinMapper(TransformerMixin, BaseEstimator):
         )
 
         # TODO: complexity is O(n_categorical_features * 255). Maybe this is
-        # worth cythonizing
+        # worth thonizing
         for mapped_f_idx, f_idx in enumerate(categorical_features_indices):
             for raw_cat_val in known_categories[f_idx]:
                 set_bitset_memoryview(known_cat_bitsets[mapped_f_idx], raw_cat_val)

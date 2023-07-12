@@ -57,7 +57,7 @@ def _assert_equal_with_sign_flipping(A, B, tol=0.0):
 
 
 def test_sparse_graph_connected_component():
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_samples = 300
     boundaries = [0, 42, 121, 200, n_samples]
     p = rng.permutation(n_samples)
@@ -110,7 +110,7 @@ def test_sparse_graph_connected_component():
 @pytest.mark.parametrize("dtype", [jnp.float32, jnp.float64])
 def test_spectral_embedding_two_components(eigen_solver, dtype, seed=0):
     # Test spectral embedding with two components
-    random_state = np.random.RandomState(seed)
+    random_state = jax.random.RandomState(seed)
     n_sample = 100
     affinity = jnp.zeros(shape=[n_sample * 2, n_sample * 2])
     # first component
@@ -142,7 +142,7 @@ def test_spectral_embedding_two_components(eigen_solver, dtype, seed=0):
     se_precomp = SpectralEmbedding(
         n_components=1,
         affinity="precomputed",
-        random_state=np.random.RandomState(seed),
+        random_state=jax.random.RandomState(seed),
         eigen_solver=eigen_solver,
     )
 
@@ -169,14 +169,14 @@ def test_spectral_embedding_precomputed_affinity(X, eigen_solver, dtype, seed=36
     se_precomp = SpectralEmbedding(
         n_components=2,
         affinity="precomputed",
-        random_state=np.random.RandomState(seed),
+        random_state=jax.random.RandomState(seed),
         eigen_solver=eigen_solver,
     )
     se_rbf = SpectralEmbedding(
         n_components=2,
         affinity="rbf",
         gamma=gamma,
-        random_state=np.random.RandomState(seed),
+        random_state=jax.random.RandomState(seed),
         eigen_solver=eigen_solver,
     )
     embed_precomp = se_precomp.fit_transform(
@@ -219,13 +219,13 @@ def test_spectral_embedding_callable_affinity(X, seed=36):
         n_components=2,
         affinity=(lambda x: rbf_kernel(x, gamma=gamma)),
         gamma=gamma,
-        random_state=np.random.RandomState(seed),
+        random_state=jax.random.RandomState(seed),
     )
     se_rbf = SpectralEmbedding(
         n_components=2,
         affinity="rbf",
         gamma=gamma,
-        random_state=np.random.RandomState(seed),
+        random_state=jax.random.RandomState(seed),
     )
     embed_rbf = se_rbf.fit_transform(X)
     embed_callable = se_callable.fit_transform(X)
@@ -235,7 +235,7 @@ def test_spectral_embedding_callable_affinity(X, seed=36):
     _assert_equal_with_sign_flipping(embed_rbf, embed_callable, 0.05)
 
 
-# TODO: Remove when pyamg does replaces sp.rand call with np.random.rand
+# TODO: Remove when pyamg does replaces sp.rand call with jax.random.rand
 # https://github.com/jax-learn/jax-learn/issues/15913
 @pytest.mark.filterwarnings(
     "ignore:scipy.rand is deprecated:DeprecationWarning:pyamg.*"
@@ -258,14 +258,14 @@ def test_spectral_embedding_amg_solver(dtype, seed=36):
         affinity="nearest_neighbors",
         eigen_solver="amg",
         n_neighbors=5,
-        random_state=np.random.RandomState(seed),
+        random_state=jax.random.RandomState(seed),
     )
     se_arpack = SpectralEmbedding(
         n_components=2,
         affinity="nearest_neighbors",
         eigen_solver="arpack",
         n_neighbors=5,
-        random_state=np.random.RandomState(seed),
+        random_state=jax.random.RandomState(seed),
     )
     embed_amg = se_amg.fit_transform(S.astype(dtype))
     embed_arpack = se_arpack.fit_transform(S.astype(dtype))
@@ -289,7 +289,7 @@ def test_spectral_embedding_amg_solver(dtype, seed=36):
 
 
 # TODO: Remove filterwarnings when pyamg does replaces sp.rand call with
-# np.random.rand:
+# jax.random.rand:
 # https://github.com/jax-learn/jax-learn/issues/15913
 @pytest.mark.filterwarnings(
     "ignore:scipy.rand is deprecated:DeprecationWarning:pyamg.*"
@@ -328,7 +328,7 @@ def test_spectral_embedding_amg_solver_failure(dtype, seed=36):
 @pytest.mark.filterwarnings("ignore:the behavior of nmi will change in version 0.22")
 def test_pipeline_spectral_clustering(seed=36):
     # Test using pipeline to do spectral clustering
-    random_state = np.random.RandomState(seed)
+    random_state = jax.random.RandomState(seed)
     se_rbf = SpectralEmbedding(
         n_components=n_clusters, affinity="rbf", random_state=random_state
     )
@@ -377,7 +377,7 @@ def test_connectivity(seed=36):
 
 def test_spectral_embedding_deterministic():
     # Test that Spectral Embedding is deterministic
-    random_state = np.random.RandomState(36)
+    random_state = jax.random.RandomState(36)
     data = random_state.randn(10, 30)
     sims = rbf_kernel(data)
     embedding_1 = spectral_embedding(sims)
@@ -388,7 +388,7 @@ def test_spectral_embedding_deterministic():
 def test_spectral_embedding_unnormalized():
     # Test that spectral_embedding is also processing unnormalized laplacian
     # correctly
-    random_state = np.random.RandomState(36)
+    random_state = jax.random.RandomState(36)
     data = random_state.randn(10, 30)
     sims = rbf_kernel(data)
     n_components = 8
@@ -408,7 +408,7 @@ def test_spectral_embedding_unnormalized():
 def test_spectral_embedding_first_eigen_vector():
     # Test that the first eigenvector of spectral_embedding
     # is constant and that the second is not (for a connected graph)
-    random_state = np.random.RandomState(36)
+    random_state = jax.random.RandomState(36)
     data = random_state.randn(10, 30)
     sims = rbf_kernel(data)
     n_components = 2

@@ -229,7 +229,7 @@ class HuberRegressor(LinearModel, RegressorMixin, BaseEstimator):
     >>> import jax.numpy as jnp
     >>> from xlearn.linear_model import HuberRegressor, LinearRegression
     >>> from xlearn.datasets import make_regression
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> X, y, coef = make_regression(
     ...     n_samples=200, n_features=2, noise=4.0, coef=True, random_state=0)
     >>> X[:4] = rng.uniform(10, 20, (4, 2))

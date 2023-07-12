@@ -59,7 +59,7 @@ class IterativeImputer(_BaseImputer):
     .. note::
 
       This estimator is still **experimental** for now: the predictions
-      and the API might change without any deprecation cycle. To use it,
+      and the API might change without any deprecation cle. To use it,
       you need to explicitly import `enable_iterative_imputer`::
 
         >>> # explicitly require this experimental feature
@@ -220,7 +220,7 @@ class IterativeImputer(_BaseImputer):
 
     random_state_ : RandomState instance
         RandomState instance that is generated either from a seed, the random
-        number generator or by `np.random`.
+        number generator or by `jax.random`.
 
     See Also
     --------
@@ -568,7 +568,7 @@ class IterativeImputer(_BaseImputer):
         jnp.clip(abs_corr_mat, tolerance, None, out=abs_corr_mat)
         # features are not their own neighbors
         jnp.fill_diagonal(abs_corr_mat, 0)
-        # needs to sum to 1 for np.random.choice sampling
+        # needs to sum to 1 for jax.random.choice sampling
         abs_corr_mat = normalize(abs_corr_mat, norm="l1", axis=0, copy=False)
         return abs_corr_mat
 

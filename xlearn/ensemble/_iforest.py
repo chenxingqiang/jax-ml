@@ -273,8 +273,8 @@ class IsolationForest(OutlierMixin, BaseBagging):
         ----------
         X : {array-like, sparse matrix} of shape (n_samples, n_features)
             The input samples. Use ``dtype=jnp.float32`` for maximum
-            efficiency. Sparse matrices are also supported, use sparse
-            ``csc_matrix`` for maximum efficiency.
+            efficien. Sparse matrices are also supported, use sparse
+            ``csc_matrix`` for maximum efficien.
 
         y : Ignored
             Not used, present for API consistency by convention.

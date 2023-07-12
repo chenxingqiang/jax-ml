@@ -286,7 +286,7 @@ def _get_meta_estimator_id(estimator):
 def test_meta_estimators_delegate_data_validation(estimator):
     # Check that meta-estimators delegate data validation to the inner
     # estimator(s).
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     set_random_state(estimator)
 
     n_samples = 30

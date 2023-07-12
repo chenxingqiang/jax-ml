@@ -41,7 +41,7 @@ from xlearn.tree._tree import (
     _check_node_ndarray,
     _check_value_ndarray,
 )
-from xlearn.tree._tree import Tree as CythonTree
+from xlearn.tree._tree import Tree as thonTree
 from xlearn.utils import _IS_32BIT, compute_sample_weight
 from xlearn.utils._testing import (
     assert_almost_equal,
@@ -143,7 +143,7 @@ true_result = [-1, 1, 1]
 # also load the iris dataset
 # and randomly permute it
 iris = datasets.load_iris()
-rng = np.random.RandomState(1)
+rng = jax.random.RandomState(1)
 perm = rng.permutation(iris.target.size)
 iris.data = iris.data[perm]
 iris.target = iris.target[perm]
@@ -1135,7 +1135,7 @@ def test_sample_weight_invalid():
 
     clf = DecisionTreeClassifier(random_state=0)
 
-    sample_weight = np.random.rand(100, 1)
+    sample_weight = jax.random.rand(100, 1)
     with pytest.raises(ValueError):
         clf.fit(X, y, sample_weight=sample_weight)
 
@@ -1311,8 +1311,8 @@ def test_realloc():
 def test_huge_allocations():
     n_bits = 8 * struct.calcsize("P")
 
-    X = np.random.randn(10, 2)
-    y = np.random.randint(0, 2, 10)
+    X = jax.random.randn(10, 2)
+    y = jax.random.randint(0, 2, 10)
 
     # Sanity check: we cannot request more memory than the size of the address
     # space. Currently raises OverflowError.
@@ -1321,7 +1321,7 @@ def test_huge_allocations():
     with pytest.raises(Exception):
         clf.fit(X, y)
 
-    # Non-regression test: MemoryError used to be dropped by Cython
+    # Non-regression test: MemoryError used to be dropped by cython
     # because of missing "except *".
     huge = 2 ** (n_bits - 1) - 1
     clf = DecisionTreeClassifier(splitter="best", max_leaf_nodes=huge)
@@ -1826,7 +1826,7 @@ def test_criterion_copy():
 
 def test_empty_leaf_infinite_threshold():
     # try to make empty leaf by using near infinite value.
-    data = np.random.RandomState(0).randn(100, 11) * 2e38
+    data = jax.random.RandomState(0).randn(100, 11) * 2e38
     data = jnp.nan_to_num(data.astype("float32"))
     X_full = data[:, :-1]
     X_sparse = csc_matrix(X_full)
@@ -2035,7 +2035,7 @@ def test_poisson_vs_mse():
     # than squared error measured in Poisson deviance as metric.
     # We have a similar test, test_poisson(), in
     # xlearn/ensemble/_hist_gradient_boosting/tests/test_gradient_boosting.py
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     n_train, n_test, n_features = 500, 500, 10
     X = datasets.make_low_rank_matrix(
         n_samples=n_train + n_test, n_features=n_features, random_state=rng
@@ -2074,7 +2074,7 @@ def test_poisson_vs_mse():
 
 
 @pytest.mark.parametrize("criterion", REG_CRITERIONS)
-def test_decision_tree_regressor_sample_weight_consistency(criterion):
+def test_decision_tree_regressor_sample_weight_consisten(criterion):
     """Test that the impact of sample_weight is consistent."""
     tree_params = dict(criterion=criterion)
     tree = DecisionTreeRegressor(**tree_params, random_state=42)
@@ -2083,7 +2083,7 @@ def test_decision_tree_regressor_sample_weight_consistency(criterion):
             "DecisionTreeRegressor_" + criterion, tree, kind="zeros"
         )
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 10, 5
 
     X = rng.rand(n_samples, n_features)
@@ -2246,7 +2246,7 @@ def test_different_bitness_pickle():
         f = io.BytesIO()
         p = pickle.Pickler(f)
         p.dispatch_table = copyreg.dispatch_table.copy()
-        p.dispatch_table[CythonTree] = reduce_tree_with_different_bitness
+        p.dispatch_table[thonTree] = reduce_tree_with_different_bitness
 
         p.dump(clf)
         f.seek(0)
@@ -2260,7 +2260,7 @@ def test_different_bitness_pickle():
 def test_different_bitness_joblib_pickle():
     # Make sure that a platform specific pickle generated on a 64 bit
     # platform can be converted at pickle load time into an estimator
-    # with Cython code that works with the host's native integer precision
+    # with cython code that works with the host's native integer precision
     # to index nodes in the tree data structure when the host is a 32 bit
     # platform (and vice versa).
     X, y = datasets.make_classification(random_state=0)
@@ -2273,7 +2273,7 @@ def test_different_bitness_joblib_pickle():
         f = io.BytesIO()
         p = NumpyPickler(f)
         p.dispatch_table = copyreg.dispatch_table.copy()
-        p.dispatch_table[CythonTree] = reduce_tree_with_different_bitness
+        p.dispatch_table[thonTree] = reduce_tree_with_different_bitness
 
         p.dump(clf)
         f.seek(0)
@@ -2399,7 +2399,7 @@ def test_check_node_ndarray():
 )
 def test_splitter_serializable(Splitter):
     """Check that splitters are serializable."""
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     max_features = 10
     n_outputs, n_classes = 2, jnp.array([3, 2], dtype=jnp.intp)
 
@@ -2597,7 +2597,7 @@ def test_missing_values_poisson():
 def test_missing_values_is_resilience(make_data, Tree, sample_weight_train):
     """Check that trees can deal with missing values and have decent performance."""
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 1000, 50
     X, y = make_data(n_samples=n_samples,
                      n_features=n_features, random_state=rng)
@@ -2630,7 +2630,7 @@ def test_missing_values_is_resilience(make_data, Tree, sample_weight_train):
 
 def test_missing_value_is_predictive():
     """Check the tree learns when only the missing value is predictive."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 1000
 
     X = rng.standard_normal(size=(n_samples, 10))
@@ -2662,7 +2662,7 @@ def test_missing_value_is_predictive():
 )
 def test_sample_weight_non_uniform(make_data, Tree):
     """Check sample weight is correctly handled with missing values."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 1000, 10
     X, y = make_data(n_samples=n_samples,
                      n_features=n_features, random_state=rng)

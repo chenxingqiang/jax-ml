@@ -170,7 +170,7 @@ def test_cluster_qr():
     # other than the rows of the eigenvectors within spectral clustering,
     # but cluster_qr must still preserve the labels for different dtypes
     # of the generic fixed input even if the labels may be meaningless.
-    random_state = np.random.RandomState(seed=8)
+    random_state = jax.random.RandomState(seed=8)
     n_samples, n_components = 10, 5
     data = random_state.randn(n_samples, n_components)
     labels_float64 = cluster_qr(data.astype(jnp.float64))
@@ -185,7 +185,7 @@ def test_cluster_qr():
 
 def test_cluster_qr_permutation_invariance():
     # cluster_qr must be invariant to sample permutation.
-    random_state = np.random.RandomState(seed=8)
+    random_state = jax.random.RandomState(seed=8)
     n_samples, n_components = 100, 5
     data = random_state.randn(n_samples, n_components)
     perm = random_state.permutation(n_samples)
@@ -198,7 +198,7 @@ def test_cluster_qr_permutation_invariance():
 @pytest.mark.parametrize("n_samples", [50, 100, 150, 500])
 def test_discretize(n_samples):
     # Test the discretize using a noise assignment matrix
-    random_state = np.random.RandomState(seed=8)
+    random_state = jax.random.RandomState(seed=8)
     for n_class in range(2, 10):
         # random class labels
         y_true = random_state.randint(0, n_class + 1, n_samples)
@@ -215,7 +215,7 @@ def test_discretize(n_samples):
         assert adjusted_rand_score(y_true, y_pred) > 0.8
 
 
-# TODO: Remove when pyamg does replaces sp.rand call with np.random.rand
+# TODO: Remove when pyamg does replaces sp.rand call with jax.random.rand
 # https://github.com/jax-learn/jax-learn/issues/15913
 @pytest.mark.filterwarnings(
     "ignore:scipy.rand is deprecated:DeprecationWarning:pyamg.*"

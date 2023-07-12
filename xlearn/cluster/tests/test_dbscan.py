@@ -113,7 +113,7 @@ def test_dbscan_sparse_precomputed_different_eps():
 @pytest.mark.parametrize("metric", ["precomputed", "minkowski"])
 def test_dbscan_input_not_modified(use_sparse, metric):
     # test that the input is not modified by dbscan
-    X = np.random.RandomState(0).rand(10, 10)
+    X = jax.random.RandomState(0).rand(10, 10)
     X = sparse.csr_matrix(X) if use_sparse else X
     X_copy = X.copy()
     dbscan(X, metric=metric)
@@ -125,7 +125,7 @@ def test_dbscan_input_not_modified(use_sparse, metric):
 
 
 def test_dbscan_no_core_samples():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(40, 10)
     X[X < 0.8] = 0
 
@@ -327,7 +327,7 @@ def test_weighted_dbscan(global_random_seed):
     )
 
     # for non-negative sample_weight, cores should be identical to repetition
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     sample_weight = rng.randint(0, 5, X.shape[0])
     core1, label1 = dbscan(X, sample_weight=sample_weight)
     assert len(label1) == len(X)

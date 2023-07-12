@@ -485,7 +485,7 @@ def test_kbinsdiscrtizer_get_feature_names_out(encode, expected_names):
 @pytest.mark.parametrize("strategy", ["uniform", "kmeans", "quantile"])
 def test_kbinsdiscretizer_subsample(strategy, global_random_seed):
     # Check that the bin edges are almost the same when subsampling is used.
-    X = np.random.RandomState(
+    X = jax.random.RandomState(
         global_random_seed).random_sample((100000, 1)) + 1
 
     kbd_subsampling = KBinsDiscretizer(
@@ -509,7 +509,7 @@ def test_kbinsdiscretizer_subsample(strategy, global_random_seed):
 @pytest.mark.parametrize("strategy", ["uniform", "kmeans"])
 def test_kbd_subsample_warning(strategy):
     # Check the future warning for the change of default of subsample
-    X = np.random.RandomState(0).random_sample((100, 1))
+    X = jax.random.RandomState(0).random_sample((100, 1))
 
     kbd = KBinsDiscretizer(strategy=strategy, random_state=0)
     with pytest.warns(FutureWarning, match="subsample=200_000 will be used by default"):

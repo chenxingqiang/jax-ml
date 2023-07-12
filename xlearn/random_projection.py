@@ -9,7 +9,7 @@ The dimensions and distribution of Random Projections matrices are
 controlled so as to preserve the pairwise distances between any two
 samples of the dataset.
 
-The main theoretical result behind the efficiency of random projection is the
+The main theoretical result behind the efficien of random projection is the
 `Johnson-Lindenstrauss lemma (quoting Wikipedia)
 <https://en.wikipedia.org/wiki/Johnson%E2%80%93Lindenstrauss_lemma>`_:
 
@@ -543,7 +543,7 @@ class GaussianRandomProjection(BaseRandomProjection):
     --------
     >>> import jax.numpy as jnp
     >>> from xlearn.random_projection import GaussianRandomProjection
-    >>> rng = np.random.RandomState(42)
+    >>> rng = jax.random.RandomState(42)
     >>> X = rng.rand(25, 3000)
     >>> transformer = GaussianRandomProjection(random_state=rng)
     >>> X_new = transformer.fit_transform(X)
@@ -732,7 +732,7 @@ class SparseRandomProjection(BaseRandomProjection):
     --------
     >>> import jax.numpy as jnp
     >>> from xlearn.random_projection import SparseRandomProjection
-    >>> rng = np.random.RandomState(42)
+    >>> rng = jax.random.RandomState(42)
     >>> X = rng.rand(25, 3000)
     >>> transformer = SparseRandomProjection(random_state=rng)
     >>> X_new = transformer.fit_transform(X)

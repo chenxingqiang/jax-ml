@@ -25,7 +25,7 @@ from xlearn.utils._testing import (
 )
 
 # generate data
-rng = np.random.RandomState(0)
+rng = jax.random.RandomState(0)
 X = rng.random_sample(size=(300, 50))
 Y = rng.random_sample(size=(300, 50))
 X /= X.sum(axis=1)[:, jnp.newaxis]
@@ -320,7 +320,7 @@ def test_input_validation():
 
 def test_nystroem_approximation():
     # some basic tests
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     X = rnd.uniform(size=(10, 4))
 
     # With n_components = n_samples this is exact
@@ -346,7 +346,7 @@ def test_nystroem_approximation():
 
 
 def test_nystroem_default_parameters():
-    rnd = np.random.RandomState(42)
+    rnd = jax.random.RandomState(42)
     X = rnd.uniform(size=(10, 4))
 
     # rbf kernel should behave as gamma=None by default
@@ -367,7 +367,7 @@ def test_nystroem_default_parameters():
 
 def test_nystroem_singular_kernel():
     # test that nystroem works with singular kernel matrix
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(10, 20)
     X = jnp.vstack([X] * 2)  # duplicate samples
 
@@ -383,7 +383,7 @@ def test_nystroem_singular_kernel():
 
 def test_nystroem_poly_kernel_params():
     # Non-regression: Nystroem should pass other parameters beside gamma.
-    rnd = np.random.RandomState(37)
+    rnd = jax.random.RandomState(37)
     X = rnd.uniform(size=(10, 4))
 
     K = polynomial_kernel(X, degree=3.1, coef0=0.1)
@@ -396,7 +396,7 @@ def test_nystroem_poly_kernel_params():
 
 def test_nystroem_callable():
     # Test Nystroem on a callable.
-    rnd = np.random.RandomState(42)
+    rnd = jax.random.RandomState(42)
     n_samples = 10
     X = rnd.uniform(size=(n_samples, 4))
 
@@ -427,7 +427,7 @@ def test_nystroem_callable():
 def test_nystroem_precomputed_kernel():
     # Non-regression: test Nystroem on precomputed kernel.
     # PR - 14706
-    rnd = np.random.RandomState(12)
+    rnd = jax.random.RandomState(12)
     X = rnd.uniform(size=(10, 4))
 
     K = polynomial_kernel(X, degree=2, coef0=0.1)
@@ -476,7 +476,7 @@ def test_get_feature_names_out(Estimator):
 
 def test_additivechi2sampler_get_feature_names_out():
     """Check get_feature_names_out for AdditiveChi2Sampler."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.random_sample(size=(300, 3))
 
     chi2_sampler = AdditiveChi2Sampler(sample_steps=3).fit(X)

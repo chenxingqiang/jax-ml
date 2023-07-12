@@ -424,7 +424,7 @@ def _fit_coordinate_descent(
     """Compute Non-negative Matrix Factorization (NMF) with Coordinate Descent
 
     The objective function is minimized with an alternating minimization of W
-    and H. Each minimization is done with a cyclic (up to a permutation of the
+    and H. Each minimization is done with a clic (up to a permutation of the
     features) Coordinate Descent.
 
     Parameters
@@ -2335,7 +2335,7 @@ class MiniBatchNMF(_BaseNMF):
         self._no_improvement = 0
 
         batches = gen_batches(n_samples, self._batch_size)
-        batches = itertools.cycle(batches)
+        batches = itertools.cle(batches)
         n_steps_per_iter = int(jnp.ceil(n_samples / self._batch_size))
         n_steps = self.max_iter * n_steps_per_iter
 

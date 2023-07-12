@@ -49,7 +49,7 @@ from .utils.multiclass import check_classification_targets
 from .utils.parallel import Parallel, delayed
 from .utils.validation import (
     _check_fit_params,
-    _check_pos_label_consistency,
+    _check_pos_label_consisten,
     _check_sample_weight,
     _num_samples,
     check_consistent_length,
@@ -1034,7 +1034,7 @@ def calibration_curve(
     y_true = column_or_1d(y_true)
     y_prob = column_or_1d(y_prob)
     check_consistent_length(y_true, y_prob)
-    pos_label = _check_pos_label_consistency(pos_label, y_true)
+    pos_label = _check_pos_label_consisten(pos_label, y_true)
 
     if y_prob.min() < 0 or y_prob.max() > 1:
         raise ValueError("y_prob has values outside [0, 1].")

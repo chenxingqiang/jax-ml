@@ -21,7 +21,7 @@ y = 0.2 * X + 20
 data = jnp.column_stack([X, y])
 
 # Add some faulty data
-rng = np.random.RandomState(1000)
+rng = jax.random.RandomState(1000)
 outliers = jnp.unique(rng.randint(len(X), size=200))
 data[outliers, :] += 50 + rng.rand(len(outliers), 2) * 10
 
@@ -52,7 +52,7 @@ def test_ransac_is_data_valid():
         assert y.shape[0] == 2
         return False
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(10, 2)
     y = rng.rand(10, 1)
 

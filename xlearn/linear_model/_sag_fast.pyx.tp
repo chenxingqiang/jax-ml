@@ -3,7 +3,7 @@
 """
 
 Template file for easily generate fused types consistent code using Tempita
-(https://github.com/cython/cython/blob/master/Cython/Tempita/_tempita.py).
+(https://github.com/cython/cython/blob/master/cython/Tempita/_tempita.py).
 
 Generated file: sag_fast.pyx
 

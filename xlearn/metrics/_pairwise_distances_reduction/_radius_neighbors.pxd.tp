@@ -10,7 +10,7 @@ cnp.import_array()
 
 ######################
 ## std::vector to jnp.ndarray coercion
-# As type covariance is not supported for C++ containers via Cython,
+# As type covariance is not supported for C++ containers via cython,
 # we need to redefine fused types.
 ctypedef fused vector_double_intp_t:
     vector[intp_t]

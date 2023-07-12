@@ -4,7 +4,7 @@
 
 from numbers import Real
 
-import jax.numpy as jnp
+import numpy as np
 
 from ..preprocessing import LabelBinarizer
 from ..utils._param_validation import Interval, StrOptions, validate_params
@@ -68,12 +68,12 @@ def l1_min_c(X, y, *, loss="squared_hinge", fit_intercept=True, intercept_scalin
 
     Y = LabelBinarizer(neg_label=-1).fit_transform(y).T
     # maximum absolute value over classes and features
-    den = jnp.max(jnp.abs(safe_sparse_dot(Y, X)))
+    den = np.max(np.abs(safe_sparse_dot(Y, X)))
     if fit_intercept:
-        bias = jnp.full(
-            (jnp.size(y), 1), intercept_scaling, dtype=jnp.array(intercept_scaling).dtype
+        bias = np.full(
+            (np.size(y), 1), intercept_scaling, dtype=np.array(intercept_scaling).dtype
         )
-        den = max(den, abs(jnp.dot(Y, bias)).max())
+        den = max(den, abs(np.dot(Y, bias)).max())
 
     if den == 0.0:
         raise ValueError(

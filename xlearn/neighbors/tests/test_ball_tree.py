@@ -9,7 +9,7 @@ from xlearn.utils import check_random_state
 from xlearn.utils._testing import _convert_container
 from xlearn.utils.validation import check_array
 
-rng = np.random.RandomState(10)
+rng = jax.random.RandomState(10)
 V_mahalanobis = rng.rand(3, 3)
 V_mahalanobis = jnp.dot(V_mahalanobis, V_mahalanobis.T)
 

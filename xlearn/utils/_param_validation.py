@@ -554,14 +554,14 @@ class _RandomStates(_Constraint):
     """Constraint representing random states.
 
     Convenience class for
-    [Interval(Integral, 0, 2**32 - 1, closed="both"), np.random.RandomState, None]
+    [Interval(Integral, 0, 2**32 - 1, closed="both"), jax.random.RandomState, None]
     """
 
     def __init__(self):
         super().__init__()
         self._constraints = [
             Interval(Integral, 0, 2**32 - 1, closed="both"),
-            _InstancesOf(np.random.RandomState),
+            _InstancesOf(jax.random.RandomState),
             _NoneConstraint(),
         ]
 
@@ -854,7 +854,7 @@ def generate_valid_param(constraint):
         return csr_matrix([[0, 1], [1, 0]])
 
     if isinstance(constraint, _RandomStates):
-        return np.random.RandomState(42)
+        return jax.random.RandomState(42)
 
     if isinstance(constraint, _Callables):
         return lambda x: x

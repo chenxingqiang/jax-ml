@@ -14,9 +14,9 @@ from cython cimport floating
 import warnings
 from ..exceptions import ConvergenceWarning
 
-from ..utils._cython_blas cimport (_axpy, _dot, _asum, _gemv, _nrm2,
+from ..utils._thon_blas cimport (_axpy, _dot, _asum, _gemv, _nrm2,
                                    _copy, _scal)
-from ..utils._cython_blas cimport ColMajor, Trans, NoTrans
+from ..utils._thon_blas cimport ColMajor, Trans, NoTrans
 
 
 from ..utils._random cimport our_rand_r
@@ -105,7 +105,7 @@ def enet_coordinate_descent(
     bint random=0,
     bint positive=0
 ):
-    """Cython version of the coordinate descent algorithm
+    """cython version of the coordinate descent algorithm
         for Elastic-Net regression
 
         We minimize
@@ -292,7 +292,7 @@ def sparse_enet_coordinate_descent(
     bint random=0,
     bint positive=0,
 ):
-    """Cython version of the coordinate descent algorithm for Elastic-Net
+    """cython version of the coordinate descent algorithm for Elastic-Net
 
     We minimize:
 
@@ -580,7 +580,7 @@ def enet_coordinate_descent_gram(
     bint random=0,
     bint positive=0
 ):
-    """Cython version of the coordinate descent algorithm
+    """cython version of the coordinate descent algorithm
         for Elastic-Net regression
 
         We minimize
@@ -753,7 +753,7 @@ def enet_coordinate_descent_multi_task(
     object rng,
     bint random=0
 ):
-    """Cython version of the coordinate descent algorithm
+    """cython version of the coordinate descent algorithm
         for Elastic-Net mult-task regression
 
         We minimize

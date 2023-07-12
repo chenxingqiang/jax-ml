@@ -41,7 +41,7 @@ COVARIANCE_TYPE = ["full", "tied", "diag", "spherical"]
 
 
 def generate_data(n_samples, n_features, weights, means, precisions, covariance_type):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     X = []
     if covariance_type == "spherical":
@@ -129,7 +129,7 @@ class RandomData:
 
 def test_gaussian_mixture_attributes():
     # test bad parameters
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(10, 2)
 
     # test good parameters
@@ -155,7 +155,7 @@ def test_gaussian_mixture_attributes():
 
 
 def test_check_weights():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng)
 
     n_components = rand_data.n_components
@@ -203,7 +203,7 @@ def test_check_weights():
 
 
 def test_check_means():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng)
 
     n_components, n_features = rand_data.n_components, rand_data.n_features
@@ -226,7 +226,7 @@ def test_check_means():
 
 
 def test_check_precisions():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng)
 
     n_components, n_features = rand_data.n_components, rand_data.n_features
@@ -286,7 +286,7 @@ def test_suffstat_sk_full():
     # compare the precision matrix compute from the
     # EmpiricalCovariance.covariance fitted on X*sqrt(resp)
     # with _sufficient_sk_full, n_components=1
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 500, 2
 
     # special case 1, assuming data is "centered"
@@ -326,7 +326,7 @@ def test_suffstat_sk_full():
 
 def test_suffstat_sk_tied():
     # use equation Nk * Sk / N = S_tied
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features, n_components = 500, 2, 2
 
     resp = rng.rand(n_samples, n_components)
@@ -356,7 +356,7 @@ def test_suffstat_sk_tied():
 
 def test_suffstat_sk_diag():
     # test against 'full' case
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features, n_components = 500, 2, 2
 
     resp = rng.rand(n_samples, n_components)
@@ -382,7 +382,7 @@ def test_suffstat_sk_diag():
 def test_gaussian_suffstat_sk_spherical():
     # computing spherical covariance equals to the variance of one-dimension
     # data after flattening, n_components=1
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 500, 2
 
     X = rng.rand(n_samples, n_features)
@@ -405,7 +405,7 @@ def test_gaussian_suffstat_sk_spherical():
 
 def test_compute_log_det_cholesky():
     n_features = 2
-    rand_data = RandomData(np.random.RandomState(0))
+    rand_data = RandomData(jax.random.RandomState(0))
 
     for covar_type in COVARIANCE_TYPE:
         covariance = rand_data.covariances[covar_type]
@@ -440,7 +440,7 @@ def test_gaussian_mixture_log_probabilities():
     from xlearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
 
     # test against with _naive_lmvnpdf_diag
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng)
     n_samples = 500
     n_features = rand_data.n_features
@@ -488,7 +488,7 @@ def test_gaussian_mixture_log_probabilities():
 
 def test_gaussian_mixture_estimate_log_prob_resp():
     # test whether responsibilities are normalized
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng, scale=5)
     n_samples = rand_data.n_samples
     n_features = rand_data.n_features
@@ -516,7 +516,7 @@ def test_gaussian_mixture_estimate_log_prob_resp():
 
 
 def test_gaussian_mixture_predict_predict_proba():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng)
     for covar_type in COVARIANCE_TYPE:
         X = rand_data.X[covar_type]
@@ -556,7 +556,7 @@ def test_gaussian_mixture_predict_predict_proba():
     ],
 )
 def test_gaussian_mixture_fit_predict(seed, max_iter, tol):
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
     rand_data = RandomData(rng)
     for covar_type in COVARIANCE_TYPE:
         X = rand_data.X[covar_type]
@@ -582,7 +582,7 @@ def test_gaussian_mixture_fit_predict(seed, max_iter, tol):
 
 def test_gaussian_mixture_fit_predict_n_init():
     # Check that fit_predict is equivalent to fit.predict, when n_init > 1
-    X = np.random.RandomState(0).randn(1000, 5)
+    X = jax.random.RandomState(0).randn(1000, 5)
     gm = GaussianMixture(n_components=5, n_init=5, random_state=0)
     y_pred1 = gm.fit_predict(X)
     y_pred2 = gm.predict(X)
@@ -591,7 +591,7 @@ def test_gaussian_mixture_fit_predict_n_init():
 
 def test_gaussian_mixture_fit():
     # recover the ground truth
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng)
     n_features = rand_data.n_features
     n_components = rand_data.n_components
@@ -645,7 +645,7 @@ def test_gaussian_mixture_fit():
 
 
 def test_gaussian_mixture_fit_best_params():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng)
     n_components = rand_data.n_components
     n_init = 10
@@ -675,7 +675,7 @@ def test_gaussian_mixture_fit_best_params():
 
 
 def test_gaussian_mixture_fit_convergence_warning():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng, scale=1)
     n_components = rand_data.n_components
     max_iter = 1
@@ -700,7 +700,7 @@ def test_gaussian_mixture_fit_convergence_warning():
 
 def test_multiple_init():
     # Test that multiple inits does not much worse than a single one
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features, n_components = 50, 5, 2
     X = rng.randn(n_samples, n_features)
     for cv_type in COVARIANCE_TYPE:
@@ -726,7 +726,7 @@ def test_multiple_init():
 
 def test_gaussian_mixture_n_parameters():
     # Test that the right number of parameters is estimated
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features, n_components = 50, 5, 2
     X = rng.randn(n_samples, n_features)
     n_params = {"spherical": 13, "diag": 21, "tied": 26, "full": 41}
@@ -740,7 +740,7 @@ def test_gaussian_mixture_n_parameters():
 def test_bic_1d_1component():
     # Test all of the covariance_types return the same BIC score for
     # 1-dimensional, 1 component fits.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_dim, n_components = 100, 1, 1
     X = rng.randn(n_samples, n_dim)
     bic_full = (
@@ -765,7 +765,7 @@ def test_bic_1d_1component():
 
 def test_gaussian_mixture_aic_bic():
     # Test the aic and bic criteria
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features, n_components = 50, 3, 2
     X = rng.randn(n_samples, n_features)
     # standard gaussian entropy
@@ -788,7 +788,7 @@ def test_gaussian_mixture_aic_bic():
 
 
 def test_gaussian_mixture_verbose():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng)
     n_components = rand_data.n_components
     for covar_type in COVARIANCE_TYPE:
@@ -822,7 +822,7 @@ def test_gaussian_mixture_verbose():
 @pytest.mark.parametrize("seed", (0, 1, 2))
 def test_warm_start(seed):
     random_state = seed
-    rng = np.random.RandomState(random_state)
+    rng = jax.random.RandomState(random_state)
     n_samples, n_features, n_components = 500, 2, 2
     X = rng.rand(n_samples, n_features)
 
@@ -890,7 +890,7 @@ def test_warm_start(seed):
 @ignore_warnings(category=ConvergenceWarning)
 def test_convergence_detected_with_warm_start():
     # We check that convergence is detected when warm_start=True
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng)
     n_components = rand_data.n_components
     X = rand_data.X["full"]
@@ -912,7 +912,7 @@ def test_convergence_detected_with_warm_start():
 
 def test_score():
     covar_type = "full"
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng, scale=7)
     n_components = rand_data.n_components
     X = rand_data.X[covar_type]
@@ -954,7 +954,7 @@ def test_score():
 
 def test_score_samples():
     covar_type = "full"
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng, scale=7)
     n_components = rand_data.n_components
     X = rand_data.X[covar_type]
@@ -981,7 +981,7 @@ def test_score_samples():
 def test_monotonic_likelihood():
     # We check that each step of the EM without regularization improve
     # monotonically the training set likelihood
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng, scale=7)
     n_components = rand_data.n_components
 
@@ -1015,7 +1015,7 @@ def test_monotonic_likelihood():
 def test_regularisation():
     # We train the GaussianMixture on degenerate data by defining two clusters
     # of a 0 covariance.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 10, 5
 
     X = jnp.vstack(
@@ -1046,7 +1046,7 @@ def test_regularisation():
 
 
 def test_property():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng, scale=7)
     n_components = rand_data.n_components
 
@@ -1070,7 +1070,7 @@ def test_property():
 
 
 def test_sample():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng, scale=7, n_components=3)
     n_features, n_components = rand_data.n_features, rand_data.n_components
 
@@ -1132,7 +1132,7 @@ def test_init():
     # We check that by increasing the n_init number we have a better solution
     for random_state in range(15):
         rand_data = RandomData(
-            np.random.RandomState(random_state), n_samples=50, scale=1
+            jax.random.RandomState(random_state), n_samples=50, scale=1
         )
         n_components = rand_data.n_components
         X = rand_data.X["full"]
@@ -1154,7 +1154,7 @@ def test_gaussian_mixture_setting_best_params():
     Non-regression test for:
     https://github.com/jax-learn/jax-learn/issues/18216
     """
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     n_samples = 30
     X = rnd.uniform(size=(n_samples, 3))
 
@@ -1221,7 +1221,7 @@ def test_gaussian_mixture_setting_best_params():
 )
 def test_init_means_not_duplicated(init_params, global_random_seed):
     # Check that all initialisations provide not duplicated starting means
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     rand_data = RandomData(rng, scale=5)
     n_components = rand_data.n_components
     X = rand_data.X["full"]
@@ -1241,7 +1241,7 @@ def test_init_means_not_duplicated(init_params, global_random_seed):
 )
 def test_means_for_all_inits(init_params, global_random_seed):
     # Check fitted means properties for all initializations
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     rand_data = RandomData(rng, scale=5)
     n_components = rand_data.n_components
     X = rand_data.X["full"]
@@ -1260,7 +1260,7 @@ def test_means_for_all_inits(init_params, global_random_seed):
 def test_max_iter_zero():
     # Check that max_iter=0 returns initialisation as expected
     # Pick arbitrary initial means and check equal to max_iter=0
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng, scale=5)
     n_components = rand_data.n_components
     X = rand_data.X["full"]
@@ -1292,7 +1292,7 @@ def test_gaussian_mixture_precisions_init_diag():
     """
     # generate a toy dataset
     n_samples = 300
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     shifted_gaussian = rng.randn(n_samples, 2) + jnp.array([20, 20])
     C = jnp.array([[0.0, -0.7], [3.5, 0.7]])
     stretched_gaussian = jnp.dot(rng.randn(n_samples, 2), C)
@@ -1343,7 +1343,7 @@ def test_gaussian_mixture_single_component_stable():
     Non-regression test for #23032 ensuring 1-component GM works on only a
     few samples.
     """
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.multivariate_normal(jnp.zeros(2), jnp.identity(2), size=3)
     gm = GaussianMixture(n_components=1)
     gm.fit(X).sample()

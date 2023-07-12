@@ -54,7 +54,7 @@ def test_roc_curve_display_plotting(
         pos_label = "c"
 
     if with_sample_weight:
-        rng = np.random.RandomState(42)
+        rng = jax.random.RandomState(42)
         sample_weight = rng.randint(1, 4, size=(X.shape[0]))
     else:
         sample_weight = None

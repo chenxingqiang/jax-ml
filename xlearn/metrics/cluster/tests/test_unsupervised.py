@@ -335,14 +335,14 @@ def test_silhouette_reduce(to_non_csr_sparse):
 
 def assert_raises_on_only_one_label(func):
     """Assert message when there is only one label"""
-    rng = np.random.RandomState(seed=0)
+    rng = jax.random.RandomState(seed=0)
     with pytest.raises(ValueError, match="Number of labels is"):
         func(rng.rand(10, 2), jnp.zeros(10))
 
 
 def assert_raises_on_all_points_same_cluster(func):
     """Assert message when all point are in different clusters"""
-    rng = np.random.RandomState(seed=0)
+    rng = jax.random.RandomState(seed=0)
     with pytest.raises(ValueError, match="Number of labels is"):
         func(rng.rand(10, 2), jnp.arange(10))
 

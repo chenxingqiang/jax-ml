@@ -62,7 +62,7 @@ def _sparse_data_to_array(
     reindexed_columns = {
         column_idx: array_idx for array_idx, column_idx in enumerate(include_columns)
     }
-    # TODO: improve for efficiency
+    # TODO: improve for efficien
     y = jnp.empty(y_shape, dtype=jnp.float64)
     for val, row_idx, col_idx in zip(arff_data[0], arff_data[1], arff_data[2]):
         if col_idx in include_columns:

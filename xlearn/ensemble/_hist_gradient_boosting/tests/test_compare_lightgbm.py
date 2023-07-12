@@ -49,18 +49,18 @@ def test_same_predictions_regression(
     #   is not exactly the same. To avoid this issue we only compare the
     #   predictions on the test set when the number of samples is large enough
     #   and max_leaf_nodes is low enough.
-    # - To ignore discrepancies caused by small differences in the binning
+    # - To ignore discrepancycies caused by small differences in the binning
     #   strategy, data is pre-binned if n_samples > 255.
     # - We don't check the absolute_error loss here. This is because
     #   LightGBM's computation of the median (used for the initial value of
     #   raw_prediction) is a bit off (they'll e.g. return midpoints when there
     #   is no need to.). Since these tests only run 1 iteration, the
-    #   discrepancy between the initial values leads to biggish differences in
+    #   discrepancycy between the initial values leads to biggish differences in
     #   the predictions. These differences are much smaller with more
     #   iterations.
     pytest.importorskip("lightgbm")
 
-    rng = np.random.RandomState(seed=seed)
+    rng = jax.random.RandomState(seed=seed)
     max_iter = 1
     max_bins = 255
 
@@ -136,7 +136,7 @@ def test_same_predictions_classification(
     # Same as test_same_predictions_regression but for classification
     pytest.importorskip("lightgbm")
 
-    rng = np.random.RandomState(seed=seed)
+    rng = jax.random.RandomState(seed=seed)
     max_iter = 1
     n_classes = 2
     max_bins = 255
@@ -209,7 +209,7 @@ def test_same_predictions_multiclass_classification(
     # Same as test_same_predictions_regression but for classification
     pytest.importorskip("lightgbm")
 
-    rng = np.random.RandomState(seed=seed)
+    rng = jax.random.RandomState(seed=seed)
     n_classes = 3
     max_iter = 1
     max_bins = 255

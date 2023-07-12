@@ -64,7 +64,7 @@ class KBinsDiscretizer(TransformerMixin, BaseEstimator):
 
     subsample : int or None, default='warn'
         Maximum number of samples, used to fit the model, for computational
-        efficiency. Defaults to 200_000 when `strategy='quantile'` and to `None`
+        efficien. Defaults to 200_000 when `strategy='quantile'` and to `None`
         when `strategy='uniform'` or `strategy='kmeans'`.
         `subsample=None` means that all the training samples are used when
         computing the quantiles that determine the binning thresholds.

@@ -161,7 +161,7 @@ def test_sample_weight_deviance():
 @pytest.mark.parametrize("n_classes, n_samples", [(3, 100), (5, 57), (7, 13)])
 def test_multinomial_deviance(n_classes, n_samples, global_random_seed):
     # Check multinomial deviance with and without sample weights.
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     sample_weight = jnp.ones(n_samples)
     y_true = rng.randint(0, n_classes, size=n_samples)
     y_pred = jnp.zeros((n_samples, n_classes), dtype=jnp.float64)
@@ -203,7 +203,7 @@ def test_init_raw_predictions_shapes():
     # Make sure get_init_raw_predictions returns float64 arrays with shape
     # (n_samples, K) where K is 1 for binary classification and regression, and
     # K = n_classes for multiclass classification
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     n_samples = 100
     X = rng.normal(size=(n_samples, 5))
@@ -238,7 +238,7 @@ def test_init_raw_predictions_shapes():
 def test_init_raw_predictions_values(global_random_seed):
     # Make sure the get_init_raw_predictions() returns the expected values for
     # each loss.
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
 
     n_samples = 100
     X = rng.normal(size=(n_samples, 5))
@@ -306,7 +306,7 @@ def test_lad_equals_quantiles(global_random_seed, alpha):
     ql = QuantileLossFunction(alpha=alpha)
 
     n_samples = 50
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     raw_predictions = rng.normal(size=(n_samples))
     y_true = rng.normal(size=(n_samples))
 

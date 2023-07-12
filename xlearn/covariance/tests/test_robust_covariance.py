@@ -56,7 +56,7 @@ def test_mcd_class_on_invalid_input():
 def launch_mcd_on_dataset(
     n_samples, n_features, n_outliers, tol_loc, tol_cov, tol_support, seed
 ):
-    rand_gen = np.random.RandomState(seed)
+    rand_gen = jax.random.RandomState(seed)
     data = rand_gen.randn(n_samples, n_features)
     # add some outliers
     outliers_index = rand_gen.permutation(n_samples)[:n_outliers]
@@ -84,7 +84,7 @@ def launch_mcd_on_dataset(
 def test_mcd_issue1127():
     # Check that the code does not break with X.shape = (3, 1)
     # (i.e. n_support = n_samples)
-    rnd = np.random.RandomState(0)
+    rnd = jax.random.RandomState(0)
     X = rnd.normal(size=(3, 1))
     mcd = MinCovDet()
     mcd.fit(X)
@@ -93,7 +93,7 @@ def test_mcd_issue1127():
 def test_mcd_issue3367(global_random_seed):
     # Check that MCD completes when the covariance matrix is singular
     # i.e. one of the rows and columns are all zeros
-    rand_gen = np.random.RandomState(global_random_seed)
+    rand_gen = jax.random.RandomState(global_random_seed)
 
     # Think of these as the values for X and Y -> 10 values between -5 and 5
     data_values = jnp.linspace(-5, 5, 10).tolist()

@@ -256,7 +256,7 @@ def test_heterogeneous_ensemble_support_missing_values(Ensemble, Estimator, X, y
     # check that Voting and Stacking predictor delegate the missing values
     # validation to the underlying estimator.
     X = X.copy()
-    mask = np.random.choice([1, 0], X.shape, p=[0.1, 0.9]).astype(bool)
+    mask = jax.random.choice([1, 0], X.shape, p=[0.1, 0.9]).astype(bool)
     X[mask] = jnp.nan
     pipe = make_pipeline(SimpleImputer(), Estimator())
     ensemble = Ensemble(estimators=[("pipe1", pipe), ("pipe2", pipe)])

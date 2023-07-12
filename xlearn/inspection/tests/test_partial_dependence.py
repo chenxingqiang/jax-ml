@@ -148,7 +148,7 @@ def test_grid_from_X():
 
     # test shapes of returned objects depending on the number of unique values
     # for a feature.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     grid_resolution = 15
 
     # n_unique_values > grid_resolution
@@ -303,7 +303,7 @@ def test_recursion_decision_tree_vs_forest_and_gbdt(seed):
     # DecisionTreeRegressor and a GradientBoostingRegressor or a
     # RandomForestRegressor with 1 tree and equivalent parameters.
 
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
 
     # Purely random dataset to avoid correlated features
     n_samples = 1000
@@ -429,7 +429,7 @@ def test_partial_dependence_easy_target(est, power):
     # needed) and compute r_squared to check that the partial dependence
     # correctly reflects the target.
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples = 200
     target_variable = 2
     X = rng.normal(size=(n_samples, 5))
@@ -606,7 +606,7 @@ def test_partial_dependence_sample_weight_of_fitted_estimator():
     # non-regression test for #13193
     # TODO: extend to HistGradientBoosting once sample_weight is supported
     N = 1000
-    rng = np.random.RandomState(123456)
+    rng = jax.random.RandomState(123456)
     mask = rng.randint(2, size=N, dtype=bool)
 
     x = rng.rand(N)

@@ -40,7 +40,7 @@ class MyPerceptron:
         return jnp.sign(self.project(X))
 
 
-def test_perceptron_accuracy():
+def test_perceptron_accura():
     for data in (X, X_csr):
         clf = Perceptron(max_iter=100, tol=None, shuffle=False)
         clf.fit(data, y)

@@ -1,7 +1,7 @@
 import warnings
 from numbers import Integral, Real
 
-import jax.numpy as jnp
+import numpy as np
 
 from ..base import BaseEstimator, OutlierMixin, RegressorMixin, _fit_context
 from ..linear_model._base import LinearClassifierMixin, LinearModel, SparseCoefMixin
@@ -119,7 +119,7 @@ class LinearSVC(LinearClassifierMixin, SparseCoefMixin, BaseEstimator):
         weight one.
         The "balanced" mode uses the values of y to automatically adjust
         weights inversely proportional to class frequencies in the input data
-        as ``n_samples / (n_classes * jnp.bincount(y))``.
+        as ``n_samples / (n_classes * np.bincount(y))``.
 
     verbose : int, default=0
         Enable verbose output. Note that this setting takes advantage of a
@@ -176,12 +176,12 @@ class LinearSVC(LinearClassifierMixin, SparseCoefMixin, BaseEstimator):
         Furthermore SVC multi-class mode is implemented using one
         vs one scheme while LinearSVC uses one vs the rest. It is
         possible to implement one vs the rest with SVC by using the
-        :class:`~xlearn.multiclass.OneVsRestClassifier` wrapper.
+        :class:`~sklearn.multiclass.OneVsRestClassifier` wrapper.
 
         Finally SVC can fit dense data without memory copy if the input
         is C-contiguous. Sparse data will still incur memory copy though.
 
-    xlearn.linear_model.SGDClassifier : SGDClassifier can optimize the same
+    sklearn.linear_model.SGDClassifier : SGDClassifier can optimize the same
         cost function as LinearSVC
         by adjusting the penalty and loss parameters. In addition it requires
         less memory, allows incremental (online) learning, and implements
@@ -208,10 +208,10 @@ class LinearSVC(LinearClassifierMixin, SparseCoefMixin, BaseEstimator):
 
     Examples
     --------
-    >>> from xlearn.svm import LinearSVC
-    >>> from xlearn.pipeline import make_pipeline
-    >>> from xlearn.preprocessing import StandardScaler
-    >>> from xlearn.datasets import make_classification
+    >>> from sklearn.svm import LinearSVC
+    >>> from sklearn.pipeline import make_pipeline
+    >>> from sklearn.preprocessing import StandardScaler
+    >>> from sklearn.datasets import make_classification
     >>> X, y = make_classification(n_features=4, random_state=0)
     >>> clf = make_pipeline(StandardScaler(),
     ...                     LinearSVC(dual="auto", random_state=0, tol=1e-5))
@@ -301,12 +301,12 @@ class LinearSVC(LinearClassifierMixin, SparseCoefMixin, BaseEstimator):
             X,
             y,
             accept_sparse="csr",
-            dtype=jnp.float64,
+            dtype=np.float64,
             order="C",
             accept_large_sparse=False,
         )
         check_classification_targets(y)
-        self.classes_ = jnp.unique(y)
+        self.classes_ = np.unique(y)
 
         _dual = _validate_dual_parameter(
             self.dual, self.loss, self.penalty, self.multi_class, X
@@ -339,7 +339,7 @@ class LinearSVC(LinearClassifierMixin, SparseCoefMixin, BaseEstimator):
             self.coef_ = (self.coef_[1] - self.coef_[0]).reshape(1, -1)
             if self.fit_intercept:
                 intercept = self.intercept_[1] - self.intercept_[0]
-                self.intercept_ = jnp.array([intercept])
+                self.intercept_ = np.array([intercept])
 
         return self
 
@@ -463,7 +463,7 @@ class LinearSVR(RegressorMixin, LinearModel):
         the kernel can be non-linear but its SMO algorithm does not
         scale to large number of samples as LinearSVC does.
 
-    xlearn.linear_model.SGDRegressor : SGDRegressor can optimize the same cost
+    sklearn.linear_model.SGDRegressor : SGDRegressor can optimize the same cost
         function as LinearSVR
         by adjusting the penalty and loss parameters. In addition it requires
         less memory, allows incremental (online) learning, and implements
@@ -471,10 +471,10 @@ class LinearSVR(RegressorMixin, LinearModel):
 
     Examples
     --------
-    >>> from xlearn.svm import LinearSVR
-    >>> from xlearn.pipeline import make_pipeline
-    >>> from xlearn.preprocessing import StandardScaler
-    >>> from xlearn.datasets import make_regression
+    >>> from sklearn.svm import LinearSVR
+    >>> from sklearn.pipeline import make_pipeline
+    >>> from sklearn.preprocessing import StandardScaler
+    >>> from sklearn.datasets import make_regression
     >>> X, y = make_regression(n_features=4, random_state=0)
     >>> regr = make_pipeline(StandardScaler(),
     ...                      LinearSVR(dual="auto", random_state=0, tol=1e-5))
@@ -557,14 +557,13 @@ class LinearSVR(RegressorMixin, LinearModel):
             X,
             y,
             accept_sparse="csr",
-            dtype=jnp.float64,
+            dtype=np.float64,
             order="C",
             accept_large_sparse=False,
         )
         penalty = "l2"  # SVR only accepts l2 penalty
 
-        _dual = _validate_dual_parameter(
-            self.dual, self.loss, penalty, "ovr", X)
+        _dual = _validate_dual_parameter(self.dual, self.loss, penalty, "ovr", X)
 
         self.coef_, self.intercept_, n_iter_ = _fit_liblinear(
             X,
@@ -608,9 +607,9 @@ class SVC(BaseSVC):
     The implementation is based on libsvm. The fit time scales at least
     quadratically with the number of samples and may be impractical
     beyond tens of thousands of samples. For large datasets
-    consider using :class:`~xlearn.svm.LinearSVC` or
-    :class:`~xlearn.linear_model.SGDClassifier` instead, possibly after a
-    :class:`~xlearn.kernel_approximation.Nystroem` transformer or
+    consider using :class:`~sklearn.svm.LinearSVC` or
+    :class:`~sklearn.linear_model.SGDClassifier` instead, possibly after a
+    :class:`~sklearn.kernel_approximation.Nystroem` transformer or
     other :ref:`kernel_approximation`.
 
     The multiclass support is handled according to a one-vs-one scheme.
@@ -677,7 +676,7 @@ class SVC(BaseSVC):
         weight one.
         The "balanced" mode uses the values of y to automatically adjust
         weights inversely proportional to class frequencies in the input data
-        as ``n_samples / (n_classes * jnp.bincount(y))``.
+        as ``n_samples / (n_classes * np.bincount(y))``.
 
     verbose : bool, default=False
         Enable verbose output. Note that this setting takes advantage of a
@@ -811,12 +810,12 @@ class SVC(BaseSVC):
 
     Examples
     --------
-    >>> import jax.numpy as jnp
-    >>> from xlearn.pipeline import make_pipeline
-    >>> from xlearn.preprocessing import StandardScaler
-    >>> X = jnp.array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
-    >>> y = jnp.array([1, 1, 2, 2])
-    >>> from xlearn.svm import SVC
+    >>> import numpy as np
+    >>> from sklearn.pipeline import make_pipeline
+    >>> from sklearn.preprocessing import StandardScaler
+    >>> X = np.array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
+    >>> y = np.array([1, 1, 2, 2])
+    >>> from sklearn.svm import SVC
     >>> clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
     >>> clf.fit(X, y)
     Pipeline(steps=[('standardscaler', StandardScaler()),
@@ -939,7 +938,7 @@ class NuSVC(BaseSVC):
         SVC. If not given, all classes are supposed to have
         weight one. The "balanced" mode uses the values of y to automatically
         adjust weights inversely proportional to class frequencies as
-        ``n_samples / (n_classes * jnp.bincount(y))``.
+        ``n_samples / (n_classes * np.bincount(y))``.
 
     verbose : bool, default=False
         Enable verbose output. Note that this setting takes advantage of a
@@ -1074,12 +1073,12 @@ class NuSVC(BaseSVC):
 
     Examples
     --------
-    >>> import jax.numpy as jnp
-    >>> X = jnp.array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
-    >>> y = jnp.array([1, 1, 2, 2])
-    >>> from xlearn.pipeline import make_pipeline
-    >>> from xlearn.preprocessing import StandardScaler
-    >>> from xlearn.svm import NuSVC
+    >>> import numpy as np
+    >>> X = np.array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
+    >>> y = np.array([1, 1, 2, 2])
+    >>> from sklearn.pipeline import make_pipeline
+    >>> from sklearn.preprocessing import StandardScaler
+    >>> from sklearn.svm import NuSVC
     >>> clf = make_pipeline(StandardScaler(), NuSVC())
     >>> clf.fit(X, y)
     Pipeline(steps=[('standardscaler', StandardScaler()), ('nusvc', NuSVC())])
@@ -1158,9 +1157,9 @@ class SVR(RegressorMixin, BaseLibSVM):
     The implementation is based on libsvm. The fit time complexity
     is more than quadratic with the number of samples which makes it hard
     to scale to datasets with more than a couple of 10000 samples. For large
-    datasets consider using :class:`~xlearn.svm.LinearSVR` or
-    :class:`~xlearn.linear_model.SGDRegressor` instead, possibly after a
-    :class:`~xlearn.kernel_approximation.Nystroem` transformer or
+    datasets consider using :class:`~sklearn.svm.LinearSVR` or
+    :class:`~sklearn.linear_model.SGDRegressor` instead, possibly after a
+    :class:`~sklearn.kernel_approximation.Nystroem` transformer or
     other :ref:`kernel_approximation`.
 
     Read more in the :ref:`User Guide <svm_regression>`.
@@ -1293,12 +1292,12 @@ class SVR(RegressorMixin, BaseLibSVM):
 
     Examples
     --------
-    >>> from xlearn.svm import SVR
-    >>> from xlearn.pipeline import make_pipeline
-    >>> from xlearn.preprocessing import StandardScaler
-    >>> import jax.numpy as jnp
+    >>> from sklearn.svm import SVR
+    >>> from sklearn.pipeline import make_pipeline
+    >>> from sklearn.preprocessing import StandardScaler
+    >>> import numpy as np
     >>> n_samples, n_features = 10, 5
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> y = rng.randn(n_samples)
     >>> X = rng.randn(n_samples, n_features)
     >>> regr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
@@ -1353,7 +1352,7 @@ class SVR(RegressorMixin, BaseLibSVM):
     )
     @property
     def class_weight_(self):
-        return jnp.empty(0)
+        return np.empty(0)
 
     def _more_tags(self):
         return {
@@ -1501,14 +1500,14 @@ class NuSVR(RegressorMixin, BaseLibSVM):
 
     Examples
     --------
-    >>> from xlearn.svm import NuSVR
-    >>> from xlearn.pipeline import make_pipeline
-    >>> from xlearn.preprocessing import StandardScaler
-    >>> import jax.numpy as jnp
+    >>> from sklearn.svm import NuSVR
+    >>> from sklearn.pipeline import make_pipeline
+    >>> from sklearn.preprocessing import StandardScaler
+    >>> import numpy as np
     >>> n_samples, n_features = 10, 5
-    >>> np.random.seed(0)
-    >>> y = np.random.randn(n_samples)
-    >>> X = np.random.randn(n_samples, n_features)
+    >>> jax.random.seed(0)
+    >>> y = jax.random.randn(n_samples)
+    >>> X = jax.random.randn(n_samples, n_features)
     >>> regr = make_pipeline(StandardScaler(), NuSVR(C=1.0, nu=0.1))
     >>> regr.fit(X, y)
     Pipeline(steps=[('standardscaler', StandardScaler()),
@@ -1561,7 +1560,7 @@ class NuSVR(RegressorMixin, BaseLibSVM):
     )
     @property
     def class_weight_(self):
-        return jnp.empty(0)
+        return np.empty(0)
 
     def _more_tags(self):
         return {
@@ -1696,15 +1695,15 @@ class OneClassSVM(OutlierMixin, BaseLibSVM):
 
     See Also
     --------
-    xlearn.linear_model.SGDOneClassSVM : Solves linear One-Class SVM using
+    sklearn.linear_model.SGDOneClassSVM : Solves linear One-Class SVM using
         Stochastic Gradient Descent.
-    xlearn.neighbors.LocalOutlierFactor : Unsupervised Outlier Detection using
+    sklearn.neighbors.LocalOutlierFactor : Unsupervised Outlier Detection using
         Local Outlier Factor (LOF).
-    xlearn.ensemble.IsolationForest : Isolation Forest Algorithm.
+    sklearn.ensemble.IsolationForest : Isolation Forest Algorithm.
 
     Examples
     --------
-    >>> from xlearn.svm import OneClassSVM
+    >>> from sklearn.svm import OneClassSVM
     >>> X = [[0], [0.44], [0.45], [0.46], [1]]
     >>> clf = OneClassSVM(gamma='auto').fit(X)
     >>> clf.predict(X)
@@ -1758,7 +1757,7 @@ class OneClassSVM(OutlierMixin, BaseLibSVM):
     )
     @property
     def class_weight_(self):
-        return jnp.empty(0)
+        return np.empty(0)
 
     def fit(self, X, y=None, sample_weight=None):
         """Detect the soft boundary of the set of samples X.
@@ -1785,7 +1784,7 @@ class OneClassSVM(OutlierMixin, BaseLibSVM):
         -----
         If X is not a C-ordered contiguous array it is copied.
         """
-        super().fit(X, jnp.ones(_num_samples(X)), sample_weight=sample_weight)
+        super().fit(X, np.ones(_num_samples(X)), sample_weight=sample_weight)
         self.offset_ = -self._intercept_
         return self
 
@@ -1840,7 +1839,7 @@ class OneClassSVM(OutlierMixin, BaseLibSVM):
             Class labels for samples in X.
         """
         y = super().predict(X)
-        return jnp.asarray(y, dtype=jnp.intp)
+        return np.asarray(y, dtype=np.intp)
 
     def _more_tags(self):
         return {

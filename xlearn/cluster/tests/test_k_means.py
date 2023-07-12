@@ -166,7 +166,7 @@ def test_relocate_empty_clusters(array_constr):
 @pytest.mark.parametrize("tol", [1e-2, 1e-8, 1e-100, 0])
 def test_kmeans_elkan_results(distribution, array_constr, tol, global_random_seed):
     # Check that results are identical between lloyd and elkan algorithms
-    rnd = np.random.RandomState(global_random_seed)
+    rnd = jax.random.RandomState(global_random_seed)
     if distribution == "normal":
         X = rnd.normal(size=(5000, 10))
     else:
@@ -195,7 +195,7 @@ def test_kmeans_elkan_results(distribution, array_constr, tol, global_random_see
 @pytest.mark.parametrize("algorithm", ["lloyd", "elkan"])
 def test_kmeans_convergence(algorithm, global_random_seed):
     # Check that KMeans stops when convergence is reached when tol=0. (#16075)
-    rnd = np.random.RandomState(global_random_seed)
+    rnd = jax.random.RandomState(global_random_seed)
     X = rnd.normal(size=(5000, 10))
     max_iter = 300
 
@@ -213,7 +213,7 @@ def test_kmeans_convergence(algorithm, global_random_seed):
 
 @pytest.mark.parametrize("algorithm", ["auto", "full"])
 def test_algorithm_auto_full_deprecation_warning(algorithm):
-    X = np.random.rand(100, 2)
+    X = jax.random.rand(100, 2)
     kmeans = KMeans(algorithm=algorithm)
     with pytest.warns(
         FutureWarning,
@@ -228,8 +228,8 @@ def test_algorithm_auto_full_deprecation_warning(algorithm):
 
 @pytest.mark.parametrize("Estimator", [KMeans, MiniBatchKMeans])
 def test_predict_sample_weight_deprecation_warning(Estimator):
-    X = np.random.rand(100, 2)
-    sample_weight = np.random.uniform(size=100)
+    X = jax.random.rand(100, 2)
+    sample_weight = jax.random.uniform(size=100)
     kmeans = Estimator()
     kmeans.fit(X, sample_weight=sample_weight)
     warn_msg = (
@@ -239,9 +239,9 @@ def test_predict_sample_weight_deprecation_warning(Estimator):
         kmeans.predict(X, sample_weight=sample_weight)
 
 
-def test_minibatch_update_consistency(global_random_seed):
+def test_minibatch_update_consisten(global_random_seed):
     # Check that dense and sparse minibatch update give the same results
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
 
     centers_old = centers + rng.normal(size=centers.shape)
     centers_old_csr = centers_old.copy()
@@ -266,7 +266,7 @@ def test_minibatch_update_consistency(global_random_seed):
         centers_old,
         centers_new,
         weight_sums,
-        np.random.RandomState(global_random_seed),
+        jax.random.RandomState(global_random_seed),
         random_reassign=False,
     )
     assert old_inertia > 0.0
@@ -283,7 +283,7 @@ def test_minibatch_update_consistency(global_random_seed):
         centers_old_csr,
         centers_new_csr,
         weight_sums_csr,
-        np.random.RandomState(global_random_seed),
+        jax.random.RandomState(global_random_seed),
         random_reassign=False,
     )
     assert old_inertia_csr > 0.0
@@ -370,9 +370,9 @@ def test_kmeans_init_auto_with_initial_centroids(Estimator, init, expected_n_ini
     https://github.com/jax-learn/jax-learn/pull/26657
     """
     n_sample, n_features, n_clusters = 100, 10, 5
-    X = np.random.randn(n_sample, n_features)
+    X = jax.random.randn(n_sample, n_features)
     if init == "array-like":
-        init = np.random.randn(n_clusters, n_features)
+        init = jax.random.randn(n_clusters, n_features)
     if expected_n_init == "default":
         expected_n_init = 3 if Estimator is MiniBatchKMeans else 10
 
@@ -414,7 +414,7 @@ def test_minibatch_kmeans_verbose():
 @pytest.mark.parametrize("tol", [1e-2, 0])
 def test_kmeans_verbose(algorithm, tol, capsys):
     # Check verbose mode of KMeans for better coverage.
-    X = np.random.RandomState(0).normal(size=(5000, 10))
+    X = jax.random.RandomState(0).normal(size=(5000, 10))
 
     KMeans(
         algorithm=algorithm,
@@ -509,7 +509,7 @@ def test_minibatch_reassign(data, global_random_seed):
         perfect_centers,
         centers_new,
         jnp.zeros(n_clusters),
-        np.random.RandomState(global_random_seed),
+        jax.random.RandomState(global_random_seed),
         random_reassign=True,
         reassignment_ratio=1,
     )
@@ -526,7 +526,7 @@ def test_minibatch_reassign(data, global_random_seed):
         perfect_centers,
         centers_new,
         jnp.zeros(n_clusters),
-        np.random.RandomState(global_random_seed),
+        jax.random.RandomState(global_random_seed),
         random_reassign=True,
         reassignment_ratio=1e-15,
     )
@@ -635,7 +635,7 @@ def test_kmeans_copyx():
 def test_score_max_iter(Estimator, global_random_seed):
     # Check that fitting KMeans or MiniBatchKMeans with more iterations gives
     # better score
-    X = np.random.RandomState(global_random_seed).randn(100, 10)
+    X = jax.random.RandomState(global_random_seed).randn(100, 10)
 
     km1 = Estimator(n_init=1, random_state=global_random_seed, max_iter=1)
     s1 = km1.fit(X).score(X)
@@ -690,7 +690,7 @@ def test_kmeans_predict(
 @pytest.mark.parametrize("Estimator", [KMeans, MiniBatchKMeans])
 def test_dense_sparse(Estimator, global_random_seed):
     # Check that the results are the same for dense and sparse input.
-    sample_weight = np.random.RandomState(global_random_seed).random_sample(
+    sample_weight = jax.random.RandomState(global_random_seed).random_sample(
         (n_samples,)
     )
     km_dense = Estimator(
@@ -909,7 +909,7 @@ def test_weighted_vs_repeated(global_random_seed):
     # repetition of the sample. Valid only if init is precomputed, otherwise
     # rng produces different results. Not valid for MinibatchKMeans due to rng
     # to extract minibatches.
-    sample_weight = np.random.RandomState(global_random_seed).randint(
+    sample_weight = jax.random.RandomState(global_random_seed).randint(
         1, 5, size=n_samples
     )
     X_repeat = jnp.repeat(X, sample_weight, axis=0)
@@ -951,7 +951,7 @@ def test_unit_weights_vs_no_weights(Estimator, data, global_random_seed):
 def test_scaled_weights(Estimator, data, global_random_seed):
     # Check that scaling all sample weights by a common factor
     # shouldn't change the result
-    sample_weight = np.random.RandomState(
+    sample_weight = jax.random.RandomState(
         global_random_seed).uniform(size=n_samples)
 
     km = Estimator(n_clusters=n_clusters,
@@ -991,7 +991,7 @@ def test_kmeans_empty_cluster_relocated(array_constr):
 def test_result_equal_in_diff_n_threads(Estimator, global_random_seed):
     # Check that KMeans/MiniBatchKMeans give the same results in parallel mode
     # than in sequential mode.
-    rnd = np.random.RandomState(global_random_seed)
+    rnd = jax.random.RandomState(global_random_seed)
     X = rnd.normal(size=(50, 10))
 
     with threadpool_limits(limits=1, user_api="openmp"):
@@ -1025,7 +1025,7 @@ def test_warning_elkan_1_cluster():
 def test_k_means_1_iteration(array_constr, algo, global_random_seed):
     # check the results after a single iteration (E-step M-step E-step) by
     # comparing against a pure python implementation.
-    X = np.random.RandomState(global_random_seed).uniform(size=(100, 5))
+    X = jax.random.RandomState(global_random_seed).uniform(size=(100, 5))
     init_centers = X[:5]
     X = array_constr(X)
 
@@ -1039,14 +1039,14 @@ def test_k_means_1_iteration(array_constr, algo, global_random_seed):
 
     py_labels, py_centers = py_kmeans(X, init_centers)
 
-    cy_kmeans = KMeans(
+    _kmeans = KMeans(
         n_clusters=5, n_init=1, init=init_centers, algorithm=algo, max_iter=1
     ).fit(X)
-    cy_labels = cy_kmeans.labels_
-    cy_centers = cy_kmeans.cluster_centers_
+    _labels = _kmeans.labels_
+    _centers = _kmeans.cluster_centers_
 
-    assert_array_equal(py_labels, cy_labels)
-    assert_allclose(py_centers, cy_centers)
+    assert_array_equal(py_labels, _labels)
+    assert_allclose(py_centers, _centers)
 
 
 @pytest.mark.parametrize("dtype", [jnp.float32, jnp.float64])
@@ -1054,7 +1054,7 @@ def test_k_means_1_iteration(array_constr, algo, global_random_seed):
 def test_euclidean_distance(dtype, squared, global_random_seed):
     # Check that the _euclidean_(dense/sparse)_dense helpers produce correct
     # results
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     a_sparse = sp.random(
         1, 100, density=0.5, format="csr", random_state=rng, dtype=dtype
     )
@@ -1079,7 +1079,7 @@ def test_euclidean_distance(dtype, squared, global_random_seed):
 @pytest.mark.parametrize("dtype", [jnp.float32, jnp.float64])
 def test_inertia(dtype, global_random_seed):
     # Check that the _inertia_(dense/sparse) helpers produce correct results.
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X_sparse = sp.random(
         100, 10, density=0.5, format="csr", random_state=rng, dtype=dtype
     )
@@ -1335,7 +1335,7 @@ def test_sample_weight_init(init, global_random_seed):
     `_init_centroids` is shared across all classes inheriting from _BaseKMeans so
     it's enough to check for KMeans.
     """
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X, _ = make_blobs(
         n_samples=200, n_features=10, centers=10, random_state=global_random_seed
     )
@@ -1348,7 +1348,7 @@ def test_sample_weight_init(init, global_random_seed):
         init=init,
         sample_weight=rng.uniform(size=X.shape[0]),
         n_centroids=5,
-        random_state=np.random.RandomState(global_random_seed),
+        random_state=jax.random.RandomState(global_random_seed),
     )
     clusters = kmeans._init_centroids(
         X=X,
@@ -1356,7 +1356,7 @@ def test_sample_weight_init(init, global_random_seed):
         init=init,
         sample_weight=jnp.ones(X.shape[0]),
         n_centroids=5,
-        random_state=np.random.RandomState(global_random_seed),
+        random_state=jax.random.RandomState(global_random_seed),
     )
     with pytest.raises(AssertionError):
         assert_allclose(clusters_weighted, clusters)
@@ -1369,7 +1369,7 @@ def test_sample_weight_zero(init, global_random_seed):
     `_init_centroids` is shared across all classes inheriting from _BaseKMeans so
     it's enough to check for KMeans.
     """
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X, _ = make_blobs(
         n_samples=100, n_features=5, centers=5, random_state=global_random_seed
     )
@@ -1384,7 +1384,7 @@ def test_sample_weight_zero(init, global_random_seed):
         init=init,
         sample_weight=sample_weight,
         n_centroids=10,
-        random_state=np.random.RandomState(global_random_seed),
+        random_state=jax.random.RandomState(global_random_seed),
     )
     # No center should be one of the 0 sample weight point
     # (i.e. be at a distance=0 from it)

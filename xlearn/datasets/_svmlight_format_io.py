@@ -96,7 +96,7 @@ def load_svmlight_file(
     learning to rank problems) so that only pairs with the same
     query_id value are considered.
 
-    This implementation is written in Cython and is reasonably fast.
+    This implementation is written in cython and is reasonably fast.
     However, a faster API-compatible loader is also available at:
 
       https://github.com/mblondel/svmlight-loader
@@ -516,7 +516,7 @@ def dump_svmlight_file(
     if comment is not None:
         # Convert comment string to list of lines in UTF-8.
         # If a byte string is passed, then check whether it's ASCII;
-        # if a user wants to get fancy, they'll have to decode themselves.
+        # if a user wants to get fan, they'll have to decode themselves.
         if isinstance(comment, bytes):
             comment.decode("ascii")  # just for the exception
         else:
@@ -560,8 +560,8 @@ def dump_svmlight_file(
             X.sort_indices()
 
     if query_id is None:
-        # NOTE: query_id is passed to Cython functions using a fused type on query_id.
-        # Yet as of Cython>=3.0, memory views can't be None otherwise the runtime
+        # NOTE: query_id is passed to cython functions using a fused type on query_id.
+        # Yet as of cython>=3.0, memory views can't be None otherwise the runtime
         # would not known which concrete implementation to dispatch the Python call to.
         # TODO: simplify interfaces and implementations in _svmlight_format_fast.pyx.
         query_id = jnp.array([], dtype=jnp.int32)

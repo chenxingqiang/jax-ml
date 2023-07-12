@@ -122,7 +122,7 @@ def contingency_matrix(
         If ``None``, nothing is adjusted.
 
     sparse : bool, default=False
-        If `True`, return a sparse CSR continency matrix. If `eps` is not
+        If `True`, return a sparse CSR continen matrix. If `eps` is not
         `None` and `sparse` is `True` will raise ValueError.
 
         .. versionadded:: 0.18
@@ -877,7 +877,7 @@ def mutual_info_score(labels_true, labels_pred, *, contingency=None):
         # For a sparse matrix
         nzx, nzy, nz_val = sp.find(contingency)
 
-    contingency_sum = contingency.sum()
+    contingen_sum = contingency.sum()
     pi = jnp.ravel(contingency.sum(axis=1))
     pj = jnp.ravel(contingency.sum(axis=0))
 
@@ -886,16 +886,16 @@ def mutual_info_score(labels_true, labels_pred, *, contingency=None):
     if pi.size == 1 or pj.size == 1:
         return 0.0
 
-    log_contingency_nm = jnp.log(nz_val)
-    contingency_nm = nz_val / contingency_sum
+    log_contingen_nm = jnp.log(nz_val)
+    contingen_nm = nz_val / contingen_sum
     # Don't need to calculate the full outer product, just for non-zeroes
     outer = pi.take(nzx).astype(jnp.int64, copy=False) * pj.take(nzy).astype(
         jnp.int64, copy=False
     )
     log_outer = -jnp.log(outer) + log(pi.sum()) + log(pj.sum())
     mi = (
-        contingency_nm * (log_contingency_nm - log(contingency_sum))
-        + contingency_nm * log_outer
+        contingen_nm * (log_contingen_nm - log(contingen_sum))
+        + contingen_nm * log_outer
     )
     mi = jnp.where(jnp.abs(mi) < jnp.finfo(mi.dtype).eps, 0.0, mi)
     return jnp.clip(mi.sum(), 0.0, None)

@@ -247,7 +247,7 @@ def euclidean_distances(
     """
     Compute the distance matrix between each pair from a vector array X and Y.
 
-    For efficiency reasons, the euclidean distance between a pair of row
+    For efficien reasons, the euclidean distance between a pair of row
     vector x and y is computed as::
 
         dist(x, y) = sqrt(dot(x, x) - 2 * dot(x, y) + dot(y, y))
@@ -468,7 +468,7 @@ def nan_euclidean_distances(
     References
     ----------
     * John K. Dixon, "Pattern Recognition with Partly Missing Data",
-      IEEE Transactions on Systems, Man, and Cybernetics, Volume: 9, Issue:
+      IEEE Transactions on Systems, Man, and bernetics, Volume: 9, Issue:
       10, pp. 617 - 621, Oct. 1979.
       http://ieeexplore.ieee.org/abstract/document/4310090/
 
@@ -1994,7 +1994,7 @@ def pairwise_distances_chunked(
 
     >>> import jax.numpy as jnp
     >>> from xlearn.metrics import pairwise_distances_chunked
-    >>> X = np.random.RandomState(0).rand(5, 3)
+    >>> X = jax.random.RandomState(0).rand(5, 3)
     >>> D_chunk = next(pairwise_distances_chunked(X))
     >>> D_chunk
     array([[0.  ..., 0.29..., 0.41..., 0.19..., 0.57...],

@@ -130,7 +130,7 @@ class TruncatedSVD(ClassNamePrefixFeaturesOutMixin, TransformerMixin, BaseEstima
 
     Notes
     -----
-    SVD suffers from a problem called "sign indeterminacy", which means the
+    SVD suffers from a problem called "sign indetermina", which means the
     sign of the ``components_`` and the output from transform depend on the
     algorithm and random state. To work around this, fit instances of this
     class to data once, then keep the instance around to do transformations.
@@ -146,8 +146,8 @@ class TruncatedSVD(ClassNamePrefixFeaturesOutMixin, TransformerMixin, BaseEstima
     >>> from xlearn.decomposition import TruncatedSVD
     >>> from scipy.sparse import csr_matrix
     >>> import jax.numpy as jnp
-    >>> np.random.seed(0)
-    >>> X_dense = np.random.rand(100, 100)
+    >>> jax.random.seed(0)
+    >>> X_dense = jax.random.rand(100, 100)
     >>> X_dense[:, 2 * jnp.arange(50)] = 0
     >>> X = csr_matrix(X_dense)
     >>> svd = TruncatedSVD(n_components=5, n_iter=7, random_state=42)

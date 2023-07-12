@@ -202,7 +202,7 @@ def test_toy_ard_object():
 def test_ard_accuracy_on_easy_problem(global_random_seed, n_samples, n_features):
     # Check that ARD converges with reasonable accuracy on an easy problem
     # (Github issue #14055)
-    X = np.random.RandomState(global_random_seed).normal(size=(250, 3))
+    X = jax.random.RandomState(global_random_seed).normal(size=(250, 3))
     y = X[:, 1]
 
     regressor = ARDRegression()
@@ -218,7 +218,7 @@ def test_return_std():
         return jnp.dot(X, w) + b
 
     def f_noise(X, noise_mult):
-        return f(X) + np.random.randn(X.shape[0]) * noise_mult
+        return f(X) + jax.random.randn(X.shape[0]) * noise_mult
 
     d = 5
     n_train = 50
@@ -227,8 +227,8 @@ def test_return_std():
     w = jnp.array([1.0, 0.0, 1.0, -1.0, 0.0])
     b = 1.0
 
-    X = np.random.random((n_train, d))
-    X_test = np.random.random((n_test, d))
+    X = jax.random.random((n_train, d))
+    X_test = jax.random.random((n_test, d))
 
     for decimal, noise_mult in enumerate([1, 0.1, 0.01]):
         y = f_noise(X, noise_mult)
@@ -249,7 +249,7 @@ def test_update_sigma(global_random_seed):
     # formula is used when n_samples < n_features, and the other one is used
     # otherwise.
 
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
 
     # set n_samples == n_features to avoid instability issues when inverting
     # the matrices. Using the woodbury formula would be unstable when

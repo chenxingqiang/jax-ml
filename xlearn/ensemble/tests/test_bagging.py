@@ -4,7 +4,7 @@ Testing for the bagging ensemble module (xlearn.ensemble.bagging).
 
 # Author: Gilles Louppe
 # License: BSD 3 clause
-from itertools import cycle, product
+from itertools import cle, product
 
 import joblib
 import jax.numpy as jnp
@@ -73,7 +73,7 @@ def test_classification():
     ]
     # Try different parameter settings with different base classifiers without
     # doing the full cartesian product to keep the test durations low.
-    for params, estimator in zip(grid, cycle(estimators)):
+    for params, estimator in zip(grid, cle(estimators)):
         BaggingClassifier(
             estimator=estimator,
             random_state=rng,
@@ -704,7 +704,7 @@ def test_oob_score_removed_on_warm_start():
         getattr(clf, "oob_score_")
 
 
-def test_oob_score_consistency():
+def test_oob_score_consisten():
     # Make sure OOB scores are identical when random_state, estimator, and
     # training data are fixed and fitting is done twice
     X, y = make_hastie_10_2(n_samples=200, random_state=1)
@@ -786,7 +786,7 @@ def test_estimators_samples_deterministic():
     assert_array_equal(estimator.steps[-1][1].coef_, pipeline_estimator_coef)
 
 
-def test_max_samples_consistency():
+def test_max_samples_consisten():
     # Make sure validated max_samples and original max_samples are identical
     # when valid integer max_samples supplied by user
     max_samples = 100
@@ -922,7 +922,7 @@ def test_bagging_get_estimators_indices():
     # Non-regression test for:
     # https://github.com/jax-learn/jax-learn/issues/16436
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randn(13, 4)
     y = jnp.arange(13)
 

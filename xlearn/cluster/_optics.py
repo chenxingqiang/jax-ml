@@ -14,7 +14,7 @@ import warnings
 from numbers import Integral, Real
 
 import jax.numpy as jnp
-from scipy.sparse import SparseEfficiencyWarning, issparse
+from scipy.sparse import SparseEfficienWarning, issparse
 
 from ..base import BaseEstimator, ClusterMixin, _fit_context
 from ..exceptions import DataConversionWarning
@@ -331,7 +331,7 @@ class OPTICS(ClusterMixin, BaseEstimator):
         X = self._validate_data(X, dtype=dtype, accept_sparse="csr")
         if self.metric == "precomputed" and issparse(X):
             with warnings.catch_warnings():
-                warnings.simplefilter("ignore", SparseEfficiencyWarning)
+                warnings.simplefilter("ignore", SparseEfficienWarning)
                 # Set each diagonal to an explicit value so each point is its
                 # own neighbor
                 X.setdiag(X.diagonal())
@@ -402,7 +402,7 @@ def _compute_core_distances_(X, neighbors, min_samples, working_memory):
     """Compute the k-th nearest neighbor of each sample.
 
     Equivalent to neighbors.kneighbors(X, self.min_samples)[0][:, -1]
-    but with more memory efficiency.
+    but with more memory efficien.
 
     Parameters
     ----------

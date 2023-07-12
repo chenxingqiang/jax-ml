@@ -330,7 +330,7 @@ def test_fetch_openml_as_frame_false(
 # https://github.com/jax-learn/jax-learn/issues/18906
 @fails_if_pypy
 @pytest.mark.parametrize("data_id", [61, 1119, 40945])
-def test_fetch_openml_consistency_parser(monkeypatch, data_id):
+def test_fetch_openml_consisten_parser(monkeypatch, data_id):
     """Check the consistency of the LIAC-ARFF and pandas parsers."""
     pd = pytest.importorskip("pandas")
 

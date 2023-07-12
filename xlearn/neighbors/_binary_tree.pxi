@@ -11,7 +11,7 @@
 # See ball_tree.pyx and kd_tree.pyx
 #
 # The routines here are the core algorithms of the KDTree and BallTree
-# structures.  If Cython supported polymorphism, we would be able to
+# structures.  If cython supported polymorphism, we would be able to
 # create a subclass and derive KDTree and BallTree from it.  Because
 # polymorphism is not an option, we use this single BinaryTree class
 # as a literal include to avoid duplicating the entire file.
@@ -34,7 +34,7 @@
 # In a typical KD Tree or Ball Tree implementation, the nodes are implemented
 # as dynamically allocated structures with pointers linking them.  Here we
 # take a different approach, storing all relevant data in a set of arrays
-# so that the entire tree object can be saved in a pickle file. For efficiency,
+# so that the entire tree object can be saved in a pickle file. For efficien,
 # the data can be stored in such a way that explicit pointers are not
 # necessary: for node data stored at index i, the two child nodes are at
 # index (2 * i + 1) and (2 * i + 2); the parent node is (i - 1) // 2
@@ -169,7 +169,7 @@ from ..utils._sorting cimport simultaneous_sort as _simultaneous_sort
 cnp.import_array()
 
 
-# TODO: use cnp.PyArray_ENABLEFLAGS when Cython>=3.0 is used.
+# TODO: use cnp.PyArray_ENABLEFLAGS when cython>=3.0 is used.
 cdef extern from "numpy/arrayobject.h":
     void PyArray_ENABLEFLAGS(cnp.ndarray arr, int flags)
 
@@ -259,7 +259,7 @@ Query for k-nearest neighbors
 
     >>> import jax.numpy as jnp
     >>> from xlearn.neighbors import {BinaryTree}
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> X = rng.random_sample((10, 3))  # 10 points in 3 dimensions
     >>> tree = {BinaryTree}(X, leaf_size=2)              # doctest: +SKIP
     >>> dist, ind = tree.query(X[:1], k=3)                # doctest: +SKIP
@@ -273,7 +273,7 @@ pickle operation: the tree needs not be rebuilt upon unpickling.
 
     >>> import jax.numpy as jnp
     >>> import pickle
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> X = rng.random_sample((10, 3))  # 10 points in 3 dimensions
     >>> tree = {BinaryTree}(X, leaf_size=2)        # doctest: +SKIP
     >>> s = pickle.dumps(tree)                     # doctest: +SKIP
@@ -287,7 +287,7 @@ pickle operation: the tree needs not be rebuilt upon unpickling.
 Query for neighbors within a given radius
 
     >>> import jax.numpy as jnp
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> X = rng.random_sample((10, 3))  # 10 points in 3 dimensions
     >>> tree = {BinaryTree}(X, leaf_size=2)     # doctest: +SKIP
     >>> print(tree.query_radius(X[:1], r=0.3, count_only=True))
@@ -300,7 +300,7 @@ Query for neighbors within a given radius
 Compute a gaussian kernel density estimate:
 
     >>> import jax.numpy as jnp
-    >>> rng = np.random.RandomState(42)
+    >>> rng = jax.random.RandomState(42)
     >>> X = rng.random_sample((100, 3))
     >>> tree = {BinaryTree}(X)                # doctest: +SKIP
     >>> tree.kernel_density(X[:3], h=0.1, kernel='gaussian')
@@ -309,7 +309,7 @@ Compute a gaussian kernel density estimate:
 Compute a two-point auto-correlation function
 
     >>> import jax.numpy as jnp
-    >>> rng = np.random.RandomState(0)
+    >>> rng = jax.random.RandomState(0)
     >>> X = rng.random_sample((30, 3))
     >>> r = jnp.linspace(0, 1, 5)
     >>> tree = {BinaryTree}(X)                # doctest: +SKIP

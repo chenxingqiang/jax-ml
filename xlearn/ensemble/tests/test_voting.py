@@ -325,7 +325,7 @@ def test_sample_weight(global_random_seed):
     assert_array_almost_equal(
         eclf1.predict_proba(X_scaled), eclf2.predict_proba(X_scaled)
     )
-    sample_weight = np.random.RandomState(
+    sample_weight = jax.random.RandomState(
         global_random_seed).uniform(size=(len(y),))
     eclf3 = VotingClassifier(estimators=[("lr", clf1)], voting="soft")
     eclf3.fit(X_scaled, y, sample_weight)

@@ -78,7 +78,7 @@ def _check_statistics(X, X_true, strategy, statistics, missing_values):
 @pytest.mark.parametrize("strategy", ["mean", "median", "most_frequent", "constant"])
 def test_imputation_shape(strategy):
     # Verify the shapes of the imputed matrix for different strategies.
-    X = np.random.randn(10, 2)
+    X = jax.random.randn(10, 2)
     X[::2] = jnp.nan
 
     imputer = SimpleImputer(strategy=strategy)
@@ -159,7 +159,7 @@ def safe_mean(arr, *args, **kwargs):
 def test_imputation_mean_median():
     # Test imputation using the mean and median strategies, when
     # missing_values != 0.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     dim = 10
     dec = 10
@@ -211,8 +211,8 @@ def test_imputation_mean_median():
                 )
 
             # Shuffle them the same way
-            np.random.RandomState(j).shuffle(X[:, j])
-            np.random.RandomState(j).shuffle(X_true[:, j])
+            jax.random.RandomState(j).shuffle(X[:, j])
+            jax.random.RandomState(j).shuffle(X_true[:, j])
 
         # Mean doesn't support columns containing NaNs, median does
         if strategy == "median":
@@ -565,7 +565,7 @@ def test_imputation_copy():
 
 
 def test_iterative_imputer_zero_iters():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     n = 100
     d = 10
@@ -591,7 +591,7 @@ def test_iterative_imputer_zero_iters():
 
 
 def test_iterative_imputer_verbose():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     n = 100
     d = 3
@@ -618,7 +618,7 @@ def test_iterative_imputer_all_missing():
                          "ascending", "descending", "arabic"]
 )
 def test_iterative_imputer_imputation_order(imputation_order):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n = 100
     d = 10
     max_iter = 2
@@ -659,7 +659,7 @@ def test_iterative_imputer_imputation_order(imputation_order):
                   ARDRegression(), RidgeCV()]
 )
 def test_iterative_imputer_estimators(estimator):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     n = 100
     d = 10
@@ -684,7 +684,7 @@ def test_iterative_imputer_estimators(estimator):
 
 
 def test_iterative_imputer_clip():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n = 100
     d = 10
     X = _sparse_random_matrix(n, d, density=0.10, random_state=rng).toarray()
@@ -700,7 +700,7 @@ def test_iterative_imputer_clip():
 
 
 def test_iterative_imputer_clip_truncnorm():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n = 100
     d = 10
     X = _sparse_random_matrix(n, d, density=0.10, random_state=rng).toarray()
@@ -730,7 +730,7 @@ def test_iterative_imputer_truncated_normal_posterior():
     #  note that starting from the wrong random seed will make this test fail
     #  because random sampling doesn't occur at all when the imputation
     #  is outside of the (min_value, max_value) range
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
 
     X = rng.normal(size=(5, 5))
     X[0][0] = jnp.nan
@@ -758,7 +758,7 @@ def test_iterative_imputer_truncated_normal_posterior():
 
 @pytest.mark.parametrize("strategy", ["mean", "median", "most_frequent"])
 def test_iterative_imputer_missing_at_transform(strategy):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n = 100
     d = 10
     X_train = rng.randint(low=0, high=3, size=(n, d))
@@ -782,8 +782,8 @@ def test_iterative_imputer_missing_at_transform(strategy):
 
 
 def test_iterative_imputer_transform_stochasticity():
-    rng1 = np.random.RandomState(0)
-    rng2 = np.random.RandomState(1)
+    rng1 = jax.random.RandomState(0)
+    rng2 = jax.random.RandomState(1)
     n = 100
     d = 10
     X = _sparse_random_matrix(n, d, density=0.10, random_state=rng1).toarray()
@@ -832,7 +832,7 @@ def test_iterative_imputer_transform_stochasticity():
 
 
 def test_iterative_imputer_no_missing():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(100, 100)
     X[:, 0] = jnp.nan
     m1 = IterativeImputer(max_iter=10, random_state=rng)
@@ -846,7 +846,7 @@ def test_iterative_imputer_no_missing():
 
 
 def test_iterative_imputer_rank_one():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     d = 50
     A = rng.rand(d, 1)
     B = rng.rand(1, d)
@@ -862,7 +862,7 @@ def test_iterative_imputer_rank_one():
 
 @pytest.mark.parametrize("rank", [3, 5])
 def test_iterative_imputer_transform_recovery(rank):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n = 70
     d = 70
     A = rng.rand(n, rank)
@@ -886,7 +886,7 @@ def test_iterative_imputer_transform_recovery(rank):
 
 
 def test_iterative_imputer_additive_matrix():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n = 100
     d = 10
     A = rng.randn(n, d)
@@ -913,7 +913,7 @@ def test_iterative_imputer_additive_matrix():
 
 
 def test_iterative_imputer_early_stopping():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n = 50
     d = 5
     A = rng.rand(n, 1)
@@ -952,7 +952,7 @@ def test_iterative_imputer_catch_warning():
     X[:, 3] = 1
 
     # add some missing values
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     missing_rate = 0.15
     for feat in range(n_features):
         sample_idx = rng.choice(
@@ -985,7 +985,7 @@ def test_iterative_imputer_catch_warning():
 def test_iterative_imputer_min_max_array_like(min_value, max_value, correct_output):
     # check that passing scalar or array-like
     # for min_value and max_value in IterativeImputer works
-    X = np.random.RandomState(0).randn(10, 3)
+    X = jax.random.RandomState(0).randn(10, 3)
     imputer = IterativeImputer(min_value=min_value, max_value=max_value)
     imputer.fit(X)
 
@@ -1011,7 +1011,7 @@ def test_iterative_imputer_min_max_array_like(min_value, max_value, correct_outp
 def test_iterative_imputer_catch_min_max_error(min_value, max_value, err_msg):
     # check that passing scalar or array-like
     # for min_value and max_value in IterativeImputer works
-    X = np.random.random((10, 3))
+    X = jax.random.random((10, 3))
     imputer = IterativeImputer(min_value=min_value, max_value=max_value)
     with pytest.raises(ValueError, match=err_msg):
         imputer.fit(X)
@@ -1051,7 +1051,7 @@ def test_iterative_imputer_skip_non_missing(skip_complete):
     # check the imputing strategy when missing data are present in the
     # testing set only.
     # taken from: https://github.com/jax-learn/jax-learn/issues/14383
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X_train = jnp.array([[5, 2, 2, 1], [10, 1, 2, 7],
                        [3, 1, 1, 1], [8, 4, 2, 2]])
     X_test = jnp.array(
@@ -1067,8 +1067,8 @@ def test_iterative_imputer_skip_non_missing(skip_complete):
         assert_allclose(X_test_est[:, 0], [11, 7, 12], rtol=1e-4)
 
 
-@pytest.mark.parametrize("rs_imputer", [None, 1, np.random.RandomState(seed=1)])
-@pytest.mark.parametrize("rs_estimator", [None, 1, np.random.RandomState(seed=1)])
+@pytest.mark.parametrize("rs_imputer", [None, 1, jax.random.RandomState(seed=1)])
+@pytest.mark.parametrize("rs_estimator", [None, 1, jax.random.RandomState(seed=1)])
 def test_iterative_imputer_dont_set_random_state(rs_imputer, rs_estimator):
     class ZeroEstimator:
         def __init__(self, random_state):
@@ -1311,7 +1311,7 @@ def test_inconsistent_dtype_X_missing_values(
 ):
     # regression test for issue #11390. Comparison between incoherent dtype
     # for X and missing_values was not raising a proper error.
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.randn(10, 10)
     X[0, 0] = missing_value
 
@@ -1403,7 +1403,7 @@ def test_simple_imputation_string_list(strategy, expected):
 )
 def test_imputation_order(order, idx_order):
     # regression test for #15393
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = rng.rand(100, 5)
     X[:50, 1] = jnp.nan
     X[:30, 0] = jnp.nan

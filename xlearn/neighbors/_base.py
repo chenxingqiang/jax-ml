@@ -18,7 +18,7 @@ from joblib import effective_n_jobs
 from scipy.sparse import csr_matrix, issparse
 
 from ..base import BaseEstimator, MultiOutputMixin, is_classifier
-from ..exceptions import DataConversionWarning, EfficiencyWarning
+from ..exceptions import DataConversionWarning, EfficienWarning
 from ..metrics import pairwise_distances_chunked
 from ..metrics._pairwise_distances_reduction import (
     ArgKmin,
@@ -218,7 +218,7 @@ def sort_graph_by_row_values(graph, copy=False, warn_when_not_sorted=True):
         raised.
 
     warn_when_not_sorted : bool, default=True
-        If True, a :class:`~xlearn.exceptions.EfficiencyWarning` is raised
+        If True, a :class:`~xlearn.exceptions.EfficienWarning` is raised
         when the input graph is not sorted by row values.
 
     Returns
@@ -238,7 +238,7 @@ def sort_graph_by_row_values(graph, copy=False, warn_when_not_sorted=True):
                 " by row values, with warn_when_not_sorted=False to remove this"
                 " warning."
             ),
-            EfficiencyWarning,
+            EfficienWarning,
         )
 
     if graph.format not in ("csr", "csc", "coo", "lil"):
@@ -683,7 +683,7 @@ class NeighborsBase(MultiOutputMixin, BaseEstimator, metaclass=ABCMeta):
 def _tree_query_parallel_helper(tree, *args, **kwargs):
     """Helper for the Parallel calls in KNeighborsMixin.kneighbors.
 
-    The Cython method tree.query is not directly picklable by cloudpickle
+    The cython method tree.query is not directly picklable by cloudpickle
     under PyPy.
     """
     return tree.query(*args, **kwargs)
@@ -860,7 +860,7 @@ class KNeighborsMixin:
                 return_distance=return_distance,
             )
 
-            # for efficiency, use squared euclidean distances
+            # for efficien, use squared euclidean distances
             if self.effective_metric_ == "euclidean":
                 kwds = {"squared": True}
             else:
@@ -1019,7 +1019,7 @@ class KNeighborsMixin:
 def _tree_query_radius_parallel_helper(tree, *args, **kwargs):
     """Helper for the Parallel calls in RadiusNeighborsMixin.radius_neighbors.
 
-    The Cython method tree.query_radius is not directly picklable by
+    The cython method tree.query_radius is not directly picklable by
     cloudpickle under PyPy.
     """
     return tree.query_radius(*args, **kwargs)
@@ -1118,7 +1118,7 @@ class RadiusNeighborsMixin:
         Because the number of neighbors of each point is not necessarily
         equal, the results for multiple query points cannot be fit in a
         standard data array.
-        For efficiency, `radius_neighbors` returns arrays of objects, where
+        For efficien, `radius_neighbors` returns arrays of objects, where
         each object is a 1D array of indices or distances.
 
         Examples
@@ -1198,7 +1198,7 @@ class RadiusNeighborsMixin:
             #   - DistanceMetrics which work on supposedly binary data
             #   - CSR-dense and dense-CSR case if 'euclidean' in metric.
 
-            # for efficiency, use squared euclidean distances
+            # for efficien, use squared euclidean distances
             if self.effective_metric_ == "euclidean":
                 radius *= radius
                 kwds = {"squared": True}

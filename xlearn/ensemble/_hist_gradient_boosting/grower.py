@@ -349,7 +349,7 @@ class TreeGrower:
         if not X_binned.flags.f_contiguous:
             raise ValueError(
                 "X_binned should be passed as Fortran contiguous "
-                "array for maximum efficiency."
+                "array for maximum efficien."
             )
         if min_gain_to_split < 0:
             raise ValueError(

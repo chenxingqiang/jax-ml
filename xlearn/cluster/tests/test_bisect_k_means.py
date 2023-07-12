@@ -42,7 +42,7 @@ def test_sparse():
     Checks if labels and centers are the same between dense and sparse.
     """
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     X = rng.rand(20, 2)
     X[X < 0.8] = 0
@@ -64,7 +64,7 @@ def test_sparse():
 def test_n_clusters(n_clusters):
     """Test if resulting labels are in range [0, n_clusters - 1]."""
 
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(10, 2)
 
     bisect_means = BisectingKMeans(n_clusters=n_clusters, random_state=0)
@@ -91,7 +91,7 @@ def test_one_cluster():
 @pytest.mark.parametrize("is_sparse", [True, False])
 def test_fit_predict(is_sparse):
     """Check if labels from fit(X) method are same as from fit(X).predict(X)."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     X = rng.rand(10, 2)
 
@@ -108,7 +108,7 @@ def test_fit_predict(is_sparse):
 @pytest.mark.parametrize("is_sparse", [True, False])
 def test_dtype_preserved(is_sparse, global_dtype):
     """Check that centers dtype is the same as input data dtype."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(10, 2).astype(global_dtype, copy=False)
 
     if is_sparse:
@@ -124,7 +124,7 @@ def test_dtype_preserved(is_sparse, global_dtype):
 @pytest.mark.parametrize("is_sparse", [True, False])
 def test_float32_float64_equivalence(is_sparse):
     """Check that the results are the same between float32 and float64."""
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(10, 2)
 
     if is_sparse:

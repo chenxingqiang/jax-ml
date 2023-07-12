@@ -85,7 +85,7 @@ NORMALIZED_METRICS = [
 ]
 
 
-rng = np.random.RandomState(0)
+rng = jax.random.RandomState(0)
 y1 = rng.randint(3, size=30)
 y2 = rng.randint(3, size=30)
 
@@ -152,7 +152,7 @@ def test_permute_labels(metric_name):
         assert_allclose(score_1, metric(y_pred, 1 - y_label))
     else:
         metric = UNSUPERVISED_METRICS[metric_name]
-        X = np.random.randint(10, size=(7, 10))
+        X = jax.random.randint(10, size=(7, 10))
         score_1 = metric(X, y_pred)
         assert_allclose(score_1, metric(X, 1 - y_pred))
 
@@ -187,7 +187,7 @@ def test_format_invariance(metric_name):
             assert score_1 == metric(y_true_fmt, y_pred_fmt)
     else:
         metric = UNSUPERVISED_METRICS[metric_name]
-        X = np.random.randint(10, size=(8, 10))
+        X = jax.random.randint(10, size=(8, 10))
         score_1 = metric(X, y_true)
         assert score_1 == metric(X.astype(float), y_true)
         y_true_gen = generate_formats(y_true)
@@ -214,7 +214,7 @@ def test_inf_nan_input(metric_name, metric_func):
             ([0, 1], [jnp.nan, jnp.inf]),
         ]
     else:
-        X = np.random.randint(10, size=(2, 10))
+        X = jax.random.randint(10, size=(2, 10))
         invalids = [(X, [jnp.inf, jnp.inf]), (X, [jnp.nan, jnp.nan]),
                     (X, [jnp.nan, jnp.inf])]
     with pytest.raises(ValueError, match=r"contains (NaN|infinity)"):

@@ -43,7 +43,7 @@ def no_stdout_stderr():
 
 
 def gen_toy_problem_1d(intercept=True):
-    random_state = np.random.RandomState(0)
+    random_state = jax.random.RandomState(0)
     # Linear model y = 3*x + N(2, 0.1**2)
     w = 3.0
     if intercept:
@@ -71,7 +71,7 @@ def gen_toy_problem_1d(intercept=True):
 
 
 def gen_toy_problem_2d():
-    random_state = np.random.RandomState(0)
+    random_state = jax.random.RandomState(0)
     n_samples = 100
     # Linear model y = 5*x_1 + 10*x_2 + N(1, 0.1**2)
     X = random_state.normal(size=(n_samples, 2))
@@ -87,7 +87,7 @@ def gen_toy_problem_2d():
 
 
 def gen_toy_problem_4d():
-    random_state = np.random.RandomState(0)
+    random_state = jax.random.RandomState(0)
     n_samples = 10000
     # Linear model y = 5*x_1 + 10*x_2  + 42*x_3 + 7*x_4 + N(1, 0.1**2)
     X = random_state.normal(size=(n_samples, 4))
@@ -145,7 +145,7 @@ def test_spatial_median_1d():
     _, median = _spatial_median(X)
     assert_array_almost_equal(median, true_median)
     # Test larger problem and for exact solution in 1d case
-    random_state = np.random.RandomState(0)
+    random_state = jax.random.RandomState(0)
     X = random_state.randint(100, size=(1000, 1))
     true_median = jnp.median(X.ravel())
     _, median = _spatial_median(X)
@@ -237,7 +237,7 @@ def test_checksubparams_invalid_input(param, ExceptionCls, match):
 
 
 def test_checksubparams_n_subsamples_if_less_samples_than_features():
-    random_state = np.random.RandomState(0)
+    random_state = jax.random.RandomState(0)
     n_samples, n_features = 10, 20
     X = random_state.normal(size=(n_samples, n_features))
     y = random_state.normal(size=n_samples)
@@ -286,7 +286,7 @@ def test_theil_sen_parallel():
 
 
 def test_less_samples_than_features():
-    random_state = np.random.RandomState(0)
+    random_state = jax.random.RandomState(0)
     n_samples, n_features = 10, 20
     X = random_state.normal(size=(n_samples, n_features))
     y = random_state.normal(size=n_samples)

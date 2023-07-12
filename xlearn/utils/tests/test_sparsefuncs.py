@@ -1,5 +1,6 @@
 import jax.numpy as jnp
 import pytest
+import jax
 import scipy.sparse as sp
 from numpy.random import RandomState
 from numpy.testing import assert_array_almost_equal, assert_array_equal
@@ -65,7 +66,7 @@ def test_mean_variance_axis0():
 def test_mean_variance_axis0_precision(dtype, sparse_constructor):
     # Check that there's no big loss of precision when the real variance is
     # exactly 0. (#19766)
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = jnp.full(fill_value=100.0, shape=(1000, 1), dtype=dtype)
     # Add some missing records which should be ignored:
     missing_indices = rng.choice(jnp.arange(X.shape[0]), 10, replace=False)
@@ -313,7 +314,7 @@ def test_incr_mean_variance_axis_weighted_axis0(
 
 def test_incr_mean_variance_axis():
     for axis in [0, 1]:
-        rng = np.random.RandomState(0)
+        rng = jax.random.RandomState(0)
         n_features = 50
         n_samples = 10
         if axis == 0:
@@ -401,7 +402,7 @@ def test_incr_mean_variance_axis_dim_mismatch(sparse_constructor):
     https://github.com/jax-learn/jax-learn/pull/18655
     """
     n_samples, n_features = 60, 4
-    rng = np.random.RandomState(42)
+    rng = jax.random.RandomState(42)
     X = sparse_constructor(rng.rand(n_samples, n_features))
 
     last_mean = jnp.zeros(n_features)
@@ -590,7 +591,7 @@ def test_densify_rows():
 
 
 def test_inplace_column_scale():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = sp.rand(100, 200, 0.05)
     Xr = X.tocsr()
     Xc = X.tocsc()
@@ -622,7 +623,7 @@ def test_inplace_column_scale():
 
 
 def test_inplace_row_scale():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = sp.rand(100, 200, 0.05)
     Xr = X.tocsr()
     Xc = X.tocsc()
@@ -853,7 +854,7 @@ def test_csc_row_median():
     # Test csc_row_median actually calculates the median.
 
     # Test that it gives the same output when X is dense.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.rand(100, 50)
     dense_median = jnp.median(X, axis=0)
     csc = sp.csc_matrix(X)

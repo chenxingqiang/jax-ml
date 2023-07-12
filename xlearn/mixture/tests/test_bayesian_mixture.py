@@ -23,7 +23,7 @@ PRIOR_TYPE = ["dirichlet_process", "dirichlet_distribution"]
 
 
 def test_log_dirichlet_norm():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     weight_concentration = rng.rand(2)
     expected_norm = gammaln(jnp.sum(weight_concentration)) - jnp.sum(
@@ -35,7 +35,7 @@ def test_log_dirichlet_norm():
 
 
 def test_log_wishart_norm():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
 
     n_components, n_features = 5, 2
     degrees_of_freedom = jnp.abs(rng.rand(n_components)) + 1.0
@@ -63,7 +63,7 @@ def test_log_wishart_norm():
 
 
 def test_bayesian_mixture_weights_prior_initialisation():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_components, n_features = 10, 5, 2
     X = rng.rand(n_samples, n_features)
 
@@ -82,7 +82,7 @@ def test_bayesian_mixture_weights_prior_initialisation():
 
 
 def test_bayesian_mixture_mean_prior_initialisation():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_components, n_features = 10, 3, 2
     X = rng.rand(n_samples, n_features)
 
@@ -111,7 +111,7 @@ def test_bayesian_mixture_mean_prior_initialisation():
 
 
 def test_bayesian_mixture_precisions_prior_initialisation():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 10, 2
     X = rng.rand(n_samples, n_features)
 
@@ -176,7 +176,7 @@ def test_bayesian_mixture_precisions_prior_initialisation():
 
 
 def test_bayesian_mixture_check_is_fitted():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 10, 2
 
     # Check raise message
@@ -189,7 +189,7 @@ def test_bayesian_mixture_check_is_fitted():
 
 
 def test_bayesian_mixture_weights():
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     n_samples, n_features = 10, 2
 
     X = rng.rand(n_samples, n_features)
@@ -230,7 +230,7 @@ def test_bayesian_mixture_weights():
 def test_monotonic_likelihood():
     # We check that each step of the each step of variational inference without
     # regularization improve monotonically the training set of the bound
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng, scale=20)
     n_components = rand_data.n_components
 
@@ -262,7 +262,7 @@ def test_monotonic_likelihood():
 def test_compare_covar_type():
     # We can compare the 'full' precision with the other cov_type if we apply
     # 1 iter of the M-step (done during _initialize_parameters).
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng, scale=7)
     X = rand_data.X["full"]
     n_components = rand_data.n_components
@@ -278,7 +278,7 @@ def test_compare_covar_type():
             tol=1e-7,
         )
         bgmm._check_parameters(X)
-        bgmm._initialize_parameters(X, np.random.RandomState(0))
+        bgmm._initialize_parameters(X, jax.random.RandomState(0))
         full_covariances = (
             bgmm.covariances_ *
             bgmm.degrees_of_freedom_[:, jnp.newaxis, jnp.newaxis]
@@ -294,7 +294,7 @@ def test_compare_covar_type():
             tol=1e-7,
         )
         bgmm._check_parameters(X)
-        bgmm._initialize_parameters(X, np.random.RandomState(0))
+        bgmm._initialize_parameters(X, jax.random.RandomState(0))
 
         tied_covariance = bgmm.covariances_ * bgmm.degrees_of_freedom_
         assert_almost_equal(tied_covariance, jnp.mean(full_covariances, 0))
@@ -309,7 +309,7 @@ def test_compare_covar_type():
             tol=1e-7,
         )
         bgmm._check_parameters(X)
-        bgmm._initialize_parameters(X, np.random.RandomState(0))
+        bgmm._initialize_parameters(X, jax.random.RandomState(0))
 
         diag_covariances = bgmm.covariances_ * \
             bgmm.degrees_of_freedom_[:, jnp.newaxis]
@@ -328,7 +328,7 @@ def test_compare_covar_type():
             tol=1e-7,
         )
         bgmm._check_parameters(X)
-        bgmm._initialize_parameters(X, np.random.RandomState(0))
+        bgmm._initialize_parameters(X, jax.random.RandomState(0))
 
         spherical_covariances = bgmm.covariances_ * bgmm.degrees_of_freedom_
         assert_almost_equal(spherical_covariances,
@@ -339,7 +339,7 @@ def test_compare_covar_type():
 def test_check_covariance_precision():
     # We check that the dot product of the covariance and the precision
     # matrices is identity.
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng, scale=7)
     n_components, n_features = 2 * rand_data.n_components, 2
 
@@ -376,7 +376,7 @@ def test_check_covariance_precision():
 def test_invariant_translation():
     # We check here that adding a constant in the data change correctly the
     # parameters of the mixture
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng, scale=100)
     n_components = 2 * rand_data.n_components
 
@@ -416,7 +416,7 @@ def test_invariant_translation():
     ],
 )
 def test_bayesian_mixture_fit_predict(seed, max_iter, tol):
-    rng = np.random.RandomState(seed)
+    rng = jax.random.RandomState(seed)
     rand_data = RandomData(rng, n_samples=50, scale=7)
     n_components = 2 * rand_data.n_components
 
@@ -439,7 +439,7 @@ def test_bayesian_mixture_fit_predict(seed, max_iter, tol):
 
 def test_bayesian_mixture_fit_predict_n_init():
     # Check that fit_predict is equivalent to fit.predict, when n_init > 1
-    X = np.random.RandomState(0).randn(50, 5)
+    X = jax.random.RandomState(0).randn(50, 5)
     gm = BayesianGaussianMixture(n_components=5, n_init=10, random_state=0)
     y_pred1 = gm.fit_predict(X)
     y_pred2 = gm.predict(X)
@@ -448,7 +448,7 @@ def test_bayesian_mixture_fit_predict_n_init():
 
 def test_bayesian_mixture_predict_predict_proba():
     # this is the same test as test_gaussian_mixture_predict_predict_proba()
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     rand_data = RandomData(rng)
     for prior_type in PRIOR_TYPE:
         for covar_type in COVARIANCE_TYPE:

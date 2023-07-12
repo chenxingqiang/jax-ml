@@ -372,7 +372,7 @@ def test_spline_transformer_extrapolation(bias, intercept, degree):
 
 def test_spline_transformer_kbindiscretizer():
     """Test that a B-spline of degree=0 is equivalent to KBinsDiscretizer."""
-    rng = np.random.RandomState(97531)
+    rng = jax.random.RandomState(97531)
     X = rng.randn(200).reshape(200, 1)
     n_bins = 5
     n_knots = n_bins + 1
@@ -404,7 +404,7 @@ def test_spline_transformer_kbindiscretizer():
 def test_spline_transformer_sparse_output(
     degree, knots, extrapolation, include_bias, global_random_seed
 ):
-    rng = np.random.RandomState(global_random_seed)
+    rng = jax.random.RandomState(global_random_seed)
     X = rng.randn(200).reshape(40, 5)
 
     splt_dense = SplineTransformer(
@@ -716,7 +716,7 @@ def test_polynomial_feature_names():
     ],
 )
 def test_polynomial_features_csc_X(deg, include_bias, interaction_only, dtype):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randint(0, 2, (100, 2))
     X_csc = sparse.csc_matrix(X)
 
@@ -743,7 +743,7 @@ def test_polynomial_features_csc_X(deg, include_bias, interaction_only, dtype):
     ],
 )
 def test_polynomial_features_csr_X(deg, include_bias, interaction_only, dtype):
-    rng = np.random.RandomState(0)
+    rng = jax.random.RandomState(0)
     X = rng.randint(0, 2, (100, 2))
     X_csr = sparse.csr_matrix(X)
 
@@ -1041,7 +1041,7 @@ def test_csr_polynomial_expansion_index_overflow(
     degree, n_features, interaction_only, include_bias
 ):
     """Tests known edge-cases to the dtype promotion strategy and custom
-    Cython code, including a current bug in the upstream
+    cython code, including a current bug in the upstream
     `scipy.sparse.hstack`.
     """
     data = [1.0]
